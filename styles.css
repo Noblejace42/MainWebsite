@@ -78,3 +78,14 @@ nav a:hover {
   color: #fff; /* Highlights when hovered */
 }
 
+.settlement-output {
+  background: #1a1a1a; /* Lighter than its border, for contrast */
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  text-align: left;
+  color: #ddd;
+  line-height: 1.4;
+}
+
+
