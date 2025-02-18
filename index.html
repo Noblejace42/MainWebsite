@@ -1,149 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sci-Fi Settlement Generator</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
-
-        body {
-            font-family: 'Orbitron', sans-serif;
-            background-color: #0a0f1c;
-            color: #00d4ff;
-            text-align: center;
-            padding: 50px;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-
-        .container {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border-radius: 10px;
-            display: inline-block;
-            box-shadow: 0px 0px 15px rgba(0, 212, 255, 0.6);
-        }
-
-        #settlementName {
-            font-size: 2em;
-            margin: 20px 0;
-            color: #ffffff;
-        }
-
-        button {
-            background-color: #00d4ff;
-            color: #0a0f1c;
-            border: none;
-            padding: 12px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 20px;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: #00a1cc;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Existential Colony Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background-color: #0a0f1c;
+      color: #00d4ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.7);
+      max-width: 800px;
+      margin: 20px;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .output {
+      text-align: left;
+      margin-top: 20px;
+      font-size: 1.1em;
+      line-height: 1.5em;
+      white-space: pre-wrap;
+      border-top: 1px solid #00d4ff;
+      padding-top: 15px;
+    }
+    button {
+      background-color: #00d4ff;
+      color: #0a0f1c;
+      border: none;
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    button:hover {
+      background-color: #00a1cc;
+    }
+    footer {
+      margin-top: 20px;
+      font-size: 0.8em;
+      color: #888;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <h1>Sci-Fi Settlement Generator</h1>
-    <div class="container">
-        <h2 id="settlementName">Click to Generate</h2>
-        <button onclick="generateSettlement()">Generate</button>
-    </div>
+  <div class="container">
+    <h1>Existential Colony Generator</h1>
+    <button onclick="generateSettlement()">Generate Colony</button>
+    <div id="output" class="output"></div>
+  </div>
+  <footer>In the void, meaning is ephemeral.</footer>
 
-    <script>
-        // Weighted selection function
-        function weightedRandom(choices) {
-            let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
-            let randomNum = Math.random() * totalWeight;
-
-            for (let choice of choices) {
-                if (randomNum < choice.weight) {
-                    return choice.name;
-                }
-                randomNum -= choice.weight;
-            }
+  <script>
+    // --- Helper functions ---
+    // Returns one of the choices based on weight.
+    function weightedRandom(choices) {
+      let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+      let randomNum = Math.random() * totalWeight;
+      for (let choice of choices) {
+        if (randomNum < choice.weight) {
+          return choice.value !== undefined ? choice.value : choice.name;
         }
+        randomNum -= choice.weight;
+      }
+    }
+    // Returns a random integer between min and max inclusive.
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-        // Settlement data with weights
-        const settlementPrefix = [
-            { name: "Cor", weight: 1 },
-            { name: "Ald", weight: 1 },
-            { name: "Nab", weight: 1 },
-            { name: "Tar", weight: 1 },
-            { name: "Ven", weight: 1 },
-            { name: "Lor", weight: 1 },
-            { name: "Ryl", weight: 1 },
-            { name: "Mar", weight: 1 },
-            { name: "Dorn", weight: 1 },
-            { name: "Kess", weight: 1 },
-            { name: "Vel", weight: 1 },
-            { name: "Kael", weight: 1 },
-            { name: "Ord", weight: 1 },
-            { name: "Mal", weight: 1 },
-            { name: "Jed", weight: 1 },
-            { name: "Exo", weight: 1 },
-            { name: "Vax", weight: 1 },
-            { name: "Brin", weight: 1 },
-            { name: "Zor", weight: 1 },
-            { name: "Hoth", weight: 1 }
-        ];
+    // --- Data Definitions ---
+    // Settlement name components
+    const settlementPrefix = [
+      { name: "Cor", weight: 1 },
+      { name: "Ald", weight: 1 },
+      { name: "Nab", weight: 1 },
+      { name: "Tar", weight: 1 },
+      { name: "Ven", weight: 1 },
+      { name: "Lor", weight: 1 },
+      { name: "Ryl", weight: 1 },
+      { name: "Mar", weight: 1 },
+      { name: "Dorn", weight: 1 },
+      { name: "Kess", weight: 1 },
+      { name: "Vel", weight: 1 },
+      { name: "Kael", weight: 1 },
+      { name: "Ord", weight: 1 },
+      { name: "Mal", weight: 1 },
+      { name: "Jed", weight: 1 },
+      { name: "Exo", weight: 1 },
+      { name: "Vax", weight: 1 },
+      { name: "Brin", weight: 1 },
+      { name: "Zor", weight: 1 },
+      { name: "Hoth", weight: 1 }
+    ];
+    const settlementCore = [
+      { name: "anta", weight: 1 },
+      { name: "osis", weight: 1 },
+      { name: "ar", weight: 1 },
+      { name: "osa", weight: 1 },
+      { name: "ion", weight: 1 },
+      { name: "oran", weight: 1 },
+      { name: "is", weight: 1 },
+      { name: "endra", weight: 1 },
+      { name: "era", weight: 1 },
+      { name: "elis", weight: 1 },
+      { name: "eta", weight: 1 },
+      { name: "ora", weight: 1 },
+      { name: "ander", weight: 1 },
+      { name: "ulia", weight: 1 },
+      { name: "onis", weight: 1 }
+    ];
+    const settlementSuffix = [
+      { name: "Prime", weight: 1 },
+      { name: "Major", weight: 1 },
+      { name: "Minor", weight: 1 },
+      { name: "Outpost", weight: 1 },
+      { name: "Spire", weight: 1 },
+      { name: "Haven", weight: 1 },
+      { name: "Hold", weight: 1 },
+      { name: "Reach", weight: 1 },
+      { name: "Gate", weight: 1 },
+      { name: "Basin", weight: 1 },
+      { name: "Stronghold", weight: 1 },
+      { name: "Station", weight: 1 },
+      { name: "Anchorage", weight: 1 },
+      { name: "Post", weight: 1 },
+      { name: "Verge", weight: 1 },
+      { name: "I", weight: 1 },
+      { name: "II", weight: 1 },
+      { name: "", weight: 10 },  // Favor no numeral suffix
+      { name: "III", weight: 1 },
+      { name: "IV", weight: 1 }
+    ];
 
-        const settlementCore = [
-            { name: "anta", weight: 1 },
-            { name: "osis", weight: 1 },
-            { name: "ar", weight: 1 },
-            { name: "osa", weight: 1 },
-            { name: "ion", weight: 1 },
-            { name: "oran", weight: 1 },
-            { name: "is", weight: 1 },
-            { name: "endra", weight: 1 },
-            { name: "era", weight: 1 },
-            { name: "elis", weight: 1 },
-            { name: "eta", weight: 1 },
-            { name: "ora", weight: 1 },
-            { name: "ander", weight: 1 },
-            { name: "ulia", weight: 1 },
-            { name: "onis", weight: 1 }
-        ];
+    // Development levels 1–10 (weighted so lower numbers are more common)
+    const developmentLevels = [];
+    for (let i = 1; i <= 10; i++) {
+      developmentLevels.push({ value: i, weight: 11 - i });
+    }
 
-        const settlementSuffix = [
-            { name: "Prime", weight: 1 },
-            { name: "Major", weight: 1 },
-            { name: "Minor", weight: 1 },
-            { name: "Outpost", weight: 1 },
-            { name: "Spire", weight: 1 },
-            { name: "Haven", weight: 1 },
-            { name: "Hold", weight: 1 },
-            { name: "Reach", weight: 1 },
-            { name: "Gate", weight: 1 },
-            { name: "Basin", weight: 1 },
-            { name: "Stronghold", weight: 1 },
-            { name: "Station", weight: 1 },
-            { name: "Anchorage", weight: 1 },
-            { name: "Post", weight: 1 },
-            { name: "Verge", weight: 1 },
-            { name: "I", weight: 1 },
-            { name: "II", weight: 1 },
-            { name: "", weight: 10 },
-            { name: "III", weight: 1 },
-            { name: "IV", weight: 1 }
-        ];
+    // Government types
+    const governments = [
+      { name: "Democratic Colony", weight: 3 },
+      { name: "Corporate Oligarchy", weight: 4 },
+      { name: "Military Junta", weight: 2 },
+      { name: "Technocratic Council", weight: 3 },
+      { name: "Feudal Dominion", weight: 2 },
+      { name: "Anarchic Commune", weight: 1 },
+      { name: "Bureaucratic State", weight: 2 },
+      { name: "Dictatorial Regime", weight: 1 }
+    ];
 
-        function generateSettlement() {
-            let prefix = weightedRandom(settlementPrefix);
-            let core = weightedRandom(settlementCore);
-            let suffix = weightedRandom(settlementSuffix);
-            document.getElementById("settlementName").innerText = `${prefix}${core} ${suffix}`;
-        }
-    </script>
+    // Important figure name parts
+    const jobTitles = [
+      { name: "Governor", weight: 3 },
+      { name: "Commander", weight: 2 },
+      { name: "Overseer", weight: 2 },
+      { name: "Chancellor", weight: 1 },
+      { name: "Director", weight: 2 },
+      { name: "Custodian", weight: 1 }
+    ];
+    const firstNamePrefixes = [
+      { name: "Xan", weight: 1 },
+      { name: "Tal", weight: 1 },
+      { name: "Ver", weight: 1 },
+      { name: "Mar", weight: 1 },
+      { name: "Sel", weight: 1 }
+    ];
+    const firstNameSuffixes = [
+      { name: "dor", weight: 1 },
+      { name: "en", weight: 1 },
+      { name: "ix", weight: 1 },
+      { name: "ar", weight: 1 },
+      { name: "os", weight: 1 }
+    ];
+    const lastNamePrefixes = [
+      { name: "Kry", weight: 1 },
+      { name: "Zan", weight: 1 },
+      { name: "Mor", weight: 1 },
+      { name: "Rex", weight: 1 },
+      { name: "Fen", weight: 1 }
+    ];
+    const lastNameSuffixes = [
+      { name: "ton", weight: 1 },
+      { name: "sen", weight: 1 },
+      { name: "dell", weight: 1 },
+      { name: "", weight: 2 },  // Higher chance for no suffix
+      { name: "ward", weight: 1 }
+    ];
+
+    // Exports – two sets based on development
+    const lowDevExports = [
+      "Raw Ore",
+      "Basic Agricultural Produce",
+      "Scrap Metal",
+      "Water",
+      "Simple Textiles"
+    ];
+    const highDevExports = [
+      "Solar Panels",
+      "Synth-Food",
+      "Advanced Electronics",
+      "Nanomaterials",
+      "Renewable Energy Components",
+      "Robotics"
+    ];
+
+    // Settlement conditions
+    const conditions = [
+      "Occupied by a mysterious cult",
+      "Blockaded by rival factions",
+      "Under strict quarantine",
+      "Experiencing unusual temporal distortions",
+      "Haunted by echoes of the past",
+      "Infested with rogue AI",
+      "Subject to bizarre cosmic phenomena"
+    ];
+
+    // Points of interest
+    const pointsOfInterest = [
+      "Orbital Trade Station",
+      "Shipyard",
+      "Black Market",
+      "Bounty Center",
+      "Cybernetic Research Lab",
+      "Interstellar Museum",
+      "Abandoned Dock",
+      "Mystery Archive",
+      "Temporal Observatory",
+      "Void Beacon"
+    ];
+
+    // --- Settlement Generation ---
+    function generateSettlement() {
+      // Generate the settlement name
+      const prefix = weightedRandom(settlementPrefix);
+      const core = weightedRandom(settlementCore);
+      const suffix = weightedRandom(settlementSuffix);
+      const settlementName = prefix + core + " " + suffix;
+
+      // Determine development level
+      const development = weightedRandom(developmentLevels);
+
+      // Determine population (if suffix is "Station", cap at 100)
+      const isStation = (suffix === "Station");
+      const maxPopulation = isStation ? 100 : Math.min(1000 * development, 10000);
+      const population = randomInt(20, maxPopulation);
+
+      // Pick a government type
+      const government = weightedRandom(governments);
+
+      // Create the important figure's name
+      const jobTitle = weightedRandom(jobTitles);
+      const firstName = weightedRandom(firstNamePrefixes) + weightedRandom(firstNameSuffixes);
+      const lastName = weightedRandom(lastNamePrefixes) + weightedRandom(lastNameSuffixes);
+      const importantFigure = `${jobTitle} ${firstName} ${lastName}`;
+
+      // Choose exports (1–5), based on development threshold
+      const exportCount = randomInt(1, 5);
+      const availableExports = development <= 5 ? lowDevExports.slice() : highDevExports.slice();
+      // Shuffle the exports array
+      availableExports.sort(() => Math.random() - 0.5);
+      const exportsGenerated = availableExports.slice(0, exportCount);
+
+      // Choose 0–3 settlement conditions
+      const conditionCount = randomInt(0, 3);
+      const conditionsShuffled = conditions.slice().sort(() => Math.random() - 0.5);
+      const conditionsGenerated = conditionsShuffled.slice(0, conditionCount);
+
+      // Choose 0–5 points of interest
+      const poiCount = randomInt(0, 5);
+      const poiShuffled = pointsOfInterest.slice().sort(() => Math.random() - 0.5);
+      const poiGenerated = poiShuffled.slice(0, poiCount);
+
+      // Format the output
+      let output = "";
+      output += "[Name] " + settlementName + "\n";
+      output += "Development: " + development + "\n";
+      output += "Population: " + population + "\n";
+      output += "Government: " + government + "\n";
+      output += "Important Figure: " + importantFigure + "\n";
+      output += "Exports: " + (exportsGenerated.length ? exportsGenerated.join(", ") : "None") + "\n";
+      output += "Conditions: " + (conditionsGenerated.length ? conditionsGenerated.join(", ") : "None") + "\n";
+      output += "Points of Interest: " + (poiGenerated.length ? poiGenerated.join(", ") : "None") + "\n";
+
+      document.getElementById("output").innerText = output;
+    }
+  </script>
 </body>
 </html>
