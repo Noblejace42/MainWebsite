@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random RPG Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        h1 { color: #333; }
+        .box { background: #f9f9f9; padding: 20px; border-radius: 10px; display: inline-block; }
+        button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+    <script>
+        function generateRPGEntry() {
+            const locations = ["Ancient Ruins", "Mystic Forest", "Abandoned Tower", "Underground Cavern"];
+            const enemies = ["Goblin Horde", "Undead Knight", "Cursed Sorcerer", "Shadow Beast"];
+            const treasures = ["Enchanted Sword", "Bag of Gold", "Ancient Tome", "Magic Potion"];
+
+            document.getElementById("location").innerText = "Location: " + locations[Math.floor(Math.random() * locations.length)];
+            document.getElementById("enemy").innerText = "Enemy: " + enemies[Math.floor(Math.random() * enemies.length)];
+            document.getElementById("treasure").innerText = "Treasure: " + treasures[Math.floor(Math.random() * treasures.length)];
+        }
+    </script>
+</head>
+<body>
+    <h1>Random RPG Generator</h1>
+    <div class="box">
+        <h2 id="location">Click the button to generate!</h2>
+        <h2 id="enemy"></h2>
+        <h2 id="treasure"></h2>
+    </div>
+    <br>
+    <button onclick="generateRPGEntry()">Regenerate</button>
+</body>
+</html>
