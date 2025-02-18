@@ -15,20 +15,28 @@
 
   <div class="container">
   <h1>Astral Axial Weapon Generator</h1>
+
+  <div class="section">
+    <label for="weaponCount">Generate: </label>
+    <select id="weaponCount">
+      <option value="1">1 Weapon</option>
+      <option value="5">5 Weapons</option>
+      <option value="10">10 Weapons</option>
+      <option value="20">20 Weapons</option>
+    </select>
+    <button onclick="generateWeapons()">Generate</button>
+  </div>
+
+  <!-- New section for displaying the generated weapons in a styled block -->
+  <div class="section">
+    <h2>Weapons Generated</h2>
+    <p>Number of Weapons: <span id="weaponCountDisplay">0</span></p>
     
-  <label for="weaponCount">Generate: </label>
-  <select id="weaponCount">
-    <option value="1">1 Weapon</option>
-    <option value="5">5 Weapons</option>
-    <option value="10">10 Weapons</option>
-    <option value="20">20 Weapons</option>
-  </select>
-    
-  <button onclick="generateWeapons()">Generate</button>
-  
-  <!-- Add a class "weapon-output" for styling -->
-  <div id="weaponOutput" class="weapon-output"></div>
+    <!-- The output wrapper -->
+    <div id="weaponOutput" class="weapon-output"></div>
+  </div>
 </div>
+
 
 
   <script>
@@ -163,69 +171,85 @@
 
     // --- Weapon Generation Function ---
     function generateWeapon() {
-      // Pick a random base weapon
-      let baseWeapon = baseWeapons[randomInt(0, baseWeapons.length - 1)];
-      let weapon = {
-        baseType: baseWeapon.type,
-        skillTags: baseWeapon.skillTags.slice(),
-        range: baseWeapon.range,
-        tags: []
-      };
+  let baseWeapon = baseWeapons[randomInt(0, baseWeapons.length - 1)];
+  let weapon = {
+    baseType: baseWeapon.type,
+    skillTags: baseWeapon.skillTags.slice(),
+    range: baseWeapon.range,
+    tags: []
+  };
 
-      // Ensure there are at least two skill tags
-      while (weapon.skillTags.length < 2) {
-        let candidate = allSkillTraits[randomInt(0, allSkillTraits.length - 1)];
-        if (!weapon.skillTags.includes(candidate)) {
-          weapon.skillTags.push(candidate);
-        }
-      }
-
-      // Append extra parameter tag if available
-      if (baseWeapon.extra) {
-        let tagStr = baseWeapon.extra + getRandomParameter();
-        weapon.tags.push(tagStr);
-      }
-
-      // Add the "Ammo" tag for non-melee weapons if not already present
-      if (weapon.range !== "Melee" && !weapon.tags.includes("Ammo")) {
-        weapon.tags.unshift("Ammo");
-      }
-
-      // Generate additional tags
-      let additionalTags = new Set(weapon.tags);
-      let tagCount = weightedRandom([
-        { value: 1, weight: 40 },
-        { value: 2, weight: 30 },
-        { value: 3, weight: 20 },
-        { value: 4, weight: 7 },
-        { value: 5, weight: 3 }
-      ]);
-
-      while (additionalTags.size < tagCount) {
-        additionalTags.add(getRandomAdditionalTag().tag);
-      }
-
-      // Determine dice and name
-      weapon.dice = generateWeaponDice();
-      weapon.name = generateWeaponName(weapon);
-
-      return `${weapon.name} 1d${weapon.dice} (${[...weapon.skillTags, weapon.range, ...additionalTags].join(", ")})`;
+  // Ensure at least two skill tags
+  while (weapon.skillTags.length < 2) {
+    let candidate = allSkillTraits[randomInt(0, allSkillTraits.length - 1)];
+    if (!weapon.skillTags.includes(candidate)) {
+      weapon.skillTags.push(candidate);
     }
+  }
 
-    // --- Generate Multiple Weapons ---
-    function generateWeapons() {
+  // Add extra parameter tag if available
+  if (baseWeapon.extra) {
+    let tagStr = baseWeapon.extra + getRandomParameter();
+    weapon.tags.push(tagStr);
+  }
+
+  // Non-melee => add Ammo
+  if (weapon.range !== "Melee" && !weapon.tags.includes("Ammo")) {
+    weapon.tags.unshift("Ammo");
+  }
+
+  // Additional tags
+  let additionalTags = new Set(weapon.tags);
+  let tagCount = weightedRandom([
+    { value: 1, weight: 40 },
+    { value: 2, weight: 30 },
+    { value: 3, weight: 20 },
+    { value: 4, weight: 7 },
+    { value: 5, weight: 3 }
+  ]);
+
+  while (additionalTags.size < tagCount) {
+    additionalTags.add(getRandomAdditionalTag().tag);
+  }
+
+  // Determine dice and name
+  let dice = generateWeaponDice();
+  let name = generateWeaponName(weapon);
+
+  // Return a structured object
+  return {
+    name: name,
+    damage: `1d${dice}`,
+    tags: [...weapon.skillTags, weapon.range, ...additionalTags]
+  };
+}
+
+function generateWeapons() {
   let count = parseInt(document.getElementById("weaponCount").value);
+  
+  // Show how many weapons we’re generating
+  document.getElementById("weaponCountDisplay").textContent = count;
+
+  // Generate the weapon objects
   let weapons = Array.from({ length: count }, generateWeapon);
 
-  // Build an HTML string with each weapon in its own .weapon-item div
-  let html = "";
-  weapons.forEach(w => {
-    html += `<div class="weapon-item">${w}</div>`;
-  });
+  // Build HTML for each
+  let html = weapons.map(w => {
+    return `
+      <div class="weapon-item">
+        <div class="weapon-name">${w.name}</div>
+        <div class="weapon-stats">
+          <strong>Damage:</strong> ${w.damage}<br>
+          <strong>Traits:</strong> ${w.tags.join(", ")}
+        </div>
+      </div>
+    `;
+  }).join("");
 
-  // Inject into #weaponOutput
+  // Place into the weaponOutput div
   document.getElementById("weaponOutput").innerHTML = html;
 }
+
 
   </script>
 </body>
