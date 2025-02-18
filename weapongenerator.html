@@ -214,10 +214,19 @@
 
     // --- Generate Multiple Weapons ---
     function generateWeapons() {
-      let count = parseInt(document.getElementById("weaponCount").value);
-      document.getElementById("weaponOutput").innerHTML =
-        Array.from({ length: count }, generateWeapon).join("<br>");
-    }
+  let count = parseInt(document.getElementById("weaponCount").value);
+  let weapons = Array.from({ length: count }, generateWeapon);
+
+  // Build an HTML string with each weapon in its own .weapon-item div
+  let html = "";
+  weapons.forEach(w => {
+    html += `<div class="weapon-item">${w}</div>`;
+  });
+
+  // Inject into #weaponOutput
+  document.getElementById("weaponOutput").innerHTML = html;
+}
+
   </script>
 </body>
 </html>
