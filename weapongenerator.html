@@ -19,6 +19,35 @@
     <div id="weaponOutput"></div>
   </div>
 
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astral Axial Weapon Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav>
+    <a href="index.html">System Generator</a> |
+    <a href="weapon.html">Weapon Generator</a>
+  </nav>
+
+  <div class="container">
+    <h1>Astral Axial Weapon Generator</h1>
+    
+    <label for="weaponCount">Generate: </label>
+    <select id="weaponCount">
+      <option value="1">1 Weapon</option>
+      <option value="5">5 Weapons</option>
+      <option value="10">10 Weapons</option>
+      <option value="20">20 Weapons</option>
+    </select>
+    
+    <button onclick="generateWeapons()">Generate</button>
+    <div id="weaponOutput"></div>
+  </div>
+
   <script>
     // --- Helper Functions ---
     function weightedRandom(choices) {
@@ -174,29 +203,30 @@
         weapon.tags.unshift("Ammo");
       }
 
-      const tagCountOptions = [
-        { value: 1, weight: 40 },
-        { value: 2, weight: 30 },
-        { value: 3, weight: 20 },
-        { value: 4, weight: 7 },
-        { value: 5, weight: 3 }
-      ];
+      let additionalTags = new Set(weapon.tags);
+      let tagCount = weightedRandom([
+        { value: 1, weight: 40 }, { value: 2, weight: 30 },
+        { value: 3, weight: 20 }, { value: 4, weight: 7 }, { value: 5, weight: 3 }
+      ]);
 
-      let additionalTagCount = weightedRandom(tagCountOptions);
-      let addedTags = new Set(weapon.tags);
-      while (addedTags.size < (weapon.tags.length + additionalTagCount)) {
-        let tagCandidate = getRandomAdditionalTag();
-        let tagStr = tagCandidate.tag + (tagCandidate.hasParameter ? getRandomParameter() : "");
-        addedTags.add(tagStr);
+      while (additionalTags.size < tagCount) {
+        additionalTags.add(getRandomAdditionalTag().tag);
       }
 
-      weapon.allTags = [...weapon.skillTags, weapon.range, ...addedTags];
       weapon.dice = generateWeaponDice();
       weapon.name = generateWeaponName(weapon);
 
-      document.getElementById("weaponOutput").innerText =
-        `${weapon.name} 1d${weapon.dice} (${weapon.allTags.join(", ")})`;
+      return `${weapon.name} 1d${weapon.dice} (${[...weapon.skillTags, weapon.range, ...additionalTags].join(", ")})`;
+    }
+
+    function generateWeapons() {
+      let count = parseInt(document.getElementById("weaponCount").value);
+      document.getElementById("weaponOutput").innerHTML =
+        Array.from({ length: count }, generateWeapon).join("<br>");
     }
   </script>
+</body>
+</html>
+
 </body>
 </html>
