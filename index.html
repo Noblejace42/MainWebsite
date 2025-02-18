@@ -80,10 +80,6 @@
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-    // Simple weighted random for numbers using an array of objects
-    function weightedNumber(options) {
-      return weightedRandom(options);
-    }
     // Convert integer 1-6 to roman numeral
     function toRoman(num) {
       const romans = ["I", "II", "III", "IV", "V", "VI"];
@@ -94,7 +90,6 @@
       const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       const digits = "0123456789";
       let code = "";
-      // For example: 2 letters, 2 digits, 1 letter, 1 digit
       code += letters.charAt(randomInt(0, letters.length - 1));
       code += letters.charAt(randomInt(0, letters.length - 1));
       code += digits.charAt(randomInt(0, digits.length - 1));
@@ -105,8 +100,6 @@
     }
 
     // --- Data Definitions ---
-
-    // Reuse settlement naming arrays from previous generator.
     const settlementPrefix = [
       { name: "Cor", weight: 1 }, { name: "Ald", weight: 1 },
       { name: "Nab", weight: 1 }, { name: "Tar", weight: 1 },
@@ -147,7 +140,7 @@
       { name: "Verge", weight: 1 },
       { name: "I", weight: 1 },
       { name: "II", weight: 1 },
-      { name: "", weight: 10 },  // Favor no numeral suffix
+      { name: "", weight: 10 },
       { name: "III", weight: 1 },
       { name: "IV", weight: 1 }
     ];
@@ -281,110 +274,35 @@
     ];
     // Exports – two sets based on development
     const lowDevExports = [
-      "Raw Copper",  
-"Iron",  
-"Aluminum",  
-"Nickel",  
-"Lead",  
-"Zinc",  
-"Tin",  
-"Cobalt",  
-"Titanium",  
-"Lithium",  
-"Crude Oil",  
-"Refined Petroleum",  
-"Natural Gas",  
-"Coal",  
-"Processed Timber",  
-"Raw Lumber",  
-"Industrial-Grade Glass",  
-"Concrete Mix",  
-"Steel",  
-"High-Carbon Steel",  
-"Basic Polymers",  
-"Synthetic Rubber",  
-"Processed Textiles",  
-"Basic Electronics Components",  
-"Industrial Lubricants",  
-"Fertilizer",  
-"Grain Alcohol",  
-"Food Preservatives",  
-"Dried Protein Rations",  
-"Canned Vegetables",  
-"Hardtack",  
-"Dried Legumes",  
-"Sugar",  
-"Salt",  
-"Animal Feed",  
-"Industrial Chemicals",  
-"Basic Pharmaceuticals",  
-"Medical Supplies",  
-"Simple Circuit Boards",  
-"Solar Panel Components",  
-"Hydraulic Fluid",  
-"Water Purification Systems",  
-"Basic Machine Parts",  
-"Unprocessed Rare Earth Elements",  
-"Construction-Grade Ceramics",  
-"Bauxite",  
-"Graphite",  
-"Crude Plastics",  
-"Processed Leather",  
-"Industrial Adhesives",  
-"Mining Equipment",  
-  
+      "Raw Copper", "Iron", "Aluminum", "Nickel", "Lead", "Zinc", "Tin", "Cobalt",
+      "Titanium", "Lithium", "Crude Oil", "Refined Petroleum", "Natural Gas", "Coal",
+      "Processed Timber", "Raw Lumber", "Industrial-Grade Glass", "Concrete Mix",
+      "Steel", "High-Carbon Steel", "Basic Polymers", "Synthetic Rubber", "Processed Textiles",
+      "Basic Electronics Components", "Industrial Lubricants", "Fertilizer", "Grain Alcohol",
+      "Food Preservatives", "Dried Protein Rations", "Canned Vegetables", "Hardtack",
+      "Dried Legumes", "Sugar", "Salt", "Animal Feed", "Industrial Chemicals", "Basic Pharmaceuticals",
+      "Medical Supplies", "Simple Circuit Boards", "Solar Panel Components", "Hydraulic Fluid",
+      "Water Purification Systems", "Basic Machine Parts", "Unprocessed Rare Earth Elements",
+      "Construction-Grade Ceramics", "Bauxite", "Graphite", "Crude Plastics", "Processed Leather",
+      "Industrial Adhesives", "Mining Equipment"
     ];
     const highDevExports = [
-      "Fusion Reactor Components",  
-"High-Efficiency Solar Panels",  
-"Quantum Processors",  
-"Nanotube Superconductors",  
-"Advanced Microelectronics",  
-"High-Density Power Cells",  
-"Ship Structural Components",  
-"Starship Frame Alloys",  
-"Modular Ship Hardpoints",  
-"Energy Weapon Emitters",  
-"Kinetic Weapon Systems",  
-"Railgun Components",  
-"Plasma Weapon Chambers",  
-"Guided Missile Assemblies",  
-"Autonomous Defense Turrets",  
-"Gravity Manipulation Components",  
-"Fusion Drive Components",  
-"Reaction Control Thrusters",  
-"Axial Drive Components",  
-"Starship Shield Generators",  
-"Combat Exoskeletons",  
-"Powered Armor Systems",  
-"Tactical Drone Assemblies",  
-"Cybernetic Enhancements",  
-"AI-Assisted Targeting Systems",  
-"Military-Grade Sensor Suites",  
-"Quantum Encryption Devices",  
-"Deep-Space Communication Relays",  
-"Neural Interface Modules",  
-"Adaptive Stealth Coatings",  
-"Autonomous Mining Drones",  
-"High-Efficiency Atmospheric Processors",  
-"Terraforming Catalyst Compounds",  
-"Bio-Engineered Crops",  
-"Nanomaterial Construction Blocks",  
-"Self-Healing Polymers",  
-"Advanced Robotics Frameworks",  
-"Industrial Nanofabricators",  
-"Medical Nanites",  
-"Cloning Substrate",  
-"Artificial Organ Packs",  
-"Autonomous Repair Swarms",  
-"Energy Harvesting Arrays",  
-"Modular Space Stations",  
-"Planetary Shield Generators",  
-"AI-Controlled Defense Networks",  
-"Encrypted Data Cores",  
-"Hyperconductive Wiring",  
-"Advanced AI Cores",  
-"Axial Navigation Systems",  
+      "Fusion Reactor Components", "High-Efficiency Solar Panels", "Quantum Processors", 
+      "Nanotube Superconductors", "Advanced Microelectronics", "High-Density Power Cells", 
+      "Ship Structural Components", "Starship Frame Alloys", "Modular Ship Hardpoints", 
+      "Energy Weapon Emitters", "Kinetic Weapon Systems", "Railgun Components", 
+      "Plasma Weapon Chambers", "Guided Missile Assemblies", "Autonomous Defense Turrets", 
+      "Gravity Manipulation Components", "Fusion Drive Components", "Reaction Control Thrusters", 
+      "Axial Drive Components", "Starship Shield Generators", "Combat Exoskeletons", 
+      "Powered Armor Systems", "Tactical Drone Assemblies", "Cybernetic Enhancements", 
+      "AI-Assisted Targeting Systems", "Military-Grade Sensor Suites", "Quantum Encryption Devices", 
+      "Deep-Space Communication Relays", "Neural Interface Modules", "Adaptive Stealth Coatings", 
+      "Autonomous Mining Drones", "High-Efficiency Atmospheric Processors", "Terraforming Catalyst Compounds", 
+      "Bio-Engineered Crops", "Nanomaterial Construction Blocks", "Self-Healing Polymers", 
+      "Advanced Robotics Frameworks", "Industrial Nanofabricators", "Medical Nanites", 
+      "Cloning Substrate", "Artificial Organ Packs", "Autonomous Repair Swarms", "Energy Harvesting Arrays", 
+      "Modular Space Stations", "Planetary Shield Generators", "AI-Controlled Defense Networks", 
+      "Encrypted Data Cores", "Hyperconductive Wiring", "Advanced AI Cores", "Axial Navigation Systems"
     ];
     // Settlement conditions
     const settlementConditions = [
@@ -398,37 +316,84 @@
     ];
     // Points of interest (for settlements)
     const poiSettlement = [
-      "Orbital Trade Station",
-      "Shipyard",
-      "Black Market",
-      "Bounty Center",
-      "Cybernetic Research Lab",
-      "Interstellar Museum",
-      "Abandoned Dock",
-      "Mystery Archive",
-      "Temporal Observatory",
-      "Void Beacon"
+      "Orbital Trade Station", "Shipyard", "Black Market", "Bounty Center",
+      "Research Labs", "University", "Navicenter", "Archive", "Long-Range Communicator",
+      "Shopping Districts", "Fortified Stronghold", "Industrial Refinery", "Factory Complex",
+      "Hydroponic Farms", "Mining Headquarters", "Freight Hub", "Customs and Trade Bureau",
+      "Banking Consortium", "Medical Center", "Cybernetics Clinic", "Bioengineering Lab",
+      "Security Outpost", "Barracks", "Training Grounds", "Spaceport", "Hangar Bay",
+      "Private Hangars", "Salvage Yard", "Scrap Processing Facility", "Fueling Station",
+      "Underground Market", "Casino", "Tavern", "Trade Guild Headquarters", "Embassy",
+      "Government Offices", "Legislative Assembly", "Transit Hub", "Slums", "Luxury District",
+      "Holo-Theater", "Entertainment Complex", "Robot Foundry", "AI Research Center",
+      "Weapon Testing Range", "Stellar Cartography Lab", "Observatory", "Deep-Space Listening Post",
+      "Communication Relay", "Planetary Defense Grid", "Private Estate", "Noble Enclave",
+      "Corporate Headquarters", "Mercenary Guild", "Supply Depot", "Outfitter", "Artifact Repository",
+      "Historical Archive", "Temple", "Criminal Syndicate Hideout", "Blacksite Research Facility",
+      "Automated Drone Depot"
     ];
-    // --- System-Specific Data ---
-    // System Conditions (for the entire system)
+    // System conditions (for the entire system)
     const systemConditionsList = [
-      "Asteroid Belt",
-      "Mining Stations",
-      "Binary Star",
-      "Nebula",
-      "Spatial Anomaly",
-      "Rogue Comet"
+      "Derelict Station", "Abandoned Research Probe", "Unstable Jump Point", "Drifting Cargo Pod",
+      "Old Navigation Beacon", "Inactive Defense Satellite", "Ancient Wreckage Field", "Lost Colony Signal",
+      "Strange Magnetic Field", "Localized Radiation Surge", "Echoing Radio Signals", "Microgravity Distortion",
+      "Hidden Asteroid Cache", "Long-Dead Ship Graveyard", "Fluctuating Power Signature", "Unmapped Gravity Well",
+      "Strange Pulsar Readings", "Minor Space-Time Ripple", "Automated Distress Signal", "Orbital Debris Cluster",
+      "Residual Weapon Signatures", "Rogue Weather Satellite", "Flickering Light Anomaly", "Displaced Moonlet",
+      "Shifting Magnetic Poles", "Mysterious Energy Surge", "Localized Plasma Storm", "Unusual Asteroid Composition",
+      "Frozen Fuel Reserves", "Unknown Sensor Echo", "Failed Terraforming Attempt", "Ancient Navigation Markers",
+      "Long-Inactive Mining Rig", "Deep-Space Listening Post", "Abandoned Terraforming Equipment",
+      "Fossilized Space Organism", "Persistent EMP Interference", "Unknown Orbital Trajectory", "Forgotten Time Capsule",
+      "Localized Gravitational Flux", "Stray Deep-Space Drone", "Unfinished Construction Platform",
+      "Unusual Reflections in the Void", "Rotating Celestial Artifact", "Sudden Drop in Background Radiation",
+      "Patch of Unstable Subspace", "Residual Jump Tunnel Wake", "Unidentified Debris Field",
+      "Partially Intact Megastructure", "Erratic Solar Flare Activity"
     ];
     // Planet biomes
     const planetBiomes = [
-      "Desert World",
-      "Lush World",
-      "Volcanic World",
-      "Temperate World",
-      "Ocean World",
-      "Ice World",
-      "Barren World"
+      "Rocky Plateau World", "Salt Flats World", "Jungle World", "Swamp World", "Megaflora World",
+      "Archipelago World", "Steppe World", "Mountainous World", "Cloud-Covered World", "Flooded World",
+      "Savanna World", "Crystal World", "Canyon World", "Karst World", "Taiga World", "Gas World"
     ];
+
+    // --- Military Generation ---
+    // Generates military data based on population and whether the settlement is forced to be a Station.
+    function generateMilitaryData(population, forcedStation) {
+      // Soldiers: roughly 5-15% of the population.
+      const minSoldiers = Math.floor(population * 0.05);
+      const maxSoldiers = Math.floor(population * 0.15);
+      const soldiers = randomInt(minSoldiers, maxSoldiers);
+
+      // Armored vehicles: roughly 1 vehicle per 20-40 soldiers (at least 1).
+      const minVehicles = Math.max(1, Math.floor(soldiers / 40));
+      const maxVehicles = Math.max(1, Math.floor(soldiers / 20));
+      const armoredVehicles = randomInt(minVehicles, maxVehicles);
+
+      // Ships: Ships are super rare.
+      // If forcedStation, minimum 2 ships; if population >= 1000, 1-3 ships; otherwise, 0.
+      let totalShips = 0;
+      if (forcedStation) {
+        totalShips = randomInt(2, 4);
+      } else if (population >= 1000) {
+        totalShips = randomInt(1, 3);
+      } else {
+        totalShips = 0;
+      }
+
+      // Distribute totalShips among types.
+      const shipTypes = [
+        { name: "Fighter", weight: 5 },
+        { name: "Gunship", weight: 3 },
+        { name: "Frigate", weight: 1 },
+        { name: "Cruiser", weight: 0.2 }
+      ];
+      let ships = { Fighter: 0, Gunship: 0, Frigate: 0, Cruiser: 0 };
+      for (let i = 0; i < totalShips; i++) {
+        let type = weightedRandom(shipTypes);
+        ships[type] += 1;
+      }
+      return { soldiers, armoredVehicles, ships };
+    }
 
     // --- Settlement Generation Function ---
     // forcedStation: if true, override suffix to "Station"
@@ -459,6 +424,9 @@
       let conds = settlementConditions.slice().sort(() => Math.random() - 0.5).slice(0, condCount);
       const poiCount = randomInt(0, 5);
       let poi = poiSettlement.slice().sort(() => Math.random() - 0.5).slice(0, poiCount);
+      
+      // Generate military data for this settlement.
+      const military = generateMilitaryData(population, forcedStation);
 
       return {
         name,
@@ -468,13 +436,22 @@
         importantFigure,
         exports: exportsGenerated,
         conditions: conds,
-        pointsOfInterest: poi
+        pointsOfInterest: poi,
+        military
       };
     }
 
     // Render a settlement's details along with its own "Regenerate Settlement" button.
-    // The callback receives the planet index and the settlement index.
     function renderSettlement(settlement, planetIndex, settlementIndex) {
+      // Build a string for ships.
+      let shipStr = "";
+      for (let type in settlement.military.ships) {
+        if (settlement.military.ships[type] > 0) {
+          shipStr += `${type} x${settlement.military.ships[type]} `;
+        }
+      }
+      if (shipStr === "") shipStr = "None";
+      
       return `<div class="settlement" id="settlement-${planetIndex}-${settlementIndex}">
   <div class="settlement-output">
     [Name] ${settlement.name}
@@ -485,6 +462,10 @@
     Exports: ${settlement.exports.join(", ") || "None"}
     Conditions: ${settlement.conditions.join(", ") || "None"}
     Points of Interest: ${settlement.pointsOfInterest.join(", ") || "None"}
+    Military:
+      Soldiers: ${settlement.military.soldiers}
+      Armored Vehicles: ${settlement.military.armoredVehicles}
+      Ships: ${shipStr}
   </div>
   <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})">Regenerate Settlement</button>
 </div>`;
@@ -495,15 +476,12 @@
 
     // --- Generate the entire system ---
     function generateSystem() {
-      // Generate system code and designation.
       const code = generateSystemCode();
-      // For system designation, use a simple combination from settlementPrefix & settlementCore.
       const sysDesignation = weightedRandom(settlementPrefix) + weightedRandom(settlementCore);
       const systemName = code + " " + sysDesignation;
 
       // Number of planets: 0-6
       const numPlanets = randomInt(0, 6);
-      // If there are planets, generate them with names "sysDesignation I", "sysDesignation II", etc.
       let planets = [];
       if (numPlanets > 0) {
         for (let i = 1; i <= numPlanets; i++) {
@@ -515,28 +493,23 @@
           });
         }
       }
-      // Number of settlements: 0-10 with more than 3 being super unlikely.
-      // Create weighted options: values 0-3 with weight 3, 4-10 with weight 1.
+      // Number of settlements: 0-10 with >3 being super unlikely.
       const settlementOptions = [];
       for (let i = 0; i <= 10; i++) {
         settlementOptions.push({ value: i, weight: (i <= 3 ? 3 : 1) });
       }
       let numSettlements = weightedRandom(settlementOptions);
-      // Special case: if no planets then force a single settlement with Station suffix.
       let forcedStation = false;
       if (numPlanets === 0) {
         numSettlements = 1;
         forcedStation = true;
       }
 
-      // Generate settlements
       let settlements = [];
       for (let i = 0; i < numSettlements; i++) {
         settlements.push(generateSettlementData(forcedStation));
       }
-      // If there are planets, randomly assign each settlement to one of them.
       if (numPlanets > 0) {
-        // Clear any existing settlements from each planet.
         planets.forEach(planet => planet.settlements = []);
         settlements.forEach(s => {
           const idx = randomInt(0, numPlanets - 1);
@@ -544,14 +517,12 @@
         });
       }
 
-      // System conditions: 0-3 chosen from systemConditionsList.
       const sysCondCount = randomInt(0, 3);
       let sysConditions = systemConditionsList.slice().sort(() => Math.random() - 0.5).slice(0, sysCondCount);
 
-      // Store the system data globally.
       systemData = {
         systemName,
-        planets, // may be empty if numPlanets is 0.
+        planets,
         settlements: numPlanets === 0 ? settlements : null,
         sysConditions
       };
@@ -559,7 +530,7 @@
       renderSystem();
     }
 
-    // Render the entire system to #systemOutput.
+    // Render the entire system.
     function renderSystem() {
       const outputDiv = document.getElementById("systemOutput");
       let html = `<div class="section">
@@ -571,7 +542,6 @@
       : systemData.settlements.length}</p>
 </div>`;
 
-      // If there are planets, list each planet with its settlements.
       if (systemData.planets.length > 0) {
         systemData.planets.forEach((planet, pIndex) => {
           html += `<div class="section planet">
@@ -587,7 +557,6 @@
           html += `</div>`;
         });
       } else {
-        // No planets: list the single settlement.
         html += `<div class="section">
   <h3>Settlement (Space Station):</h3>
   ${renderSettlement(systemData.settlements[0], 0, 0)}
@@ -597,13 +566,10 @@
       outputDiv.innerHTML = html;
     }
 
-    // Regenerate an individual settlement (for a given planet and settlement index).
+    // Regenerate an individual settlement.
     function regenerateSettlement(planetIndex, settlementIndex) {
-      // Determine if system has planets or is station-only.
       if (systemData.planets.length > 0) {
-        // Regenerate settlement data for that settlement.
         systemData.planets[planetIndex].settlements[settlementIndex] = generateSettlementData();
-        // Re-render only that planet’s section.
         renderSystem();
       } else {
         systemData.settlements[settlementIndex] = generateSettlementData(true);
