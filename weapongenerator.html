@@ -14,19 +14,22 @@
   </nav>
 
   <div class="container">
-    <h1>Astral Axial Weapon Generator</h1>
+  <h1>Astral Axial Weapon Generator</h1>
     
-    <label for="weaponCount">Generate: </label>
-    <select id="weaponCount">
-      <option value="1">1 Weapon</option>
-      <option value="5">5 Weapons</option>
-      <option value="10">10 Weapons</option>
-      <option value="20">20 Weapons</option>
-    </select>
+  <label for="weaponCount">Generate: </label>
+  <select id="weaponCount">
+    <option value="1">1 Weapon</option>
+    <option value="5">5 Weapons</option>
+    <option value="10">10 Weapons</option>
+    <option value="20">20 Weapons</option>
+  </select>
     
-    <button onclick="generateWeapons()">Generate</button>
-    <div id="weaponOutput"></div>
-  </div>
+  <button onclick="generateWeapons()">Generate</button>
+  
+  <!-- Add a class "weapon-output" for styling -->
+  <div id="weaponOutput" class="weapon-output"></div>
+</div>
+
 
   <script>
     // --- Helper Functions ---
