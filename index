@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head> 
     <title>Random RPG Generator</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
