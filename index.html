@@ -3,81 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Existential Colony Generator</title>
+  <title>Existential System Generator</title>
   <style>
+    /* Simple retro hard sci‑fi vibe */
     @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
     body {
       font-family: 'Orbitron', sans-serif;
-      background-color: #0a0f1c;
-      color: #00d4ff;
+      background-color: #1a1a1a;
+      color: #ccc;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    h1, h2, h3 {
+      margin: 0.5em 0;
     }
     .container {
-      background: rgba(0, 0, 0, 0.85);
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 212, 255, 0.7);
-      max-width: 800px;
-      margin: 20px;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+      background: #262626;
+      border: 1px solid #444;
+      border-radius: 4px;
     }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      text-align: center;
-    }
-    .output {
-      text-align: left;
-      margin-top: 20px;
-      font-size: 1.1em;
-      line-height: 1.5em;
-      white-space: pre-wrap;
-      border-top: 1px solid #00d4ff;
-      padding-top: 15px;
+    .section {
+      margin-bottom: 1.5em;
+      padding-bottom: 1em;
+      border-bottom: 1px solid #444;
     }
     button {
-      background-color: #00d4ff;
-      color: #0a0f1c;
-      border: none;
-      padding: 12px 20px;
-      font-size: 18px;
-      font-weight: bold;
+      background-color: #444;
+      color: #ccc;
+      border: 1px solid #555;
+      padding: 6px 12px;
+      font-size: 0.9em;
       cursor: pointer;
-      border-radius: 5px;
-      margin-top: 20px;
-      transition: background-color 0.3s ease;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
+      border-radius: 3px;
+      margin-top: 5px;
     }
     button:hover {
-      background-color: #00a1cc;
+      background-color: #555;
     }
-    footer {
-      margin-top: 20px;
-      font-size: 0.8em;
-      color: #888;
-      text-align: center;
+    .settlement, .planet {
+      margin: 0.5em 0;
+      padding: 0.5em;
+      background: #333;
+      border: 1px solid #444;
+      border-radius: 3px;
+    }
+    .settlement-output {
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Existential Colony Generator</h1>
-    <button onclick="generateSettlement()">Generate Colony</button>
-    <div id="output" class="output"></div>
+    <h1>Existential System Generator</h1>
+    <button onclick="generateSystem()">Generate System</button>
+    <div id="systemOutput"></div>
   </div>
-  <footer>Overcomplicating what's important</footer>
 
   <script>
-    // --- Helper functions ---
-    // Returns one of the choices based on weight.
+    // --- Helper Functions ---
     function weightedRandom(choices) {
       let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
       let randomNum = Math.random() * totalWeight;
@@ -88,50 +77,56 @@
         randomNum -= choice.weight;
       }
     }
-    // Returns a random integer between min and max inclusive.
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+    // Simple weighted random for numbers using an array of objects
+    function weightedNumber(options) {
+      return weightedRandom(options);
+    }
+    // Convert integer 1-6 to roman numeral
+    function toRoman(num) {
+      const romans = ["I", "II", "III", "IV", "V", "VI"];
+      return romans[num - 1] || num;
+    }
+    // Generate a random alphanumeric code (like "AX11B2")
+    function generateSystemCode() {
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const digits = "0123456789";
+      let code = "";
+      // For example: 2 letters, 2 digits, 1 letter, 1 digit
+      code += letters.charAt(randomInt(0, letters.length - 1));
+      code += letters.charAt(randomInt(0, letters.length - 1));
+      code += digits.charAt(randomInt(0, digits.length - 1));
+      code += digits.charAt(randomInt(0, digits.length - 1));
+      code += letters.charAt(randomInt(0, letters.length - 1));
+      code += digits.charAt(randomInt(0, digits.length - 1));
+      return code;
+    }
 
     // --- Data Definitions ---
-    // Settlement name components
+
+    // Reuse settlement naming arrays from previous generator.
     const settlementPrefix = [
-      { name: "Cor", weight: 1 },
-      { name: "Ald", weight: 1 },
-      { name: "Nab", weight: 1 },
-      { name: "Tar", weight: 1 },
-      { name: "Ven", weight: 1 },
-      { name: "Lor", weight: 1 },
-      { name: "Ryl", weight: 1 },
-      { name: "Mar", weight: 1 },
-      { name: "Dorn", weight: 1 },
-      { name: "Kess", weight: 1 },
-      { name: "Vel", weight: 1 },
-      { name: "Kael", weight: 1 },
-      { name: "Ord", weight: 1 },
-      { name: "Mal", weight: 1 },
-      { name: "Jed", weight: 1 },
-      { name: "Exo", weight: 1 },
-      { name: "Vax", weight: 1 },
-      { name: "Brin", weight: 1 },
-      { name: "Zor", weight: 1 },
-      { name: "Hoth", weight: 1 }
+      { name: "Cor", weight: 1 }, { name: "Ald", weight: 1 },
+      { name: "Nab", weight: 1 }, { name: "Tar", weight: 1 },
+      { name: "Ven", weight: 1 }, { name: "Lor", weight: 1 },
+      { name: "Ryl", weight: 1 }, { name: "Mar", weight: 1 },
+      { name: "Dorn", weight: 1 }, { name: "Kess", weight: 1 },
+      { name: "Vel", weight: 1 }, { name: "Kael", weight: 1 },
+      { name: "Ord", weight: 1 }, { name: "Mal", weight: 1 },
+      { name: "Jed", weight: 1 }, { name: "Exo", weight: 1 },
+      { name: "Vax", weight: 1 }, { name: "Brin", weight: 1 },
+      { name: "Zor", weight: 1 }, { name: "Hoth", weight: 1 }
     ];
     const settlementCore = [
-      { name: "anta", weight: 1 },
-      { name: "osis", weight: 1 },
-      { name: "ar", weight: 1 },
-      { name: "osa", weight: 1 },
-      { name: "ion", weight: 1 },
-      { name: "oran", weight: 1 },
-      { name: "is", weight: 1 },
-      { name: "endra", weight: 1 },
-      { name: "era", weight: 1 },
-      { name: "elis", weight: 1 },
-      { name: "eta", weight: 1 },
-      { name: "ora", weight: 1 },
-      { name: "ander", weight: 1 },
-      { name: "ulia", weight: 1 },
+      { name: "anta", weight: 1 }, { name: "osis", weight: 1 },
+      { name: "ar", weight: 1 }, { name: "osa", weight: 1 },
+      { name: "ion", weight: 1 }, { name: "oran", weight: 1 },
+      { name: "is", weight: 1 }, { name: "endra", weight: 1 },
+      { name: "era", weight: 1 }, { name: "elis", weight: 1 },
+      { name: "eta", weight: 1 }, { name: "ora", weight: 1 },
+      { name: "ander", weight: 1 }, { name: "ulia", weight: 1 },
       { name: "onis", weight: 1 }
     ];
     const settlementSuffix = [
@@ -156,13 +151,11 @@
       { name: "III", weight: 1 },
       { name: "IV", weight: 1 }
     ];
-
-    // Development levels 1–10 (weighted so lower numbers are more common)
+    // Development levels 1–10 (lower numbers are more common)
     const developmentLevels = [];
     for (let i = 1; i <= 10; i++) {
       developmentLevels.push({ value: i, weight: 11 - i });
     }
-
     // Government types
     const governments = [
       { name: "Democratic Colony", weight: 3 },
@@ -174,7 +167,6 @@
       { name: "Bureaucratic State", weight: 2 },
       { name: "Dictatorial Regime", weight: 1 }
     ];
-
     // Important figure name parts
     const jobTitles = [
       { name: "Governor", weight: 3 },
@@ -209,10 +201,9 @@
       { name: "ton", weight: 1 },
       { name: "sen", weight: 1 },
       { name: "dell", weight: 1 },
-      { name: "", weight: 2 },  // Higher chance for no suffix
+      { name: "", weight: 2 },
       { name: "ward", weight: 1 }
     ];
-
     // Exports – two sets based on development
     const lowDevExports = [
       "Raw Ore",
@@ -229,9 +220,8 @@
       "Renewable Energy Components",
       "Robotics"
     ];
-
     // Settlement conditions
-    const conditions = [
+    const settlementConditions = [
       "Occupied by a mysterious cult",
       "Blockaded by rival factions",
       "Under strict quarantine",
@@ -240,9 +230,8 @@
       "Infested with rogue AI",
       "Subject to bizarre cosmic phenomena"
     ];
-
-    // Points of interest
-    const pointsOfInterest = [
+    // Points of interest (for settlements)
+    const poiSettlement = [
       "Orbital Trade Station",
       "Shipyard",
       "Black Market",
@@ -254,61 +243,206 @@
       "Temporal Observatory",
       "Void Beacon"
     ];
+    // --- System-Specific Data ---
+    // System Conditions (for the entire system)
+    const systemConditionsList = [
+      "Asteroid Belt",
+      "Mining Stations",
+      "Binary Star",
+      "Nebula",
+      "Spatial Anomaly",
+      "Rogue Comet"
+    ];
+    // Planet biomes
+    const planetBiomes = [
+      "Desert World",
+      "Lush World",
+      "Volcanic World",
+      "Temperate World",
+      "Ocean World",
+      "Ice World",
+      "Barren World"
+    ];
 
-    // --- Settlement Generation ---
-    function generateSettlement() {
-      // Generate the settlement name
+    // --- Settlement Generation Function ---
+    // forcedStation: if true, override suffix to "Station"
+    function generateSettlementData(forcedStation = false) {
       const prefix = weightedRandom(settlementPrefix);
       const core = weightedRandom(settlementCore);
-      const suffix = weightedRandom(settlementSuffix);
-      const settlementName = prefix + core + " " + suffix;
-
-      // Determine development level
+      let suffix;
+      if (forcedStation) {
+        suffix = "Station";
+      } else {
+        suffix = weightedRandom(settlementSuffix);
+      }
+      const name = prefix + core + " " + suffix;
       const development = weightedRandom(developmentLevels);
-
-      // Determine population (if suffix is "Station", cap at 100)
       const isStation = (suffix === "Station");
-      const maxPopulation = isStation ? 100 : Math.min(1000 * development, 10000);
-      const population = randomInt(20, maxPopulation);
-
-      // Pick a government type
+      const maxPop = isStation ? 100 : Math.min(1000 * development, 10000);
+      const population = randomInt(20, maxPop);
       const government = weightedRandom(governments);
-
-      // Create the important figure's name
       const jobTitle = weightedRandom(jobTitles);
       const firstName = weightedRandom(firstNamePrefixes) + weightedRandom(firstNameSuffixes);
       const lastName = weightedRandom(lastNamePrefixes) + weightedRandom(lastNameSuffixes);
       const importantFigure = `${jobTitle} ${firstName} ${lastName}`;
-
-      // Choose exports (1–5), based on development threshold
       const exportCount = randomInt(1, 5);
-      const availableExports = development <= 5 ? lowDevExports.slice() : highDevExports.slice();
-      // Shuffle the exports array
-      availableExports.sort(() => Math.random() - 0.5);
-      const exportsGenerated = availableExports.slice(0, exportCount);
-
-      // Choose 0–3 settlement conditions
-      const conditionCount = randomInt(0, 3);
-      const conditionsShuffled = conditions.slice().sort(() => Math.random() - 0.5);
-      const conditionsGenerated = conditionsShuffled.slice(0, conditionCount);
-
-      // Choose 0–5 points of interest
+      const exportsPool = (development <= 5 ? lowDevExports.slice() : highDevExports.slice());
+      exportsPool.sort(() => Math.random() - 0.5);
+      const exportsGenerated = exportsPool.slice(0, exportCount);
+      const condCount = randomInt(0, 3);
+      let conds = settlementConditions.slice().sort(() => Math.random() - 0.5).slice(0, condCount);
       const poiCount = randomInt(0, 5);
-      const poiShuffled = pointsOfInterest.slice().sort(() => Math.random() - 0.5);
-      const poiGenerated = poiShuffled.slice(0, poiCount);
+      let poi = poiSettlement.slice().sort(() => Math.random() - 0.5).slice(0, poiCount);
 
-      // Format the output
-      let output = "";
-      output += "[Name] " + settlementName + "\n";
-      output += "Development: " + development + "\n";
-      output += "Population: " + population + "\n";
-      output += "Government: " + government + "\n";
-      output += "Important Figure: " + importantFigure + "\n";
-      output += "Exports: " + (exportsGenerated.length ? exportsGenerated.join(", ") : "None") + "\n";
-      output += "Conditions: " + (conditionsGenerated.length ? conditionsGenerated.join(", ") : "None") + "\n";
-      output += "Points of Interest: " + (poiGenerated.length ? poiGenerated.join(", ") : "None") + "\n";
+      return {
+        name,
+        development,
+        population,
+        government,
+        importantFigure,
+        exports: exportsGenerated,
+        conditions: conds,
+        pointsOfInterest: poi
+      };
+    }
 
-      document.getElementById("output").innerText = output;
+    // Render a settlement's details along with its own "Regenerate Settlement" button.
+    // The callback receives the planet index and the settlement index.
+    function renderSettlement(settlement, planetIndex, settlementIndex) {
+      return `<div class="settlement" id="settlement-${planetIndex}-${settlementIndex}">
+  <div class="settlement-output">
+    [Name] ${settlement.name}
+    Development: ${settlement.development}
+    Population: ${settlement.population}
+    Government: ${settlement.government}
+    Important Figure: ${settlement.importantFigure}
+    Exports: ${settlement.exports.join(", ") || "None"}
+    Conditions: ${settlement.conditions.join(", ") || "None"}
+    Points of Interest: ${settlement.pointsOfInterest.join(", ") || "None"}
+  </div>
+  <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})">Regenerate Settlement</button>
+</div>`;
+    }
+
+    // --- Global System Data ---
+    let systemData = null;
+
+    // --- Generate the entire system ---
+    function generateSystem() {
+      // Generate system code and designation.
+      const code = generateSystemCode();
+      // For system designation, use a simple combination from settlementPrefix & settlementCore.
+      const sysDesignation = weightedRandom(settlementPrefix) + weightedRandom(settlementCore);
+      const systemName = code + " " + sysDesignation;
+
+      // Number of planets: 0-6
+      const numPlanets = randomInt(0, 6);
+      // If there are planets, generate them with names "sysDesignation I", "sysDesignation II", etc.
+      let planets = [];
+      if (numPlanets > 0) {
+        for (let i = 1; i <= numPlanets; i++) {
+          const biome = planetBiomes[randomInt(0, planetBiomes.length - 1)];
+          planets.push({ 
+            name: sysDesignation + " " + toRoman(i),
+            biome,
+            settlements: [] 
+          });
+        }
+      }
+      // Number of settlements: 0-10 with more than 3 being super unlikely.
+      // Create weighted options: values 0-3 with weight 3, 4-10 with weight 1.
+      const settlementOptions = [];
+      for (let i = 0; i <= 10; i++) {
+        settlementOptions.push({ value: i, weight: (i <= 3 ? 3 : 1) });
+      }
+      let numSettlements = weightedRandom(settlementOptions);
+      // Special case: if no planets then force a single settlement with Station suffix.
+      let forcedStation = false;
+      if (numPlanets === 0) {
+        numSettlements = 1;
+        forcedStation = true;
+      }
+
+      // Generate settlements
+      let settlements = [];
+      for (let i = 0; i < numSettlements; i++) {
+        settlements.push(generateSettlementData(forcedStation));
+      }
+      // If there are planets, randomly assign each settlement to one of them.
+      if (numPlanets > 0) {
+        // Clear any existing settlements from each planet.
+        planets.forEach(planet => planet.settlements = []);
+        settlements.forEach(s => {
+          const idx = randomInt(0, numPlanets - 1);
+          planets[idx].settlements.push(s);
+        });
+      }
+
+      // System conditions: 0-3 chosen from systemConditionsList.
+      const sysCondCount = randomInt(0, 3);
+      let sysConditions = systemConditionsList.slice().sort(() => Math.random() - 0.5).slice(0, sysCondCount);
+
+      // Store the system data globally.
+      systemData = {
+        systemName,
+        planets, // may be empty if numPlanets is 0.
+        settlements: numPlanets === 0 ? settlements : null,
+        sysConditions
+      };
+
+      renderSystem();
+    }
+
+    // Render the entire system to #systemOutput.
+    function renderSystem() {
+      const outputDiv = document.getElementById("systemOutput");
+      let html = `<div class="section">
+  <h2>System: ${systemData.systemName}</h2>
+  <p><strong>System Conditions:</strong> ${systemData.sysConditions.join(", ") || "None"}</p>
+  <p><strong>Number of Planets:</strong> ${systemData.planets.length}</p>
+  <p><strong>Number of Settlements:</strong> ${systemData.planets.length > 0 
+      ? systemData.planets.reduce((sum, p) => sum + p.settlements.length, 0)
+      : systemData.settlements.length}</p>
+</div>`;
+
+      // If there are planets, list each planet with its settlements.
+      if (systemData.planets.length > 0) {
+        systemData.planets.forEach((planet, pIndex) => {
+          html += `<div class="section planet">
+  <h3>Planet: ${planet.name}</h3>
+  <p><strong>Biome:</strong> ${planet.biome}</p>`;
+          if (planet.settlements.length > 0) {
+            planet.settlements.forEach((settlement, sIndex) => {
+              html += renderSettlement(settlement, pIndex, sIndex);
+            });
+          } else {
+            html += `<p>No settlements on this planet.</p>`;
+          }
+          html += `</div>`;
+        });
+      } else {
+        // No planets: list the single settlement.
+        html += `<div class="section">
+  <h3>Settlement (Space Station):</h3>
+  ${renderSettlement(systemData.settlements[0], 0, 0)}
+</div>`;
+      }
+
+      outputDiv.innerHTML = html;
+    }
+
+    // Regenerate an individual settlement (for a given planet and settlement index).
+    function regenerateSettlement(planetIndex, settlementIndex) {
+      // Determine if system has planets or is station-only.
+      if (systemData.planets.length > 0) {
+        // Regenerate settlement data for that settlement.
+        systemData.planets[planetIndex].settlements[settlementIndex] = generateSettlementData();
+        // Re-render only that planet’s section.
+        renderSystem();
+      } else {
+        systemData.settlements[settlementIndex] = generateSettlementData(true);
+        renderSystem();
+      }
     }
   </script>
 </body>
