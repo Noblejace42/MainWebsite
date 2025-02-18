@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astral Axial Weapon Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav>
+    <a href="index.html">System Generator</a> |
+    <a href="weapon.html">Weapon Generator</a>
+  </nav>
+
+  <div class="container">
+    <h1>Astral Axial Weapon Generator</h1>
+    <button onclick="generateWeapon()">Generate Weapon</button>
+    <div id="weaponOutput"></div>
+  </div>
+
+  <script>
+    // --- Helper Functions ---
+    function weightedRandom(choices) {
+      let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+      let randomNum = Math.random() * totalWeight;
+      for (let choice of choices) {
+        if (randomNum < choice.weight) {
+          return choice.value !== undefined ? choice.value : choice.name;
+        }
+        randomNum -= choice.weight;
+      }
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getRandomParameter() {
+      const params = [
+        { value: 1, weight: 50 },
+        { value: 2, weight: 30 },
+        { value: 3, weight: 10 },
+        { value: 4, weight: 7 },
+        { value: 5, weight: 3 }
+      ];
+      return weightedRandom(params);
+    }
+
+    function generateWeaponDice() {
+      const diceOptions = [
+        { value: 4, weight: 40 },
+        { value: 6, weight: 30 },
+        { value: 8, weight: 20 },
+        { value: 10, weight: 8 },
+        { value: 12, weight: 2 }
+      ];
+      return weightedRandom(diceOptions);
+    }
+
+    // --- Weapon Data Definitions ---
+    const baseWeapons = [
+      { type: "Rifle", skillTags: ["Ergonomic"], range: "Long-range", extra: "Piercing" },
+      { type: "Handgun", skillTags: ["Quick"], range: "Near-range" },
+      { type: "Shotgun", skillTags: ["Unruly"], range: "Near-range" },
+      { type: "Blade", skillTags: ["Ergonomic", "Quick"], range: "Melee" },
+      { type: "Bludgeon", skillTags: ["Quick", "Unruly"], range: "Melee" }
+    ];
+
+    const allSkillTraits = ["Scoped", "Quick", "Ergonomic", "Unruly", "Electrified"];
+
+    const normalTags = [
+      { tag: "Charging", weight: 10, hasParameter: true },
+      { tag: "Throwable", weight: 10, hasParameter: false },
+      { tag: "Far-range", weight: 8, hasParameter: false },
+      { tag: "Forceful", weight: 8, hasParameter: false },
+      { tag: "Energized", weight: 5, hasParameter: false },
+      { tag: "Loading", weight: 10, hasParameter: false },
+      { tag: "Heavy", weight: 7, hasParameter: false },
+      { tag: "Consumable", weight: 6, hasParameter: true },
+      { tag: "Cycling", weight: 8, hasParameter: false },
+      { tag: "Accurate", weight: 7, hasParameter: true },
+      { tag: "Potent", weight: 5, hasParameter: true },
+      { tag: "Consistent", weight: 9, hasParameter: false },
+      { tag: "Damaged", weight: 4, hasParameter: false },
+      { tag: "Multipurpose", weight: 6, hasParameter: false }
+    ];
+
+    const rareTags = [
+      { tag: "Ammo-Optimizer", weight: 3, hasParameter: false },
+      { tag: "Volatile", weight: 2, hasParameter: false },
+      { tag: "Lucky", weight: 4, hasParameter: false },
+      { tag: "Shredding", weight: 2, hasParameter: true },
+      { tag: "Covering", weight: 2, hasParameter: true },
+      { tag: "Suppressed", weight: 3, hasParameter: false },
+      { tag: "Explosive", weight: 2, hasParameter: false },
+      { tag: "Brutal", weight: 2, hasParameter: false },
+      { tag: "Violent", weight: 2, hasParameter: true },
+      { tag: "Ornate", weight: 2, hasParameter: false }
+    ];
+
+    function getRandomAdditionalTag() {
+      if (Math.random() < 0.9) {
+        return weightedRandom(normalTags);
+      } else {
+        return weightedRandom(rareTags);
+      }
+    }
+
+    function generateWeaponName(weapon) {
+      const baseNouns = {
+        "Rifle": ["Rifle", "Carbine", "Assault Rifle"],
+        "Handgun": ["Pistol", "Sidearm", "Revolver"],
+        "Shotgun": ["Shotgun", "Scattergun"],
+        "Blade": ["Blade", "Katana", "Combat Knife"],
+        "Bludgeon": ["Mace", "Hammer", "Club"]
+      };
+
+      const traitAdjectives = {
+        "Quick": "Rapid",
+        "Ergonomic": "Precision",
+        "Unruly": "Rugged",
+        "Electrified": "Charged",
+        "Scoped": "Sharpshooter"
+      };
+
+      const randomAdjectives = [
+        "Light", "Heavy", "Advanced", "Experimental", "Standard Issue",
+        "Prototype", "Elite", "Tactical", "Stealth", "Vanguard"
+      ];
+
+      let adjectives = [];
+      weapon.skillTags.forEach(trait => {
+        if (traitAdjectives[trait] && !adjectives.includes(traitAdjectives[trait])) {
+          adjectives.push(traitAdjectives[trait]);
+        }
+      });
+
+      let randAdj = randomAdjectives[randomInt(0, randomAdjectives.length - 1)];
+      if (!adjectives.includes(randAdj)) {
+        adjectives.push(randAdj);
+      }
+
+      let nounOptions = baseNouns[weapon.baseType] || ["Weapon"];
+      let noun = nounOptions[randomInt(0, nounOptions.length - 1)];
+      let modelCode = "MK-" + randomInt(100, 999);
+
+      return adjectives.join(" ") + " " + noun + " " + modelCode;
+    }
+
+    function generateWeapon() {
+      let baseWeapon = baseWeapons[randomInt(0, baseWeapons.length - 1)];
+
+      let weapon = {
+        baseType: baseWeapon.type,
+        skillTags: baseWeapon.skillTags.slice(),
+        range: baseWeapon.range,
+        tags: []
+      };
+
+      while (weapon.skillTags.length < 2) {
+        let candidate = allSkillTraits[randomInt(0, allSkillTraits.length - 1)];
+        if (!weapon.skillTags.includes(candidate)) {
+          weapon.skillTags.push(candidate);
+        }
+      }
+
+      if (baseWeapon.extra) {
+        let tagStr = baseWeapon.extra + getRandomParameter();
+        weapon.tags.push(tagStr);
+      }
+
+      if (weapon.range !== "Melee" && !weapon.tags.includes("Ammo")) {
+        weapon.tags.unshift("Ammo");
+      }
+
+      const tagCountOptions = [
+        { value: 1, weight: 40 },
+        { value: 2, weight: 30 },
+        { value: 3, weight: 20 },
+        { value: 4, weight: 7 },
+        { value: 5, weight: 3 }
+      ];
+
+      let additionalTagCount = weightedRandom(tagCountOptions);
+      let addedTags = new Set(weapon.tags);
+      while (addedTags.size < (weapon.tags.length + additionalTagCount)) {
+        let tagCandidate = getRandomAdditionalTag();
+        let tagStr = tagCandidate.tag + (tagCandidate.hasParameter ? getRandomParameter() : "");
+        addedTags.add(tagStr);
+      }
+
+      weapon.allTags = [...weapon.skillTags, weapon.range, ...addedTags];
+      weapon.dice = generateWeaponDice();
+      weapon.name = generateWeaponName(weapon);
+
+      document.getElementById("weaponOutput").innerText =
+        `${weapon.name} 1d${weapon.dice} (${weapon.allTags.join(", ")})`;
+    }
+  </script>
+</body>
+</html>
