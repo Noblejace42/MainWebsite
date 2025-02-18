@@ -31,15 +31,22 @@
   <script>
     // --- Helper Functions ---
     function weightedRandom(choices) {
-      let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
-      let randomNum = Math.random() * totalWeight;
-      for (let choice of choices) {
-        if (randomNum < choice.weight) {
-          return choice.value !== undefined ? choice.value : choice.name;
-        }
-        randomNum -= choice.weight;
-      }
+  let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+  let randomNum = Math.random() * totalWeight;
+
+  let low = 0, high = choices.length - 1;
+  while (low < high) {
+    let mid = Math.floor((low + high) / 2);
+    if (randomNum < choices[mid].weight) {
+      high = mid;
+    } else {
+      randomNum -= choices[mid].weight;
+      low = mid + 1;
     }
+  }
+  return choices[low].value !== undefined ? choices[low].value : choices[low].name;
+}
+
 
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -157,15 +164,20 @@
       return adjectives.join(" ") + " " + noun + " " + modelCode;
     }
 
-    function generateWeapon() {
-      let baseWeapon = baseWeapons[randomInt(0, baseWeapons.length - 1)];
+    function generateWeapons() {
+  let count = parseInt(document.getElementById("weaponCount").value);
+  let outputDiv = document.getElementById("weaponOutput");
+  outputDiv.innerHTML = ""; // Clear previous output
 
-      let weapon = {
-        baseType: baseWeapon.type,
-        skillTags: baseWeapon.skillTags.slice(),
-        range: baseWeapon.range,
-        tags: []
-      };
+  let weapons = [];
+  for (let i = 0; i < count; i++) {
+    weapons.push(generateWeapon());
+  }
+
+  outputDiv.innerHTML = weapons.join("<br>");
+}
+
+      
 
       while (weapon.skillTags.length < 2) {
         let candidate = allSkillTraits[randomInt(0, allSkillTraits.length - 1)];
