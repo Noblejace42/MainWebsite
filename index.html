@@ -1,33 +1,144 @@
 <!DOCTYPE html>
-<html>
-<head> 
-    <title>Random RPG Generator</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sci-Fi Settlement Generator</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        h1 { color: #333; }
-        .box { background: #f9f9f9; padding: 20px; border-radius: 10px; display: inline-block; }
-        button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-    </style>
-    <script>
-        function generateRPGEntry() {
-            const locations = ["Ancient Ruins", "Mystic Forest", "Abandoned Tower", "Underground Cavern"];
-            const enemies = ["Goblin Horde", "Undead Knight", "Cursed Sorcerer", "Shadow Beast"];
-            const treasures = ["Enchanted Sword", "Bag of Gold", "Ancient Tome", "Magic Potion"];
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
 
-            document.getElementById("location").innerText = "Location: " + locations[Math.floor(Math.random() * locations.length)];
-            document.getElementById("enemy").innerText = "Enemy: " + enemies[Math.floor(Math.random() * enemies.length)];
-            document.getElementById("treasure").innerText = "Treasure: " + treasures[Math.floor(Math.random() * treasures.length)];
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0a0f1c;
+            color: #00d4ff;
+            text-align: center;
+            padding: 50px;
         }
-    </script>
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0px 0px 15px rgba(0, 212, 255, 0.6);
+        }
+
+        #settlementName {
+            font-size: 2em;
+            margin: 20px 0;
+            color: #ffffff;
+        }
+
+        button {
+            background-color: #00d4ff;
+            color: #0a0f1c;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #00a1cc;
+        }
+    </style>
 </head>
 <body>
-    <h1>Random RPG Generator</h1>
-    <div class="box">
-        <h2 id="location">Click the button to generate!</h2>
-        <h2 id="enemy"></h2>
-        <h2 id="treasure"></h2>
+    <h1>Sci-Fi Settlement Generator</h1>
+    <div class="container">
+        <h2 id="settlementName">Click to Generate</h2>
+        <button onclick="generateSettlement()">Generate</button>
     </div>
-    <br>
-    <button onclick="generateRPGEntry()">Regenerate</button>
+
+    <script>
+        // Weighted selection function
+        function weightedRandom(choices) {
+            let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+            let randomNum = Math.random() * totalWeight;
+
+            for (let choice of choices) {
+                if (randomNum < choice.weight) {
+                    return choice.name;
+                }
+                randomNum -= choice.weight;
+            }
+        }
+
+        // Settlement data with weights
+        const settlementPrefix = [
+            { name: "Cor", weight: 10 },
+            { name: "Ald", weight: 8 },
+            { name: "Nab", weight: 6 },
+            { name: "Tar", weight: 7 },
+            { name: "Ven", weight: 5 },
+            { name: "Lor", weight: 6 },
+            { name: "Ryl", weight: 5 },
+            { name: "Mar", weight: 7 },
+            { name: "Dorn", weight: 4 },
+            { name: "Kess", weight: 4 },
+            { name: "Vel", weight: 3 },
+            { name: "Kael", weight: 3 },
+            { name: "Ord", weight: 6 },
+            { name: "Mal", weight: 5 },
+            { name: "Jed", weight: 4 },
+            { name: "Exo", weight: 5 },
+            { name: "Vax", weight: 3 },
+            { name: "Brin", weight: 4 },
+            { name: "Zor", weight: 2 },
+            { name: "Hoth", weight: 2 }
+        ];
+
+        const settlementCore = [
+            { name: "anta", weight: 8 },
+            { name: "osis", weight: 6 },
+            { name: "ar", weight: 7 },
+            { name: "osa", weight: 6 },
+            { name: "ion", weight: 5 },
+            { name: "oran", weight: 5 },
+            { name: "is", weight: 7 },
+            { name: "endra", weight: 6 },
+            { name: "era", weight: 6 },
+            { name: "elis", weight: 4 },
+            { name: "eta", weight: 5 },
+            { name: "ora", weight: 5 },
+            { name: "ander", weight: 3 },
+            { name: "ulia", weight: 4 },
+            { name: "onis", weight: 3 }
+        ];
+
+        const settlementSuffix = [
+            { name: "Prime", weight: 10 },
+            { name: "Major", weight: 6 },
+            { name: "Minor", weight: 5 },
+            { name: "Outpost", weight: 7 },
+            { name: "Spire", weight: 8 },
+            { name: "Haven", weight: 7 },
+            { name: "Hold", weight: 5 },
+            { name: "Reach", weight: 6 },
+            { name: "Gate", weight: 4 },
+            { name: "Basin", weight: 5 },
+            { name: "Stronghold", weight: 3 },
+            { name: "Station", weight: 6 },
+            { name: "Anchorage", weight: 4 },
+            { name: "Post", weight: 5 },
+            { name: "Verge", weight: 3 }
+        ];
+
+        function generateSettlement() {
+            let prefix = weightedRandom(settlementPrefix);
+            let core = weightedRandom(settlementCore);
+            let suffix = weightedRandom(settlementSuffix);
+            document.getElementById("settlementName").innerText = `${prefix}${core} ${suffix}`;
+        }
+    </script>
 </body>
 </html>
