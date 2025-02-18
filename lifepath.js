@@ -1,3 +1,5 @@
+
+console.log("Lifepath.js loaded!");
 const LIFEPATHS = {
   // "Refugee", "Slave", etc. can also be starting red squares
   "Starting_1": {
