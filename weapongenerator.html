@@ -114,7 +114,13 @@
       { tag: "Violent", weight: 2, hasParameter: true },
       { tag: "Ornate", weight: 2, hasParameter: false }
     ];
-
+          let weapon = {
+        baseType: baseWeapon.type,
+        skillTags: baseWeapon.skillTags.slice(),
+        range: baseWeapon.range,
+        tags: []
+      };
+    
     function getRandomAdditionalTag() {
       if (Math.random() < 0.9) {
         return weightedRandom(normalTags);
