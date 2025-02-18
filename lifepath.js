@@ -168,4 +168,5 @@ function proceedToNextPath() {
 
   document.getElementById("lifepathOutput").innerHTML = html;
 }
+window.startLifepath = startLifepath;
 
