@@ -31,22 +31,16 @@
   <script>
     // --- Helper Functions ---
     function weightedRandom(choices) {
-  let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
-  let randomNum = Math.random() * totalWeight;
-
-  let low = 0, high = choices.length - 1;
-  while (low < high) {
-    let mid = Math.floor((low + high) / 2);
-    if (randomNum < choices[mid].weight) {
-      high = mid;
-    } else {
-      randomNum -= choices[mid].weight;
-      low = mid + 1;
+      let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+      let randomNum = Math.random() * totalWeight;
+      // Loop through the choices (binary search isn't necessary for small arrays)
+      for (let i = 0; i < choices.length; i++) {
+        if (randomNum < choices[i].weight) {
+          return choices[i].value !== undefined ? choices[i].value : choices[i];
+        }
+        randomNum -= choices[i].weight;
+      }
     }
-  }
-  return choices[low].value !== undefined ? choices[low].value : choices[low].name;
-}
-
 
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -114,13 +108,7 @@
       { tag: "Violent", weight: 2, hasParameter: true },
       { tag: "Ornate", weight: 2, hasParameter: false }
     ];
-          let weapon = {
-        baseType: baseWeapon.type,
-        skillTags: baseWeapon.skillTags.slice(),
-        range: baseWeapon.range,
-        tags: []
-      };
-    
+
     function getRandomAdditionalTag() {
       if (Math.random() < 0.9) {
         return weightedRandom(normalTags);
@@ -170,21 +158,18 @@
       return adjectives.join(" ") + " " + noun + " " + modelCode;
     }
 
-    function generateWeapons() {
-  let count = parseInt(document.getElementById("weaponCount").value);
-  let outputDiv = document.getElementById("weaponOutput");
-  outputDiv.innerHTML = ""; // Clear previous output
+    // --- Weapon Generation Function ---
+    function generateWeapon() {
+      // Pick a random base weapon
+      let baseWeapon = baseWeapons[randomInt(0, baseWeapons.length - 1)];
+      let weapon = {
+        baseType: baseWeapon.type,
+        skillTags: baseWeapon.skillTags.slice(),
+        range: baseWeapon.range,
+        tags: []
+      };
 
-  let weapons = [];
-  for (let i = 0; i < count; i++) {
-    weapons.push(generateWeapon());
-  }
-
-  outputDiv.innerHTML = weapons.join("<br>");
-}
-
-      
-
+      // Ensure there are at least two skill tags
       while (weapon.skillTags.length < 2) {
         let candidate = allSkillTraits[randomInt(0, allSkillTraits.length - 1)];
         if (!weapon.skillTags.includes(candidate)) {
@@ -192,39 +177,44 @@
         }
       }
 
+      // Append extra parameter tag if available
       if (baseWeapon.extra) {
         let tagStr = baseWeapon.extra + getRandomParameter();
         weapon.tags.push(tagStr);
       }
 
+      // Add the "Ammo" tag for non-melee weapons if not already present
       if (weapon.range !== "Melee" && !weapon.tags.includes("Ammo")) {
         weapon.tags.unshift("Ammo");
       }
 
+      // Generate additional tags
       let additionalTags = new Set(weapon.tags);
       let tagCount = weightedRandom([
-        { value: 1, weight: 40 }, { value: 2, weight: 30 },
-        { value: 3, weight: 20 }, { value: 4, weight: 7 }, { value: 5, weight: 3 }
+        { value: 1, weight: 40 },
+        { value: 2, weight: 30 },
+        { value: 3, weight: 20 },
+        { value: 4, weight: 7 },
+        { value: 5, weight: 3 }
       ]);
 
       while (additionalTags.size < tagCount) {
         additionalTags.add(getRandomAdditionalTag().tag);
       }
 
+      // Determine dice and name
       weapon.dice = generateWeaponDice();
       weapon.name = generateWeaponName(weapon);
 
       return `${weapon.name} 1d${weapon.dice} (${[...weapon.skillTags, weapon.range, ...additionalTags].join(", ")})`;
     }
 
+    // --- Generate Multiple Weapons ---
     function generateWeapons() {
       let count = parseInt(document.getElementById("weaponCount").value);
       document.getElementById("weaponOutput").innerHTML =
         Array.from({ length: count }, generateWeapon).join("<br>");
     }
   </script>
-</body>
-</html>
-
 </body>
 </html>
