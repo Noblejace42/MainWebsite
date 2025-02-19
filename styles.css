@@ -145,27 +145,24 @@ nav a:hover {
 
 .art-credit {
   position: fixed;
-  bottom: 10px;
-  left: 10px;
-  font-size: 0.8em;
-  color: rgba(255, 255, 255, 0.6); /* Subtle white transparency */
-  background: rgba(0, 0, 0, 0.3); /* Light transparent black for contrast */
-  padding: 3px 6px;
-  border-radius: 3px;
+  bottom: 0;
+  left: 0;
+  font-size: 0.4em; /* Half of previous 0.8em size */
+  color: rgba(255, 255, 255, 0.5); /* Subtle transparency */
+  background: rgba(0, 0, 0, 0.2); /* Light transparent black for readability */
+  padding: 2px 4px;
+  border-radius: 2px;
   text-decoration: none;
-  transition: opacity 0.2s;
-}
-
-.art-credit:hover {
-  opacity: 1; /* Becomes fully visible when hovered */
+  width: auto;
 }
 
 .art-credit a {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
 }
 
 .art-credit a:hover {
   text-decoration: underline;
 }
+
 
