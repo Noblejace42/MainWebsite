@@ -6,7 +6,7 @@
   <title>Astral Axial Lifepath</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Additional styling for layout and talent UI */
+    /* Additional inline styling for layout and talent UI */
     #main-container {
       display: flex;
       flex-direction: row;
@@ -36,19 +36,33 @@
     .talent-controls button {
       margin: 0 5px;
     }
+    /* Improve lifepath and event button appearance */
+    .lifepath-btn, .event-btn, .nav-btn, #talent-confirm-btn {
+      background-color: #444;
+      color: #ccc;
+      border: 1px solid #555;
+      padding: 8px 14px;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 5px;
+    }
+    .lifepath-btn:hover, .event-btn:hover, .nav-btn:hover, #talent-confirm-btn:hover {
+      background-color: #555;
+    }
   </style>
 </head>
 <body>
   <nav>
-    <a href="index.html">System Generator</a> |
-    <a href="lifepath.html">Lifepath Generator</a> |
-    <a href="weapongenerator.html">Weapon Generator</a>
+    <a href="index.html" class="nav-btn">System Generator</a> |
+    <a href="lifepath.html" class="nav-btn">Lifepath Generator</a> |
+    <a href="weapongenerator.html" class="nav-btn">Weapon Generator</a>
   </nav>
 
   <div id="main-container">
     <div id="game-content"></div>
     <div id="summary-pane">
-      <h2>Summary</h2>
+      <h2>Character Sheet</h2>
       <div id="summary-content"></div>
     </div>
   </div>
@@ -60,16 +74,20 @@
      * Overview:
      * - Character starts at age 15 and each lifepath adds 5 years.
      * - After job selection, a talent allocation UI is shown with
-     *   up/down arrows and a remaining point total.
-     * - After selecting an event, its placeholder result is shown
-     *   (e.g. "laborevent1result") and aging messages indicate if you
-     *   aged without issue or gained a scar (with talent decreases).
-     * - A live summary is displayed on the right-hand side.
+     *   plus/minus arrows and a remaining point counter.
+     * - After selecting an event, its placeholder result is displayed,
+     *   along with an aging message (e.g., "Aged without issue" or a
+     *   message indicating scars and talent decreases).
+     * - The live summary (character sheet) on the right shows:
+     *      Age, Scars, Bonds, Items,
+     *      A list of Lifepaths taken (with talents above base, and aging messages),
+     *      And a list of Skills.
+     * - Lifepath and event buttons now use CSS classes for improved styling.
      *
      * Placeholders remain for:
      *   - Detailed event outcomes.
      *   - Persistent storage.
-     *   - Advanced talent mechanics.
+     *   - Advanced talent and skill mechanics.
      *************************************************************/
     
     // Global character object to track state
@@ -79,12 +97,25 @@
       lifepaths: [],      // Each lifepath: { pool, job, talentAllocations, event, agingMessage }
       bonds: [],
       items: [],
-      talentDecreases: [] // Aging-induced talent decrease messages
+      talentDecreases: [] // Aging-induced talent decrease messages (global log, if desired)
     };
     
-    // Global variable for current remaining talent points.
+    // Initialize character skills (all start at "1d4")
+    character.skills = {
+      "Tech": "1d4",
+      "Recall": "1d4",
+      "Speed": "1d4",
+      "Might": "1d4",
+      "Charm": "1d4",
+      "Fortitude": "1d4",
+      "Presence": "1d4",
+      "Precision": "1d4",
+      "Will": "1d4",
+      "Awareness": "1d4"
+    };
+    
+    // Global remaining talent points for current lifepath allocation.
     let remainingTalentPoints = 0;
-
     // Lifepath Pools and Job Blueprints (using finalized pools)
     // Each job includes:
     //   - name: Job title.
@@ -412,23 +443,36 @@
       else return "expert";
     }
     
-    // Update the live summary pane.
+    // Update the live summary (character sheet).
     function updateSummary() {
       const summaryDiv = document.getElementById("summary-content");
-      let html = `<p><strong>Age:</strong> ${character.age}</p>
+      let html = `<h3>General</h3>
+                  <p><strong>Age:</strong> ${character.age}</p>
                   <p><strong>Scars:</strong> ${character.scars}</p>
                   <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
                   <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
-                  <p><strong>Aging Messages:</strong> ${character.talentDecreases.join("; ") || "None"}</p>
-                  <h3>Lifepaths:</h3>`;
+                  <h3>Skills</h3>
+                  <ul>`;
+      for (let skill in character.skills) {
+        html += `<li>${skill}: ${character.skills[skill]}</li>`;
+      }
+      html += `</ul>`;
+      html += `<h3>Lifepaths</h3>`;
       character.lifepaths.forEach((lp, i) => {
-        html += `<p>Lifepath ${i+1}: Pool: ${lp.pool}, Job: ${lp.job ? lp.job.name : "None"}, Event: ${lp.event ? lp.event : "None"}</p>`;
-        if(lp.talentAllocations) {
-          html += `<p>Talent Allocations: ${JSON.stringify(lp.talentAllocations)}</p>`;
+        html += `<div style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">
+                   <p><strong>Lifepath ${i+1}</strong> - Pool: ${lp.pool}, Job: ${lp.job ? lp.job.name : "None"}, Event: ${lp.event ? lp.event : "None"}</p>
+                   <p><strong>Aging:</strong> ${lp.agingMessage || "None"}</p>`;
+        // Show only talents allocated above 1.
+        const allocated = [];
+        if(lp.talentAllocations){
+          for (let t in lp.talentAllocations) {
+            if(lp.talentAllocations[t] > 1){
+              allocated.push(`${t}: ${lp.talentAllocations[t]}`);
+            }
+          }
         }
-        if(lp.agingMessage) {
-          html += `<p>Aging: ${lp.agingMessage}</p>`;
-        }
+        html += `<p><strong>Talents (above base):</strong> ${allocated.length > 0 ? allocated.join(", ") : "None"}</p>
+                 </div>`;
       });
       summaryDiv.innerHTML = html;
     }
@@ -439,6 +483,7 @@
       contentDiv.innerHTML = "<h2>Select your initial Lifepath Pool</h2>";
       for (let pool in lifepathPools) {
         const btn = document.createElement("button");
+        btn.classList.add("lifepath-btn");
         btn.textContent = pool;
         btn.onclick = function() {
           startLifepath(pool);
@@ -483,7 +528,8 @@
       
       options.forEach(job => {
         const btn = document.createElement("button");
-        btn.textContent = `${job.name} (Guaranteed: ${job.guaranteed.join(", ")}, Random Slots: ${job.randomSlots}, Extra from ${job.extraPool}, Talent Points: ${job.talentPoints})`;
+        btn.classList.add("lifepath-btn");
+        btn.textContent = `${job.name} (Guaranteed: ${job.guaranteed.join(", ")}, Random: ${job.randomSlots}, Extra from ${job.extraPool}, TP: ${job.talentPoints})`;
         btn.onclick = function() {
           selectJob(job, pool);
         };
@@ -511,13 +557,11 @@
       contentDiv.innerHTML = `<h2>Talent Allocation for ${job.name}</h2>
                               <p>Remaining Points: <span id="remaining-points">${remainingTalentPoints}</span></p>
                               <div id="talent-allocation-container"></div>
-                              <button id="talent-confirm-btn">Confirm Allocation</button>`;
+                              <button id="talent-confirm-btn" class="lifepath-btn">Confirm Allocation</button>`;
       
       // Determine talent options: guaranteed talents + random slots from current pool + one extra from extraPool.
       let talentOptions = [];
-      // Guaranteed talents.
       talentOptions = talentOptions.concat(job.guaranteed);
-      // Random slots from current pool (avoid duplicates).
       const poolTalents = lifepathPools[currentLP.pool].talents;
       for (let i = 0; i < job.randomSlots; i++) {
         let randTalent = getRandomElement(poolTalents);
@@ -526,7 +570,6 @@
         }
         talentOptions.push(randTalent);
       }
-      // One extra from extraPool.
       const extraPoolTalents = lifepathPools[job.extraPool].talents;
       let extraTalent = getRandomElement(extraPoolTalents);
       while (talentOptions.includes(extraTalent)) {
@@ -566,7 +609,7 @@
         controls.appendChild(downBtn);
         // Current level display.
         const levelSpan = document.createElement("span");
-        levelSpan.id = "talent-" + talent;
+        levelSpan.id = "talent-" + talent.replace(/\s+/g, '');
         levelSpan.textContent = currentLP.talentAllocations[talent];
         controls.appendChild(levelSpan);
         // Up arrow button.
@@ -596,7 +639,8 @@
     function updateTalentUI() {
       const currentLP = character.lifepaths[character.lifepaths.length - 1];
       for (let talent in currentLP.talentAllocations) {
-        const levelSpan = document.getElementById("talent-" + talent);
+        const id = "talent-" + talent.replace(/\s+/g, '');
+        const levelSpan = document.getElementById(id);
         if (levelSpan) {
           levelSpan.textContent = currentLP.talentAllocations[talent];
         }
@@ -612,6 +656,7 @@
       const eventOptions = events[pool];
       eventOptions.forEach(ev => {
         const btn = document.createElement("button");
+        btn.classList.add("event-btn");
         btn.textContent = ev;
         btn.onclick = function() {
           selectEvent(ev, pool);
@@ -628,7 +673,7 @@
       // Display the event result (placeholder text).
       const contentDiv = document.getElementById("game-content");
       const resultDiv = document.createElement("div");
-      resultDiv.innerHTML = `<p>Result: ${eventName}result</p>`;
+      resultDiv.innerHTML = `<p><strong>Event Result:</strong> ${eventName}result</p>`;
       contentDiv.appendChild(resultDiv);
       
       // Add bond and item based on the event.
@@ -651,6 +696,7 @@
       div.innerHTML = `<h2>Current Age: ${character.age}</h2>
                        <p>Do you want to take another lifepath? (Each adds 5 years)</p>`;
       const continueBtn = document.createElement("button");
+      continueBtn.classList.add("lifepath-btn");
       continueBtn.textContent = "Continue Lifepath";
       continueBtn.onclick = function() {
         const lastPool = character.lifepaths[character.lifepaths.length - 1].pool;
@@ -660,6 +706,7 @@
       div.appendChild(continueBtn);
       
       const finishBtn = document.createElement("button");
+      finishBtn.classList.add("lifepath-btn");
       finishBtn.textContent = "Finish Lifepath Creation";
       finishBtn.onclick = function() {
         displayFinalSummary();
@@ -704,24 +751,38 @@
       return messages.join(" | ");
     }
     
-    // Display final summary.
+    // Display final summary (character sheet style).
     function displayFinalSummary() {
       const contentDiv = document.getElementById("game-content");
-      let html = `<h2>Final Summary</h2>
+      let html = `<h2>Final Character Sheet</h2>
+                  <h3>General</h3>
                   <p><strong>Age:</strong> ${character.age}</p>
                   <p><strong>Scars:</strong> ${character.scars}</p>
                   <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
                   <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
-                  <p><strong>Aging Messages:</strong> ${character.talentDecreases.join("; ") || "None"}</p>
-                  <h3>Lifepaths Taken:</h3>`;
+                  <h3>Skills</h3>
+                  <ul>`;
+      for (let skill in character.skills) {
+        html += `<li>${skill}: ${character.skills[skill]}</li>`;
+      }
+      html += `</ul>`;
+      html += `<h3>Lifepaths Taken</h3>`;
       character.lifepaths.forEach((lp, index) => {
-        html += `<p>Lifepath ${index + 1}: Pool - ${lp.pool}, Job - ${lp.job ? lp.job.name : "None"}, Event - ${lp.event ? lp.event : "None"}</p>`;
-        if (lp.talentAllocations) {
-          html += `<p>Talent Allocations: ${JSON.stringify(lp.talentAllocations)}</p>`;
+        html += `<div style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">
+                   <p><strong>Lifepath ${index+1}</strong></p>
+                   <p><strong>Pool:</strong> ${lp.pool} &nbsp; <strong>Job:</strong> ${lp.job ? lp.job.name : "None"} &nbsp; <strong>Event:</strong> ${lp.event ? lp.event : "None"}</p>
+                   <p><strong>Aging:</strong> ${lp.agingMessage || "None"}</p>`;
+        // Only list talents with allocation above 1.
+        const allocated = [];
+        if(lp.talentAllocations){
+          for (let t in lp.talentAllocations) {
+            if(lp.talentAllocations[t] > 1){
+              allocated.push(`${t}: ${lp.talentAllocations[t]}`);
+            }
+          }
         }
-        if (lp.agingMessage) {
-          html += `<p>Aging: ${lp.agingMessage}</p>`;
-        }
+        html += `<p><strong>Talents (above base):</strong> ${allocated.length > 0 ? allocated.join(", ") : "None"}</p>
+                 </div>`;
       });
       contentDiv.innerHTML = html;
       updateSummary();
