@@ -6,7 +6,7 @@
   <title>Astral Axial Lifepath</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Additional inline styling for layout and talent UI */
+    /* Inline additional styling for layout and talent UI */
     #main-container {
       display: flex;
       flex-direction: row;
@@ -36,8 +36,7 @@
     .talent-controls button {
       margin: 0 5px;
     }
-    /* Improve lifepath and event button appearance */
-    .lifepath-btn, .event-btn, .nav-btn, #talent-confirm-btn {
+    .lifepath-btn, .event-btn {
       background-color: #444;
       color: #ccc;
       border: 1px solid #555;
@@ -47,17 +46,17 @@
       border-radius: 4px;
       margin: 5px;
     }
-    .lifepath-btn:hover, .event-btn:hover, .nav-btn:hover, #talent-confirm-btn:hover {
+    .lifepath-btn:hover, .event-btn:hover {
       background-color: #555;
     }
   </style>
 </head>
 <body>
   <nav>
-  <a href="index.html">System Generator</a> |
-  <a href="lifepath.html">Lifepath Generator</a> |
-  <a href="weapongenerator.html">Weapon Generator</a>
-</nav>
+    <a href="index.html">System Generator</a> |
+    <a href="lifepath.html">Lifepath Generator</a> |
+    <a href="weapongenerator.html">Weapon Generator</a>
+  </nav>
 
   <div id="main-container">
     <div id="game-content"></div>
@@ -67,553 +66,195 @@
     </div>
   </div>
 
+  <!-- Main JavaScript -->
   <script>
-    /*************************************************************
-     * Lifepath Generator for Hard Sci-Fi RPG
-     *
-     * Overview:
-     * - Character starts at age 15 and each lifepath adds 5 years.
-     * - After job selection, a talent allocation UI is shown with
-     *   plus/minus arrows and a remaining point counter.
-     * - After selecting an event, its placeholder result is displayed,
-     *   along with an aging message (e.g., "Aged without issue" or a
-     *   message indicating scars and talent decreases).
-     * - The live summary (character sheet) on the right shows:
-     *      Age, Scars, Bonds, Items,
-     *      A list of Lifepaths taken (with talents above base, and aging messages),
-     *      And a list of Skills.
-     * - Lifepath and event buttons now use CSS classes for improved styling.
-     *
-     * Placeholders remain for:
-     *   - Detailed event outcomes.
-     *   - Persistent storage.
-     *   - Advanced talent and skill mechanics.
-     *************************************************************/
-    
-    // Global character object to track state
+    // Global variables
+    let config;
     let character = {
       age: 15,
       scars: 0,
-      lifepaths: [],      // Each lifepath: { pool, job, talentAllocations, event, agingMessage }
+      lifepaths: [],
       bonds: [],
       items: [],
-      talentDecreases: [] // Aging-induced talent decrease messages (global log, if desired)
-    };
-    
-    // Initialize character skills (all start at "1d4")
-    character.skills = {
-      "Tech": "1d4",
-      "Recall": "1d4",
-      "Speed": "1d4",
-      "Might": "1d4",
-      "Charm": "1d4",
-      "Fortitude": "1d4",
-      "Presence": "1d4",
-      "Precision": "1d4",
-      "Will": "1d4",
-      "Awareness": "1d4"
-    };
-    
-    // Global remaining talent points for current lifepath allocation.
-    let remainingTalentPoints = 0;
-    // Lifepath Pools and Job Blueprints (using finalized pools)
-    // Each job includes:
-    //   - name: Job title.
-    //   - guaranteed: Array of 2 guaranteed talents (from the pool).
-    //   - randomSlots: Number of random talent slots from the pool.
-    //   - extraPool: The pool to draw one extra random talent.
-    //   - talentPoints: Talent points awarded (4 for common, 5 for intermediate, 7 for expert).
-    const lifepathPools = {
-      "Labor": {
-        talents: ["Heavy Lifting", "Machinery Operation", "Fabrication", "Repair Structure", "Repair Weapon", "Repair Tech", "Logistics", "Repair Vehicle", "Agriculture", "Mining"],
-        jobs: {
-          "common": [
-            { name: "Construction Worker", guaranteed: ["Repair Structure", "Fabrication"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Factory Line Operator", guaranteed: ["Machinery Operation", "Logistics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Ranch Hand", guaranteed: ["Agriculture", "Heavy Lifting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Ore Hauler", guaranteed: ["Mining", "Logistics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Farmer", guaranteed: ["Agriculture", "Heavy Lifting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Janitor", guaranteed: ["Repair Structure", "Logistics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Quarry Digger", guaranteed: ["Mining", "Heavy Lifting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Slave", guaranteed: ["Heavy Lifting", "Repair Structure"], randomSlots: 1, extraPool: "Education", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "Field Mechanic", guaranteed: ["Repair Tech", "Repair Vehicle"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Demolitions Technician", guaranteed: ["Repair Weapon", "Repair Tech"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Drilling Engineer", guaranteed: ["Mining", "Fabrication"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Machinist", guaranteed: ["Machinery Operation", "Fabrication"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Cargo Loader", guaranteed: ["Logistics", "Heavy Lifting"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Foundry Worker", guaranteed: ["Fabrication", "Mining"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Blacksmith", guaranteed: ["Repair Weapon", "Fabrication"], randomSlots: 2, extraPool: "Education", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Structural Engineer", guaranteed: ["Repair Structure", "Logistics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Starship Technician", guaranteed: ["Repair Tech", "Machinery Operation"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Bridge Architect", guaranteed: ["Fabrication", "Repair Structure"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Large-Scale Foreman", guaranteed: ["Logistics", "Heavy Lifting"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Hydroponics Director", guaranteed: ["Agriculture", "Logistics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Logistics Coordinator", guaranteed: ["Logistics", "Machinery Operation"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Urban Renewal Specialist", guaranteed: ["Repair Structure", "Fabrication"], randomSlots: 3, extraPool: "Education", talentPoints: 7 }
-          ]
-        }
-      },
-      "Crime": {
-        talents: ["Stealth", "Lockpicking", "Sleight of Hand", "Hacking", "Disguise", "Running", "Climbing", "Deception", "Criminal Knowledge", "Negotiation"],
-        jobs: {
-          "common": [
-            { name: "Pickpocket", guaranteed: ["Sleight of Hand", "Stealth"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Burglar", guaranteed: ["Lockpicking", "Stealth"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Street Hustler", guaranteed: ["Deception", "Criminal Knowledge"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Gang Initiate", guaranteed: ["Criminal Knowledge", "Running"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Bootlegger", guaranteed: ["Negotiation", "Deception"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Beggar", guaranteed: ["Deception", "Negotiation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "Grifter", guaranteed: ["Deception", "Negotiation"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Safecracker", guaranteed: ["Lockpicking", "Sleight of Hand"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Smuggler", guaranteed: ["Hacking", "Criminal Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Cybercriminal", guaranteed: ["Hacking", "Deception"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Drug Chemist", guaranteed: ["Hacking", "Criminal Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Night Market Vendor", guaranteed: ["Negotiation", "Deception"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Arms Dealer", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Bank Robber", guaranteed: ["Lockpicking", "Sleight of Hand"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Syndicate Boss", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Master Spy", guaranteed: ["Stealth", "Disguise"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Political Fixer", guaranteed: ["Negotiation", "Deception"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Interstellar Hacker", guaranteed: ["Hacking", "Criminal Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "High-Stakes Con Artist Saboteur", guaranteed: ["Deception", "Hacking"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Intelligence Broker", guaranteed: ["Criminal Knowledge", "Negotiation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Assassin", guaranteed: ["Stealth", "Sleight of Hand"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Cartel Leader", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 }
-          ]
-        }
-      },
-      "Exploration": {
-        talents: ["Bushcraft", "Terrestrial Navigation", "Climbing", "Animal Handling", "Xenoflora", "Tracking", "Scouting", "Repair Vehicle", "First Aid"],
-        jobs: {
-          "common": [
-            { name: "Scout", guaranteed: ["Scouting", "Terrestrial Navigation"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Treasure Seeker", guaranteed: ["Tracking", "Scouting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Junk Salvager", guaranteed: ["Bushcraft", "Tracking"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Nomadic Trader", guaranteed: ["Animal Handling", "Terrestrial Navigation"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Coastal Fisher", guaranteed: ["Animal Handling", "First Aid"], randomSlots: 1, extraPool: "Education", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "Cartographer", guaranteed: ["Terrestrial Navigation", "Scouting"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Deep-Sea Diver", guaranteed: ["Bushcraft", "First Aid"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Xeno-Tracker", guaranteed: ["Tracking", "Scouting"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Wilderness Guide", guaranteed: ["Bushcraft", "Terrestrial Navigation"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Astrobiologist", guaranteed: ["Xenoflora", "Animal Handling"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Vehicle Scout", guaranteed: ["Repair Vehicle", "Terrestrial Navigation"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Planetary Surveyor", guaranteed: ["Scouting", "Tracking"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Meteorologist", guaranteed: ["First Aid", "Terrestrial Navigation"], randomSlots: 2, extraPool: "Education", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Terraforming Expert", guaranteed: ["Xenoflora", "Bushcraft"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Axial Network Mapper", guaranteed: ["Terrestrial Navigation", "Tracking"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Orbital Recon Pilot", guaranteed: ["Scouting", "Terrestrial Navigation"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Artifact Recoverer", guaranteed: ["Tracking", "Scouting"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Volcanologist", guaranteed: ["First Aid", "Bushcraft"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Geological Surveyor", guaranteed: ["Terrestrial Navigation", "Tracking"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Atmospheric Engineer", guaranteed: ["First Aid", "Scouting"], randomSlots: 3, extraPool: "Education", talentPoints: 7 }
-          ]
-        }
-      },
-      "Space": {
-        talents: ["Piloting", "Repair Vehicle", "Axial Navigation", "EVA Operations", "Gunnery", "Ship Subsystems", "Astralgnosis", "Stellar Materials", "Ship Knowledge"],
-        jobs: {
-          "common": [
-            { name: "Cargo Hauler", guaranteed: ["Repair Vehicle", "Axial Navigation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Satellite Maintenance Tech", guaranteed: ["Repair Vehicle", "Ship Subsystems"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Space Janitor", guaranteed: ["Repair Vehicle", "EVA Operations"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Shuttle Assistant", guaranteed: ["Piloting", "EVA Operations"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Orbital Welder", guaranteed: ["Repair Vehicle", "Ship Subsystems"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Fuel Station Attendant", guaranteed: ["Repair Vehicle", "Stellar Materials"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Space Miner", guaranteed: ["Repair Vehicle", "Axial Navigation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
-            { name: "Comm Technician", guaranteed: ["Ship Knowledge", "Axial Navigation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "EVA Specialist", guaranteed: ["EVA Operations", "Repair Vehicle"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Astrogator", guaranteed: ["Axial Navigation", "Piloting"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Freighter Pilot", guaranteed: ["Piloting", "Axial Navigation"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Orbital Engineer", guaranteed: ["Ship Subsystems", "Repair Vehicle"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Axial Technician", guaranteed: ["Repair Vehicle", "Ship Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
-            { name: "Shipwright", guaranteed: ["Ship Subsystems", "Repair Vehicle"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Starship Captain", guaranteed: ["Piloting", "Ship Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Space Marine", guaranteed: ["Gunnery", "EVA Operations"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Asteroid Miner Coordinator", guaranteed: ["Axial Navigation", "Repair Vehicle"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Black Market Space Runner", guaranteed: ["Piloting", "EVA Operations"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Space Habitat Director", guaranteed: ["Ship Knowledge", "Axial Navigation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Deep-Space Surveyor", guaranteed: ["Astralgnosis", "Axial Navigation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Ace Pilot", guaranteed: ["Piloting", "Axial Navigation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
-            { name: "Orbital Defense Strategist", guaranteed: ["Gunnery", "Ship Subsystems"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 }
-          ]
-        }
-      },
-      "Espionage": {
-        talents: ["Interrogation", "Scouting", "Stealth", "Deception", "Disguise", "Hacking", "Covert Entry", "Cryptography", "Negotiation", "Repair Tech"],
-        jobs: {
-          "common": [
-            { name: "Courier", guaranteed: ["Stealth", "Covert Entry"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Information Broker", guaranteed: ["Negotiation", "Cryptography"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Undercover Watcher", guaranteed: ["Stealth", "Disguise"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Street Informant", guaranteed: ["Interrogation", "Deception"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Private Investigator", guaranteed: ["Interrogation", "Hacking"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "Deep Cover Agent", guaranteed: ["Disguise", "Stealth"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Cyber Infiltrator", guaranteed: ["Hacking", "Cryptography"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Propaganda Specialist", guaranteed: ["Deception", "Negotiation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Government Mole", guaranteed: ["Deception", "Interrogation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "High-Risk Courier", guaranteed: ["Stealth", "Covert Entry"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Counterintelligence Officer", guaranteed: ["Interrogation", "Cryptography"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Interrogation Specialist", guaranteed: ["Interrogation", "Deception"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Master Spy", guaranteed: ["Stealth", "Disguise"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Intelligence Director", guaranteed: ["Interrogation", "Cryptography"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "State Saboteur", guaranteed: ["Hacking", "Deception"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Political Puppeteer", guaranteed: ["Negotiation", "Deception"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "High-Level Defector", guaranteed: ["Hacking", "Stealth"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 }
-          ]
-        }
-      },
-      "Warfare": {
-        talents: ["Repair Weapon", "Martial Arts", "Tactics", "Explosives", "Military History", "Leadership", "First Aid", "Interrogation", "Driving", "Running"],
-        jobs: {
-          "common": [
-            { name: "Mercenary", guaranteed: ["Martial Arts", "Tactics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Militia Fighter", guaranteed: ["Martial Arts", "Running"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Combat Medic", guaranteed: ["First Aid", "Interrogation"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Draft", guaranteed: ["Running", "Martial Arts"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Riot Control Officer", guaranteed: ["Tactics", "Leadership"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Pirate Hunter", guaranteed: ["Driving", "Martial Arts"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Artillery Loader", guaranteed: ["Driving", "Tactics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
-            { name: "Foot Soldier", guaranteed: ["Martial Arts", "Running"], randomSlots: 1, extraPool: "Education", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "Shock Trooper", guaranteed: ["Martial Arts", "Explosives"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Tank Commander", guaranteed: ["Tactics", "Leadership"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Special Forces Operative", guaranteed: ["Martial Arts", "Tactics"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Marksman", guaranteed: ["Repair Weapon", "Tactics"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Urban Warfare Specialist", guaranteed: ["Tactics", "Explosives"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
-            { name: "Orbital Gunner", guaranteed: ["Driving", "Tactics"], randomSlots: 2, extraPool: "Education", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Fleet Admiral", guaranteed: ["Leadership", "Tactics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "War Campaign Coordinator", guaranteed: ["Leadership", "Military History"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Military General", guaranteed: ["Leadership", "Tactics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Deep Space Raider", guaranteed: ["Martial Arts", "Driving"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Warlord", guaranteed: ["Leadership", "Martial Arts"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Orbital Battle Specialist", guaranteed: ["Tactics", "Explosives"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
-            { name: "Military Engineer", guaranteed: ["Repair Weapon", "Military History"], randomSlots: 3, extraPool: "Education", talentPoints: 7 }
-          ]
-        }
-      },
-      "Education": {
-        talents: ["Database Usage", "Teaching", "Material Science", "Repair Tech", "Cultural Studies", "Insight", "Linguistics", "First Aid", "Negotiation", "Logistics"],
-        jobs: {
-          "common": [
-            { name: "Archivist", guaranteed: ["Database Usage", "Linguistics"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Tutor", guaranteed: ["Teaching", "Cultural Studies"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Data Analyst", guaranteed: ["Database Usage", "Material Science"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Historical Researcher", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Lab Technician", guaranteed: ["Material Science", "Repair Tech"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "University Lecturer", guaranteed: ["Teaching", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Researcher", guaranteed: ["Database Usage", "Material Science"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Xeno-Archaeologist", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Neural Studies Expert", guaranteed: ["Database Usage", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Biomechanical Educator", guaranteed: ["Material Science", "Repair Tech"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Cryptolinguist", guaranteed: ["Linguistics", "Database Usage"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Scientific Theorist", guaranteed: ["Material Science", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Academic Administrator", guaranteed: ["Negotiation", "Logistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Leading Scientist", guaranteed: ["Database Usage", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Theoretical Physicist", guaranteed: ["Material Science", "Insight"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Experimental Biologist", guaranteed: ["Material Science", "First Aid"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Political Historian", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Axial Researcher", guaranteed: ["Database Usage", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Cross-Species Communicator", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Quantum Theorist", guaranteed: ["Insight", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Genetics Pioneer", guaranteed: ["First Aid", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 }
-          ]
-        }
-      },
-      "Prosperity": {
-        talents: ["Negotiation", "Accounting", "Logistics", "Trade Routes", "Corporate Doctrine", "Material Science", "Deception", "Insight", "Appraisal", "Linguistics"],
-        jobs: {
-          "common": [
-            { name: "Street Vendor", guaranteed: ["Negotiation", "Appraisal"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Contract Negotiator", guaranteed: ["Negotiation", "Deception"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Salvage Appraiser", guaranteed: ["Appraisal", "Material Science"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Tax Collector", guaranteed: ["Accounting", "Insight"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Farm Business Coordinator", guaranteed: ["Negotiation", "Logistics"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
-            { name: "Local Accountant", guaranteed: ["Accounting", "Appraisal"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "Supply Chain Manager", guaranteed: ["Logistics", "Negotiation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Investment Broker", guaranteed: ["Accounting", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Trade Route Planner", guaranteed: ["Trade Routes", "Logistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Guild Representative", guaranteed: ["Negotiation", "Deception"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Industrial Speculator", guaranteed: ["Accounting", "Corporate Doctrine"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Space Freight Executive", guaranteed: ["Negotiation", "Logistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Border Tariff Expert", guaranteed: ["Accounting", "Trade Routes"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Black Market Dealer", guaranteed: ["Deception", "Negotiation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
-            { name: "Economic Strategist", guaranteed: ["Insight", "Corporate Doctrine"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Corporate CEO", guaranteed: ["Negotiation", "Corporate Doctrine"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Axial Investment Magnate", guaranteed: ["Accounting", "Insight"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Galactic Commodities Broker", guaranteed: ["Appraisal", "Accounting"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Market Manipulator", guaranteed: ["Deception", "Negotiation"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "War Profiteer", guaranteed: ["Corporate Doctrine", "Accounting"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Stock Exchange Controller", guaranteed: ["Accounting", "Insight"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
-            { name: "Planetary Trade Director", guaranteed: ["Trade Routes", "Logistics"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 }
-          ]
-        }
-      },
-      "Politics": {
-        talents: ["Leadership", "Negotiation", "Deception", "Diplomacy", "Accounting", "Linguistics", "Cultural Studies", "Criminal Knowledge", "Military History"],
-        jobs: {
-          "common": [
-            { name: "Public Speaker", guaranteed: ["Leadership", "Diplomacy"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
-            { name: "Bureaucratic Clerk", guaranteed: ["Negotiation", "Accounting"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
-            { name: "Protest Leader", guaranteed: ["Leadership", "Deception"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
-            { name: "Legal Aide", guaranteed: ["Negotiation", "Linguistics"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
-            { name: "Campaign Assistant", guaranteed: ["Negotiation", "Cultural Studies"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
-            { name: "Local Judge", guaranteed: ["Diplomacy", "Accounting"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
-            { name: "Union Representative", guaranteed: ["Negotiation", "Leadership"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
-            { name: "Tax Officer", guaranteed: ["Accounting", "Criminal Knowledge"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 }
-          ],
-          "intermediate": [
-            { name: "Diplomatic Liaison", guaranteed: ["Diplomacy", "Negotiation"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
-            { name: "Senate Representative", guaranteed: ["Leadership", "Cultural Studies"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
-            { name: "Embassy Negotiator", guaranteed: ["Negotiation", "Diplomacy"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
-            { name: "Political Strategist", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
-            { name: "Media Manipulator", guaranteed: ["Deception", "Linguistics"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
-            { name: "International Deal Maker", guaranteed: ["Negotiation", "Diplomacy"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
-            { name: "Speechwriter", guaranteed: ["Linguistics", "Cultural Studies"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 }
-          ],
-          "expert": [
-            { name: "Senator", guaranteed: ["Diplomacy", "Leadership"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
-            { name: "Planetary Governor", guaranteed: ["Leadership", "Negotiation"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
-            { name: "Interstellar Ambassador", guaranteed: ["Diplomacy", "Cultural Studies"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
-            { name: "Political Revolutionary", guaranteed: ["Deception", "Criminal Knowledge"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
-            { name: "War Cabinet Director", guaranteed: ["Military History", "Leadership"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 }
-          ]
-        }
+      talentDecreases: [],
+      skills: {
+        "Tech": "1d4",
+        "Recall": "1d4",
+        "Speed": "1d4",
+        "Might": "1d4",
+        "Charm": "1d4",
+        "Fortitude": "1d4",
+        "Presence": "1d4",
+        "Precision": "1d4",
+        "Will": "1d4",
+        "Awareness": "1d4"
       }
     };
+    let remainingTalentPoints = 0;
+    let poolCounts = {}; // will be initialized after loading config
 
-    // Placeholder event definitions (3 events per pool)
-    const events = {
-      "Labor": ["laborevent1", "laborevent2", "laborevent3"],
-      "Crime": ["crimeevent1", "crimeevent2", "crimeevent3"],
-      "Exploration": ["exploerevent1", "exploerevent2", "exploerevent3"],
-      "Space": ["spaceevent1", "spaceevent2", "spaceevent3"],
-      "Espionage": ["espionageevent1", "espionageevent2", "espionageevent3"],
-      "Warfare": ["warfareevent1", "warfareevent2", "warfareevent3"],
-      "Education": ["educationevent1", "educationevent2", "educationevent3"],
-      "Prosperity": ["prosperityevent1", "prosperityevent2", "prosperityevent3"],
-      "Politics": ["politicsevent1", "politicsevent2", "politicsevent3"]
-    };
-
-    // Utility: Get a random element from an array.
+    // Utility functions
     function getRandomElement(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
-    
-    // Utility: Return a random number between 0 and 1.
     function randomChance() {
       return Math.random();
     }
-    
-    // Determine next rarity based on number of lifepaths taken.
-    function getNextRarity() {
-      const count = character.lifepaths.length;
-      if (count === 0) return "common";
-      else if (count === 1) return "intermediate";
+
+    // Determine rarity based on base probabilities and lifepath count
+    function determineRarity(pool) {
+      const base = config.settings.rarityProbabilities;
+      let count = poolCounts[pool] || 0;
+      let bonus = count * config.settings.rarityProgressionMultiplier;
+      let commonProb = base.common - bonus;
+      let intermediateProb = base.intermediate + bonus;
+      if (commonProb < 0) commonProb = 0;
+      let roll = randomChance();
+      if (roll < commonProb) return "common";
+      else if (roll < commonProb + intermediateProb) return "intermediate";
       else return "expert";
     }
 
-    function aggregateTalents() {
-  let totals = {};
-  character.lifepaths.forEach(lp => {
-    for (let talent in lp.talentAllocations) {
-      // Sum the extra levels (allocation - 1)
-      if (!totals[talent]) {
-        totals[talent] = lp.talentAllocations[talent] - 1;
-      } else {
-        totals[talent] += (lp.talentAllocations[talent] - 1);
+    // Generate lifepath options (3 regular options plus an optional wildcard)
+    function generateLifepathOptions() {
+      let options = [];
+      for (let i = 0; i < 3; i++) {
+        let pools = Object.keys(config.lifepathPools);
+        let weightedPools = pools.map(p => ({ pool: p, weight: 1 + (poolCounts[p] || 0) }));
+        let totalWeight = weightedPools.reduce((sum, p) => sum + p.weight, 0);
+        let r = Math.random() * totalWeight;
+        let chosenPool;
+        for (let wp of weightedPools) {
+          r -= wp.weight;
+          if (r <= 0) {
+            chosenPool = wp.pool;
+            break;
+          }
+        }
+        let rarity = determineRarity(chosenPool);
+        let jobs = config.lifepathPools[chosenPool].jobs[rarity];
+        let job = getRandomElement(jobs);
+        options.push({ pool: chosenPool, job: job });
       }
+      if (config.settings.wildcardOptionEnabled && randomChance() <= config.settings.wildcardOptionChance) {
+        let allPools = Object.keys(config.lifepathPools);
+        let randomPool = getRandomElement(allPools);
+        let job = getRandomElement(config.lifepathPools[randomPool].jobs["common"]);
+        options.push({ pool: randomPool, job: job, wildcard: true });
+      }
+      return options;
     }
-  });
-  // Add base level (1) for each talent and cap at 5.
-  for (let talent in totals) {
-    totals[talent] = Math.min(1 + totals[talent], 5);
-  }
-  return totals;
-}
 
+    // Aggregate talents from all lifepaths
+    function aggregateTalents() {
+      let totals = {};
+      character.lifepaths.forEach(lp => {
+        for (let talent in lp.talentAllocations) {
+          totals[talent] = (totals[talent] || 0) + (lp.talentAllocations[talent] - config.settings.startingTalentLevel);
+        }
+      });
+      for (let talent in totals) {
+        totals[talent] = Math.min(config.settings.startingTalentLevel + totals[talent], config.settings.maxTalentLevel);
+      }
+      return totals;
+    }
 
+    // Map talent level to dice
     function levelToDice(level) {
-  switch(level) {
-    case 1: return "d4";
-    case 2: return "d6";
-    case 3: return "d8";
-    case 4: return "d10";
-    case 5: return "d12";
-    default: return "";
-  }
-}
+      return config.settings.talentDiceMapping[level.toString()] || "";
+    }
 
-    
-    // Update the live summary (character sheet).
+    // Update the character sheet summary pane
     function updateSummary() {
-  const summaryDiv = document.getElementById("summary-content");
-  let html = `<h3>General</h3>
-              <p><strong>Age:</strong> ${character.age}</p>
-              <p><strong>Scars:</strong> ${character.scars}</p>
-              <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
-              <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
-              <h3>Skills</h3>
-              <ul>`;
-  for (let skill in character.skills) {
-    html += `<li>${skill}: ${character.skills[skill]}</li>`;
-  }
-  html += `</ul>`;
-  
-  // Aggregate talents
-  const aggregatedTalents = aggregateTalents();
-  html += `<h3>Talents</h3><ul>`;
-  for (let talent in aggregatedTalents) {
-    html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
-  }
-  html += `</ul>`;
-  
-  // Aggregate events into one line
-  let eventsTaken = character.lifepaths.map(lp => lp.event).filter(ev => ev).join("; ");
-  html += `<h3>Events</h3>
-           <p>${eventsTaken || "None"}</p>`;
-  
-  summaryDiv.innerHTML = html;
-}
+      const summaryDiv = document.getElementById("summary-content");
+      let html = `<div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
+                    <h3>General</h3>
+                    <p><strong>Age:</strong> ${character.age}</p>
+                    <p><strong>Scars:</strong> ${character.scars}</p>
+                    <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
+                    <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+                  </div>`;
+      html += `<div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
+                 <h3>Skills</h3>
+                 <ul>`;
+      for (let skill in character.skills) {
+        html += `<li>${skill}: ${character.skills[skill]}</li>`;
+      }
+      html += `</ul></div>`;
+      const aggregatedTalents = aggregateTalents();
+      html += `<div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
+                 <h3>Talents</h3>
+                 <ul>`;
+      for (let talent in aggregatedTalents) {
+        html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
+      }
+      html += `</ul></div>`;
+      let eventsTaken = character.lifepaths.map(lp => lp.event).filter(ev => ev).join("; ");
+      html += `<div class="summary-section" style="background:#1e1e1e; padding:5px;">
+                 <h3>Events</h3>
+                 <p>${eventsTaken || "None"}</p>
+               </div>`;
+      summaryDiv.innerHTML = html;
+    }
 
-    
-    // Show initial lifepath pool selection.
+    // Display lifepath selection options
     function showInitialPoolSelection() {
       const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = "<h2>Select your initial Lifepath Pool</h2>";
-      for (let pool in lifepathPools) {
+      contentDiv.innerHTML = "<h2>Select a Lifepath Option</h2>";
+      let options = generateLifepathOptions();
+      options.forEach(opt => {
         const btn = document.createElement("button");
         btn.classList.add("lifepath-btn");
-        btn.textContent = pool;
+        let label = `${opt.job.name} (${opt.pool})`;
+        if (opt.wildcard) label += " [Wildcard]";
+        btn.textContent = label;
         btn.onclick = function() {
-          startLifepath(pool);
-        };
-        contentDiv.appendChild(btn);
-      }
-      updateSummary();
-    }
-    
-    // Start lifepath creation with the selected pool.
-    function startLifepath(selectedPool) {
-      character.currentPool = selectedPool;
-      character.lifepaths.push({ pool: selectedPool, job: null, talentAllocations: {}, event: null, agingMessage: "" });
-      displayJobOptions(selectedPool);
-      updateSummary();
-    }
-    
-    // Display job options for the current lifepath.
-    function displayJobOptions(pool) {
-      const rarity = getNextRarity();
-      const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `<h2>${pool} Lifepath Options (${rarity.toUpperCase()})</h2>`;
-      
-      let options = [];
-      const poolJobs = lifepathPools[pool].jobs[rarity];
-      if (poolJobs && poolJobs.length >= 2) {
-        let job1 = getRandomElement(poolJobs);
-        let job2 = getRandomElement(poolJobs);
-        while(job2.name === job1.name && poolJobs.length > 1) {
-          job2 = getRandomElement(poolJobs);
-        }
-        options.push(job1, job2);
-      } else {
-        options = poolJobs.slice();
-      }
-      
-      // One extra option from another pool (common rarity).
-      let otherPools = Object.keys(lifepathPools).filter(p => p !== pool);
-      let randomPool = getRandomElement(otherPools);
-      const extraOption = getRandomElement(lifepathPools[randomPool].jobs["common"]);
-      options.push(extraOption);
-      
-      options.forEach(job => {
-        const btn = document.createElement("button");
-        btn.classList.add("lifepath-btn");
-        btn.textContent = `${job.name} (Guaranteed: ${job.guaranteed.join(", ")}, Random: ${job.randomSlots}, Extra from ${job.extraPool}, TP: ${job.talentPoints})`;
-        btn.onclick = function() {
-          selectJob(job, pool);
+          selectLifepath(opt.pool, opt.job);
         };
         contentDiv.appendChild(btn);
       });
       updateSummary();
     }
-    
-    // Handle job selection.
-    function selectJob(job, pool) {
-      const currentLP = character.lifepaths[character.lifepaths.length - 1];
-      currentLP.job = job;
-      character.age += 5;  // Increase age by 5.
+
+    // Process lifepath selection
+    function selectLifepath(pool, job) {
+      poolCounts[pool] = (poolCounts[pool] || 0) + 1;
+      const newLP = { pool: pool, job: job, talentAllocations: {}, event: null, agingMessage: "" };
+      character.lifepaths.push(newLP);
+      character.age += 5;
       remainingTalentPoints = job.talentPoints;
-      // Proceed to talent allocation UI.
-      showTalentAllocation();
+      showTalentAllocation(newLP);
       updateSummary();
     }
-    
-    // Show the talent allocation UI.
-    function showTalentAllocation() {
-      const currentLP = character.lifepaths[character.lifepaths.length - 1];
-      const job = currentLP.job;
+
+    // Display talent allocation UI for the selected lifepath
+    function showTalentAllocation(lp) {
       const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `<h2>Talent Allocation for ${job.name}</h2>
+      contentDiv.innerHTML = `<h2>Talent Allocation for ${lp.job.name}</h2>
                               <p>Remaining Points: <span id="remaining-points">${remainingTalentPoints}</span></p>
                               <div id="talent-allocation-container"></div>
                               <button id="talent-confirm-btn" class="lifepath-btn">Confirm Allocation</button>`;
-      
-      // Determine talent options: guaranteed talents + random slots from current pool + one extra from extraPool.
-      let talentOptions = [];
-      talentOptions = talentOptions.concat(job.guaranteed);
-      const poolTalents = lifepathPools[currentLP.pool].talents;
-      for (let i = 0; i < job.randomSlots; i++) {
-        let randTalent = getRandomElement(poolTalents);
-        while (talentOptions.includes(randTalent)) {
-          randTalent = getRandomElement(poolTalents);
+      // Determine available talents: guaranteed, random slots from pool, plus one extra from extraPool
+      let talentOptions = [].concat(lp.job.guaranteed);
+      let poolTalents = config.lifepathPools[lp.pool].talents;
+      for (let i = 0; i < lp.job.randomSlots; i++) {
+        let rand = getRandomElement(poolTalents);
+        while (talentOptions.includes(rand)) {
+          rand = getRandomElement(poolTalents);
         }
-        talentOptions.push(randTalent);
+        talentOptions.push(rand);
       }
-      const extraPoolTalents = lifepathPools[job.extraPool].talents;
-      let extraTalent = getRandomElement(extraPoolTalents);
-      while (talentOptions.includes(extraTalent)) {
-        extraTalent = getRandomElement(extraPoolTalents);
+      let extraPoolTalents = config.lifepathPools[lp.job.extraPool].talents;
+      let extra = getRandomElement(extraPoolTalents);
+      while (talentOptions.includes(extra)) {
+        extra = getRandomElement(extraPoolTalents);
       }
-      talentOptions.push(extraTalent);
-      
-      // Initialize talent allocations at level 1.
-      currentLP.talentAllocations = {};
+      talentOptions.push(extra);
+      // Initialize talents to starting level
       talentOptions.forEach(talent => {
-        currentLP.talentAllocations[talent] = 1;
+        lp.talentAllocations[talent] = config.settings.startingTalentLevel;
       });
-      
-      // Render the talent allocation controls.
+      // Render UI controls for each talent
       const container = document.getElementById("talent-allocation-container");
       container.innerHTML = "";
       talentOptions.forEach(talent => {
@@ -623,68 +264,60 @@
         nameSpan.className = "talent-name";
         nameSpan.textContent = talent;
         row.appendChild(nameSpan);
-        
         const controls = document.createElement("div");
         controls.className = "talent-controls";
-        // Down arrow button.
         const downBtn = document.createElement("button");
         downBtn.textContent = "▼";
         downBtn.onclick = function() {
-          if (currentLP.talentAllocations[talent] > 1) {
-            currentLP.talentAllocations[talent]--;
+          if (lp.talentAllocations[talent] > config.settings.startingTalentLevel) {
+            lp.talentAllocations[talent]--;
             remainingTalentPoints++;
-            updateTalentUI();
+            updateTalentUI(lp);
           }
         };
         controls.appendChild(downBtn);
-        // Current level display.
         const levelSpan = document.createElement("span");
         levelSpan.id = "talent-" + talent.replace(/\s+/g, '');
-        levelSpan.textContent = currentLP.talentAllocations[talent];
+        levelSpan.textContent = lp.talentAllocations[talent];
         controls.appendChild(levelSpan);
-        // Up arrow button.
         const upBtn = document.createElement("button");
         upBtn.textContent = "▲";
         upBtn.onclick = function() {
-          if (currentLP.talentAllocations[talent] < 5 && remainingTalentPoints > 0) {
-            currentLP.talentAllocations[talent]++;
+          if (lp.talentAllocations[talent] < config.settings.maxTalentLevel && remainingTalentPoints > 0) {
+            lp.talentAllocations[talent]++;
             remainingTalentPoints--;
-            updateTalentUI();
+            updateTalentUI(lp);
           }
         };
         controls.appendChild(upBtn);
-        
         row.appendChild(controls);
         container.appendChild(row);
       });
-      
       document.getElementById("talent-confirm-btn").onclick = function() {
-        // After confirming talent allocation, proceed to event selection.
-        displayEventOptions(currentLP.pool);
+        showEventOptions(lp.pool);
       };
       updateSummary();
     }
-    
-    // Update the talent allocation UI elements.
-    function updateTalentUI() {
-      const currentLP = character.lifepaths[character.lifepaths.length - 1];
-      for (let talent in currentLP.talentAllocations) {
+
+    // Update the talent allocation UI after changes
+    function updateTalentUI(lp) {
+      for (let talent in lp.talentAllocations) {
         const id = "talent-" + talent.replace(/\s+/g, '');
-        const levelSpan = document.getElementById(id);
-        if (levelSpan) {
-          levelSpan.textContent = currentLP.talentAllocations[talent];
+        const span = document.getElementById(id);
+        if (span) {
+          span.textContent = lp.talentAllocations[talent];
         }
       }
       document.getElementById("remaining-points").textContent = remainingTalentPoints;
       updateSummary();
     }
-    
-    // Display event options for the current lifepath.
-    function displayEventOptions(pool) {
+
+    // Display event options for the selected lifepath's pool
+    function showEventOptions(pool) {
       const contentDiv = document.getElementById("game-content");
       contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
-      const eventOptions = events[pool];
-      eventOptions.forEach(ev => {
+      const eventsArr = config.events[pool];
+      eventsArr.forEach(ev => {
         const btn = document.createElement("button");
         btn.classList.add("event-btn");
         btn.textContent = ev;
@@ -695,58 +328,23 @@
       });
       updateSummary();
     }
-    
-    // Handle event selection.
+
+    // Process event selection and update character accordingly
     function selectEvent(eventName, pool) {
-      const currentLP = character.lifepaths[character.lifepaths.length - 1];
-      currentLP.event = eventName;
-      // Display the event result (placeholder text).
+      const lp = character.lifepaths[character.lifepaths.length - 1];
+      lp.event = eventName;
       const contentDiv = document.getElementById("game-content");
       const resultDiv = document.createElement("div");
       resultDiv.innerHTML = `<p><strong>Event Result:</strong> ${eventName}result</p>`;
       contentDiv.appendChild(resultDiv);
-      
-      // Add bond and item based on the event.
       character.bonds.push(`${pool} Bond from ${eventName}`);
       character.items.push(`${pool} Item from ${eventName}`);
-      
-      // Check aging penalties and generate an aging message.
-      const agingMsg = checkAgingPenalties();
-      currentLP.agingMessage = agingMsg;
-      
-      // After event selection, ask to continue or finish.
+      lp.agingMessage = checkAgingPenalties();
       askContinue();
       updateSummary();
     }
-    
-    // Ask the player whether to continue lifepath creation or finish.
-    function askContinue() {
-      const contentDiv = document.getElementById("game-content");
-      const div = document.createElement("div");
-      div.innerHTML = `<h2>Current Age: ${character.age}</h2>
-                       <p>Do you want to take another lifepath? (Each adds 5 years)</p>`;
-      const continueBtn = document.createElement("button");
-      continueBtn.classList.add("lifepath-btn");
-      continueBtn.textContent = "Continue Lifepath";
-      continueBtn.onclick = function() {
-        const lastPool = character.lifepaths[character.lifepaths.length - 1].pool;
-        character.lifepaths.push({ pool: lastPool, job: null, talentAllocations: {}, event: null, agingMessage: "" });
-        displayJobOptions(lastPool);
-      };
-      div.appendChild(continueBtn);
-      
-      const finishBtn = document.createElement("button");
-      finishBtn.classList.add("lifepath-btn");
-      finishBtn.textContent = "Finish Lifepath Creation";
-      finishBtn.onclick = function() {
-        displayFinalSummary();
-      };
-      div.appendChild(finishBtn);
-      contentDiv.appendChild(div);
-      updateSummary();
-    }
-    
-    // Check aging penalties and return an aging message.
+
+    // Apply aging penalties based on character age
     function checkAgingPenalties() {
       let messages = [];
       const penalties = [
@@ -758,73 +356,100 @@
         { age: 65, chance: 1/4, decreases: 2 }
       ];
       penalties.forEach(penalty => {
-        if (character.age >= penalty.age) {
-          if (randomChance() < penalty.chance) {
-            character.scars++;
-            const decreaseCount = penalty.decreases || 1;
-            const currentLP = character.lifepaths[character.lifepaths.length - 1];
-            const talents = Object.keys(currentLP.talentAllocations);
-            let decreasedTalents = [];
-            for (let i = 0; i < decreaseCount; i++) {
-              let available = talents.filter(t => currentLP.talentAllocations[t] > 1);
-              if (available.length > 0) {
-                let chosen = getRandomElement(available);
-                currentLP.talentAllocations[chosen]--;
-                decreasedTalents.push(chosen);
-              }
-            }
-            messages.push(`Gained a scar; decreased: ${decreasedTalents.join(", ")}`);
+        if (character.age >= penalty.age && randomChance() < penalty.chance) {
+          character.scars++;
+          let decreaseCount = penalty.decreases || 1;
+          let lp = character.lifepaths[character.lifepaths.length - 1];
+          let available = Object.keys(lp.talentAllocations).filter(t => lp.talentAllocations[t] > config.settings.startingTalentLevel);
+          let decreased = [];
+          for (let i = 0; i < decreaseCount && available.length > 0; i++) {
+            let chosen = getRandomElement(available);
+            lp.talentAllocations[chosen]--;
+            decreased.push(chosen);
+            available = Object.keys(lp.talentAllocations).filter(t => lp.talentAllocations[t] > config.settings.startingTalentLevel);
           }
+          messages.push(`Gained a scar; decreased: ${decreased.join(", ")}`);
         }
       });
       if (messages.length === 0) messages.push("Aged without issue");
       return messages.join(" | ");
     }
-    
-    // Display final summary (character sheet style).
-function displayFinalSummary() {
-  const contentDiv = document.getElementById("game-content");
-  let html = `<h2>Final Character Sheet</h2>
-              <h3>General</h3>
-              <p><strong>Age:</strong> ${character.age}</p>
-              <p><strong>Scars:</strong> ${character.scars}</p>
-              <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
-              <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
-              <h3>Skills</h3>
-              <ul>`;
-  for (let skill in character.skills) {
-    html += `<li>${skill}: ${character.skills[skill]}</li>`;
-  }
-  html += `</ul>`;
-  
-  // Aggregate events across lifepaths into one line.
-  let aggregatedEvents = character.lifepaths
-    .map(lp => lp.event)
-    .filter(ev => ev)
-    .join("; ");
-  html += `<h3>Events</h3>
-           <p>${aggregatedEvents || "None"}</p>`;
-  
-  // Aggregate talents from all lifepaths.
-  const aggregatedTalents = aggregateTalents();
-  html += `<h3>Aggregated Talents</h3>
-           <ul>`;
-  for (let talent in aggregatedTalents) {
-    html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
-  }
-  html += `</ul>`;
-  
-  contentDiv.innerHTML = html;
-  updateSummary();
 
-  
-}
+    // Ask the player if they want to continue with another lifepath or finish
+    function askContinue() {
+      const contentDiv = document.getElementById("game-content");
+      const div = document.createElement("div");
+      div.innerHTML = `<h2>Current Age: ${character.age}</h2>
+                       <p>Do you want to take another lifepath? (Each adds 5 years)</p>`;
+      const contBtn = document.createElement("button");
+      contBtn.classList.add("lifepath-btn");
+      contBtn.textContent = "Continue Lifepath";
+      contBtn.onclick = function() {
+        showInitialPoolSelection();
+      };
+      div.appendChild(contBtn);
+      const finishBtn = document.createElement("button");
+      finishBtn.classList.add("lifepath-btn");
+      finishBtn.textContent = "Finish Lifepath Creation";
+      finishBtn.onclick = function() {
+        displayFinalSummary();
+      };
+      div.appendChild(finishBtn);
+      contentDiv.appendChild(div);
+      updateSummary();
+    }
+
+    // Display the final character sheet summary
+    function displayFinalSummary() {
+      const contentDiv = document.getElementById("game-content");
+      let html = `<h2>Final Character Sheet</h2>
+                  <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
+                    <h3>General</h3>
+                    <p><strong>Age:</strong> ${character.age}</p>
+                    <p><strong>Scars:</strong> ${character.scars}</p>
+                    <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
+                    <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+                  </div>
+                  <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
+                    <h3>Skills</h3>
+                    <ul>`;
+      for (let skill in character.skills) {
+        html += `<li>${skill}: ${character.skills[skill]}</li>`;
+      }
+      html += `</ul></div>`;
+      const aggregatedTalents = aggregateTalents();
+      html += `<div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
+               <h3>Aggregated Talents</h3>
+               <ul>`;
+      for (let talent in aggregatedTalents) {
+        html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
+      }
+      html += `</ul></div>`;
+      let eventsTaken = character.lifepaths.map(lp => lp.event).filter(ev => ev).join("; ");
+      html += `<div class="summary-section" style="background:#1e1e1e; padding:5px;">
+               <h3>Events</h3>
+               <p>${eventsTaken || "None"}</p>
+               </div>`;
+      contentDiv.innerHTML = html;
+      updateSummary();
+    }
+
+    // Load external JSON configuration from lifepath_data.json
     document.addEventListener("DOMContentLoaded", function() {
-  showInitialPoolSelection();
-});
+      fetch("lifepath_data.json")
+        .then(response => response.json())
+        .then(data => {
+          config = data;
+          // Initialize lifepath pool counts
+          Object.keys(config.lifepathPools).forEach(pool => {
+            poolCounts[pool] = 0;
+          });
+          showInitialPoolSelection();
+        })
+        .catch(error => {
+          console.error("Error loading lifepath_data.json:", error);
+        });
+    });
   </script>
-<script src="lifepath.js"></script>
-
-
 </body>
 </html>
