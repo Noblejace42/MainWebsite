@@ -54,10 +54,10 @@
 </head>
 <body>
   <nav>
-    <a href="index.html" class="nav-btn">System Generator</a> |
-    <a href="lifepath.html" class="nav-btn">Lifepath Generator</a> |
-    <a href="weapongenerator.html" class="nav-btn">Weapon Generator</a>
-  </nav>
+  <a href="index.html">System Generator</a> |
+  <a href="lifepath.html">Lifepath Generator</a> |
+  <a href="weapongenerator.html">Weapon Generator</a>
+</nav>
 
   <div id="main-container">
     <div id="game-content"></div>
@@ -442,40 +442,70 @@
       else if (count === 1) return "intermediate";
       else return "expert";
     }
+
+    function aggregateTalents() {
+  let totals = {};
+  character.lifepaths.forEach(lp => {
+    for (let talent in lp.talentAllocations) {
+      // Sum the extra levels (allocation - 1)
+      if (!totals[talent]) {
+        totals[talent] = lp.talentAllocations[talent] - 1;
+      } else {
+        totals[talent] += (lp.talentAllocations[talent] - 1);
+      }
+    }
+  });
+  // Add base level (1) for each talent and cap at 5.
+  for (let talent in totals) {
+    totals[talent] = Math.min(1 + totals[talent], 5);
+  }
+  return totals;
+}
+
+
+    function levelToDice(level) {
+  switch(level) {
+    case 1: return "d4";
+    case 2: return "d6";
+    case 3: return "d8";
+    case 4: return "d10";
+    case 5: return "d12";
+    default: return "";
+  }
+}
+
     
     // Update the live summary (character sheet).
     function updateSummary() {
-      const summaryDiv = document.getElementById("summary-content");
-      let html = `<h3>General</h3>
-                  <p><strong>Age:</strong> ${character.age}</p>
-                  <p><strong>Scars:</strong> ${character.scars}</p>
-                  <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
-                  <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
-                  <h3>Skills</h3>
-                  <ul>`;
-      for (let skill in character.skills) {
-        html += `<li>${skill}: ${character.skills[skill]}</li>`;
-      }
-      html += `</ul>`;
-      html += `<h3>Lifepaths</h3>`;
-      character.lifepaths.forEach((lp, i) => {
-        html += `<div style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">
-                   <p><strong>Lifepath ${i+1}</strong> - Pool: ${lp.pool}, Job: ${lp.job ? lp.job.name : "None"}, Event: ${lp.event ? lp.event : "None"}</p>
-                   <p><strong>Aging:</strong> ${lp.agingMessage || "None"}</p>`;
-        // Show only talents allocated above 1.
-        const allocated = [];
-        if(lp.talentAllocations){
-          for (let t in lp.talentAllocations) {
-            if(lp.talentAllocations[t] > 1){
-              allocated.push(`${t}: ${lp.talentAllocations[t]}`);
-            }
-          }
-        }
-        html += `<p><strong>Talents (above base):</strong> ${allocated.length > 0 ? allocated.join(", ") : "None"}</p>
-                 </div>`;
-      });
-      summaryDiv.innerHTML = html;
-    }
+  const summaryDiv = document.getElementById("summary-content");
+  let html = `<h3>General</h3>
+              <p><strong>Age:</strong> ${character.age}</p>
+              <p><strong>Scars:</strong> ${character.scars}</p>
+              <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
+              <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+              <h3>Skills</h3>
+              <ul>`;
+  for (let skill in character.skills) {
+    html += `<li>${skill}: ${character.skills[skill]}</li>`;
+  }
+  html += `</ul>`;
+  
+  // Aggregate talents
+  const aggregatedTalents = aggregateTalents();
+  html += `<h3>Talents</h3><ul>`;
+  for (let talent in aggregatedTalents) {
+    html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
+  }
+  html += `</ul>`;
+  
+  // Aggregate events into one line
+  let eventsTaken = character.lifepaths.map(lp => lp.event).filter(ev => ev).join("; ");
+  html += `<h3>Events</h3>
+           <p>${eventsTaken || "None"}</p>`;
+  
+  summaryDiv.innerHTML = html;
+}
+
     
     // Show initial lifepath pool selection.
     function showInitialPoolSelection() {
@@ -752,46 +782,41 @@
     }
     
     // Display final summary (character sheet style).
-    function displayFinalSummary() {
-      const contentDiv = document.getElementById("game-content");
-      let html = `<h2>Final Character Sheet</h2>
-                  <h3>General</h3>
-                  <p><strong>Age:</strong> ${character.age}</p>
-                  <p><strong>Scars:</strong> ${character.scars}</p>
-                  <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
-                  <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
-                  <h3>Skills</h3>
-                  <ul>`;
-      for (let skill in character.skills) {
-        html += `<li>${skill}: ${character.skills[skill]}</li>`;
-      }
-      html += `</ul>`;
-      html += `<h3>Lifepaths Taken</h3>`;
-      character.lifepaths.forEach((lp, index) => {
-        html += `<div style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">
-                   <p><strong>Lifepath ${index+1}</strong></p>
-                   <p><strong>Pool:</strong> ${lp.pool} &nbsp; <strong>Job:</strong> ${lp.job ? lp.job.name : "None"} &nbsp; <strong>Event:</strong> ${lp.event ? lp.event : "None"}</p>
-                   <p><strong>Aging:</strong> ${lp.agingMessage || "None"}</p>`;
-        // Only list talents with allocation above 1.
-        const allocated = [];
-        if(lp.talentAllocations){
-          for (let t in lp.talentAllocations) {
-            if(lp.talentAllocations[t] > 1){
-              allocated.push(`${t}: ${lp.talentAllocations[t]}`);
-            }
-          }
-        }
-        html += `<p><strong>Talents (above base):</strong> ${allocated.length > 0 ? allocated.join(", ") : "None"}</p>
-                 </div>`;
-      });
-      contentDiv.innerHTML = html;
-      updateSummary();
-    }
-    
-    // Start the game after the DOM has loaded.
-    document.addEventListener("DOMContentLoaded", function() {
-      showInitialPoolSelection();
-    });
+function displayFinalSummary() {
+  const contentDiv = document.getElementById("game-content");
+  let html = `<h2>Final Character Sheet</h2>
+              <h3>General</h3>
+              <p><strong>Age:</strong> ${character.age}</p>
+              <p><strong>Scars:</strong> ${character.scars}</p>
+              <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
+              <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+              <h3>Skills</h3>
+              <ul>`;
+  for (let skill in character.skills) {
+    html += `<li>${skill}: ${character.skills[skill]}</li>`;
+  }
+  html += `</ul>`;
+  
+  // Aggregate events across lifepaths into one line.
+  let aggregatedEvents = character.lifepaths
+    .map(lp => lp.event)
+    .filter(ev => ev)
+    .join("; ");
+  html += `<h3>Events</h3>
+           <p>${aggregatedEvents || "None"}</p>`;
+  
+  // Aggregate talents from all lifepaths.
+  const aggregatedTalents = aggregateTalents();
+  html += `<h3>Aggregated Talents</h3>
+           <ul>`;
+  for (let talent in aggregatedTalents) {
+    html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
+  }
+  html += `</ul>`;
+  
+  contentDiv.innerHTML = html;
+  updateSummary();
+}
   </script>
 </body>
 </html>
