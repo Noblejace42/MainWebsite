@@ -2,10 +2,13 @@
 
 body {
   font-family: 'Orbitron', sans-serif;
-  background-color: #1a1a1a;
+  /* Use your existing #1a1a1a color as a fallback, then set the image to repeat */
+  background: #1a1a1a url("spacebackground.png") repeat-y center top;
+  background-attachment: fixed; /* Ensures it stays in place while scrolling */
+  background-size: auto; /* Prevents zooming */
   color: #ccc;
   margin: 0;
-  padding: 20px;
+  padding: 0; /* Ensure no extra padding around the page */
   line-height: 1.5;
 }
 
@@ -15,7 +18,7 @@ h1, h2, h3 {
 
 .container {
   max-width: 900px;
-  margin: auto;
+  margin: 60px auto 20px auto; /* Pushes content down below navbar */
   padding: 20px;
   background: #262626;
   border: 1px solid #444;
@@ -58,12 +61,17 @@ button:hover {
   font-size: 0.9em;
 }
 
-
+/* Navbar Fix - Full Width & Attached to Top */
 nav {
   background-color: #262626; /* Match container background */
+  width: 100%;
   padding: 10px;
   text-align: center;
   border-bottom: 2px solid #444; /* Add a subtle bottom border */
+  position: fixed; /* Keeps it at the top while scrolling */
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Ensures it appears above other content */
 }
 
 nav a {
@@ -135,13 +143,29 @@ nav a:hover {
   font-size: 0.95em;
 }
 
-body {
-  font-family: 'Orbitron', sans-serif;
-  /* Use your existing #1a1a1a color as a fallback, then set the image to repeat */
-  background: #1a1a1a url("spacebackground.png") repeat-y center top;
-  color: #ccc;
-  margin: 0;
-  padding: 20px;
-  line-height: 1.5;
+.art-credit {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.6); /* Subtle white transparency */
+  background: rgba(0, 0, 0, 0.3); /* Light transparent black for contrast */
+  padding: 3px 6px;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.art-credit:hover {
+  opacity: 1; /* Becomes fully visible when hovered */
+}
+
+.art-credit a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+
+.art-credit a:hover {
+  text-decoration: underline;
 }
 
