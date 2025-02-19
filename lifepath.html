@@ -17,15 +17,15 @@
       margin-right: 20px;
     }
     #summary-pane {
-  flex: 1;
-  background: #262626;
-  border: 1px solid #444;
-  padding: 50px;
-  border-radius: 4px;
-  max-height: calc(100vh - 60px); /* Adjusted for navbar */
-  overflow-y: auto;
-  margin-top: 10px; /* Ensures it doesn't start under the navbar */
-}
+      flex: 1;
+      background: #262626;
+      border: 1px solid #444;
+      padding: 50px;
+      border-radius: 4px;
+      max-height: calc(100vh - 60px); /* Adjusted for navbar */
+      overflow-y: auto;
+      margin-top: 10px; /* Ensures it doesn't start under the navbar */
+    }
     .talent-row {
       display: flex;
       align-items: center;
@@ -66,12 +66,11 @@
       <div id="summary-content"></div>
     </div>
   </div>
-<div class="art-credit">
-  <a href="https://www.instagram.com/vinny.longbow?igsh=c203czNuMW92MXA3" target="_blank">
-    Art Credit: Vincent Fleetwood
-  </a>
-</div>
-
+  <div class="art-credit">
+    <a href="https://www.instagram.com/vinny.longbow?igsh=c203czNuMW92MXA3" target="_blank">
+      Art Credit: Vincent Fleetwood
+    </a>
+  </div>
 
   <!-- Main JavaScript -->
   <script>
@@ -84,17 +83,18 @@
       bonds: [],
       items: [],
       talentDecreases: [],
+      // Skills are now stored as numeric levels (starting at 1)
       skills: {
-        "Tech": "1d4",
-        "Recall": "1d4",
-        "Speed": "1d4",
-        "Might": "1d4",
-        "Charm": "1d4",
-        "Fortitude": "1d4",
-        "Presence": "1d4",
-        "Precision": "1d4",
-        "Will": "1d4",
-        "Awareness": "1d4"
+        "Tech": 1,
+        "Recall": 1,
+        "Speed": 1,
+        "Might": 1,
+        "Charm": 1,
+        "Fortitude": 1,
+        "Presence": 1,
+        "Precision": 1,
+        "Will": 1,
+        "Awareness": 1
       }
     };
     let remainingTalentPoints = 0;
@@ -166,12 +166,11 @@
       return totals;
     }
 
-    // Map talent level to dice
+    // Map talent level to dice notation using the configuration mapping
     function levelToDice(level) {
-    if (level === 0) return ""; // Hide zero-level talents
-    return config.settings.talentDiceMapping[level.toString()] || "";
-}
-
+      if (level === 0) return "";
+      return config.settings.talentDiceMapping[level.toString()] || "";
+    }
 
     // Update the character sheet summary pane
     function updateSummary() {
@@ -187,7 +186,8 @@
                  <h3>Skills</h3>
                  <ul>`;
       for (let skill in character.skills) {
-        html += `<li>${skill}: ${character.skills[skill]}</li>`;
+        // Display the numeric level and its corresponding dice notation
+        html += `<li>${skill}: ${character.skills[skill]} (${config.settings.talentDiceMapping[character.skills[skill].toString()]})</li>`;
       }
       html += `</ul></div>`;
       const aggregatedTalents = aggregateTalents();
@@ -237,9 +237,9 @@
       updateSummary();
     }
 
-
+    // Increase skills based on the selected pool (fixes the skill allocation)
     function increaseSkills(pool) {
-    const skillPools = {
+      const skillPools = {
         "Labor": ["Might", "Will", "Precision", "Fortitude"],
         "Crime": ["Speed", "Awareness", "Precision", "Charm"],
         "Exploration": ["Speed", "Awareness", "Recall", "Tech"],
@@ -249,33 +249,24 @@
         "Education": ["Recall", "Will", "Presence", "Tech"],
         "Prosperity": ["Presence", "Charm", "Recall", "Precision"],
         "Politics": ["Charm", "Presence", "Recall", "Awareness"]
-    };
-
-    if (!skillPools[pool]) return; // If the pool is missing, do nothing
-
-    const skillsToIncrease = skillPools[pool]; // Get possible skills
-    let numSkills = Math.random() < 0.5 ? 1 : 2; // Randomly increase 1 or 2 skills
-    let selectedSkills = [];
-
-    while (selectedSkills.length < numSkills) {
+      };
+      if (!skillPools[pool]) return;
+      const skillsToIncrease = skillPools[pool];
+      let numSkills = Math.random() < 0.5 ? 1 : 2;
+      let selectedSkills = [];
+      while (selectedSkills.length < numSkills) {
         let skill = getRandomElement(skillsToIncrease);
         if (!selectedSkills.includes(skill)) {
-            selectedSkills.push(skill);
+          selectedSkills.push(skill);
         }
+      }
+      selectedSkills.forEach(skill => {
+        if (character.skills[skill] < config.settings.maxTalentLevel) {
+          character.skills[skill]++;
+        }
+      });
     }
 
-    selectedSkills.forEach(skill => {
-        // Increase skill level by 1, converting from dice notation
-        let currentLevel = parseInt(character.skills[skill].replace("d", ""));
-        if (currentLevel < 12) { // Max level is d12
-            let newLevel = currentLevel * 2; // d4 → d6 → d8 → d10 → d12
-            character.skills[skill] = `d${newLevel}`;
-        }
-    });
-}
-
-
-    
     // Display talent allocation UI for the selected lifepath
     function showTalentAllocation(lp) {
       const contentDiv = document.getElementById("game-content");
@@ -283,7 +274,7 @@
                               <p>Remaining Points: <span id="remaining-points">${remainingTalentPoints}</span></p>
                               <div id="talent-allocation-container"></div>
                               <button id="talent-confirm-btn" class="lifepath-btn">Confirm Allocation</button>`;
-      // Determine available talents: guaranteed, random slots from pool, plus one extra from extraPool
+      // Determine available talents: guaranteed talents, additional random slots from the pool, plus one extra from the extraPool
       let talentOptions = [].concat(lp.job.guaranteed);
       let poolTalents = config.lifepathPools[lp.pool].talents;
       for (let i = 0; i < lp.job.randomSlots; i++) {
@@ -299,12 +290,10 @@
         extra = getRandomElement(extraPoolTalents);
       }
       talentOptions.push(extra);
-      // Initialize talents to starting level
-      // Initialize talents at 0 (hidden until increased)
-talentOptions.forEach(talent => {
-    lp.talentAllocations[talent] = 0;
-});
-
+      // Initialize talents to the starting level (instead of 0)
+      talentOptions.forEach(talent => {
+        lp.talentAllocations[talent] = config.settings.startingTalentLevel;
+      });
       // Render UI controls for each talent
       const container = document.getElementById("talent-allocation-container");
       container.innerHTML = "";
@@ -354,16 +343,11 @@ talentOptions.forEach(talent => {
     function updateTalentUI(lp) {
       for (let talent in lp.talentAllocations) {
         const id = "talent-" + talent.replace(/\s+/g, '');
-const span = document.getElementById(id);
-if (span) {
-    if (lp.talentAllocations[talent] === 0) {
-        span.parentElement.style.display = "none"; // Hide talents with 0 points
-    } else {
-        span.parentElement.style.display = "flex"; // Show talents that have points
-        span.textContent = lp.talentAllocations[talent];
-    }
-}
-
+        const span = document.getElementById(id);
+        if (span) {
+          span.parentElement.style.display = "flex"; // Always show the talent row
+          span.textContent = lp.talentAllocations[talent];
+        }
       }
       document.getElementById("remaining-points").textContent = remainingTalentPoints;
       updateSummary();
@@ -415,10 +399,10 @@ if (span) {
       penalties.forEach(penalty => {
         if (character.age >= penalty.age && randomChance() < penalty.chance) {
           character.scars++;
-if (character.scars > 5) {
-    displayDeathScreen();
-    return "You died.";
-}
+          if (character.scars > 5) {
+            displayDeathScreen();
+            return "You died.";
+          }
           let decreaseCount = penalty.decreases || 1;
           let lp = character.lifepaths[character.lifepaths.length - 1];
           let available = Object.keys(lp.talentAllocations).filter(t => lp.talentAllocations[t] > config.settings.startingTalentLevel);
@@ -461,14 +445,14 @@ if (character.scars > 5) {
     }
 
     function displayDeathScreen() {
-    const contentDiv = document.getElementById("game-content");
-    contentDiv.innerHTML = `<h2>You Died</h2>
-                            <p>Your character has succumbed to their injuries.</p>
-                            <button class="lifepath-btn" onclick="restartGame()">Restart</button>`;
-}
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = `<h2>You Died</h2>
+                              <p>Your character has succumbed to their injuries.</p>
+                              <button class="lifepath-btn" onclick="restartGame()">Restart</button>`;
+    }
 
     function restartGame() {
-    character = {
+      character = {
         age: 15,
         scars: 0,
         lifepaths: [],
@@ -476,15 +460,15 @@ if (character.scars > 5) {
         items: [],
         talentDecreases: [],
         skills: {
-            "Tech": "1d4", "Recall": "1d4", "Speed": "1d4", "Might": "1d4",
-            "Charm": "1d4", "Fortitude": "1d4", "Presence": "1d4", "Precision": "1d4",
-            "Will": "1d4", "Awareness": "1d4"
+          "Tech": 1, "Recall": 1, "Speed": 1, "Might": 1,
+          "Charm": 1, "Fortitude": 1, "Presence": 1, "Precision": 1,
+          "Will": 1, "Awareness": 1
         }
-    };
-    poolCounts = {};
-    showInitialPoolSelection();
-}
-    
+      };
+      poolCounts = {};
+      showInitialPoolSelection();
+    }
+
     // Display the final character sheet summary
     function displayFinalSummary() {
       const contentDiv = document.getElementById("game-content");
@@ -500,7 +484,7 @@ if (character.scars > 5) {
                     <h3>Skills</h3>
                     <ul>`;
       for (let skill in character.skills) {
-        html += `<li>${skill}: ${character.skills[skill]}</li>`;
+        html += `<li>${skill}: ${character.skills[skill]} (${config.settings.talentDiceMapping[character.skills[skill].toString()]})</li>`;
       }
       html += `</ul></div>`;
       const aggregatedTalents = aggregateTalents();
