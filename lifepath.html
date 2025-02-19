@@ -229,6 +229,7 @@
     function selectLifepath(pool, job) {
       poolCounts[pool] = (poolCounts[pool] || 0) + 1;
       const newLP = { pool: pool, job: job, talentAllocations: {}, event: null, agingMessage: "" };
+      increaseSkills(pool);
       character.lifepaths.push(newLP);
       character.age += 5;
       remainingTalentPoints = job.talentPoints;
@@ -236,6 +237,45 @@
       updateSummary();
     }
 
+
+    function increaseSkills(pool) {
+    const skillPools = {
+        "Labor": ["Might", "Will", "Precision", "Fortitude"],
+        "Crime": ["Speed", "Awareness", "Precision", "Charm"],
+        "Exploration": ["Speed", "Awareness", "Recall", "Tech"],
+        "Space": ["Tech", "Recall", "Awareness", "Precision"],
+        "Espionage": ["Charm", "Presence", "Tech", "Precision"],
+        "Warfare": ["Might", "Fortitude", "Awareness", "Precision"],
+        "Education": ["Recall", "Will", "Presence", "Tech"],
+        "Prosperity": ["Presence", "Charm", "Recall", "Precision"],
+        "Politics": ["Charm", "Presence", "Recall", "Awareness"]
+    };
+
+    if (!skillPools[pool]) return; // If the pool is missing, do nothing
+
+    const skillsToIncrease = skillPools[pool]; // Get possible skills
+    let numSkills = Math.random() < 0.5 ? 1 : 2; // Randomly increase 1 or 2 skills
+    let selectedSkills = [];
+
+    while (selectedSkills.length < numSkills) {
+        let skill = getRandomElement(skillsToIncrease);
+        if (!selectedSkills.includes(skill)) {
+            selectedSkills.push(skill);
+        }
+    }
+
+    selectedSkills.forEach(skill => {
+        // Increase skill level by 1, converting from dice notation
+        let currentLevel = parseInt(character.skills[skill].replace("d", ""));
+        if (currentLevel < 12) { // Max level is d12
+            let newLevel = currentLevel * 2; // d4 → d6 → d8 → d10 → d12
+            character.skills[skill] = `d${newLevel}`;
+        }
+    });
+}
+
+
+    
     // Display talent allocation UI for the selected lifepath
     function showTalentAllocation(lp) {
       const contentDiv = document.getElementById("game-content");
