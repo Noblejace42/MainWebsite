@@ -2,15 +2,15 @@
 
 body {
   font-family: 'Orbitron', sans-serif;
-  /* Use your existing #1a1a1a color as a fallback, then set the image to repeat */
   background: #1a1a1a url("spacebackground.png") repeat-y center top;
-  background-attachment: fixed; /* Ensures it stays in place while scrolling */
-  background-size: auto; /* Prevents zooming */
+  background-attachment: fixed;
+  background-size: auto;
   color: #ccc;
   margin: 0;
-  padding: 0; /* Ensure no extra padding around the page */
+  padding-top: 75px; /* Adjust based on navbar height */
   line-height: 1.5;
 }
+
 
 h1, h2, h3 {
   margin: 0.5em 0;
