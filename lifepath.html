@@ -13,12 +13,585 @@
     <a href="weapongenerator.html">Weapon Generator</a>
   </nav>
 
-  <div class="container">
-    <h1>Astral Axial Lifepath Generator</h1>
-    <button onclick="startLifepath()">Start Lifepath</button>
-    <div id="lifepathOutput"></div>
-  </div>
+  <script>
+    /*************************************************************
+     * Lifepath Generator for Hard Sci-Fi RPG
+     *
+     * Overview:
+     * This script implements a lifepath system where a character
+     * begins at age 15 and takes successive lifepaths, each adding
+     * 5 years of age. Each lifepath is chosen from one of several
+     * pools (Labor, Crime, Exploration, Space, Espionage, Warfare,
+     * Education, Prosperity, Politics) and is defined by a job
+     * blueprint that specifies guaranteed talents, random talent
+     * slots from the pool, one extra random slot from another pool,
+     * and a number of talent points.
+     *
+     * For each lifepath, three event options (placeholders) are 
+     * presented. Selecting an event grants a bond and an item.
+     *
+     * Aging penalties (scars and random talent decreases) are 
+     * applied at certain ages. Accumulating 5 scars (or death via 
+     * an event) resets the game after showing a final summary.
+     *
+     * Placeholders:
+     *   - Event outcomes (e.g., laborevent1, etc.)
+     *   - Detailed talent allocation and skill progression.
+     *   - Advanced lifepath weighting and persistent storage.
+     *
+     *************************************************************/
 
-  <script src="lifepath.js"></script>
+    // Global character object to track state
+    let character = {
+      age: 15,
+      scars: 0,
+      lifepaths: [],      // Each lifepath will record { pool, job, event }
+      bonds: [],
+      items: [],
+      talentDecreases: [] // Log of talent decreases from aging
+    };
+
+    // Lifepath Pools and Job Blueprints (using finalized pools)
+    // Each job includes:
+    //   - name: Job title.
+    //   - guaranteed: Array of 2 guaranteed talents (from the pool).
+    //   - randomSlots: Number of random talent slots from the pool.
+    //   - extraPool: The pool to draw one extra random talent.
+    //   - talentPoints: Talent points awarded (4 for common, 5 for intermediate, 7 for expert).
+    const lifepathPools = {
+      "Labor": {
+        talents: ["Heavy Lifting", "Machinery Operation", "Fabrication", "Repair Structure", "Repair Weapon", "Repair Tech", "Logistics", "Repair Vehicle", "Agriculture", "Mining"],
+        jobs: {
+          "common": [
+            { name: "Construction Worker", guaranteed: ["Repair Structure", "Fabrication"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Factory Line Operator", guaranteed: ["Machinery Operation", "Logistics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Ranch Hand", guaranteed: ["Agriculture", "Heavy Lifting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Ore Hauler", guaranteed: ["Mining", "Logistics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Farmer", guaranteed: ["Agriculture", "Heavy Lifting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Janitor", guaranteed: ["Repair Structure", "Logistics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Quarry Digger", guaranteed: ["Mining", "Heavy Lifting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Slave", guaranteed: ["Heavy Lifting", "Repair Structure"], randomSlots: 1, extraPool: "Education", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "Field Mechanic", guaranteed: ["Repair Tech", "Repair Vehicle"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Demolitions Technician", guaranteed: ["Repair Weapon", "Repair Tech"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Drilling Engineer", guaranteed: ["Mining", "Fabrication"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Machinist", guaranteed: ["Machinery Operation", "Fabrication"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Cargo Loader", guaranteed: ["Logistics", "Heavy Lifting"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Foundry Worker", guaranteed: ["Fabrication", "Mining"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Blacksmith", guaranteed: ["Repair Weapon", "Fabrication"], randomSlots: 2, extraPool: "Education", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Structural Engineer", guaranteed: ["Repair Structure", "Logistics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Starship Technician", guaranteed: ["Repair Tech", "Machinery Operation"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Bridge Architect", guaranteed: ["Fabrication", "Repair Structure"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Large-Scale Foreman", guaranteed: ["Logistics", "Heavy Lifting"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Hydroponics Director", guaranteed: ["Agriculture", "Logistics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Logistics Coordinator", guaranteed: ["Logistics", "Machinery Operation"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Urban Renewal Specialist", guaranteed: ["Repair Structure", "Fabrication"], randomSlots: 3, extraPool: "Education", talentPoints: 7 }
+          ]
+        }
+      },
+      "Crime": {
+        talents: ["Stealth", "Lockpicking", "Sleight of Hand", "Hacking", "Disguise", "Running", "Climbing", "Deception", "Criminal Knowledge", "Negotiation"],
+        jobs: {
+          "common": [
+            { name: "Pickpocket", guaranteed: ["Sleight of Hand", "Stealth"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Burglar", guaranteed: ["Lockpicking", "Stealth"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Street Hustler", guaranteed: ["Deception", "Criminal Knowledge"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Gang Initiate", guaranteed: ["Criminal Knowledge", "Running"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Bootlegger", guaranteed: ["Negotiation", "Deception"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Beggar", guaranteed: ["Deception", "Negotiation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "Grifter", guaranteed: ["Deception", "Negotiation"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Safecracker", guaranteed: ["Lockpicking", "Sleight of Hand"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Smuggler", guaranteed: ["Hacking", "Criminal Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Cybercriminal", guaranteed: ["Hacking", "Deception"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Drug Chemist", guaranteed: ["Hacking", "Criminal Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Night Market Vendor", guaranteed: ["Negotiation", "Deception"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Arms Dealer", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Bank Robber", guaranteed: ["Lockpicking", "Sleight of Hand"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Syndicate Boss", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Master Spy", guaranteed: ["Stealth", "Disguise"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Political Fixer", guaranteed: ["Negotiation", "Deception"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Interstellar Hacker", guaranteed: ["Hacking", "Criminal Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "High-Stakes Con Artist Saboteur", guaranteed: ["Deception", "Hacking"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Intelligence Broker", guaranteed: ["Criminal Knowledge", "Negotiation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Assassin", guaranteed: ["Stealth", "Sleight of Hand"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Cartel Leader", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 }
+          ]
+        }
+      },
+      "Exploration": {
+        talents: ["Bushcraft", "Terrestrial Navigation", "Climbing", "Animal Handling", "Xenoflora", "Tracking", "Scouting", "Repair Vehicle", "First Aid"],
+        jobs: {
+          "common": [
+            { name: "Scout", guaranteed: ["Scouting", "Terrestrial Navigation"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Treasure Seeker", guaranteed: ["Tracking", "Scouting"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Junk Salvager", guaranteed: ["Bushcraft", "Tracking"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Nomadic Trader", guaranteed: ["Animal Handling", "Terrestrial Navigation"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Coastal Fisher", guaranteed: ["Animal Handling", "First Aid"], randomSlots: 1, extraPool: "Education", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "Cartographer", guaranteed: ["Terrestrial Navigation", "Scouting"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Deep-Sea Diver", guaranteed: ["Bushcraft", "First Aid"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Xeno-Tracker", guaranteed: ["Tracking", "Scouting"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Wilderness Guide", guaranteed: ["Bushcraft", "Terrestrial Navigation"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Astrobiologist", guaranteed: ["Xenoflora", "Animal Handling"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Vehicle Scout", guaranteed: ["Repair Vehicle", "Terrestrial Navigation"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Planetary Surveyor", guaranteed: ["Scouting", "Tracking"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Meteorologist", guaranteed: ["First Aid", "Terrestrial Navigation"], randomSlots: 2, extraPool: "Education", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Terraforming Expert", guaranteed: ["Xenoflora", "Bushcraft"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Axial Network Mapper", guaranteed: ["Terrestrial Navigation", "Tracking"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Orbital Recon Pilot", guaranteed: ["Scouting", "Terrestrial Navigation"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Artifact Recoverer", guaranteed: ["Tracking", "Scouting"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Volcanologist", guaranteed: ["First Aid", "Bushcraft"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Geological Surveyor", guaranteed: ["Terrestrial Navigation", "Tracking"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Atmospheric Engineer", guaranteed: ["First Aid", "Scouting"], randomSlots: 3, extraPool: "Education", talentPoints: 7 }
+          ]
+        }
+      },
+      "Space": {
+        talents: ["Piloting", "Repair Vehicle", "Axial Navigation", "EVA Operations", "Gunnery", "Ship Subsystems", "Astralgnosis", "Stellar Materials", "Ship Knowledge"],
+        jobs: {
+          "common": [
+            { name: "Cargo Hauler", guaranteed: ["Repair Vehicle", "Axial Navigation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Satellite Maintenance Tech", guaranteed: ["Repair Vehicle", "Ship Subsystems"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Space Janitor", guaranteed: ["Repair Vehicle", "EVA Operations"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Shuttle Assistant", guaranteed: ["Piloting", "EVA Operations"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Orbital Welder", guaranteed: ["Repair Vehicle", "Ship Subsystems"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Fuel Station Attendant", guaranteed: ["Repair Vehicle", "Stellar Materials"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Space Miner", guaranteed: ["Repair Vehicle", "Axial Navigation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 },
+            { name: "Comm Technician", guaranteed: ["Ship Knowledge", "Axial Navigation"], randomSlots: 1, extraPool: "Espionage", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "EVA Specialist", guaranteed: ["EVA Operations", "Repair Vehicle"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Astrogator", guaranteed: ["Axial Navigation", "Piloting"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Freighter Pilot", guaranteed: ["Piloting", "Axial Navigation"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Orbital Engineer", guaranteed: ["Ship Subsystems", "Repair Vehicle"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Axial Technician", guaranteed: ["Repair Vehicle", "Ship Knowledge"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 },
+            { name: "Shipwright", guaranteed: ["Ship Subsystems", "Repair Vehicle"], randomSlots: 2, extraPool: "Espionage", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Starship Captain", guaranteed: ["Piloting", "Ship Knowledge"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Space Marine", guaranteed: ["Gunnery", "EVA Operations"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Asteroid Miner Coordinator", guaranteed: ["Axial Navigation", "Repair Vehicle"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Black Market Space Runner", guaranteed: ["Piloting", "EVA Operations"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Space Habitat Director", guaranteed: ["Ship Knowledge", "Axial Navigation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Deep-Space Surveyor", guaranteed: ["Astralgnosis", "Axial Navigation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Ace Pilot", guaranteed: ["Piloting", "Axial Navigation"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 },
+            { name: "Orbital Defense Strategist", guaranteed: ["Gunnery", "Ship Subsystems"], randomSlots: 3, extraPool: "Espionage", talentPoints: 7 }
+          ]
+        }
+      },
+      "Espionage": {
+        talents: ["Interrogation", "Scouting", "Stealth", "Deception", "Disguise", "Hacking", "Covert Entry", "Cryptography", "Negotiation", "Repair Tech"],
+        jobs: {
+          "common": [
+            { name: "Courier", guaranteed: ["Stealth", "Covert Entry"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Information Broker", guaranteed: ["Negotiation", "Cryptography"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Undercover Watcher", guaranteed: ["Stealth", "Disguise"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Street Informant", guaranteed: ["Interrogation", "Deception"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Private Investigator", guaranteed: ["Interrogation", "Hacking"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "Deep Cover Agent", guaranteed: ["Disguise", "Stealth"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Cyber Infiltrator", guaranteed: ["Hacking", "Cryptography"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Propaganda Specialist", guaranteed: ["Deception", "Negotiation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Government Mole", guaranteed: ["Deception", "Interrogation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "High-Risk Courier", guaranteed: ["Stealth", "Covert Entry"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Counterintelligence Officer", guaranteed: ["Interrogation", "Cryptography"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Interrogation Specialist", guaranteed: ["Interrogation", "Deception"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Master Spy", guaranteed: ["Stealth", "Disguise"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Intelligence Director", guaranteed: ["Interrogation", "Cryptography"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "State Saboteur", guaranteed: ["Hacking", "Deception"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Political Puppeteer", guaranteed: ["Negotiation", "Deception"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "High-Level Defector", guaranteed: ["Hacking", "Stealth"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 }
+          ]
+        }
+      },
+      "Warfare": {
+        talents: ["Repair Weapon", "Martial Arts", "Tactics", "Explosives", "Military History", "Leadership", "First Aid", "Interrogation", "Driving", "Running"],
+        jobs: {
+          "common": [
+            { name: "Mercenary", guaranteed: ["Martial Arts", "Tactics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Militia Fighter", guaranteed: ["Martial Arts", "Running"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Combat Medic", guaranteed: ["First Aid", "Interrogation"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Draft", guaranteed: ["Running", "Martial Arts"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Riot Control Officer", guaranteed: ["Tactics", "Leadership"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Pirate Hunter", guaranteed: ["Driving", "Martial Arts"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Artillery Loader", guaranteed: ["Driving", "Tactics"], randomSlots: 1, extraPool: "Education", talentPoints: 4 },
+            { name: "Foot Soldier", guaranteed: ["Martial Arts", "Running"], randomSlots: 1, extraPool: "Education", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "Shock Trooper", guaranteed: ["Martial Arts", "Explosives"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Tank Commander", guaranteed: ["Tactics", "Leadership"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Special Forces Operative", guaranteed: ["Martial Arts", "Tactics"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Marksman", guaranteed: ["Repair Weapon", "Tactics"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Urban Warfare Specialist", guaranteed: ["Tactics", "Explosives"], randomSlots: 2, extraPool: "Education", talentPoints: 5 },
+            { name: "Orbital Gunner", guaranteed: ["Driving", "Tactics"], randomSlots: 2, extraPool: "Education", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Fleet Admiral", guaranteed: ["Leadership", "Tactics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "War Campaign Coordinator", guaranteed: ["Leadership", "Military History"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Military General", guaranteed: ["Leadership", "Tactics"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Deep Space Raider", guaranteed: ["Martial Arts", "Driving"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Warlord", guaranteed: ["Leadership", "Martial Arts"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Orbital Battle Specialist", guaranteed: ["Tactics", "Explosives"], randomSlots: 3, extraPool: "Education", talentPoints: 7 },
+            { name: "Military Engineer", guaranteed: ["Repair Weapon", "Military History"], randomSlots: 3, extraPool: "Education", talentPoints: 7 }
+          ]
+        }
+      },
+      "Education": {
+        talents: ["Database Usage", "Teaching", "Material Science", "Repair Tech", "Cultural Studies", "Insight", "Linguistics", "First Aid", "Negotiation", "Logistics"],
+        jobs: {
+          "common": [
+            { name: "Archivist", guaranteed: ["Database Usage", "Linguistics"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Tutor", guaranteed: ["Teaching", "Cultural Studies"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Data Analyst", guaranteed: ["Database Usage", "Material Science"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Historical Researcher", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Lab Technician", guaranteed: ["Material Science", "Repair Tech"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "University Lecturer", guaranteed: ["Teaching", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Researcher", guaranteed: ["Database Usage", "Material Science"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Xeno-Archaeologist", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Neural Studies Expert", guaranteed: ["Database Usage", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Biomechanical Educator", guaranteed: ["Material Science", "Repair Tech"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Cryptolinguist", guaranteed: ["Linguistics", "Database Usage"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Scientific Theorist", guaranteed: ["Material Science", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Academic Administrator", guaranteed: ["Negotiation", "Logistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Leading Scientist", guaranteed: ["Database Usage", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Theoretical Physicist", guaranteed: ["Material Science", "Insight"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Experimental Biologist", guaranteed: ["Material Science", "First Aid"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Political Historian", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Axial Researcher", guaranteed: ["Database Usage", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Cross-Species Communicator", guaranteed: ["Cultural Studies", "Linguistics"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Quantum Theorist", guaranteed: ["Insight", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Genetics Pioneer", guaranteed: ["First Aid", "Material Science"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 }
+          ]
+        }
+      },
+      "Prosperity": {
+        talents: ["Negotiation", "Accounting", "Logistics", "Trade Routes", "Corporate Doctrine", "Material Science", "Deception", "Insight", "Appraisal", "Linguistics"],
+        jobs: {
+          "common": [
+            { name: "Street Vendor", guaranteed: ["Negotiation", "Appraisal"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Contract Negotiator", guaranteed: ["Negotiation", "Deception"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Salvage Appraiser", guaranteed: ["Appraisal", "Material Science"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Tax Collector", guaranteed: ["Accounting", "Insight"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Farm Business Coordinator", guaranteed: ["Negotiation", "Logistics"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 },
+            { name: "Local Accountant", guaranteed: ["Accounting", "Appraisal"], randomSlots: 1, extraPool: "Politics", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "Supply Chain Manager", guaranteed: ["Logistics", "Negotiation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Investment Broker", guaranteed: ["Accounting", "Insight"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Trade Route Planner", guaranteed: ["Trade Routes", "Logistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Guild Representative", guaranteed: ["Negotiation", "Deception"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Industrial Speculator", guaranteed: ["Accounting", "Corporate Doctrine"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Space Freight Executive", guaranteed: ["Negotiation", "Logistics"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Border Tariff Expert", guaranteed: ["Accounting", "Trade Routes"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Black Market Dealer", guaranteed: ["Deception", "Negotiation"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 },
+            { name: "Economic Strategist", guaranteed: ["Insight", "Corporate Doctrine"], randomSlots: 2, extraPool: "Politics", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Corporate CEO", guaranteed: ["Negotiation", "Corporate Doctrine"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Axial Investment Magnate", guaranteed: ["Accounting", "Insight"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Galactic Commodities Broker", guaranteed: ["Appraisal", "Accounting"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Market Manipulator", guaranteed: ["Deception", "Negotiation"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "War Profiteer", guaranteed: ["Corporate Doctrine", "Accounting"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Stock Exchange Controller", guaranteed: ["Accounting", "Insight"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 },
+            { name: "Planetary Trade Director", guaranteed: ["Trade Routes", "Logistics"], randomSlots: 3, extraPool: "Politics", talentPoints: 7 }
+          ]
+        }
+      },
+      "Politics": {
+        talents: ["Leadership", "Negotiation", "Deception", "Diplomacy", "Accounting", "Linguistics", "Cultural Studies", "Criminal Knowledge", "Military History"],
+        jobs: {
+          "common": [
+            { name: "Public Speaker", guaranteed: ["Leadership", "Diplomacy"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
+            { name: "Bureaucratic Clerk", guaranteed: ["Negotiation", "Accounting"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
+            { name: "Protest Leader", guaranteed: ["Leadership", "Deception"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
+            { name: "Legal Aide", guaranteed: ["Negotiation", "Linguistics"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
+            { name: "Campaign Assistant", guaranteed: ["Negotiation", "Cultural Studies"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
+            { name: "Local Judge", guaranteed: ["Diplomacy", "Accounting"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
+            { name: "Union Representative", guaranteed: ["Negotiation", "Leadership"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 },
+            { name: "Tax Officer", guaranteed: ["Accounting", "Criminal Knowledge"], randomSlots: 1, extraPool: "Prosperity", talentPoints: 4 }
+          ],
+          "intermediate": [
+            { name: "Diplomatic Liaison", guaranteed: ["Diplomacy", "Negotiation"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
+            { name: "Senate Representative", guaranteed: ["Leadership", "Cultural Studies"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
+            { name: "Embassy Negotiator", guaranteed: ["Negotiation", "Diplomacy"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
+            { name: "Political Strategist", guaranteed: ["Negotiation", "Criminal Knowledge"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
+            { name: "Media Manipulator", guaranteed: ["Deception", "Linguistics"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
+            { name: "International Deal Maker", guaranteed: ["Negotiation", "Diplomacy"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 },
+            { name: "Speechwriter", guaranteed: ["Linguistics", "Cultural Studies"], randomSlots: 2, extraPool: "Prosperity", talentPoints: 5 }
+          ],
+          "expert": [
+            { name: "Senator", guaranteed: ["Diplomacy", "Leadership"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
+            { name: "Planetary Governor", guaranteed: ["Leadership", "Negotiation"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
+            { name: "Interstellar Ambassador", guaranteed: ["Diplomacy", "Cultural Studies"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
+            { name: "Political Revolutionary", guaranteed: ["Deception", "Criminal Knowledge"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 },
+            { name: "War Cabinet Director", guaranteed: ["Military History", "Leadership"], randomSlots: 3, extraPool: "Prosperity", talentPoints: 7 }
+          ]
+        }
+      }
+    };
+
+    // Placeholder event definitions (3 events per pool)
+    const events = {
+      "Labor": ["laborevent1", "laborevent2", "laborevent3"],
+      "Crime": ["crimeevent1", "crimeevent2", "crimeevent3"],
+      "Exploration": ["exploerevent1", "exploerevent2", "exploerevent3"],
+      "Space": ["spaceevent1", "spaceevent2", "spaceevent3"],
+      "Espionage": ["espionageevent1", "espionageevent2", "espionageevent3"],
+      "Warfare": ["warfareevent1", "warfareevent2", "warfareevent3"],
+      "Education": ["educationevent1", "educationevent2", "educationevent3"],
+      "Prosperity": ["prosperityevent1", "prosperityevent2", "prosperityevent3"],
+      "Politics": ["politicsevent1", "politicsevent2", "politicsevent3"]
+    };
+
+    // Utility: get a random element from an array.
+    function getRandomElement(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // Utility: returns a random number between 0 and 1.
+    function randomChance() {
+      return Math.random();
+    }
+
+    // Determine rarity for the next lifepath based on how many have been taken.
+    function getNextRarity() {
+      const count = character.lifepaths.length;
+      if (count === 0) return "common";
+      else if (count === 1) return "intermediate";
+      else return "expert";
+    }
+
+    // Display the initial pool selection screen.
+    function showInitialPoolSelection() {
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = "<h2>Select your initial Lifepath Pool</h2>";
+      // Create a button for each pool.
+      for (let pool in lifepathPools) {
+        const btn = document.createElement("button");
+        btn.textContent = pool;
+        btn.onclick = function() {
+          startLifepath(pool);
+        };
+        contentDiv.appendChild(btn);
+      }
+    }
+
+    // Start the lifepath process with the selected pool.
+    function startLifepath(selectedPool) {
+      character.currentPool = selectedPool;
+      // Add a new lifepath entry; job and event will be filled in later.
+      character.lifepaths.push({ pool: selectedPool, job: null, event: null });
+      displayJobOptions(selectedPool);
+    }
+
+    // Display job options for the current lifepath.
+    function displayJobOptions(pool) {
+      const rarity = getNextRarity();
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = `<h2>${pool} Lifepath Options (${rarity.toUpperCase()})</h2>`;
+      
+      // Two options from the current pool.
+      const poolJobs = lifepathPools[pool].jobs[rarity];
+      let options = [];
+      if (poolJobs.length >= 2) {
+        let job1 = getRandomElement(poolJobs);
+        let job2 = getRandomElement(poolJobs);
+        while (job2.name === job1.name && poolJobs.length > 1) {
+          job2 = getRandomElement(poolJobs);
+        }
+        options.push(job1, job2);
+      } else {
+        options = poolJobs.slice();
+      }
+      
+      // One option from a different pool (always common rarity for extra option).
+      let otherPools = Object.keys(lifepathPools).filter(p => p !== pool);
+      let randomPool = getRandomElement(otherPools);
+      const extraOption = getRandomElement(lifepathPools[randomPool].jobs["common"]);
+      options.push(extraOption);
+
+      // Display each job option as a button.
+      options.forEach(job => {
+        const btn = document.createElement("button");
+        btn.textContent = `${job.name} (Guaranteed: ${job.guaranteed.join(", ")}, Random Slots: ${job.randomSlots}, Extra from ${job.extraPool}, Talent Points: ${job.talentPoints})`;
+        btn.onclick = function() {
+          selectJob(job, pool);
+        };
+        contentDiv.appendChild(btn);
+      });
+    }
+
+    // Handle job selection.
+    function selectJob(job, pool) {
+      // Update current lifepath with the selected job.
+      character.lifepaths[character.lifepaths.length - 1].job = job;
+      // Increase age by 5.
+      character.age += 5;
+      // Add talent points (placeholder: actual talent allocation not yet implemented).
+      character.talentPoints = (character.talentPoints || 0) + job.talentPoints;
+      
+      // After job selection, display event options.
+      displayEventOptions(pool);
+      
+      // Check for aging penalties (e.g., scars and talent decreases).
+      checkAgingPenalties();
+    }
+
+    // Display event options (using placeholders) for the current lifepath's pool.
+    function displayEventOptions(pool) {
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
+      const eventOptions = events[pool];
+      eventOptions.forEach(ev => {
+        const btn = document.createElement("button");
+        btn.textContent = ev;
+        btn.onclick = function() {
+          selectEvent(ev, pool);
+        };
+        contentDiv.appendChild(btn);
+      });
+    }
+
+    // Handle event selection.
+    function selectEvent(eventName, pool) {
+      // Update current lifepath with the selected event.
+      character.lifepaths[character.lifepaths.length - 1].event = eventName;
+      // Placeholder: add a bond and an item based on the event.
+      character.bonds.push(`${pool} Bond from ${eventName}`);
+      character.items.push(`${pool} Item from ${eventName}`);
+
+      // Check death condition: if scars are 5 or more, trigger game over.
+      if (character.scars >= 5) {
+        gameOver("You have accumulated 5 scars and died.");
+        return;
+      }
+      
+      // Ask the player if they want to continue or finish.
+      askContinue();
+    }
+
+    // Ask the player whether to continue lifepath creation or finish.
+    function askContinue() {
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = `<h2>Current Age: ${character.age}</h2>
+        <p>Do you want to take another lifepath? (Each lifepath adds 5 years)</p>`;
+      
+      const continueBtn = document.createElement("button");
+      continueBtn.textContent = "Continue Lifepath";
+      continueBtn.onclick = function() {
+        // Continue with the same pool as the last chosen lifepath.
+        const lastPool = character.lifepaths[character.lifepaths.length - 1].pool;
+        character.lifepaths.push({ pool: lastPool, job: null, event: null });
+        displayJobOptions(lastPool);
+      };
+      contentDiv.appendChild(continueBtn);
+      
+      const finishBtn = document.createElement("button");
+      finishBtn.textContent = "Finish Lifepath Creation";
+      finishBtn.onclick = function() {
+        displayFinalSummary();
+      };
+      contentDiv.appendChild(finishBtn);
+    }
+
+    // Check aging penalties (scars and talent decreases) based on age thresholds.
+    function checkAgingPenalties() {
+      // Define age thresholds with corresponding scar chances.
+      const penalties = [
+        { age: 30, chance: 1/8 },
+        { age: 40, chance: 1/6 },
+        { age: 50, chance: 1/4 },
+        { age: 55, chance: 1/4 },
+        { age: 60, chance: 1/4 },
+        { age: 65, chance: 1/4, decreases: 2 }
+        // Additional thresholds for age 70+ can be added here.
+      ];
+      penalties.forEach(penalty => {
+        if (character.age >= penalty.age) {
+          if (randomChance() < penalty.chance) {
+            character.scars += 1;
+            // For each decrease, record a placeholder message.
+            const decreaseCount = penalty.decreases || 1;
+            for (let i = 0; i < decreaseCount; i++) {
+              character.talentDecreases.push("A random talent was decreased due to aging.");
+            }
+          }
+        }
+      });
+    }
+
+    // Game over: display death message and final summary, then reset the game.
+    function gameOver(message) {
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = `<h2>${message}</h2>`;
+      displayFinalSummary();
+      // Allow 10 seconds for the player to copy their results, then reset.
+      setTimeout(() => {
+        character = {
+          age: 15,
+          scars: 0,
+          lifepaths: [],
+          bonds: [],
+          items: [],
+          talentDecreases: []
+        };
+        showInitialPoolSelection();
+      }, 10000);
+    }
+
+    // Display final summary of the character's lifepath creation.
+    function displayFinalSummary() {
+      const contentDiv = document.getElementById("game-content");
+      let summaryHTML = `<h2>Final Summary</h2>
+        <p>Age: ${character.age}</p>
+        <p>Scars: ${character.scars}</p>
+        <p>Bonds: ${character.bonds.join("; ")}</p>
+        <p>Items: ${character.items.join("; ")}</p>
+        <p>Talent Decreases: ${character.talentDecreases.join("; ")}</p>
+        <h3>Lifepaths Taken:</h3>`;
+      character.lifepaths.forEach((lp, index) => {
+        summaryHTML += `<p>Lifepath ${index + 1}: Pool - ${lp.pool}, Job - ${lp.job ? lp.job.name : "None"}, Event - ${lp.event ? lp.event : "None"}</p>`;
+      });
+      contentDiv.innerHTML = summaryHTML;
+    }
+
+    // Start the game by showing the initial pool selection screen.
+    showInitialPoolSelection();
+
+    /****************************************************
+     * PLACEHOLDERS:
+     * - Event outcomes: Currently using simple placeholder 
+     *   names (e.g., laborevent1, crimeevent1, etc.). 
+     *   Detailed implementations will be added later.
+     *
+     * - Talent allocation and skill progression: 
+     *   Talents are not yet fully implemented.
+     *
+     * - Advanced lifepath weighting: The extra lifepath option 
+     *   is randomly selected from another pool.
+     *
+     * - Persistent storage: Currently using in-memory state.
+     *
+     * - UI Enhancements: Additional styling and transitions 
+     *   can be implemented via style.css.
+     ****************************************************/
+  </script>
 </body>
 </html>
