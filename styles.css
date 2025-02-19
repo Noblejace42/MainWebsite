@@ -7,7 +7,7 @@ body {
   background-size: auto;
   color: #ccc;
   margin: 0;
-  padding-top: 75px; /* Adjust based on navbar height */
+  padding-top: 50px; /* Adjust based on navbar height */
   line-height: 1.5;
 }
 
