@@ -17,14 +17,15 @@
       margin-right: 20px;
     }
     #summary-pane {
-      flex: 1;
-      background: #262626;
-      border: 1px solid #444;
-      padding: 10px;
-      border-radius: 4px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
+  flex: 1;
+  background: #262626;
+  border: 1px solid #444;
+  padding: 10px;
+  border-radius: 4px;
+  max-height: calc(100vh - 60px); /* Adjusted for navbar */
+  overflow-y: auto;
+  margin-top: 10px; /* Ensures it doesn't start under the navbar */
+}
     .talent-row {
       display: flex;
       align-items: center;
