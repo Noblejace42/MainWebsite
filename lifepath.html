@@ -5,6 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Astral Axial Lifepath</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Additional styling for layout and talent UI */
+    #main-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    #game-content {
+      flex: 2;
+      margin-right: 20px;
+    }
+    #summary-pane {
+      flex: 1;
+      background: #262626;
+      border: 1px solid #444;
+      padding: 10px;
+      border-radius: 4px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .talent-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .talent-name {
+      flex: 1;
+    }
+    .talent-controls button {
+      margin: 0 5px;
+    }
+  </style>
 </head>
 <body>
   <nav>
@@ -13,50 +45,45 @@
     <a href="weapongenerator.html">Weapon Generator</a>
   </nav>
 
-  <div id="game-container">
-    <h1>Lifepath Generator</h1>
-    <div id="game-content"></div> <!-- This must exist -->
+  <div id="main-container">
+    <div id="game-content"></div>
+    <div id="summary-pane">
+      <h2>Summary</h2>
+      <div id="summary-content"></div>
+    </div>
   </div>
-
-
 
   <script>
     /*************************************************************
      * Lifepath Generator for Hard Sci-Fi RPG
      *
      * Overview:
-     * This script implements a lifepath system where a character
-     * begins at age 15 and takes successive lifepaths, each adding
-     * 5 years of age. Each lifepath is chosen from one of several
-     * pools (Labor, Crime, Exploration, Space, Espionage, Warfare,
-     * Education, Prosperity, Politics) and is defined by a job
-     * blueprint that specifies guaranteed talents, random talent
-     * slots from the pool, one extra random slot from another pool,
-     * and a number of talent points.
+     * - Character starts at age 15 and each lifepath adds 5 years.
+     * - After job selection, a talent allocation UI is shown with
+     *   up/down arrows and a remaining point total.
+     * - After selecting an event, its placeholder result is shown
+     *   (e.g. "laborevent1result") and aging messages indicate if you
+     *   aged without issue or gained a scar (with talent decreases).
+     * - A live summary is displayed on the right-hand side.
      *
-     * For each lifepath, three event options (placeholders) are 
-     * presented. Selecting an event grants a bond and an item.
-     *
-     * Aging penalties (scars and random talent decreases) are 
-     * applied at certain ages. Accumulating 5 scars (or death via 
-     * an event) resets the game after showing a final summary.
-     *
-     * Placeholders:
-     *   - Event outcomes (e.g., laborevent1, etc.)
-     *   - Detailed talent allocation and skill progression.
-     *   - Advanced lifepath weighting and persistent storage.
-     *
+     * Placeholders remain for:
+     *   - Detailed event outcomes.
+     *   - Persistent storage.
+     *   - Advanced talent mechanics.
      *************************************************************/
-
+    
     // Global character object to track state
     let character = {
       age: 15,
       scars: 0,
-      lifepaths: [],      // Each lifepath will record { pool, job, event }
+      lifepaths: [],      // Each lifepath: { pool, job, talentAllocations, event, agingMessage }
       bonds: [],
       items: [],
-      talentDecreases: [] // Log of talent decreases from aging
+      talentDecreases: [] // Aging-induced talent decrease messages
     };
+    
+    // Global variable for current remaining talent points.
+    let remainingTalentPoints = 0;
 
     // Lifepath Pools and Job Blueprints (using finalized pools)
     // Each job includes:
@@ -367,29 +394,49 @@
       "Politics": ["politicsevent1", "politicsevent2", "politicsevent3"]
     };
 
-    // Utility: get a random element from an array.
+    // Utility: Get a random element from an array.
     function getRandomElement(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
-
-    // Utility: returns a random number between 0 and 1.
+    
+    // Utility: Return a random number between 0 and 1.
     function randomChance() {
       return Math.random();
     }
-
-    // Determine rarity for the next lifepath based on how many have been taken.
+    
+    // Determine next rarity based on number of lifepaths taken.
     function getNextRarity() {
       const count = character.lifepaths.length;
       if (count === 0) return "common";
       else if (count === 1) return "intermediate";
       else return "expert";
     }
-
-    // Display the initial pool selection screen.
+    
+    // Update the live summary pane.
+    function updateSummary() {
+      const summaryDiv = document.getElementById("summary-content");
+      let html = `<p><strong>Age:</strong> ${character.age}</p>
+                  <p><strong>Scars:</strong> ${character.scars}</p>
+                  <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
+                  <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+                  <p><strong>Aging Messages:</strong> ${character.talentDecreases.join("; ") || "None"}</p>
+                  <h3>Lifepaths:</h3>`;
+      character.lifepaths.forEach((lp, i) => {
+        html += `<p>Lifepath ${i+1}: Pool: ${lp.pool}, Job: ${lp.job ? lp.job.name : "None"}, Event: ${lp.event ? lp.event : "None"}</p>`;
+        if(lp.talentAllocations) {
+          html += `<p>Talent Allocations: ${JSON.stringify(lp.talentAllocations)}</p>`;
+        }
+        if(lp.agingMessage) {
+          html += `<p>Aging: ${lp.agingMessage}</p>`;
+        }
+      });
+      summaryDiv.innerHTML = html;
+    }
+    
+    // Show initial lifepath pool selection.
     function showInitialPoolSelection() {
       const contentDiv = document.getElementById("game-content");
       contentDiv.innerHTML = "<h2>Select your initial Lifepath Pool</h2>";
-      // Create a button for each pool.
       for (let pool in lifepathPools) {
         const btn = document.createElement("button");
         btn.textContent = pool;
@@ -398,29 +445,29 @@
         };
         contentDiv.appendChild(btn);
       }
+      updateSummary();
     }
-
-    // Start the lifepath process with the selected pool.
+    
+    // Start lifepath creation with the selected pool.
     function startLifepath(selectedPool) {
       character.currentPool = selectedPool;
-      // Add a new lifepath entry; job and event will be filled in later.
-      character.lifepaths.push({ pool: selectedPool, job: null, event: null });
+      character.lifepaths.push({ pool: selectedPool, job: null, talentAllocations: {}, event: null, agingMessage: "" });
       displayJobOptions(selectedPool);
+      updateSummary();
     }
-
+    
     // Display job options for the current lifepath.
     function displayJobOptions(pool) {
       const rarity = getNextRarity();
       const contentDiv = document.getElementById("game-content");
       contentDiv.innerHTML = `<h2>${pool} Lifepath Options (${rarity.toUpperCase()})</h2>`;
       
-      // Two options from the current pool.
-      const poolJobs = lifepathPools[pool].jobs[rarity];
       let options = [];
-      if (poolJobs.length >= 2) {
+      const poolJobs = lifepathPools[pool].jobs[rarity];
+      if (poolJobs && poolJobs.length >= 2) {
         let job1 = getRandomElement(poolJobs);
         let job2 = getRandomElement(poolJobs);
-        while (job2.name === job1.name && poolJobs.length > 1) {
+        while(job2.name === job1.name && poolJobs.length > 1) {
           job2 = getRandomElement(poolJobs);
         }
         options.push(job1, job2);
@@ -428,13 +475,12 @@
         options = poolJobs.slice();
       }
       
-      // One option from a different pool (always common rarity for extra option).
+      // One extra option from another pool (common rarity).
       let otherPools = Object.keys(lifepathPools).filter(p => p !== pool);
       let randomPool = getRandomElement(otherPools);
       const extraOption = getRandomElement(lifepathPools[randomPool].jobs["common"]);
       options.push(extraOption);
-
-      // Display each job option as a button.
+      
       options.forEach(job => {
         const btn = document.createElement("button");
         btn.textContent = `${job.name} (Guaranteed: ${job.guaranteed.join(", ")}, Random Slots: ${job.randomSlots}, Extra from ${job.extraPool}, Talent Points: ${job.talentPoints})`;
@@ -443,25 +489,123 @@
         };
         contentDiv.appendChild(btn);
       });
+      updateSummary();
     }
-
+    
     // Handle job selection.
     function selectJob(job, pool) {
-      // Update current lifepath with the selected job.
-      character.lifepaths[character.lifepaths.length - 1].job = job;
-      // Increase age by 5.
-      character.age += 5;
-      // Add talent points (placeholder: actual talent allocation not yet implemented).
-      character.talentPoints = (character.talentPoints || 0) + job.talentPoints;
-      
-      // After job selection, display event options.
-      displayEventOptions(pool);
-      
-      // Check for aging penalties (e.g., scars and talent decreases).
-      checkAgingPenalties();
+      const currentLP = character.lifepaths[character.lifepaths.length - 1];
+      currentLP.job = job;
+      character.age += 5;  // Increase age by 5.
+      remainingTalentPoints = job.talentPoints;
+      // Proceed to talent allocation UI.
+      showTalentAllocation();
+      updateSummary();
     }
-
-    // Display event options (using placeholders) for the current lifepath's pool.
+    
+    // Show the talent allocation UI.
+    function showTalentAllocation() {
+      const currentLP = character.lifepaths[character.lifepaths.length - 1];
+      const job = currentLP.job;
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = `<h2>Talent Allocation for ${job.name}</h2>
+                              <p>Remaining Points: <span id="remaining-points">${remainingTalentPoints}</span></p>
+                              <div id="talent-allocation-container"></div>
+                              <button id="talent-confirm-btn">Confirm Allocation</button>`;
+      
+      // Determine talent options: guaranteed talents + random slots from current pool + one extra from extraPool.
+      let talentOptions = [];
+      // Guaranteed talents.
+      talentOptions = talentOptions.concat(job.guaranteed);
+      // Random slots from current pool (avoid duplicates).
+      const poolTalents = lifepathPools[currentLP.pool].talents;
+      for (let i = 0; i < job.randomSlots; i++) {
+        let randTalent = getRandomElement(poolTalents);
+        while (talentOptions.includes(randTalent)) {
+          randTalent = getRandomElement(poolTalents);
+        }
+        talentOptions.push(randTalent);
+      }
+      // One extra from extraPool.
+      const extraPoolTalents = lifepathPools[job.extraPool].talents;
+      let extraTalent = getRandomElement(extraPoolTalents);
+      while (talentOptions.includes(extraTalent)) {
+        extraTalent = getRandomElement(extraPoolTalents);
+      }
+      talentOptions.push(extraTalent);
+      
+      // Initialize talent allocations at level 1.
+      currentLP.talentAllocations = {};
+      talentOptions.forEach(talent => {
+        currentLP.talentAllocations[talent] = 1;
+      });
+      
+      // Render the talent allocation controls.
+      const container = document.getElementById("talent-allocation-container");
+      container.innerHTML = "";
+      talentOptions.forEach(talent => {
+        const row = document.createElement("div");
+        row.className = "talent-row";
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "talent-name";
+        nameSpan.textContent = talent;
+        row.appendChild(nameSpan);
+        
+        const controls = document.createElement("div");
+        controls.className = "talent-controls";
+        // Down arrow button.
+        const downBtn = document.createElement("button");
+        downBtn.textContent = "▼";
+        downBtn.onclick = function() {
+          if (currentLP.talentAllocations[talent] > 1) {
+            currentLP.talentAllocations[talent]--;
+            remainingTalentPoints++;
+            updateTalentUI();
+          }
+        };
+        controls.appendChild(downBtn);
+        // Current level display.
+        const levelSpan = document.createElement("span");
+        levelSpan.id = "talent-" + talent;
+        levelSpan.textContent = currentLP.talentAllocations[talent];
+        controls.appendChild(levelSpan);
+        // Up arrow button.
+        const upBtn = document.createElement("button");
+        upBtn.textContent = "▲";
+        upBtn.onclick = function() {
+          if (currentLP.talentAllocations[talent] < 5 && remainingTalentPoints > 0) {
+            currentLP.talentAllocations[talent]++;
+            remainingTalentPoints--;
+            updateTalentUI();
+          }
+        };
+        controls.appendChild(upBtn);
+        
+        row.appendChild(controls);
+        container.appendChild(row);
+      });
+      
+      document.getElementById("talent-confirm-btn").onclick = function() {
+        // After confirming talent allocation, proceed to event selection.
+        displayEventOptions(currentLP.pool);
+      };
+      updateSummary();
+    }
+    
+    // Update the talent allocation UI elements.
+    function updateTalentUI() {
+      const currentLP = character.lifepaths[character.lifepaths.length - 1];
+      for (let talent in currentLP.talentAllocations) {
+        const levelSpan = document.getElementById("talent-" + talent);
+        if (levelSpan) {
+          levelSpan.textContent = currentLP.talentAllocations[talent];
+        }
+      }
+      document.getElementById("remaining-points").textContent = remainingTalentPoints;
+      updateSummary();
+    }
+    
+    // Display event options for the current lifepath.
     function displayEventOptions(pool) {
       const contentDiv = document.getElementById("game-content");
       contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
@@ -474,53 +618,60 @@
         };
         contentDiv.appendChild(btn);
       });
+      updateSummary();
     }
-
+    
     // Handle event selection.
     function selectEvent(eventName, pool) {
-      // Update current lifepath with the selected event.
-      character.lifepaths[character.lifepaths.length - 1].event = eventName;
-      // Placeholder: add a bond and an item based on the event.
+      const currentLP = character.lifepaths[character.lifepaths.length - 1];
+      currentLP.event = eventName;
+      // Display the event result (placeholder text).
+      const contentDiv = document.getElementById("game-content");
+      const resultDiv = document.createElement("div");
+      resultDiv.innerHTML = `<p>Result: ${eventName}result</p>`;
+      contentDiv.appendChild(resultDiv);
+      
+      // Add bond and item based on the event.
       character.bonds.push(`${pool} Bond from ${eventName}`);
       character.items.push(`${pool} Item from ${eventName}`);
-
-      // Check death condition: if scars are 5 or more, trigger game over.
-      if (character.scars >= 5) {
-        gameOver("You have accumulated 5 scars and died.");
-        return;
-      }
       
-      // Ask the player if they want to continue or finish.
+      // Check aging penalties and generate an aging message.
+      const agingMsg = checkAgingPenalties();
+      currentLP.agingMessage = agingMsg;
+      
+      // After event selection, ask to continue or finish.
       askContinue();
+      updateSummary();
     }
-
+    
     // Ask the player whether to continue lifepath creation or finish.
     function askContinue() {
       const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `<h2>Current Age: ${character.age}</h2>
-        <p>Do you want to take another lifepath? (Each lifepath adds 5 years)</p>`;
-      
+      const div = document.createElement("div");
+      div.innerHTML = `<h2>Current Age: ${character.age}</h2>
+                       <p>Do you want to take another lifepath? (Each adds 5 years)</p>`;
       const continueBtn = document.createElement("button");
       continueBtn.textContent = "Continue Lifepath";
       continueBtn.onclick = function() {
-        // Continue with the same pool as the last chosen lifepath.
         const lastPool = character.lifepaths[character.lifepaths.length - 1].pool;
-        character.lifepaths.push({ pool: lastPool, job: null, event: null });
+        character.lifepaths.push({ pool: lastPool, job: null, talentAllocations: {}, event: null, agingMessage: "" });
         displayJobOptions(lastPool);
       };
-      contentDiv.appendChild(continueBtn);
+      div.appendChild(continueBtn);
       
       const finishBtn = document.createElement("button");
       finishBtn.textContent = "Finish Lifepath Creation";
       finishBtn.onclick = function() {
         displayFinalSummary();
       };
-      contentDiv.appendChild(finishBtn);
+      div.appendChild(finishBtn);
+      contentDiv.appendChild(div);
+      updateSummary();
     }
-
-    // Check aging penalties (scars and talent decreases) based on age thresholds.
+    
+    // Check aging penalties and return an aging message.
     function checkAgingPenalties() {
-      // Define age thresholds with corresponding scar chances.
+      let messages = [];
       const penalties = [
         { age: 30, chance: 1/8 },
         { age: 40, chance: 1/6 },
@@ -528,79 +679,58 @@
         { age: 55, chance: 1/4 },
         { age: 60, chance: 1/4 },
         { age: 65, chance: 1/4, decreases: 2 }
-        // Additional thresholds for age 70+ can be added here.
       ];
       penalties.forEach(penalty => {
         if (character.age >= penalty.age) {
           if (randomChance() < penalty.chance) {
-            character.scars += 1;
-            // For each decrease, record a placeholder message.
+            character.scars++;
             const decreaseCount = penalty.decreases || 1;
+            const currentLP = character.lifepaths[character.lifepaths.length - 1];
+            const talents = Object.keys(currentLP.talentAllocations);
+            let decreasedTalents = [];
             for (let i = 0; i < decreaseCount; i++) {
-              character.talentDecreases.push("A random talent was decreased due to aging.");
+              let available = talents.filter(t => currentLP.talentAllocations[t] > 1);
+              if (available.length > 0) {
+                let chosen = getRandomElement(available);
+                currentLP.talentAllocations[chosen]--;
+                decreasedTalents.push(chosen);
+              }
             }
+            messages.push(`Gained a scar; decreased: ${decreasedTalents.join(", ")}`);
           }
         }
       });
+      if (messages.length === 0) messages.push("Aged without issue");
+      return messages.join(" | ");
     }
-
-    // Game over: display death message and final summary, then reset the game.
-    function gameOver(message) {
-      const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `<h2>${message}</h2>`;
-      displayFinalSummary();
-      // Allow 10 seconds for the player to copy their results, then reset.
-      setTimeout(() => {
-        character = {
-          age: 15,
-          scars: 0,
-          lifepaths: [],
-          bonds: [],
-          items: [],
-          talentDecreases: []
-        };
-        showInitialPoolSelection();
-      }, 10000);
-    }
-
-    // Display final summary of the character's lifepath creation.
+    
+    // Display final summary.
     function displayFinalSummary() {
       const contentDiv = document.getElementById("game-content");
-      let summaryHTML = `<h2>Final Summary</h2>
-        <p>Age: ${character.age}</p>
-        <p>Scars: ${character.scars}</p>
-        <p>Bonds: ${character.bonds.join("; ")}</p>
-        <p>Items: ${character.items.join("; ")}</p>
-        <p>Talent Decreases: ${character.talentDecreases.join("; ")}</p>
-        <h3>Lifepaths Taken:</h3>`;
+      let html = `<h2>Final Summary</h2>
+                  <p><strong>Age:</strong> ${character.age}</p>
+                  <p><strong>Scars:</strong> ${character.scars}</p>
+                  <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
+                  <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+                  <p><strong>Aging Messages:</strong> ${character.talentDecreases.join("; ") || "None"}</p>
+                  <h3>Lifepaths Taken:</h3>`;
       character.lifepaths.forEach((lp, index) => {
-        summaryHTML += `<p>Lifepath ${index + 1}: Pool - ${lp.pool}, Job - ${lp.job ? lp.job.name : "None"}, Event - ${lp.event ? lp.event : "None"}</p>`;
+        html += `<p>Lifepath ${index + 1}: Pool - ${lp.pool}, Job - ${lp.job ? lp.job.name : "None"}, Event - ${lp.event ? lp.event : "None"}</p>`;
+        if (lp.talentAllocations) {
+          html += `<p>Talent Allocations: ${JSON.stringify(lp.talentAllocations)}</p>`;
+        }
+        if (lp.agingMessage) {
+          html += `<p>Aging: ${lp.agingMessage}</p>`;
+        }
       });
-      contentDiv.innerHTML = summaryHTML;
+      contentDiv.innerHTML = html;
+      updateSummary();
     }
-
-    // Start the game by showing the initial pool selection screen.
-    showInitialPoolSelection();
-
-    /****************************************************
-     * PLACEHOLDERS:
-     * - Event outcomes: Currently using simple placeholder 
-     *   names (e.g., laborevent1, crimeevent1, etc.). 
-     *   Detailed implementations will be added later.
-     *
-     * - Talent allocation and skill progression: 
-     *   Talents are not yet fully implemented.
-     *
-     * - Advanced lifepath weighting: The extra lifepath option 
-     *   is randomly selected from another pool.
-     *
-     * - Persistent storage: Currently using in-memory state.
-     *
-     * - UI Enhancements: Additional styling and transitions 
-     *   can be implemented via style.css.
-     ****************************************************/
+    
+    // Start the game after the DOM has loaded.
+    document.addEventListener("DOMContentLoaded", function() {
+      showInitialPoolSelection();
+    });
   </script>
-
-<script src="script.js"></script>
 </body>
 </html>
