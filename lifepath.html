@@ -167,8 +167,10 @@
 
     // Map talent level to dice
     function levelToDice(level) {
-      return config.settings.talentDiceMapping[level.toString()] || "";
-    }
+    if (level === 0) return ""; // Hide zero-level talents
+    return config.settings.talentDiceMapping[level.toString()] || "";
+}
+
 
     // Update the character sheet summary pane
     function updateSummary() {
@@ -257,9 +259,11 @@
       }
       talentOptions.push(extra);
       // Initialize talents to starting level
-      talentOptions.forEach(talent => {
-        lp.talentAllocations[talent] = config.settings.startingTalentLevel;
-      });
+      // Initialize talents at 0 (hidden until increased)
+talentOptions.forEach(talent => {
+    lp.talentAllocations[talent] = 0;
+});
+
       // Render UI controls for each talent
       const container = document.getElementById("talent-allocation-container");
       container.innerHTML = "";
@@ -309,10 +313,16 @@
     function updateTalentUI(lp) {
       for (let talent in lp.talentAllocations) {
         const id = "talent-" + talent.replace(/\s+/g, '');
-        const span = document.getElementById(id);
-        if (span) {
-          span.textContent = lp.talentAllocations[talent];
-        }
+const span = document.getElementById(id);
+if (span) {
+    if (lp.talentAllocations[talent] === 0) {
+        span.parentElement.style.display = "none"; // Hide talents with 0 points
+    } else {
+        span.parentElement.style.display = "flex"; // Show talents that have points
+        span.textContent = lp.talentAllocations[talent];
+    }
+}
+
       }
       document.getElementById("remaining-points").textContent = remainingTalentPoints;
       updateSummary();
@@ -364,6 +374,10 @@
       penalties.forEach(penalty => {
         if (character.age >= penalty.age && randomChance() < penalty.chance) {
           character.scars++;
+if (character.scars > 5) {
+    displayDeathScreen();
+    return "You died.";
+}
           let decreaseCount = penalty.decreases || 1;
           let lp = character.lifepaths[character.lifepaths.length - 1];
           let available = Object.keys(lp.talentAllocations).filter(t => lp.talentAllocations[t] > config.settings.startingTalentLevel);
@@ -405,6 +419,31 @@
       updateSummary();
     }
 
+    function displayDeathScreen() {
+    const contentDiv = document.getElementById("game-content");
+    contentDiv.innerHTML = `<h2>You Died</h2>
+                            <p>Your character has succumbed to their injuries.</p>
+                            <button class="lifepath-btn" onclick="restartGame()">Restart</button>`;
+}
+
+    function restartGame() {
+    character = {
+        age: 15,
+        scars: 0,
+        lifepaths: [],
+        bonds: [],
+        items: [],
+        talentDecreases: [],
+        skills: {
+            "Tech": "1d4", "Recall": "1d4", "Speed": "1d4", "Might": "1d4",
+            "Charm": "1d4", "Fortitude": "1d4", "Presence": "1d4", "Precision": "1d4",
+            "Will": "1d4", "Awareness": "1d4"
+        }
+    };
+    poolCounts = {};
+    showInitialPoolSelection();
+}
+    
     // Display the final character sheet summary
     function displayFinalSummary() {
       const contentDiv = document.getElementById("game-content");
