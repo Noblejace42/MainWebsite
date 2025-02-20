@@ -491,11 +491,11 @@
       },
       {
         "id": "laborevent8",
-        "description": "You successfully negotiate better working conditions with your supervisor.",
+        "description": "Attempt to negotiate better working conditions.",
         "rewards": {
-          "item": "Improved Safety Gear",
+          "item": "Secure Helmet 1d6 (Head, Armored 3, Tough 1)",
           "credits": 25,
-          "bond": "I negotiated fair treatment at work and earned their respect."
+          "bond": "I negotiated fair treatment at work with my boss _____, and earned their respect."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -504,11 +504,11 @@
       },
       {
         "id": "laborevent9",
-        "description": "A workers' strike erupts, forcing you to choose between loyalty and self-preservation.",
+        "description": "Strike with your fellow workers to demand more pay.",
         "rewards": {
-          "item": "Worker's Medallion",
-          "credits": 15,
-          "bond": "During the strike, I stood up for my fellow workers."
+          "item": "Old Pay Stubs",
+          "credits": 150,
+          "bond": "During the strike, I stood up for my fellow workers. My old boss _____ still owes me my pay."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -517,28 +517,28 @@
       },
       {
         "id": "laborevent10",
-        "description": "A malfunctioning machine gives you a chance to prove your repair skills under pressure.",
+        "description": "Repair a malfunctioning machine before it becomes a danger.",
         "rewards": {
-          "item": "Enhanced Repair Tool",
-          "credits": 30,
-          "bond": "I fixed a critical breakdown when no one else could."
+          "item": "Fuse-Welder 1d10 (Heavy, Charging 1)",
+          "credits": 100,
+          "bond": "I fixed a critical breakdown at _____ when no one else could."
         },
         "penalties": {
           "scarChance": 0.2,
-          "deathChance": 0.03,
+          "deathChance": 0.06,
           "extraItem": {
-            "item": "Spare Parts (1d4)",
+            "item": "Ripped Pants 1d4 (Legs, Armored 2)",
             "chance": 0.1
           }
         }
       },
       {
         "id": "laborevent11",
-        "description": "Your consistent performance earns you a promotion with added responsibilities.",
+        "description": "Get promoted for your hard work, securing a nice bonus.",
         "rewards": {
-          "item": "Employee ID with Perks",
-          "credits": 35,
-          "bond": "I was promoted for my dedication and skill."
+          "item": "Nice Hat 1d4 (Head)",
+          "credits": 500,
+          "bond": "I was promoted during my work at _____, for my dedication and skill."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -547,24 +547,24 @@
       },
       {
         "id": "laborevent12",
-        "description": "A sudden power outage forces you to work in chaotic conditions.",
+        "description": "Work through a power outage during a freak storm.",
         "rewards": {
-          "item": "Emergency Flashlight",
-          "credits": 20,
-          "bond": "I endured the chaos and kept the operation running."
+          "item": "3 Rations, Camping Gear 1d8",
+          "credits": 200,
+          "bond": "I endured the chaos from the _____ and kept the operation running."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.0
+          "scarChance": 0.2,
+          "deathChance": 0.05
         }
       },
       {
         "id": "laborevent13",
-        "description": "A safety inspection uncovers minor violations, and you're tasked with making corrections.",
+        "description": "Fix minor safety violations.",
         "rewards": {
-          "item": "Safety Badge",
+          "item": "Material Scanner 1d8 (Charging 1, Aid|Awareness",
           "credits": 15,
-          "bond": "I took charge during the safety review and earned trust."
+          "bond": "I took charge during the safety review and earned my boss _____'s trust."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -573,11 +573,11 @@
       },
       {
         "id": "laborevent14",
-        "description": "You discover a hidden flaw in the production line that could save resources if fixed.",
+        "description": "Fix a flaw in the production process",
         "rewards": {
-          "item": "Maintenance Voucher",
-          "credits": 25,
-          "bond": "I uncovered a flaw that saved us a fortune."
+          "item": "Thank-you note",
+          "credits": 250,
+          "bond": "I uncovered a flaw at _____ that saved us a fortune."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -586,11 +586,11 @@
       },
       {
         "id": "laborevent15",
-        "description": "You volunteer for an overtime shift during a critical production period.",
+        "description": "Volunteer for overtime work as much as possible.",
         "rewards": {
-          "item": "Extra Shift Bonus Check",
-          "credits": 20,
-          "bond": "I worked overtime when it mattered most."
+          "item": "Old checkbook",
+          "credits": 500,
+          "bond": "I worked overtime for my boss _____ when it mattered most."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -599,11 +599,11 @@
       },
       {
         "id": "laborevent16",
-        "description": "A union representative recognizes your efforts and offers to mentor you.",
+        "description": "Gain a mentor from the workers union you join.",
         "rewards": {
           "item": "Union Membership Card",
-          "credits": 10,
-          "bond": "I gained a mentor from the union who believes in my future."
+          "credits": 150,
+          "bond": "My mentor _____ from the union believes in my future."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -612,11 +612,11 @@
       },
       {
         "id": "laborevent17",
-        "description": "A competitor's mishap indirectly benefits your company, boosting morale.",
+        "description": "Witness your jobs competition falter.",
         "rewards": {
-          "item": "Profit Share Certificate",
-          "credits": 30,
-          "bond": "The misfortune at a rival plant paved the way for our success."
+          "item": "Nice Boots 1d8 (Legs)",
+          "credits": 300,
+          "bond": "The misfortune at a rival plant on _____ paved the way for our success."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -625,24 +625,24 @@
       },
       {
         "id": "laborevent18",
-        "description": "A new piece of machinery is installed, and you're chosen to train others in its operation.",
+        "description": "Install a new piece of machinery and train others in its operation.",
         "rewards": {
           "item": "Training Manual",
-          "credits": 25,
+          "credits": 350,
           "bond": "I became the go-to expert on new technology at our facility."
         },
         "penalties": {
-          "scarChance": 0.0,
+          "scarChance": 0.1,
           "deathChance": 0.0
         }
       },
       {
         "id": "laborevent19",
-        "description": "A minor accident leaves you with a lasting scar—a reminder of past dangers.",
+        "description": "Have a minor accident on the job, furtunately surviving and getting worker's compensation.",
         "rewards": {
-          "item": "Certificate of Survival",
-          "credits": 10,
-          "bond": "I bear a scar from a near-miss incident that reminds me to always be cautious."
+          "item": "Injury Paperwork",
+          "credits": 350,
+          "bond": "I bear a scar from a near-miss incident at _____ that reminds me to always be cautious."
         },
         "penalties": {
           "scarChance": 0.5,
@@ -651,15 +651,15 @@
       },
       {
         "id": "laborevent20",
-        "description": "You lead a successful safety drill that significantly reduces workplace hazards.",
+        "description": "You witness a machine explode violently.",
         "rewards": {
-          "item": "Safety Drill Trophy",
-          "credits": 20,
-          "bond": "I organized a safety drill that set a new standard at the plant."
+          "item": "Protective Vest 1d8 (Chest, Tough 1, Armored 3)",
+          "credits": 200,
+          "bond": "The explosion I witnessed almost killed me, but thanks to my friend _____, I survived."
         },
         "penalties": {
-          "scarChance": 0.0,
-          "deathChance": 0.0
+          "scarChance": 0.7,
+          "deathChance": 0.3
         }
       }
     ]
@@ -669,50 +669,50 @@
     "Crime": [
       {
         "id": "crimeevent1",
-        "description": "You execute a highly successful heist, netting an enormous payout and earning respect in the underworld.",
+        "description": "Attempt a dangerous heist.",
         "rewards": {
-          "item": "Lock-driller (1d10, heavy, loading)",
-          "credits": 500,
-          "bond": "I pulled off the job of a lifetime with my crew, and our legend now spreads."
+          "item": "Lockbreaker 1d10 (Heavy, Loading)",
+          "credits": 800,
+          "bond": "I pulled off the job of a lifetime, robbing _____."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.03
+          "scarChance": 0.2,
+          "deathChance": 0.15
         }
       },
       {
         "id": "crimeevent2",
-        "description": "You orchestrate a flawlessly planned scam that leaves your mark on the criminal underworld.",
+        "description": "Plan out a flawless scam to pull on a high-value target.",
         "rewards": {
-          "item": "Stolen Artifacts",
-          "credits": 450,
-          "bond": "I orchestrated a perfect scam that enriched my reputation beyond measure."
+          "item": "Locked Security Box",
+          "credits": 15,
+          "bond": "I orchestrated a perfect scam against _____, robbing them of a precious item."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.1,
           "deathChance": 0.03
         }
       },
       {
         "id": "crimeevent3",
-        "description": "You form a strong alliance with a notorious crime lord, gaining both protection and future favors.",
+        "description": "Form an alliance with a powerful crime lord.",
         "rewards": {
-          "item": "Marked Deck of Cards",
+          "item": "Marked Deck of Cards 1d6 (Aid|Recall)",
           "credits": 300,
-          "bond": "I now work under a powerful figure whose protection comes at a price."
+          "bond": "I worked with ______, a powerful crime lord who no longer likes me."
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.05
+          "deathChance": 0.02
         }
       },
       {
         "id": "crimeevent4",
-        "description": "A rival syndicate makes a dangerous proposition—you must choose to join them or oppose their offer.",
+        "description": "Join a rival syndicate to your current employer.",
         "rewards": {
-          "item": "Encrypted Message",
+          "item": "Crowbar 1d6 (Aid|Might), Light Revolver 1d6 (Quick, Ergonomic, Near-Ranged, Ammo)",
           "credits": 350,
-          "bond": "I received an offer I couldn’t refuse from a rival syndicate, forever altering my path."
+          "bond": "I received an offer I couldn’t refuse from a rival syndicate called _____, forever altering my path."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -725,11 +725,11 @@
       },
       {
         "id": "crimeevent5",
-        "description": "A job goes disastrously wrong when a close associate is arrested, leaving you with mixed emotions.",
+        "description": "Witness a close associate of yours get arrested.",
         "rewards": {
-          "item": "Prison Cell Letter",
+          "item": "Contraband Shotgun 1d8 (Unruly, Quick, Near-Ranged, Ammo)",
           "credits": 200,
-          "bond": "I let a friend take the fall for me—and I’ll never forget the cost of that betrayal."
+          "bond": "I let my friend _____ take the fall for me—and they'll never forget my betrayal."
         },
         "penalties": {
           "scarChance": 0.2,
@@ -738,26 +738,26 @@
       },
       {
         "id": "crimeevent6",
-        "description": "An undercover operation is compromised; you narrowly escape capture but suffer injuries in the process.",
+        "description": "Escape a failed undercover operation before you're killed.",
         "rewards": {
-          "item": "Smuggler's Knife (1d4, melee, quick)",
+          "item": "Smuggler's Knife 1d4 (Quick, Unruly, Melee)",
           "credits": 150,
-          "bond": "I escaped an undercover bust by the skin of my teeth—a scar and a story to tell."
+          "bond": "I escaped an undercover bust by the skin of my teeth—_____ is still hunting me."
         },
         "penalties": {
           "scarChance": 0.25,
           "deathChance": 0.15,
           "extraItem": {
-            "item": "Broken Cell Phone",
-            "chance": 0.2
+            "item": "Fake ID",
+            "chance": 0.5
           }
         }
       },
       {
         "id": "crimeevent7",
-        "description": "A daring escape from a high-security prison leaves you with a permanent mark and a legendary tale.",
+        "description": "Attempt a breakout from the prison you're stuck in.",
         "rewards": {
-          "item": "Tattered Prison Shank",
+          "item": "Burner Commlinks",
           "credits": 180,
           "bond": "I made a legendary escape that still haunts the guards to this day."
         },
