@@ -386,6 +386,8 @@
   {
   },
   "events": {
+    {
+  "events": {
     "Labor": [
       {
         "id": "laborevent1",
@@ -393,7 +395,7 @@
         "rewards": {
           "item": "Bandages 1d6",
           "credits": 10,
-          "bond": "Hard Worker Bond"
+          "bond": "I earned the trust of an influential supervisor, and they gave me a chance at something greater."
         },
         "penalties": {
           "scarChance": 0.2,
@@ -406,18 +408,263 @@
       },
       {
         "id": "laborevent2",
-        "description": "A risky moment on the construction site.",
+        "description": "You gain expertise in your craft, becoming a reliable worker in your field.",
         "rewards": {
-          "item": "Safety Helmet",
-          "credits": 5,
-          "bond": "Team Bond"
+          "item": "Specialized Tool (1d8, aid|Skill)",
+          "credits": 15,
+          "bond": "I honed my skills under a seasoned mentor, who taught me everything I know."
         },
         "penalties": {
           "scarChance": 0.1,
           "deathChance": 0.02
         }
+      },
+      {
+        "id": "laborevent3",
+        "description": "A severe accident on site leaves you injured and scarred.",
+        "rewards": {
+          "item": "Old Tool Kit (1d6, aid|Skill)",
+          "credits": 8,
+          "bond": "The accident at the factory changed me forever."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.08,
+          "extraItem": {
+            "item": "Extra Bandages (2d4)",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "laborevent4",
+        "description": "You are overworked and underpaid, barely scraping by each day.",
+        "rewards": {
+          "item": "Worn Work Gloves",
+          "credits": 5,
+          "bond": "I spent years breaking my back, yet they never paid me what I deserved."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent5",
+        "description": "A sudden layoff forces you to leave your job unexpectedly.",
+        "rewards": {
+          "item": "Old Company ID Badge",
+          "credits": 100,
+          "bond": "I lost my job due to sudden cutbacks, and now I must start over."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent6",
+        "description": "Unsafe working conditions result in a near-fatal incident.",
+        "rewards": {
+          "item": "Broken Hard-hat (1d4, lucky)",
+          "credits": 50,
+          "bond": "I was betrayed by corrupt management, and I will make sure they pay for it."
+        },
+        "penalties": {
+          "scarChance": 0.75,
+          "deathChance": 0.25
+        }
+      },
+      {
+        "id": "laborevent7",
+        "description": "A surge of industrial innovation sparks an idea to improve workflow.",
+        "rewards": {
+          "item": "Innovative Blueprint",
+          "credits": 20,
+          "bond": "I devised a method that revolutionized work at the plant."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent8",
+        "description": "You successfully negotiate better working conditions with your supervisor.",
+        "rewards": {
+          "item": "Improved Safety Gear",
+          "credits": 25,
+          "bond": "I negotiated fair treatment at work and earned their respect."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent9",
+        "description": "A workers' strike erupts, forcing you to choose between loyalty and self-preservation.",
+        "rewards": {
+          "item": "Worker's Medallion",
+          "credits": 15,
+          "bond": "During the strike, I stood up for my fellow workers."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent10",
+        "description": "A malfunctioning machine gives you a chance to prove your repair skills under pressure.",
+        "rewards": {
+          "item": "Enhanced Repair Tool",
+          "credits": 30,
+          "bond": "I fixed a critical breakdown when no one else could."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.03,
+          "extraItem": {
+            "item": "Spare Parts (1d4)",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "laborevent11",
+        "description": "Your consistent performance earns you a promotion with added responsibilities.",
+        "rewards": {
+          "item": "Employee ID with Perks",
+          "credits": 35,
+          "bond": "I was promoted for my dedication and skill."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent12",
+        "description": "A sudden power outage forces you to work in chaotic conditions.",
+        "rewards": {
+          "item": "Emergency Flashlight",
+          "credits": 20,
+          "bond": "I endured the chaos and kept the operation running."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent13",
+        "description": "A safety inspection uncovers minor violations, and you're tasked with making corrections.",
+        "rewards": {
+          "item": "Safety Badge",
+          "credits": 15,
+          "bond": "I took charge during the safety review and earned trust."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent14",
+        "description": "You discover a hidden flaw in the production line that could save resources if fixed.",
+        "rewards": {
+          "item": "Maintenance Voucher",
+          "credits": 25,
+          "bond": "I uncovered a flaw that saved us a fortune."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent15",
+        "description": "You volunteer for an overtime shift during a critical production period.",
+        "rewards": {
+          "item": "Extra Shift Bonus Check",
+          "credits": 20,
+          "bond": "I worked overtime when it mattered most."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent16",
+        "description": "A union representative recognizes your efforts and offers to mentor you.",
+        "rewards": {
+          "item": "Union Membership Card",
+          "credits": 10,
+          "bond": "I gained a mentor from the union who believes in my future."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent17",
+        "description": "A competitor's mishap indirectly benefits your company, boosting morale.",
+        "rewards": {
+          "item": "Profit Share Certificate",
+          "credits": 30,
+          "bond": "The misfortune at a rival plant paved the way for our success."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent18",
+        "description": "A new piece of machinery is installed, and you're chosen to train others in its operation.",
+        "rewards": {
+          "item": "Training Manual",
+          "credits": 25,
+          "bond": "I became the go-to expert on new technology at our facility."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent19",
+        "description": "A minor accident leaves you with a lasting scar—a reminder of past dangers.",
+        "rewards": {
+          "item": "Certificate of Survival",
+          "credits": 10,
+          "bond": "I bear a scar from a near-miss incident that reminds me to always be cautious."
+        },
+        "penalties": {
+          "scarChance": 0.5,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "laborevent20",
+        "description": "You lead a successful safety drill that significantly reduces workplace hazards.",
+        "rewards": {
+          "item": "Safety Drill Trophy",
+          "credits": 20,
+          "bond": "I organized a safety drill that set a new standard at the plant."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
       }
-    ],
+    ]
+  }
+}
+
     "Crime": [
       {
         "id": "crimeevent1",
