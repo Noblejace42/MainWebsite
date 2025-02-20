@@ -384,7 +384,7 @@
     }
   },
   
-  "events": {
+  "eventslabor": {
     "Labor": [
       {
         "id": "laborevent1",
@@ -661,7 +661,7 @@
     ]
   },
     
-  "events": {
+  "eventscrime": {
     "Crime": [
       {
         "id": "crimeevent1",
@@ -945,7 +945,7 @@
       }
     ]
   },
-  "events": {
+  "eventsexploration": {
     "Exploration": [
       {
         "id": "exploerevent1",
@@ -1221,7 +1221,7 @@
       }
     ]
   },
-  "events": {
+  "eventsspace": {
     "Space": [
       {
         "id": "spaceevent1",
@@ -1521,7 +1521,7 @@
       }
     ]
   },
-  "events": {
+  "eventsespionage": {
     "Espionage": [
       {
         "id": "espionageevent1",
@@ -1805,7 +1805,7 @@
       }
     ]
   },
-  "events": {
+  "eventseducation": {
     "Education": [
       {
         "id": "educationevent1",
@@ -2077,7 +2077,7 @@
       }
     ]
   },
-  "events": {
+  "eventsprosperity": {
     "Prosperity": [
       {
         "id": "prosperityevent1",
@@ -2361,7 +2361,7 @@
       }
     ]
   },
-  "events": {
+  "eventspolitics": {
     "Politics": [
       {
         "id": "politicsevent1",
