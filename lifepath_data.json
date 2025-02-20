@@ -385,8 +385,7 @@
   },
   {
   },
-  "events": {
-    {
+ {
   "events": {
     "Labor": [
       {
@@ -664,31 +663,2002 @@
     ]
   }
 }
-
+    {
+  "events": {
     "Crime": [
       {
         "id": "crimeevent1",
-        "description": "A daring heist that almost goes wrong.",
+        "description": "You execute a highly successful heist, netting an enormous payout and earning respect in the underworld.",
         "rewards": {
-          "item": "Stolen Goods 1d4",
-          "credits": 15,
-          "bond": "Outlaw Bond"
+          "item": "Lock-driller (1d10, heavy, loading)",
+          "credits": 500,
+          "bond": "I pulled off the job of a lifetime with my crew, and our legend now spreads."
         },
         "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.1,
+          "scarChance": 0.05,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "crimeevent2",
+        "description": "You orchestrate a flawlessly planned scam that leaves your mark on the criminal underworld.",
+        "rewards": {
+          "item": "Stolen Artifacts",
+          "credits": 450,
+          "bond": "I orchestrated a perfect scam that enriched my reputation beyond measure."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "crimeevent3",
+        "description": "You form a strong alliance with a notorious crime lord, gaining both protection and future favors.",
+        "rewards": {
+          "item": "Marked Deck of Cards",
+          "credits": 300,
+          "bond": "I now work under a powerful figure whose protection comes at a price."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "crimeevent4",
+        "description": "A rival syndicate makes a dangerous proposition—you must choose to join them or oppose their offer.",
+        "rewards": {
+          "item": "Encrypted Message",
+          "credits": 350,
+          "bond": "I received an offer I couldn’t refuse from a rival syndicate, forever altering my path."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05,
           "extraItem": {
-            "item": "Lockpick Set",
+            "item": "Fake ID",
             "chance": 0.2
           }
         }
-      
+      },
+      {
+        "id": "crimeevent5",
+        "description": "A job goes disastrously wrong when a close associate is arrested, leaving you with mixed emotions.",
+        "rewards": {
+          "item": "Prison Cell Letter",
+          "credits": 200,
+          "bond": "I let a friend take the fall for me—and I’ll never forget the cost of that betrayal."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "crimeevent6",
+        "description": "An undercover operation is compromised; you narrowly escape capture but suffer injuries in the process.",
+        "rewards": {
+          "item": "Smuggler's Knife (1d4, melee, quick)",
+          "credits": 150,
+          "bond": "I escaped an undercover bust by the skin of my teeth—a scar and a story to tell."
+        },
+        "penalties": {
+          "scarChance": 0.25,
+          "deathChance": 0.15,
+          "extraItem": {
+            "item": "Broken Cell Phone",
+            "chance": 0.2
+          }
+        }
+      },
+      {
+        "id": "crimeevent7",
+        "description": "A daring escape from a high-security prison leaves you with a permanent mark and a legendary tale.",
+        "rewards": {
+          "item": "Tattered Prison Shank",
+          "credits": 180,
+          "bond": "I made a legendary escape that still haunts the guards to this day."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.2
+        }
+      },
+      {
+        "id": "crimeevent8",
+        "description": "You successfully extort a corrupt official, securing a hefty sum and valuable connections.",
+        "rewards": {
+          "item": "Corrupt Official's Ledger",
+          "credits": 400,
+          "bond": "I extorted a crooked official and carved my name into the underworld’s records."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "crimeevent9",
+        "description": "A meticulously planned burglary nets you rare items, though the risk of getting caught still looms.",
+        "rewards": {
+          "item": "Rare Jewel (1d4)",
+          "credits": 250,
+          "bond": "I broke into a vault and made off with treasures that many only dream of."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.05,
+          "extraItem": {
+            "item": "Stolen Key",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "crimeevent10",
+        "description": "You pull off a flawless heist that defies expectations, instantly elevating your status.",
+        "rewards": {
+          "item": "High-Tech Gadget",
+          "credits": 500,
+          "bond": "I executed a flawless heist that no one in the underworld will ever forget."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "crimeevent11",
+        "description": "A miscalculation during a heist results in collateral damage and increased heat from the law.",
+        "rewards": {
+          "item": "Scrap of Stolen Tech",
+          "credits": 100,
+          "bond": "I made a mistake that put my crew in jeopardy—lesson learned the hard way."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "crimeevent12",
+        "description": "You are betrayed by a trusted partner, forcing a narrow escape and a tarnished reputation.",
+        "rewards": {
+          "item": "Discarded Partner's Watch",
+          "credits": 80,
+          "bond": "I was betrayed by someone I trusted, and now I carry that scar in more ways than one."
+        },
+        "penalties": {
+          "scarChance": 0.35,
+          "deathChance": 0.15
+        }
+      },
+      {
+        "id": "crimeevent13",
+        "description": "An ambush by rival criminals forces you into a desperate fight for survival.",
+        "rewards": {
+          "item": "Bloodstained Revolver",
+          "credits": 120,
+          "bond": "I survived an ambush that left me forever wary of those who envy my success."
+        },
+        "penalties": {
+          "scarChance": 0.4,
+          "deathChance": 0.25
+        }
+      },
+      {
+        "id": "crimeevent14",
+        "description": "A risky smuggling run ends in a close call with law enforcement, bruising both your ego and body.",
+        "rewards": {
+          "item": "Contraband Package",
+          "credits": 130,
+          "bond": "I barely escaped a smuggling bust—it shook me to the core but taught me caution."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.2
+        }
+      },
+      {
+        "id": "crimeevent15",
+        "description": "A high-stakes con leaves you deeply indebted to dangerous figures, forcing a risky alliance.",
+        "rewards": {
+          "item": "Counterfeit Currency",
+          "credits": 90,
+          "bond": "I got in over my head with ruthless debt collectors and now owe a heavy price."
+        },
+        "penalties": {
+          "scarChance": 0.25,
+          "deathChance": 0.15,
+          "extraItem": {
+            "item": "IOU Note",
+            "chance": 0.2
+          }
+        }
+      },
+      {
+        "id": "crimeevent16",
+        "description": "A botched burglary leaves you cornered; you manage to escape but not without a lasting scar.",
+        "rewards": {
+          "item": "Shattered Safe Lock",
+          "credits": 70,
+          "bond": "A botched burglary left me scarred—and taught me to never work alone."
+        },
+        "penalties": {
+          "scarChance": 0.5,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "crimeevent17",
+        "description": "A solo score goes awry, forcing you to flee empty-handed and humbled.",
+        "rewards": {
+          "item": "Empty Wallet",
+          "credits": 0,
+          "bond": "My solo job ended in failure, a harsh lesson in the cost of pride."
+        },
+        "penalties": {
+          "scarChance": 0.4,
+          "deathChance": 0.2,
+          "extraItem": {
+            "item": "Broken Lockpick",
+            "chance": 0.25
+          }
+        }
+      },
+      {
+        "id": "crimeevent18",
+        "description": "A failed attempt to intimidate a rival leaves you exposed and vulnerable to retribution.",
+        "rewards": {
+          "item": "Crumpled Threat Letter",
+          "credits": 50,
+          "bond": "I tried to intimidate a rival—and it backfired in the worst possible way."
+        },
+        "penalties": {
+          "scarChance": 0.45,
+          "deathChance": 0.25
+        }
+      },
+      {
+        "id": "crimeevent19",
+        "description": "A violent confrontation with a rival gang leaves you injured and forced onto the run.",
+        "rewards": {
+          "item": "Ripped Gang Jacket",
+          "credits": 60,
+          "bond": "A clash with a rival gang changed everything—I'm now forever on the run."
+        },
+        "penalties": {
+          "scarChance": 0.5,
+          "deathChance": 0.3
+        }
+      },
+      {
+        "id": "crimeevent20",
+        "description": "You cross the wrong person in the underworld—a critical mistake that nearly costs you your life. Roll a d4: on a 4, you die; otherwise, you gain a scar and are forced into a life of servitude.",
+        "rewards": {
+          "item": "Single Bullet",
+          "credits": 50,
+          "bond": "I made a critical mistake by crossing the wrong person, and now my future is forever uncertain."
+        },
+        "penalties": {
+          "scarChance": 0.75,
+          "deathChance": 0.25
+        }
+      }
     ]
+  }
+}
+{
+  "events": {
+    "Exploration": [
+      {
+        "id": "exploerevent1",
+        "description": "While trekking through a dense, alien jungle, you stumble upon a hidden grove of exotic plants.",
+        "rewards": {
+          "item": "Xenoflora Sample (1d6)",
+          "credits": 120,
+          "bond": "I discovered a secret grove that revealed nature’s mysteries."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02,
+          "extraItem": {
+            "item": "Fallen Leaf (1d4)",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "exploerevent2",
+        "description": "Crossing a vast desert, you uncover ancient petroglyphs etched in sandstone.",
+        "rewards": {
+          "item": "Ancient Petroglyph Fragment",
+          "credits": 100,
+          "bond": "I found evidence of a lost civilization carved in stone."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "exploerevent3",
+        "description": "Climbing a treacherous mountain, you discover a hidden cave filled with luminous crystals.",
+        "rewards": {
+          "item": "Luminous Crystal (1d4)",
+          "credits": 130,
+          "bond": "I braved the heights to uncover a cave of shimmering wonders."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "exploerevent4",
+        "description": "Exploring an abandoned alien outpost, you salvage fragments of lost technology.",
+        "rewards": {
+          "item": "Alien Tech Shard",
+          "credits": 150,
+          "bond": "I salvaged secrets from a forgotten outpost."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04,
+          "extraItem": {
+            "item": "Data Chip",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "exploerevent5",
+        "description": "Venturing into a misty swamp, you navigate treacherous bogs to collect rare medicinal herbs.",
+        "rewards": {
+          "item": "Medicinal Herb Bundle",
+          "credits": 90,
+          "bond": "I braved the swamp to harvest nature's hidden remedies."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "exploerevent6",
+        "description": "While mapping an uncharted island, you discover a hidden waterfall with pristine water.",
+        "rewards": {
+          "item": "Crystal Water Sample",
+          "credits": 110,
+          "bond": "I found a secret waterfall that promised untold secrets."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "exploerevent7",
+        "description": "Exploring an eerie, abandoned mining colony, you unearth relics of a once-thriving settlement.",
+        "rewards": {
+          "item": "Old Miner’s Helmet",
+          "credits": 80,
+          "bond": "I uncovered relics from a lost mining colony."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "exploerevent8",
+        "description": "Navigating dense fog along a coastal cliff, you spot a sunken shipwreck off the shore.",
+        "rewards": {
+          "item": "Nautical Salvage",
+          "credits": 140,
+          "bond": "I discovered secrets beneath the waves from a forgotten shipwreck."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "exploerevent9",
+        "description": "During a perilous river crossing, you rescue a stranded local who pledges lifelong loyalty.",
+        "rewards": {
+          "item": "Rescued Trinket",
+          "credits": 100,
+          "bond": "I saved a local from a deadly river, forging an unbreakable bond."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "exploerevent10",
+        "description": "Deep within an ancient forest, you discover a tree bearing mysterious, glowing fruit.",
+        "rewards": {
+          "item": "Glowing Fruit",
+          "credits": 120,
+          "bond": "I encountered a botanical enigma in the heart of the forest."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "exploerevent11",
+        "description": "While exploring an intricate cavern system, you find underground lakes shimmering with bioluminescence.",
+        "rewards": {
+          "item": "Bioluminescent Water Vial",
+          "credits": 130,
+          "bond": "I delved deep and uncovered hidden lakes of light."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "exploerevent12",
+        "description": "Traversing a rugged canyon, you find ancient carvings hinting at forgotten rituals.",
+        "rewards": {
+          "item": "Ancient Carving Fragment",
+          "credits": 110,
+          "bond": "I discovered carvings that tell tales of bygone rituals."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "exploerevent13",
+        "description": "Wandering through a labyrinthine canyon, you stumble upon a natural arch that inspires awe.",
+        "rewards": {
+          "item": "Natural Arch Photograph",
+          "credits": 90,
+          "bond": "I witnessed a natural wonder that will forever stay in my memory."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "exploerevent14",
+        "description": "A sudden sandstorm forces you to seek shelter in a forgotten ruin in a barren desert.",
+        "rewards": {
+          "item": "Ruined Artifact",
+          "credits": 100,
+          "bond": "I found refuge in a ruin during a relentless sandstorm."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "exploerevent15",
+        "description": "In a frozen tundra, you discover a hidden glacier cave filled with ancient ice formations.",
+        "rewards": {
+          "item": "Ice Crystal Shard",
+          "credits": 140,
+          "bond": "I uncovered the frozen beauty of a hidden glacier cave."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "exploerevent16",
+        "description": "Exploring a vast arid plateau, you uncover mysterious stone circles that defy explanation.",
+        "rewards": {
+          "item": "Stone Circle Relic",
+          "credits": 125,
+          "bond": "I discovered enigmatic stone circles that whisper secrets of the past."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "exploerevent17",
+        "description": "While navigating a network of subterranean tunnels, you uncover a secret underground river.",
+        "rewards": {
+          "item": "Subterranean River Map",
+          "credits": 115,
+          "bond": "I charted a hidden waterway beneath the earth—a secret of the deep."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "exploerevent18",
+        "description": "Scaling an ancient ziggurat in a remote desert, you uncover a sealed chamber filled with relics.",
+        "rewards": {
+          "item": "Sealed Relic Chest",
+          "credits": 160,
+          "bond": "I unlocked secrets within an ancient ziggurat that rewrote history."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "exploerevent19",
+        "description": "In a mysterious forest at twilight, you find a clearing where the air shimmers with unknown energy.",
+        "rewards": {
+          "item": "Ethereal Essence Vial",
+          "credits": 130,
+          "bond": "I experienced the mystical energy of an enchanted clearing."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02,
+          "extraItem": {
+            "item": "Mystic Leaf",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "exploerevent20",
+        "description": "On a solo expedition through treacherous highlands, you narrowly escape a sudden landslide.",
+        "rewards": {
+          "item": "Survival Kit",
+          "credits": 90,
+          "bond": "I survived a landslide in the highlands, forever changed by nature’s fury."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.2
+        }
+      }
+    ]
+  }
+}
+{
+  "events": {
+    "Space": [
+      {
+        "id": "spaceevent1",
+        "description": "During a routine inspection on your freighter, a sudden meteor shower forces evasive maneuvers.",
+        "rewards": {
+          "item": "Hull Repair Drone",
+          "credits": 150,
+          "bond": "I survived a meteor shower by trusting my instincts and my crew's coordination."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.05,
+          "extraItem": {
+            "item": "Scrap Metal (1d4)",
+            "chance": 0.2
+          }
+        }
+      },
+      {
+        "id": "spaceevent2",
+        "description": "While navigating an asteroid belt, you discover a hidden cache of abandoned satellite parts.",
+        "rewards": {
+          "item": "Satellite Parts",
+          "credits": 200,
+          "bond": "I salvaged valuable satellite parts in the midst of a deadly asteroid field."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "spaceevent3",
+        "description": "A sudden engine malfunction in deep space forces you to perform an emergency repair.",
+        "rewards": {
+          "item": "Emergency Engine Toolkit",
+          "credits": 180,
+          "bond": "I overcame an engine malfunction that almost cost us our lives."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.06,
+          "extraItem": {
+            "item": "Faulty Circuit (1d4)",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "spaceevent4",
+        "description": "During a hyperspace jump, a spatial distortion sends you off-course.",
+        "rewards": {
+          "item": "Navigation Override Chip",
+          "credits": 220,
+          "bond": "I survived a hyperspace anomaly and learned to trust my navigation systems."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "spaceevent5",
+        "description": "Exploring a derelict starship, you uncover advanced alien technology.",
+        "rewards": {
+          "item": "Alien Tech Module",
+          "credits": 250,
+          "bond": "I uncovered mysterious alien technology that promised untold power."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.07,
+          "extraItem": {
+            "item": "Ancient Data Core",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "spaceevent6",
+        "description": "A routine patrol takes you through a nebula, where colorful gases obscure your sensors.",
+        "rewards": {
+          "item": "Nebula Gas Sample",
+          "credits": 160,
+          "bond": "I charted the beauty and dangers of a nebula, earning respect among my peers."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "spaceevent7",
+        "description": "While docking at a remote space station, you negotiate crucial repairs at a discount.",
+        "rewards": {
+          "item": "Discounted Repair Voucher",
+          "credits": 100,
+          "bond": "I earned favor with a shady station mechanic through savvy negotiation."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "spaceevent8",
+        "description": "A rogue asteroid collides with your vessel’s side, forcing emergency repairs in zero gravity.",
+        "rewards": {
+          "item": "Zero-G Repair Kit",
+          "credits": 140,
+          "bond": "I braved a collision in the void and emerged with my ship barely intact."
+        },
+        "penalties": {
+          "scarChance": 0.25,
+          "deathChance": 0.08
+        }
+      },
+      {
+        "id": "spaceevent9",
+        "description": "During a supply run, you intercept a distress signal from a stranded cargo ship.",
+        "rewards": {
+          "item": "Rescue Beacon",
+          "credits": 130,
+          "bond": "I answered a distress call and forged a bond with a grateful survivor."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02,
+          "extraItem": {
+            "item": "Lost Cargo (1d4)",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "spaceevent10",
+        "description": "A chance encounter with space pirates leaves you with a cryptic warning and minor injuries.",
+        "rewards": {
+          "item": "Pirate's Token",
+          "credits": 80,
+          "bond": "I crossed paths with pirates, and their cryptic warning still haunts me."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "spaceevent11",
+        "description": "An uncharted wormhole offers a shortcut to distant systems—but at great risk.",
+        "rewards": {
+          "item": "Wormhole Map Fragment",
+          "credits": 240,
+          "bond": "I braved an uncharted wormhole and discovered a shortcut that changed everything."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.07,
+          "extraItem": {
+            "item": "Time Distortion Residue",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "spaceevent12",
+        "description": "While conducting a deep-space survey, you detect an unexpected energy signature.",
+        "rewards": {
+          "item": "Energy Signature Reader",
+          "credits": 210,
+          "bond": "I uncovered an energy anomaly that might hint at a new power source."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "spaceevent13",
+        "description": "A malfunctioning life support system forces you into a desperate struggle for survival.",
+        "rewards": {
+          "item": "Portable Oxygen Converter",
+          "credits": 170,
+          "bond": "I fixed a critical life support malfunction and saved my crew from certain doom."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.12,
+          "extraItem": {
+            "item": "Damaged Filter (1d4)",
+            "chance": 0.2
+          }
+        }
+      },
+      {
+        "id": "spaceevent14",
+        "description": "A distress call from a derelict research vessel leads you to a trove of experimental data.",
+        "rewards": {
+          "item": "Experimental Data Disk",
+          "credits": 230,
+          "bond": "I salvaged experimental data from a derelict vessel, opening doors to new discoveries."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "spaceevent15",
+        "description": "A high-stakes maneuver through a cosmic storm tests your piloting skills to the limit.",
+        "rewards": {
+          "item": "Storm Navigation Module",
+          "credits": 190,
+          "bond": "I navigated a cosmic storm that challenged every ounce of my resolve."
+        },
+        "penalties": {
+          "scarChance": 0.25,
+          "deathChance": 0.08,
+          "extraItem": {
+            "item": "Charged Particle Residue",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "spaceevent16",
+        "description": "While charting a new trade route, you encounter an unusual cosmic phenomenon.",
+        "rewards": {
+          "item": "Trade Route Chart",
+          "credits": 220,
+          "bond": "I discovered a new trade route through a cosmic anomaly that could revolutionize commerce."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "spaceevent17",
+        "description": "A routine cargo delivery turns perilous when your vessel is ambushed by space marauders.",
+        "rewards": {
+          "item": "Stolen Cargo Manifest",
+          "credits": 160,
+          "bond": "I survived an ambush by space marauders, and the loot speaks for itself."
+        },
+        "penalties": {
+          "scarChance": 0.35,
+          "deathChance": 0.15,
+          "extraItem": {
+            "item": "Damaged Cargo Container",
+            "chance": 0.2
+          }
+        }
+      },
+      {
+        "id": "spaceevent18",
+        "description": "Your ship’s sensors pick up a rare cosmic event—a nearby supernova illuminating the void.",
+        "rewards": {
+          "item": "Supernova Remnant Sample",
+          "credits": 250,
+          "bond": "I witnessed a supernova and collected its remnants—a sight few ever see."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "spaceevent19",
+        "description": "While refueling at a remote outpost, you uncover a secret deal that could change your fortunes.",
+        "rewards": {
+          "item": "Secret Fuel Voucher",
+          "credits": 180,
+          "bond": "I discovered a covert fuel deal that promises a lucrative future."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "spaceevent20",
+        "description": "During a high-risk maneuver, a critical system failure nearly spells disaster, but you pull through against all odds.",
+        "rewards": {
+          "item": "Emergency Override Module",
+          "credits": 200,
+          "bond": "I averted a catastrophic system failure and proved my mettle in the void."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.06,
+          "extraItem": {
+            "item": "Spare Circuit Board (1d4)",
+            "chance": 0.15
+          }
+        }
+      }
+    ]
+  }
+}
+{
+  "events": {
+    "Espionage": [
+      {
+        "id": "espionageevent1",
+        "description": "Undercover, you infiltrate a high-security facility and steal sensitive intel.",
+        "rewards": {
+          "item": "Encrypted Data Drive",
+          "credits": 200,
+          "bond": "I acquired classified secrets that could topple empires."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "espionageevent2",
+        "description": "You successfully plant a surveillance bug in a rival agency's office.",
+        "rewards": {
+          "item": "Surveillance Bug",
+          "credits": 150,
+          "bond": "I left a trace that will keep them guessing for months."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "espionageevent3",
+        "description": "During a covert meeting, you intercept a message that reveals a hidden conspiracy.",
+        "rewards": {
+          "item": "Intercepted Message",
+          "credits": 180,
+          "bond": "I uncovered a conspiracy that might change the balance of power."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "espionageevent4",
+        "description": "Your cover is nearly blown during a high-stakes negotiation.",
+        "rewards": {
+          "item": "Disguised Identity Card",
+          "credits": 130,
+          "bond": "I narrowly escaped exposure during a critical negotiation."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.05,
+          "extraItem": {
+            "item": "Fake Passport",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "espionageevent5",
+        "description": "While shadowing a target, you gather incriminating evidence against a powerful adversary.",
+        "rewards": {
+          "item": "Incriminating Documents",
+          "credits": 220,
+          "bond": "I secured evidence that could bring down a corrupt regime."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "espionageevent6",
+        "description": "A risky extraction mission goes awry, leaving you injured but with valuable intel.",
+        "rewards": {
+          "item": "Stolen USB Drive",
+          "credits": 170,
+          "bond": "I risked it all on a failed extraction that still yielded secrets."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.1,
+          "extraItem": {
+            "item": "Damaged Earpiece",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "espionageevent7",
+        "description": "You hack into a secure network to retrieve confidential files.",
+        "rewards": {
+          "item": "Hacked Access Codes",
+          "credits": 190,
+          "bond": "I cracked a high-security network and accessed forbidden data."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "espionageevent8",
+        "description": "A surveillance drone malfunctions during a mission, drawing unwanted attention.",
+        "rewards": {
+          "item": "Surveillance Footage",
+          "credits": 160,
+          "bond": "I captured unexpected footage that could expose hidden plots."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.06
+        }
+      },
+      {
+        "id": "espionageevent9",
+        "description": "In disguise, you attend a secretive gala to extract critical information.",
+        "rewards": {
+          "item": "Guest Pass",
+          "credits": 210,
+          "bond": "I blended in at a high-profile event and extracted delicate secrets."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "espionageevent10",
+        "description": "Your eavesdropping reveals a planned coup—you must decide whether to intervene or observe.",
+        "rewards": {
+          "item": "Confidential Coup Blueprint",
+          "credits": 230,
+          "bond": "I witnessed a coup in the making, and my silence may speak volumes."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "espionageevent11",
+        "description": "A rival spy attempts to frame you, forcing you to prove your innocence.",
+        "rewards": {
+          "item": "Clearing Document",
+          "credits": 150,
+          "bond": "I exposed the real traitor when I was framed."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.07,
+          "extraItem": {
+            "item": "Forged Signature",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "espionageevent12",
+        "description": "During a covert operation, you narrowly escape a security ambush with crucial intel.",
+        "rewards": {
+          "item": "Ambush Report",
+          "credits": 180,
+          "bond": "I escaped a deadly ambush with secrets that can change the game."
+        },
+        "penalties": {
+          "scarChance": 0.25,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "espionageevent13",
+        "description": "You secure a confidential meeting with a high-ranking official under false pretenses.",
+        "rewards": {
+          "item": "Official Briefcase",
+          "credits": 240,
+          "bond": "I secured a meeting that granted me unprecedented access."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "espionageevent14",
+        "description": "A last-minute extraction leaves you with limited time to erase your tracks.",
+        "rewards": {
+          "item": "Quick-Disposal Kit",
+          "credits": 140,
+          "bond": "I managed to erase all traces of my operation just in time."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "espionageevent15",
+        "description": "Infiltrating a hostile headquarters, you dodge security measures to retrieve secret files.",
+        "rewards": {
+          "item": "Stealth Suit",
+          "credits": 220,
+          "bond": "I infiltrated enemy headquarters and emerged with their darkest secrets."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "espionageevent16",
+        "description": "A miscommunication in the field sparks a chaotic chase across urban rooftops.",
+        "rewards": {
+          "item": "Rooftop Drone",
+          "credits": 160,
+          "bond": "I escaped a dangerous chase, proving my agility in the urban jungle."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.08
+        }
+      },
+      {
+        "id": "espionageevent17",
+        "description": "Your covert mission is compromised by a mole within your organization, shaking your trust.",
+        "rewards": {
+          "item": "Mole Exposé",
+          "credits": 170,
+          "bond": "I uncovered betrayal within my ranks that changed everything."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.1,
+          "extraItem": {
+            "item": "Burned Flash Drive",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "espionageevent18",
+        "description": "Under cover, you plant disinformation that sows chaos among enemy ranks.",
+        "rewards": {
+          "item": "Disinformation Packet",
+          "credits": 190,
+          "bond": "I planted seeds of chaos that will confuse our enemies for months."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.04
+        }
+      },
+      {
+        "id": "espionageevent19",
+        "description": "A covert rendezvous with an informant yields dangerous and unexpected information.",
+        "rewards": {
+          "item": "Secret Contact's Memo",
+          "credits": 210,
+          "bond": "An informant handed me intel that could alter the power dynamics in the region."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.05,
+          "extraItem": {
+            "item": "Encrypted Keycard",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "espionageevent20",
+        "description": "In a daring solo operation, you infiltrate a fortified compound and extract high-value secrets.",
+        "rewards": {
+          "item": "High-Value Intel Package",
+          "credits": 250,
+          "bond": "I risked it all on a solo run, emerging with secrets worth their weight in gold."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.08
+        }
+      }
+    ]
+  }
+}
+{
+  "events": {
+    "Education": [
+      {
+        "id": "educationevent1",
+        "description": "You deliver a groundbreaking lecture that captivates renowned scholars.",
+        "rewards": {
+          "item": "Signed Textbook",
+          "credits": 150,
+          "bond": "I captivated an audience of experts and earned their lasting admiration."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent2",
+        "description": "Deciphering an ancient text, you uncover lost knowledge of a bygone era.",
+        "rewards": {
+          "item": "Ancient Manuscript Fragment",
+          "credits": 200,
+          "bond": "I uncovered secrets that challenge our understanding of history."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0,
+          "extraItem": {
+            "item": "Rare Glossary (1d4)",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "educationevent3",
+        "description": "A heated debate in a prestigious seminar forces you to defend your theories.",
+        "rewards": {
+          "item": "Debate Winner Certificate",
+          "credits": 120,
+          "bond": "I defended my ideas with unwavering conviction in the face of criticism."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent4",
+        "description": "While researching in a dusty archive, you unearth a document of great importance.",
+        "rewards": {
+          "item": "Archival Record",
+          "credits": 180,
+          "bond": "I discovered a document that could reshape academic thought."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0,
+          "extraItem": {
+            "item": "Antique Quill",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "educationevent5",
+        "description": "Your innovative experiment in material science leads to a breakthrough.",
+        "rewards": {
+          "item": "Prototype Lab Equipment",
+          "credits": 220,
+          "bond": "I revolutionized my field with a breakthrough that defied expectations."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "educationevent6",
+        "description": "A miscalculation in the lab causes a minor explosion, injuring you.",
+        "rewards": {
+          "item": "Experimental Data Sheet",
+          "credits": 80,
+          "bond": "I learned a harsh lesson from a failed experiment."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "educationevent7",
+        "description": "Your research paper is published in a leading journal, earning you accolades.",
+        "rewards": {
+          "item": "Prestigious Publication",
+          "credits": 250,
+          "bond": "My work was heralded as a turning point in my field."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent8",
+        "description": "A rival challenges your findings, igniting an intense academic confrontation.",
+        "rewards": {
+          "item": "Rivalry Token",
+          "credits": 100,
+          "bond": "I stood up to fierce criticism and defended my research with passion."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent9",
+        "description": "You mentor a promising student who later credits you for their success.",
+        "rewards": {
+          "item": "Mentor's Emblem",
+          "credits": 130,
+          "bond": "I nurtured a brilliant mind that now shines in academia."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent10",
+        "description": "At an international conference, your debate skills earn you widespread respect.",
+        "rewards": {
+          "item": "Conference Badge",
+          "credits": 140,
+          "bond": "I defended my ideas on a global stage and emerged victorious."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent11",
+        "description": "A grant committee awards you funding for your innovative research proposal.",
+        "rewards": {
+          "item": "Research Grant Check",
+          "credits": 300,
+          "bond": "I secured vital funding that will propel my research forward."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent12",
+        "description": "A field study in remote terrain yields unexpected findings that challenge conventional wisdom.",
+        "rewards": {
+          "item": "Field Study Report",
+          "credits": 160,
+          "bond": "I ventured into the unknown and returned with data that defied expectations."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent13",
+        "description": "You lead a groundbreaking workshop that inspires a generation of learners.",
+        "rewards": {
+          "item": "Workshop Certificate",
+          "credits": 180,
+          "bond": "I sparked a passion for knowledge that will endure for years to come."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent14",
+        "description": "A lab accident forces you to reassess your safety protocols, costing valuable time.",
+        "rewards": {
+          "item": "Revised Lab Manual",
+          "credits": 90,
+          "bond": "I emerged wiser from a chaotic lab incident that taught me caution."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "educationevent15",
+        "description": "A forgotten library yields rare texts that offer new insights into your field.",
+        "rewards": {
+          "item": "Historical Artifact",
+          "credits": 210,
+          "bond": "I uncovered records that promise to reshape academic paradigms."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent16",
+        "description": "A collaborative project with esteemed colleagues leads to a multifaceted study.",
+        "rewards": {
+          "item": "Collaborative Research Token",
+          "credits": 230,
+          "bond": "I forged alliances that enriched our collective understanding."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent17",
+        "description": "Your experimental invention malfunctions catastrophically, forcing a hasty lab retreat.",
+        "rewards": {
+          "item": "Shattered Prototype",
+          "credits": 70,
+          "bond": "I faced the perils of innovation and learned the cost of overreaching ambition."
+        },
+        "penalties": {
+          "scarChance": 0.35,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "educationevent18",
+        "description": "A visiting scholar from a distant world shares revolutionary ideas with you.",
+        "rewards": {
+          "item": "Exotic Research Notes",
+          "credits": 200,
+          "bond": "I exchanged ideas with a visionary, broadening my academic horizons."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent19",
+        "description": "A scathing peer review challenges your published work, sparking a fierce debate.",
+        "rewards": {
+          "item": "Peer Review Critique",
+          "credits": 120,
+          "bond": "I embraced criticism that will ultimately strengthen my future research."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent20",
+        "description": "While exploring a forgotten library, you discover a trove of rare texts that inspire a new direction.",
+        "rewards": {
+          "item": "Rare Text Collection",
+          "credits": 250,
+          "bond": "I uncovered hidden knowledge that promises to redefine my field."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      }
+    ]
+  }
+}
+{
+  "events": {
+    "Prosperity": [
+      {
+        "id": "prosperityevent1",
+        "description": "You orchestrate a financial coup that catapults you into high society.",
+        "rewards": {
+          "item": "Investment Portfolio",
+          "credits": 500,
+          "bond": "My daring financial maneuver turned the tables, making me a respected magnate."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02,
+          "extraItem": {
+            "item": "Golden Contract",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "prosperityevent2",
+        "description": "You forge a lucrative alliance with a powerful corporation, securing future benefits.",
+        "rewards": {
+          "item": "Exclusive Contract",
+          "credits": 450,
+          "bond": "I built a partnership that promised wealth beyond my wildest dreams."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "prosperityevent3",
+        "description": "Your savvy investments yield unexpected profits, boosting your fortune significantly.",
+        "rewards": {
+          "item": "High-Yield Stock Options",
+          "credits": 550,
+          "bond": "My investments paid off, proving that fortune truly favors the bold."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "prosperityevent4",
+        "description": "A sudden market crash tests your resolve, but you emerge with valuable assets.",
+        "rewards": {
+          "item": "Discounted Real Estate",
+          "credits": 300,
+          "bond": "I weathered a market crash, turning risk into opportunity."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "prosperityevent5",
+        "description": "Your charismatic negotiation skills secure a major government contract.",
+        "rewards": {
+          "item": "Government Contract",
+          "credits": 400,
+          "bond": "I sealed a deal that cemented my reputation among the elite."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "prosperityevent6",
+        "description": "An innovative business idea strikes gold, attracting investors and media attention.",
+        "rewards": {
+          "item": "Startup Blueprint",
+          "credits": 350,
+          "bond": "My groundbreaking idea captured the imagination of investors."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0,
+          "extraItem": {
+            "item": "Prototype Device",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "prosperityevent7",
+        "description": "You secure a lucrative merger with a rival company, doubling your assets overnight.",
+        "rewards": {
+          "item": "Merger Agreement",
+          "credits": 600,
+          "bond": "I orchestrated a merger that redefined the corporate landscape."
+        },
+        "penalties": {
+          "scarChance": 0.02,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "prosperityevent8",
+        "description": "A savvy acquisition gives you control of a key market niche.",
+        "rewards": {
+          "item": "Acquisition Deed",
+          "credits": 450,
+          "bond": "I acquired a company that unlocked a dominant market position."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "prosperityevent9",
+        "description": "Your reputation as a financial wizard attracts a secret benefactor with mysterious resources.",
+        "rewards": {
+          "item": "Confidential Investment Brief",
+          "credits": 400,
+          "bond": "A mysterious benefactor recognized my potential and lent their support."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0,
+          "extraItem": {
+            "item": "Mysterious Token",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "prosperityevent10",
+        "description": "A high-profile scandal rocks the financial district, and you skillfully navigate the fallout.",
+        "rewards": {
+          "item": "Reputation Shield",
+          "credits": 300,
+          "bond": "I weathered a scandal and emerged with my reputation intact."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "prosperityevent11",
+        "description": "Your astute business strategy leads to a windfall from a failing competitor.",
+        "rewards": {
+          "item": "Competitive Buyout Offer",
+          "credits": 500,
+          "bond": "I capitalized on a competitor’s misfortune to expand my empire."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "prosperityevent12",
+        "description": "An unexpected tax incentive and government rebate boost your cash flow.",
+        "rewards": {
+          "item": "Tax Incentive Certificate",
+          "credits": 350,
+          "bond": "A stroke of bureaucratic luck enriched my business endeavors."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "prosperityevent13",
+        "description": "Your innovative marketing campaign captures public attention and increases sales dramatically.",
+        "rewards": {
+          "item": "Award-Winning Ad Campaign",
+          "credits": 400,
+          "bond": "I launched a campaign that turned public opinion in my favor."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "prosperityevent14",
+        "description": "A sudden surge in market demand for your product results in record-breaking profits.",
+        "rewards": {
+          "item": "Limited Edition Product Run",
+          "credits": 550,
+          "bond": "Market demand soared, and my business reaped the rewards."
+        },
+        "penalties": {
+          "scarChance": 0.02,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "prosperityevent15",
+        "description": "You negotiate a groundbreaking deal with a multinational corporation.",
+        "rewards": {
+          "item": "Multinational Contract",
+          "credits": 600,
+          "bond": "I sealed a deal that promised global expansion and vast wealth."
+        },
+        "penalties": {
+          "scarChance": 0.03,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "prosperityevent16",
+        "description": "A risky venture pays off as you discover a new, untapped resource in the market.",
+        "rewards": {
+          "item": "Resource Extraction Blueprint",
+          "credits": 500,
+          "bond": "I ventured into the unknown and discovered a new source of prosperity."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02,
+          "extraItem": {
+            "item": "Resource Sample (1d4)",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "prosperityevent17",
+        "description": "A major trade fair opens new opportunities, and your booth becomes the center of attention.",
+        "rewards": {
+          "item": "Trade Fair Invitation",
+          "credits": 450,
+          "bond": "I turned heads at the trade fair, drawing lucrative opportunities my way."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "prosperityevent18",
+        "description": "Your strategic risk in a volatile market pays off handsomely, increasing your assets overnight.",
+        "rewards": {
+          "item": "High-Risk Investment Portfolio",
+          "credits": 550,
+          "bond": "I took a calculated risk and the market rewarded my boldness."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "prosperityevent19",
+        "description": "An insider tip leads you to a secret auction where rare assets are sold.",
+        "rewards": {
+          "item": "Auction Win Certificate",
+          "credits": 500,
+          "bond": "I won a secret auction, acquiring assets that few could imagine."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.01,
+          "extraItem": {
+            "item": "Rare Asset (1d4)",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "prosperityevent20",
+        "description": "In a high-stakes negotiation, you turn a financial crisis into a stepping stone for success.",
+        "rewards": {
+          "item": "Crisis Management Award",
+          "credits": 600,
+          "bond": "I transformed a crisis into an opportunity, cementing my status among the elite."
+        },
+        "penalties": {
+          "scarChance": 0.03,
+          "deathChance": 0.01
+        }
+      }
+    ]
+  }
+}
+{
+  "events": {
+    "Politics": [
+      {
+        "id": "politicsevent1",
+        "description": "During a high-profile rally, you deliver a stirring speech that unites a divided constituency.",
+        "rewards": {
+          "item": "Campaign Banner",
+          "credits": 200,
+          "bond": "I inspired a movement with words that resonated with the people."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent2",
+        "description": "A heated debate on live television forces you to defend your policies under intense scrutiny.",
+        "rewards": {
+          "item": "Debate Trophy",
+          "credits": 150,
+          "bond": "I held my ground on national TV and earned respect among my peers."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0,
+          "extraItem": {
+            "item": "Critical Media Clip",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "politicsevent3",
+        "description": "You broker a crucial alliance with a powerful political faction, gaining influence in key circles.",
+        "rewards": {
+          "item": "Alliance Charter",
+          "credits": 250,
+          "bond": "I forged an alliance that reshaped the power structure in our region."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "politicsevent4",
+        "description": "A scandal erupts, and you skillfully spin the narrative to protect your reputation.",
+        "rewards": {
+          "item": "Crisis Management Plan",
+          "credits": 180,
+          "bond": "I turned a scandal into an opportunity and emerged even stronger."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent5",
+        "description": "During a secret meeting, you uncover compromising information on a rival faction.",
+        "rewards": {
+          "item": "Confidential Dossier",
+          "credits": 220,
+          "bond": "I obtained explosive secrets that could shift the political balance."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.03,
+          "extraItem": {
+            "item": "Stolen Briefcase",
+            "chance": 0.15
+          }
+        }
+      },
+      {
+        "id": "politicsevent6",
+        "description": "A surprise endorsement from a celebrity-politician boosts your public image overnight.",
+        "rewards": {
+          "item": "Endorsement Letter",
+          "credits": 200,
+          "bond": "A famous figure backed me, and my influence skyrocketed."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent7",
+        "description": "You expose corruption within your own party, risking internal backlash for the greater good.",
+        "rewards": {
+          "item": "Whistleblower Medal",
+          "credits": 230,
+          "bond": "I risked everything to root out corruption, earning both friends and foes."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "politicsevent8",
+        "description": "A covert operation results in a surprise victory against a rival politician.",
+        "rewards": {
+          "item": "Secret Strategy Blueprint",
+          "credits": 210,
+          "bond": "I pulled off a covert maneuver that left my opponent reeling."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "politicsevent9",
+        "description": "You secure a key position on an influential committee, expanding your political clout.",
+        "rewards": {
+          "item": "Committee Appointment Letter",
+          "credits": 240,
+          "bond": "My appointment to a crucial committee changed the course of policy-making."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent10",
+        "description": "A public outcry forces your party to reconsider its stance, and you emerge as the voice of change.",
+        "rewards": {
+          "item": "Public Apology Transcript",
+          "credits": 190,
+          "bond": "I turned public dissent into a rallying cry for reform."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent11",
+        "description": "During a clandestine meeting, you negotiate a peace treaty between warring factions.",
+        "rewards": {
+          "item": "Treaty Document",
+          "credits": 260,
+          "bond": "I brokered peace in a turbulent time, becoming a respected mediator."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "politicsevent12",
+        "description": "Your investigative efforts reveal a hidden conspiracy that shakes the foundations of power.",
+        "rewards": {
+          "item": "Conspiracy File",
+          "credits": 220,
+          "bond": "I uncovered a plot that threatens to upend the political order."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.04,
+          "extraItem": {
+            "item": "Anonymous Tip",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "politicsevent13",
+        "description": "A bitter internal conflict forces you to choose sides, defining your political future.",
+        "rewards": {
+          "item": "Faction Emblem",
+          "credits": 180,
+          "bond": "I made a defining choice that sealed my loyalty and set my path."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "politicsevent14",
+        "description": "You orchestrate a daring political stunt that wins over undecided voters.",
+        "rewards": {
+          "item": "Stunt Memorabilia",
+          "credits": 210,
+          "bond": "My bold political stunt changed the tide of public opinion."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent15",
+        "description": "An unexpected alliance with an influential lobby group promises to reshape the policy landscape.",
+        "rewards": {
+          "item": "Lobbyist Contract",
+          "credits": 250,
+          "bond": "I struck a deal with powerful lobbyists that promises vast rewards."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "politicsevent16",
+        "description": "A contentious town hall meeting forces you to confront public dissent head-on.",
+        "rewards": {
+          "item": "Town Hall Minutes",
+          "credits": 170,
+          "bond": "I faced down a hostile crowd and emerged with my principles intact."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.0,
+          "extraItem": {
+            "item": "Protest Sign",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "politicsevent17",
+        "description": "You navigate a labyrinth of bureaucracy to secure a vital government grant.",
+        "rewards": {
+          "item": "Grant Approval Letter",
+          "credits": 240,
+          "bond": "I battled red tape and emerged victorious with funds that would change everything."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent18",
+        "description": "An unexpected diplomatic incident abroad forces you into a delicate negotiation.",
+        "rewards": {
+          "item": "Diplomatic Passport",
+          "credits": 230,
+          "bond": "I turned an international crisis into an opportunity for dialogue."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "politicsevent19",
+        "description": "A late-night strategy session with key advisors results in a bold, controversial proposal.",
+        "rewards": {
+          "item": "Strategy Blueprint",
+          "credits": 210,
+          "bond": "I crafted a daring proposal that could redefine our future."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "politicsevent20",
+        "description": "In the midst of a political crisis, you make a sacrificial decision that cements your legacy.",
+        "rewards": {
+          "item": "Legacy Document",
+          "credits": 260,
+          "bond": "I made a hard choice that will be remembered as a turning point in our history."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.03
+        }
+      }
+    ]
+  }
+}
     
   },
-  "settings": {
-    "...": "existing settings"
-  }
 }
   },
   "settings": {
