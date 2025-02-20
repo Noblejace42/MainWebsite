@@ -388,28 +388,58 @@
     "Labor": [
       {
         "id": "laborevent1",
-        "description": "You labor in a hazardous factory, risking injury but earning rewards.",
+        "description": "Labor in a hazardous environment, risking injury but earning rewards.",
         "rewards": {
-          "item": "Bandages 1d6",
-          "credits": 10,
-          "bond": "I earned the trust of an influential supervisor, and they gave me a chance at something greater."
+          "item": "Work Gloves 1d6 (Arms, Armored 2)",
+          "credits": 150,
+          "bond": "I earned the trust of an influential supervisor named _____, and they gave me a chance at something greater."
         },
         "penalties": {
           "scarChance": 0.2,
           "deathChance": 0.05,
           "extraItem": {
-            "item": "Tool Kit 1d4",
-            "chance": 0.1
+            "item": "Tool Kit 1d6",
+            "chance": 0.25
           }
         }
       },
       {
         "id": "laborevent2",
-        "description": "You gain expertise in your craft, becoming a reliable worker in your field.",
+        "description": "Spend time gaining skill in your craft, becoming a reliable worker in your field.",
         "rewards": {
-          "item": "Specialized Tool (1d8, aid|Skill)",
-          "credits": 15,
-          "bond": "I honed my skills under a seasoned mentor, who taught me everything I know."
+          "item": "Specialized Tool 1d8 (aid|Skill)",
+          "credits": 100,
+          "bond": "I honed my skills under a seasoned mentor named _____, who taught me everything I know."
+        },
+        "penalties": {
+          "scarChance": 0.04,
+          "deathChance": 0.01
+        }
+      },
+      {
+        "id": "laborevent3",
+        "description": "Take a job at a dangerous factory working with a volatile substance.",
+        "rewards": {
+          "item": "Old Tool Kit 1d6 (aid|Skill), Bandages 1d8 (Special, Consumable1)",
+          "credits": 100,
+          "bond": "The accident at the factory in _____ changed me forever."
+        },
+        "penalties": {
+          "scarChance": 0.5,
+          "deathChance": 0.15,
+          "extraItem": {
+            "item": "Bandages 1d8 (Special, Consumable1)",
+            "chance": 0.75
+          }
+        }
+      },
+      {
+        "id": "laborevent4",
+        "description": "Work long hours to try and move up the ladder.",
+        "rewards": {
+          "item": "Worn Pants 1d6 (Legs, Armored 2)",
+          "credits": 200,
+          "bond": "I spent years breaking my back for _____, yet they never paid me what I deserved."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -417,68 +447,42 @@
         }
       },
       {
-        "id": "laborevent3",
-        "description": "A severe accident on site leaves you injured and scarred.",
+        "id": "laborevent5",
+        "description": "You search for a new job after you are layed off.",
         "rewards": {
-          "item": "Old Tool Kit (1d6, aid|Skill)",
-          "credits": 8,
-          "bond": "The accident at the factory changed me forever."
+          "item": "Old Company ID Badge",
+          "credits": 100,
+          "bond": "I lost my job at _____ due to sudden cutbacks, and now I must start over."
         },
         "penalties": {
-          "scarChance": 0.3,
-          "deathChance": 0.08,
+          "scarChance": 0.05,
+          "deathChance": 0.0
           "extraItem": {
-            "item": "Extra Bandages (2d4)",
-            "chance": 0.15
+            "item": "Power Cell (Special, Charging 1)",
+            "chance": 0.5
           }
         }
       },
       {
-        "id": "laborevent4",
-        "description": "You are overworked and underpaid, barely scraping by each day.",
-        "rewards": {
-          "item": "Worn Work Gloves",
-          "credits": 5,
-          "bond": "I spent years breaking my back, yet they never paid me what I deserved."
-        },
-        "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "laborevent5",
-        "description": "A sudden layoff forces you to leave your job unexpectedly.",
-        "rewards": {
-          "item": "Old Company ID Badge",
-          "credits": 100,
-          "bond": "I lost my job due to sudden cutbacks, and now I must start over."
-        },
-        "penalties": {
-          "scarChance": 0.0,
-          "deathChance": 0.0
-        }
-      },
-      {
         "id": "laborevent6",
-        "description": "Unsafe working conditions result in a near-fatal incident.",
+        "description": "Get assigned to a deadly line of work by management - for great pay.",
         "rewards": {
-          "item": "Broken Hard-hat (1d4, lucky)",
-          "credits": 50,
-          "bond": "I was betrayed by corrupt management, and I will make sure they pay for it."
+          "item": "Broken Hard-hat (1d4, Lucky)",
+          "credits": 500,
+          "bond": "I almost died doing _____, and I will make sure never to go back."
         },
         "penalties": {
-          "scarChance": 0.75,
+          "scarChance": 0.6,
           "deathChance": 0.25
         }
       },
       {
         "id": "laborevent7",
-        "description": "A surge of industrial innovation sparks an idea to improve workflow.",
+        "description": "Invent a new idea to improve workflow.",
         "rewards": {
-          "item": "Innovative Blueprint",
-          "credits": 20,
-          "bond": "I devised a method that revolutionized work at the plant."
+          "item": "Exo-Locomotive Pack (Back, aid|Fortitude, Charging3)",
+          "credits": 100,
+          "bond": "I devised a method that revolutionized work at the plant on _____."
         },
         "penalties": {
           "scarChance": 0.05,
