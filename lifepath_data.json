@@ -395,7 +395,7 @@
     "Politics": ["politicsevent1", "politicsevent2", "politicsevent3"]
   },
   "settings": {
-    "startingTalentLevel": 1,
+    "startingTalentLevel": 0,
     "maxTalentLevel": 5,
     "talentDiceMapping": {
       "1": "d4",
@@ -405,11 +405,11 @@
       "5": "d12"
     },
     "rarityProbabilities": {
-      "common": 0.8,
-      "intermediate": 0.15,
-      "expert": 0.05
+      "common": 0.92,
+      "intermediate": 0.6,
+      "expert": 0.02
     },
-    "rarityProgressionMultiplier": 0.05,
+    "rarityProgressionMultiplier": 0.02,
     "wildcardOptionEnabled": true,
     "wildcardOptionChance": 1.0
   }
