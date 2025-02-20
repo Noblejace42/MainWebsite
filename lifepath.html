@@ -82,39 +82,39 @@
      ************* Global Variables **********
      *****************************************/
     let config;
-    let character = {
-      age: 15,
-      scars: 0,
-      lifepaths: [],
-      bonds: [],
-      items: [],
-      talentDecreases: [],
-      // Skills stored as numeric levels
-      skills: {
-        "Tech": 1,
-        "Recall": 1,
-        "Speed": 1,
-        "Might": 1,
-        "Charm": 1,
-        "Fortitude": 1,
-        "Presence": 1,
-        "Precision": 1,
-        "Will": 1,
-        "Awareness": 1
-      }
-    };
-    let poolCounts = {};
-    let remainingTalentPoints = 0;
+  let character = {
+    age: 15,
+    scars: 0,
+    lifepaths: [],
+    bonds: [],
+    items: [],
+    talentDecreases: [],
+    credits: 0, // New field for tracking credits
+    skills: {
+      "Tech": 1,
+      "Recall": 1,
+      "Speed": 1,
+      "Might": 1,
+      "Charm": 1,
+      "Fortitude": 1,
+      "Presence": 1,
+      "Precision": 1,
+      "Will": 1,
+      "Awareness": 1
+    }
+  };
+  let poolCounts = {};
+  let remainingTalentPoints = 0;
 
     /*****************************************
      ************** Utility Funcs ************
      *****************************************/
-    function getRandomElement(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
-    function randomChance() {
-      return Math.random();
-    }
+     function getRandomElement(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+  function randomChance() {
+    return Math.random();
+  }
 
     // Sum the total level of a given talent across all lifepaths EXCEPT a specific index
     // (e.g., we skip the "current" lifepath to find the base from previous lifepaths).
@@ -221,16 +221,17 @@
 
     // Update the character sheet summary
     function updateSummary() {
-      const summaryDiv = document.getElementById("summary-content");
-      let html = `
-        <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
-          <h3>General</h3>
-          <p><strong>Age:</strong> ${character.age}</p>
-          <p><strong>Scars:</strong> ${character.scars}</p>
-          <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
-          <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
-        </div>
-      `;
+    const summaryDiv = document.getElementById("summary-content");
+    let html = `
+      <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
+        <h3>General</h3>
+        <p><strong>Age:</strong> ${character.age}</p>
+        <p><strong>Scars:</strong> ${character.scars}</p>
+        <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
+        <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+        <p><strong>Credits:</strong> ${character.credits}</p>
+      </div>
+    `;
 
       // Skills
       html += `
@@ -241,6 +242,7 @@
       for (let skill in character.skills) {
         let dice = skillLevelToDice(character.skills[skill]);
         html += `<li>${skill}: ${character.skills[skill]} (${dice})</li>`;
+        
       }
       html += `</ul></div>`;
 
@@ -472,39 +474,70 @@
      ********** Events & Aging Logic *********
      *****************************************/
     function showEventOptions(pool) {
-      const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
-      const eventsArr = config.events[pool];
-      eventsArr.forEach(ev => {
-        const btn = document.createElement("button");
-        btn.classList.add("event-btn");
-        btn.textContent = ev;
-        btn.onclick = function() {
-          selectEvent(ev, pool);
-        };
-        contentDiv.appendChild(btn);
-      });
-      updateSummary();
+    const contentDiv = document.getElementById("game-content");
+    contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
+    // Instead of a simple list of strings, create a button for each event object using its id
+    config.events[pool].forEach(eventObj => {
+      const btn = document.createElement("button");
+      btn.classList.add("event-btn");
+      btn.textContent = eventObj.id;
+      btn.onclick = function() {
+        selectEvent(eventObj.id, pool);
+      };
+      contentDiv.appendChild(btn);
+    });
+    updateSummary();
+  }
+
+    function selectEvent(eventId, pool) {
+    const lp = character.lifepaths[character.lifepaths.length - 1];
+    // Look up the full event object by matching the event id
+    let eventObj = config.events[pool].find(ev => ev.id === eventId);
+    if (!eventObj) {
+      console.error("Event not found: " + eventId);
+      return;
+    }
+    lp.event = eventObj.id;
+
+    const contentDiv = document.getElementById("game-content");
+    // Display the event’s description
+    const resultDiv = document.createElement("div");
+    resultDiv.innerHTML = `<p><strong>Event:</strong> ${eventObj.description}</p>`;
+    contentDiv.appendChild(resultDiv);
+
+    // Process rewards: add item, credits, and bond
+    if (eventObj.rewards) {
+      if (eventObj.rewards.item) {
+        character.items.push(eventObj.rewards.item);
+      }
+      if (eventObj.rewards.credits) {
+        character.credits += eventObj.rewards.credits;
+      }
+      if (eventObj.rewards.bond) {
+        character.bonds.push(eventObj.rewards.bond);
+      }
     }
 
-    function selectEvent(eventName, pool) {
-      const lp = character.lifepaths[character.lifepaths.length - 1];
-      lp.event = eventName;
-
-      const contentDiv = document.getElementById("game-content");
-      const resultDiv = document.createElement("div");
-      resultDiv.innerHTML = `<p><strong>Event Result:</strong> ${eventName}result</p>`;
-      contentDiv.appendChild(resultDiv);
-
-      // Bond & Item
-      character.bonds.push(`${pool} Bond from ${eventName}`);
-      character.items.push(`${pool} Item from ${eventName}`);
-
-      // Check aging
-      lp.agingMessage = checkAgingPenalties();
-      askContinue();
-      updateSummary();
+    // Process penalties: scar and death chances, plus any extra item reward
+    if (eventObj.penalties) {
+      if (eventObj.penalties.scarChance && randomChance() < eventObj.penalties.scarChance) {
+        character.scars++;
+        // Optionally adjust talent points here if needed
+      }
+      if (eventObj.penalties.deathChance && randomChance() < eventObj.penalties.deathChance) {
+        displayDeathScreen();
+        return; // Immediately exit if death occurs
+      }
+      if (eventObj.penalties.extraItem && randomChance() < eventObj.penalties.extraItem.chance) {
+        character.items.push(eventObj.penalties.extraItem.item);
+      }
     }
+
+    // Process aging and prompt for next lifepath if appropriate
+    lp.agingMessage = checkAgingPenalties();
+    askContinue();
+    updateSummary();
+  }
 
     function checkAgingPenalties() {
       let messages = [];
@@ -572,13 +605,16 @@
     }
 
     function displayDeathScreen() {
-      const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `
+    const contentDiv = document.getElementById("game-content");
+    // Clear existing content and display a centered death message
+    contentDiv.innerHTML = `
+      <div class="centered-death-screen">
         <h2>You Died</h2>
         <p>Your character has succumbed to their injuries.</p>
         <button class="lifepath-btn" onclick="restartGame()">Restart</button>
-      `;
-    }
+      </div>
+    `;
+  }
 
     function restartGame() {
       character = {
@@ -658,20 +694,14 @@
      ************ Initial Load ***************
      *****************************************/
     document.addEventListener("DOMContentLoaded", function() {
-      fetch("lifepath_data.json")
-        .then(response => response.json())
-        .then(data => {
-          config = data;
-          // Initialize lifepath pool counts
-          Object.keys(config.lifepathPools).forEach(pool => {
-            poolCounts[pool] = 0;
-          });
-          showInitialPoolSelection();
-        })
-        .catch(error => {
-          console.error("Error loading lifepath_data.json:", error);
-        });
-    });
-  </script>
+    fetch("lifepath_data.json")
+      .then(response => response.json())
+      .then(data => {
+        config = data;
+        // Initialize lifepath pool counts and other settings here…
+        showInitialPoolSelection();
+      });
+  });
+</script>
 </body>
 </html>
