@@ -165,4 +165,16 @@ nav a:hover {
   text-decoration: underline;
 }
 
+.centered-death-screen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #262626;
+  border: 1px solid #444;
+  padding: 20px;
+  border-radius: 4px;
+  text-align: center;
+  z-index: 2000;
+}
 
