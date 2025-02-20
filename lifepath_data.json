@@ -404,7 +404,9 @@
             "chance": 0.1
           }
         }
-      },
+      }, 
+    ]
+      }
       {
         "id": "laborevent2",
         "description": "You gain expertise in your craft, becoming a reliable worker in your field.",
