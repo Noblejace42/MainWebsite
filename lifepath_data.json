@@ -383,16 +383,66 @@
       }
     }
   },
+  {
+  },
   "events": {
-    "Labor": ["laborevent1", "laborevent2", "laborevent3"],
-    "Crime": ["crimeevent1", "crimeevent2", "crimeevent3"],
-    "Exploration": ["exploerevent1", "exploerevent2", "exploerevent3"],
-    "Space": ["spaceevent1", "spaceevent2", "spaceevent3"],
-    "Espionage": ["espionageevent1", "espionageevent2", "espionageevent3"],
-    "Warfare": ["warfareevent1", "warfareevent2", "warfareevent3"],
-    "Education": ["educationevent1", "educationevent2", "educationevent3"],
-    "Prosperity": ["prosperityevent1", "prosperityevent2", "prosperityevent3"],
-    "Politics": ["politicsevent1", "politicsevent2", "politicsevent3"]
+    "Labor": [
+      {
+        "id": "laborevent1",
+        "description": "You labor in a hazardous factory, risking injury but earning rewards.",
+        "rewards": {
+          "item": "Bandages 1d6",
+          "credits": 10,
+          "bond": "Hard Worker Bond"
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.05,
+          "extraItem": {
+            "item": "Tool Kit 1d4",
+            "chance": 0.1
+          }
+        }
+      },
+      {
+        "id": "laborevent2",
+        "description": "A risky moment on the construction site.",
+        "rewards": {
+          "item": "Safety Helmet",
+          "credits": 5,
+          "bond": "Team Bond"
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02
+        }
+      }
+    ],
+    "Crime": [
+      {
+        "id": "crimeevent1",
+        "description": "A daring heist that almost goes wrong.",
+        "rewards": {
+          "item": "Stolen Goods 1d4",
+          "credits": 15,
+          "bond": "Outlaw Bond"
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.1,
+          "extraItem": {
+            "item": "Lockpick Set",
+            "chance": 0.2
+          }
+        }
+      
+    ]
+    
+  },
+  "settings": {
+    "...": "existing settings"
+  }
+}
   },
   "settings": {
     "startingTalentLevel": 0,
