@@ -2645,6 +2645,249 @@
       }
     ]
   },
+  {
+  "events": {
+    "Warfare": [
+      {
+        "id": "warfareevent1",
+        "description": "You lead a desperate charge against overwhelming enemy forces.",
+        "rewards": {
+          "item": "Battle-Worn Saber",
+          "credits": 200,
+          "bond": "I led from the front, defying the odds in the face of death."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "warfareevent2",
+        "description": "A grueling siege stretches on for weeks, testing your endurance and willpower.",
+        "rewards": {
+          "item": "Emergency Rations",
+          "credits": 180,
+          "bond": "I endured the agony of siege warfare and lived to tell the tale."
+        },
+        "penalties": {
+          "scarChance": 0.25,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "warfareevent3",
+        "description": "You successfully sabotage an enemy installation behind enemy lines.",
+        "rewards": {
+          "item": "Demolition Charges",
+          "credits": 250,
+          "bond": "I struck at the heart of the enemy’s war machine."
+        },
+        "penalties": {
+          "scarChance": 0.2,
+          "deathChance": 0.1,
+          "extraItem": {
+            "item": "Explosive Residue Sample",
+            "chance": 0.2
+          }
+        }
+      },
+      {
+        "id": "warfareevent4",
+        "description": "Your squad is ambushed in a dense jungle. You fight tooth and nail to escape.",
+        "rewards": {
+          "item": "Jungle Survival Kit",
+          "credits": 190,
+          "bond": "I clawed my way out of an ambush that should have been my end."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "warfareevent5",
+        "description": "An intense firefight leaves you wounded, but you hold the line against all odds.",
+        "rewards": {
+          "item": "Medic’s Field Patch",
+          "credits": 170,
+          "bond": "I bled for my comrades, refusing to yield under fire."
+        },
+        "penalties": {
+          "scarChance": 0.4,
+          "deathChance": 0.15
+        }
+      },
+      {
+        "id": "warfareevent6",
+        "description": "A brilliant tactical maneuver turns the tide of battle in your favor.",
+        "rewards": {
+          "item": "Officer's Tactical Manual",
+          "credits": 220,
+          "bond": "My strategic mind altered the course of a hard-fought battle."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "warfareevent7",
+        "description": "You are taken prisoner by enemy forces, forced to endure brutal conditions.",
+        "rewards": {
+          "item": "Prisoner’s Tag",
+          "credits": 140,
+          "bond": "I suffered in captivity, but my spirit remained unbroken."
+        },
+        "penalties": {
+          "scarChance": 0.5,
+          "deathChance": 0.2
+        }
+      },
+      {
+        "id": "warfareevent8",
+        "description": "A last-minute airstrike obliterates an enemy stronghold, ensuring victory.",
+        "rewards": {
+          "item": "Targeting Coordinates",
+          "credits": 260,
+          "bond": "I called in a strike that changed the battlefield forever."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.03
+        }
+      },
+      {
+        "id": "warfareevent9",
+        "description": "You train a group of raw recruits, shaping them into a formidable unit.",
+        "rewards": {
+          "item": "Drill Sergeant’s Whistle",
+          "credits": 150,
+          "bond": "I turned green soldiers into warriors ready for war."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "warfareevent10",
+        "description": "A failed operation leaves you stranded behind enemy lines, forcing you to survive alone.",
+        "rewards": {
+          "item": "Camouflage Cloak",
+          "credits": 180,
+          "bond": "I was left for dead behind enemy lines, yet I endured."
+        },
+        "penalties": {
+          "scarChance": 0.35,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "warfareevent11",
+        "description": "You form an unbreakable bond with a fellow soldier after saving their life in combat.",
+        "rewards": {
+          "item": "Bloodstained Dog Tags",
+          "credits": 200,
+          "bond": "I saved a comrade, and our loyalty to each other will never waver."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "warfareevent12",
+        "description": "An unexpected betrayal within your ranks forces you to act swiftly.",
+        "rewards": {
+          "item": "Confiscated Orders",
+          "credits": 220,
+          "bond": "I exposed a traitor before they could do irreparable damage."
+        },
+        "penalties": {
+          "scarChance": 0.15,
+          "deathChance": 0.05
+        }
+      },
+      {
+        "id": "warfareevent13",
+        "description": "A brutal hand-to-hand fight leaves you scarred but victorious.",
+        "rewards": {
+          "item": "Enemy Combat Knife",
+          "credits": 190,
+          "bond": "I survived the struggle of steel and fists, emerging victorious."
+        },
+        "penalties": {
+          "scarChance": 0.3,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "warfareevent14",
+        "description": "You coordinate an underground resistance movement in occupied territory.",
+        "rewards": {
+          "item": "Resistance Symbol",
+          "credits": 230,
+          "bond": "I led the resistance when all hope seemed lost."
+        },
+        "penalties": {
+          "scarChance": 0.25,
+          "deathChance": 0.07
+        }
+      },
+      {
+        "id": "warfareevent15",
+        "description": "You withstand a relentless artillery bombardment, holding your position.",
+        "rewards": {
+          "item": "Battlefield Journal",
+          "credits": 200,
+          "bond": "I braved a hellstorm of fire and steel, refusing to retreat."
+        },
+        "penalties": {
+          "scarChance": 0.4,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "warfareevent16",
+        "description": "A daring nighttime raid leaves your squad victorious.",
+        "rewards": {
+          "item": "Stealth Gear",
+          "credits": 210,
+          "bond": "I thrived in the shadows, striking where the enemy least expected."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02
+        }
+      },
+      {
+        "id": "warfareevent17",
+        "description": "A devastating injury forces you to leave the battlefield and adapt to a new life.",
+        "rewards": {
+          "item": "Medical Discharge Papers",
+          "credits": 160,
+          "bond": "The war took its toll, but I refused to let it break me."
+        },
+        "penalties": {
+          "scarChance": 0.5,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "warfareevent18",
+        "description": "Your leadership in a desperate situation earns you a battlefield promotion.",
+        "rewards": {
+          "item": "Officer’s Insignia",
+          "credits": 240,
+          "bond": "I proved my worth in the fires of war and was recognized for it."
+        },
+        "penalties": {
+          "scarChance": 0.1,
+          "deathChance": 0.02
+        }
+      }
+    ]
+  },
   "settings": {
     "startingTalentLevel": 0,
     "maxTalentLevel": 5,
