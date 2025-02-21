@@ -169,34 +169,48 @@
       else if (roll < commonProb + intermediateProb) return "intermediate";
       else return "expert";
     }
+
+    
     function generateLifepathOptions() {
-      let options = [];
-      for (let i = 0; i < 3; i++) {
-        let pools = Object.keys(config.lifepathPools);
-        let weightedPools = pools.map(p => ({ pool: p, weight: 1 + (poolCounts[p] || 0) }));
-        let totalWeight = weightedPools.reduce((sum, p) => sum + p.weight, 0);
-        let r = Math.random() * totalWeight;
-        let chosenPool;
-        for (let wp of weightedPools) {
-          r -= wp.weight;
-          if (r <= 0) {
-            chosenPool = wp.pool;
-            break;
-          }
-        }
-        let rarity = determineRarity(chosenPool);
-        let jobs = config.lifepathPools[chosenPool].jobs[rarity];
-        let job = getRandomElement(jobs);
-        options.push({ pool: chosenPool, job: job });
+  let options = [];
+  let attempts = 0;
+  while (options.length < 3 && attempts < 10) {
+    attempts++;
+    let pools = Object.keys(config.lifepathPools);
+    let weightedPools = pools.map(p => ({ pool: p, weight: 1 + (poolCounts[p] || 0) }));
+    let totalWeight = weightedPools.reduce((sum, p) => sum + p.weight, 0);
+    let r = Math.random() * totalWeight;
+    let chosenPool;
+    for (let wp of weightedPools) {
+      r -= wp.weight;
+      if (r <= 0) {
+        chosenPool = wp.pool;
+        break;
       }
-      if (config.settings.wildcardOptionEnabled && randomChance() <= config.settings.wildcardOptionChance) {
-        let allPools = Object.keys(config.lifepathPools);
-        let randomPool = getRandomElement(allPools);
-        let job = getRandomElement(config.lifepathPools[randomPool].jobs["common"]);
-        options.push({ pool: randomPool, job: job, wildcard: true });
-      }
-      return options;
     }
+    let rarity = determineRarity(chosenPool);
+    let jobs = config.lifepathPools[chosenPool].jobs[rarity];
+    let job = getRandomElement(jobs);
+    // Filter out duplicate jobs by name:
+    if (!options.some(opt => opt.job.name === job.name)) {
+      options.push({ pool: chosenPool, job: job });
+    }
+  }
+  
+  if (config.settings.wildcardOptionEnabled && randomChance() <= config.settings.wildcardOptionChance) {
+    let allPools = Object.keys(config.lifepathPools);
+    let randomPool = getRandomElement(allPools);
+    let possibleJobs = config.lifepathPools[randomPool].jobs["common"].filter(j => 
+      !options.some(opt => opt.job.name === j.name)
+    );
+    if (possibleJobs.length > 0) {
+      let job = getRandomElement(possibleJobs);
+      options.push({ pool: randomPool, job: job, wildcard: true });
+    }
+  }
+  return options;
+}
+
 
     /*****************************************
      *********** Summaries & Skills **********
@@ -415,69 +429,58 @@
     }
 
 function showEventOptions(pool) {
-    const contentDiv = document.getElementById("game-content");
-    contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
-    // Build the key based on pool name.
-    const eventKey = "events" + pool.toLowerCase();
-    // Now access the array using the new JSON structure:
-    const eventsArr = config[eventKey][pool];
+  const contentDiv = document.getElementById("game-content");
+  contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
+  const eventKey = "events" + pool.toLowerCase();
+  const eventsArr = config[eventKey]; // Ensure config has the appropriate events array for the pool
+  // Randomly shuffle and select 2 distinct events:
+  const shuffled = eventsArr.sort(() => 0.5 - Math.random());
+  const selectedEvents = shuffled.slice(0, 2);
+  
+  selectedEvents.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "event-card";
+    // Display the event description instead of its ID
+    card.innerHTML = `<p>${ev.description}</p>`;
+    card.onclick = () => selectEvent(ev);
+    contentDiv.appendChild(card);
+  });
+}
 
-    eventsArr.forEach(ev => {
-      const btn = document.createElement("button");
-      btn.classList.add("event-btn");
-      btn.textContent = ev.id;
-      btn.onclick = function() {
-        selectEvent(ev.id, pool);
-      };
-      contentDiv.appendChild(btn);
-    });
-    updateSummary();
+
+ function selectEvent(ev) {
+  // Remove event options so the event cannot be selected multiple times
+  document.getElementById("game-content").innerHTML = "";
+  
+  // Create a reward display card:
+  let rewardHTML = `<div class="reward-card">`;
+  rewardHTML += `<p>${ev.rewards.bond}</p>`;
+  rewardHTML += `<p>Item: ${ev.rewards.item}</p>`;
+  rewardHTML += `<p>Credits: ${ev.rewards.credits}</p>`;
+  
+  // Check for scar based on scarChance
+  if (Math.random() < ev.penalties.scarChance) {
+    character.scars++;
+    rewardHTML += `<p class="scar-alert">During this event, you were left scarred.</p>`;
   }
-
-  function selectEvent(eventId, pool) {
-    const lp = character.lifepaths[character.lifepaths.length - 1];
-    const eventKey = "events" + pool.toLowerCase();
-    // Look for the event in the corresponding section.
-    let eventObj = config[eventKey][pool].find(ev => ev.id === eventId);
-    if (!eventObj) {
-      console.error("Event not found: " + eventId);
-      return;
-    }
-    lp.event = eventObj.id;
-    const contentDiv = document.getElementById("game-content");
-    const resultDiv = document.createElement("div");
-    resultDiv.innerHTML = `<p><strong>Event:</strong> ${eventObj.description}</p>`;
-    contentDiv.appendChild(resultDiv);
-
-    // Process rewards
-    if (eventObj.rewards) {
-      if (eventObj.rewards.item) {
-        character.items.push(eventObj.rewards.item);
-      }
-      if (eventObj.rewards.credits) {
-        character.credits += eventObj.rewards.credits;
-      }
-      if (eventObj.rewards.bond) {
-        character.bonds.push(eventObj.rewards.bond);
-      }
-    }
-    // Process penalties
-    if (eventObj.penalties) {
-      if (eventObj.penalties.scarChance && Math.random() < eventObj.penalties.scarChance) {
-        character.scars++;
-      }
-      if (eventObj.penalties.deathChance && Math.random() < eventObj.penalties.deathChance) {
-        displayDeathScreen();
-        return;
-      }
-      if (eventObj.penalties.extraItem && Math.random() < eventObj.penalties.extraItem.chance) {
-        character.items.push(eventObj.penalties.extraItem.item);
-      }
-    }
-    lp.agingMessage = checkAgingPenalties();
-    askContinue();
+  rewardHTML += `</div>`;
+  
+  // Display rewards and add a Continue button
+  const contentDiv = document.getElementById("game-content");
+  contentDiv.innerHTML = rewardHTML;
+  
+  const continueBtn = document.createElement("button");
+  continueBtn.textContent = "Continue";
+  continueBtn.className = "lifepath-btn";
+  continueBtn.onclick = () => {
+    // Proceed to next stage or finalize lifepath selections
     updateSummary();
-  }
+    // Additional logic here as needed…
+  };
+  contentDiv.appendChild(continueBtn);
+  
+  updateSummary();
+}
 
     function checkAgingPenalties() {
       let messages = [];
