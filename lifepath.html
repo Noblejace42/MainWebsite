@@ -432,6 +432,13 @@ function showEventOptions(pool) {
   const contentDiv = document.getElementById("game-content");
   contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
   const eventKey = "events" + pool.toLowerCase();
+  // Check if the events for this pool exist
+  if (!config[eventKey] || !config[eventKey][pool]) {
+    console.warn("No events defined for pool: " + pool);
+    // If no events exist, simply proceed to the next stage
+    askContinue();
+    return;
+  }
   const eventsArr = config[eventKey][pool]; // Access the array of events
   // Randomly shuffle and select 2 distinct events:
   const shuffled = eventsArr.sort(() => 0.5 - Math.random());
@@ -446,6 +453,7 @@ function showEventOptions(pool) {
     contentDiv.appendChild(card);
   });
 }
+
 
 
 
