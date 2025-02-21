@@ -514,6 +514,33 @@ function showEventOptions(pool) {
   };
   contentDiv.appendChild(continueBtn);
 
+function askContinue() {
+  const contentDiv = document.getElementById("game-content");
+  contentDiv.innerHTML = ""; // Clear out existing content first
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <h2>Current Age: ${character.age}</h2>
+    <p>Do you want to take another lifepath? (Each adds 5 years)</p>
+  `;
+  const contBtn = document.createElement("button");
+  contBtn.classList.add("lifepath-btn");
+  contBtn.textContent = "Continue Lifepath";
+  contBtn.onclick = function() {
+    showInitialPoolSelection();
+  };
+  div.appendChild(contBtn);
+  const finishBtn = document.createElement("button");
+  finishBtn.classList.add("lifepath-btn");
+  finishBtn.textContent = "Finish Lifepath Creation";
+  finishBtn.onclick = function() {
+    displayFinalSummary();
+  };
+  div.appendChild(finishBtn);
+  contentDiv.appendChild(div);
+  updateSummary();
+}
+
+   
   // Finally, update summary so user sees new totals
   updateSummary();
 }
