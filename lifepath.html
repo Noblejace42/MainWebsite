@@ -259,9 +259,11 @@
           <ul>
       `;
       for (let talent in aggregatedTalents) {
-        let dice = levelToDice(aggregatedTalents[talent]);
-        html += `<li>${talent}: ${dice} (Level ${aggregatedTalents[talent]})</li>`;
-      }
+  if (aggregatedTalents[talent] > 0) {
+    let dice = levelToDice(aggregatedTalents[talent]);
+    html += `<li>${talent}: ${dice} (Level ${aggregatedTalents[talent]})</li>`;
+  }
+}
       html += `</ul></div>`;
       let eventsTaken = character.lifepaths.map(lp => lp.event).filter(ev => ev).join("; ");
       html += `
