@@ -474,10 +474,9 @@ function showEventOptions(pool) {
   continueBtn.textContent = "Continue";
   continueBtn.className = "lifepath-btn";
   continueBtn.onclick = () => {
-    // Proceed to next stage or finalize lifepath selections
-    updateSummary();
-    // Additional logic here as needed…
-  };
+  updateSummary();
+  askContinue(); // This will display your "Continue Lifepath" / "Finish" choices
+};
   contentDiv.appendChild(continueBtn);
   
   updateSummary();
