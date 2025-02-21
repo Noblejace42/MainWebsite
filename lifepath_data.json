@@ -457,7 +457,7 @@
         "penalties": {
           "scarChance": 0.05,
           "deathChance": 0.0
-          "extraItem": {
+          "extraItem": 
             "item": "Power Cell (Special, Charging 1)",
             "chance": 0.5
           }
