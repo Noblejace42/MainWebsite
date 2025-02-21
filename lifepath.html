@@ -521,6 +521,10 @@ function showEventOptions(pool) {
     askContinue(); // show "Continue Lifepath" / "Finish Lifepath" options
   };
   contentDiv.appendChild(continueBtn);
+   
+  // Finally, update summary so user sees new totals
+  updateSummary();
+}
 
 function askContinue() {
   const contentDiv = document.getElementById("game-content");
@@ -548,11 +552,7 @@ function askContinue() {
   updateSummary();
 }
 
-   
-  // Finally, update summary so user sees new totals
-  updateSummary();
-}
-
+    
     function displayDeathScreen() {
       const contentDiv = document.getElementById("game-content");
       contentDiv.innerHTML = `
