@@ -452,96 +452,71 @@ function showEventOptions(pool) {
  function selectEvent(ev) {
   // Remove event options so the event cannot be selected multiple times
   document.getElementById("game-content").innerHTML = "";
-  
-  // Create a reward display card:
+
+  // 1. Update the character with event rewards:
+  //    (push items, bonds, add credits, check for extra items)
+  if (ev.rewards) {
+    if (ev.rewards.item) {
+      character.items.push(ev.rewards.item);
+    }
+    if (ev.rewards.credits) {
+      character.credits += ev.rewards.credits;
+    }
+    if (ev.rewards.bond) {
+      character.bonds.push(ev.rewards.bond);
+    }
+  }
+
+  // 2. Handle penalties (scar, death chance, extra item):
+  let scarHappened = false;  // track whether we gave a scar
+  if (ev.penalties) {
+    // Scar
+    if (ev.penalties.scarChance && Math.random() < ev.penalties.scarChance) {
+      character.scars++;
+      scarHappened = true;
+    }
+    // Death
+    if (ev.penalties.deathChance && Math.random() < ev.penalties.deathChance) {
+      displayDeathScreen();
+      return; // Stop here since character died
+    }
+    // Extra item
+    if (ev.penalties.extraItem && Math.random() < ev.penalties.extraItem.chance) {
+      character.items.push(ev.penalties.extraItem.item);
+    }
+  }
+
+  // 3. Record which event was chosen in the most recent lifepath:
+  //    (so we can see it in the summary)
+  const currentLp = character.lifepaths[character.lifepaths.length - 1];
+  currentLp.event = ev.id;
+
+  // 4. Build a reward display card:
   let rewardHTML = `<div class="reward-card">`;
-  rewardHTML += `<p>${ev.rewards.bond}</p>`;
-  rewardHTML += `<p>Item: ${ev.rewards.item}</p>`;
-  rewardHTML += `<p>Credits: ${ev.rewards.credits}</p>`;
-  
-  // Check for scar based on scarChance
-  if (Math.random() < ev.penalties.scarChance) {
-    character.scars++;
+  rewardHTML += `<p><strong>Bond:</strong> ${ev.rewards?.bond || ""}</p>`;
+  rewardHTML += `<p><strong>Item:</strong> ${ev.rewards?.item || ""}</p>`;
+  rewardHTML += `<p><strong>Credits:</strong> ${ev.rewards?.credits || 0}</p>`;
+  if (scarHappened) {
     rewardHTML += `<p class="scar-alert">During this event, you were left scarred.</p>`;
   }
   rewardHTML += `</div>`;
-  
-  // Display rewards and add a Continue button
+
+  // 5. Display the reward card + Continue button
   const contentDiv = document.getElementById("game-content");
   contentDiv.innerHTML = rewardHTML;
-  
+
   const continueBtn = document.createElement("button");
   continueBtn.textContent = "Continue";
   continueBtn.className = "lifepath-btn";
   continueBtn.onclick = () => {
-  updateSummary();
-  askContinue(); // This will display your "Continue Lifepath" / "Finish" choices
-};
+    updateSummary();
+    askContinue(); // show "Continue Lifepath" / "Finish Lifepath" options
+  };
   contentDiv.appendChild(continueBtn);
-  
+
+  // Finally, update summary so user sees new totals
   updateSummary();
 }
-
-    function checkAgingPenalties() {
-      let messages = [];
-      const penalties = [
-        { age: 30, chance: 1/8 },
-        { age: 40, chance: 1/6 },
-        { age: 50, chance: 1/4 },
-        { age: 55, chance: 1/4 },
-        { age: 60, chance: 1/4 },
-        { age: 65, chance: 1/4, decreases: 2 }
-      ];
-      for (let penalty of penalties) {
-        if (character.age >= penalty.age && randomChance() < penalty.chance) {
-          character.scars++;
-          if (character.scars >= 5) {
-            displayDeathScreen();
-            return "You died.";
-          }
-          let decreaseCount = penalty.decreases || 1;
-          let lp = character.lifepaths[character.lifepaths.length - 1];
-          let available = Object.keys(lp.talentAllocations).filter(t => lp.talentAllocations[t] > 0);
-          let decreased = [];
-          for (let i = 0; i < decreaseCount && available.length > 0; i++) {
-            let chosen = getRandomElement(available);
-            lp.talentAllocations[chosen]--;
-            decreased.push(chosen);
-            available = Object.keys(lp.talentAllocations).filter(t => lp.talentAllocations[t] > 0);
-          }
-          messages.push(`Gained a scar; decreased: ${decreased.join(", ")}`);
-        }
-      }
-      if (messages.length === 0) {
-        messages.push("Aged without issue");
-      }
-      return messages.join(" | ");
-    }
-
-    function askContinue() {
-      const contentDiv = document.getElementById("game-content");
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <h2>Current Age: ${character.age}</h2>
-        <p>Do you want to take another lifepath? (Each adds 5 years)</p>
-      `;
-      const contBtn = document.createElement("button");
-      contBtn.classList.add("lifepath-btn");
-      contBtn.textContent = "Continue Lifepath";
-      contBtn.onclick = function() {
-        showInitialPoolSelection();
-      };
-      div.appendChild(contBtn);
-      const finishBtn = document.createElement("button");
-      finishBtn.classList.add("lifepath-btn");
-      finishBtn.textContent = "Finish Lifepath Creation";
-      finishBtn.onclick = function() {
-        displayFinalSummary();
-      };
-      div.appendChild(finishBtn);
-      contentDiv.appendChild(div);
-      updateSummary();
-    }
 
     function displayDeathScreen() {
       const contentDiv = document.getElementById("game-content");
