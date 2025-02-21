@@ -443,7 +443,7 @@
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.02
+          "deathChance": 0.02,
         }
       },
       {
