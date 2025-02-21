@@ -432,7 +432,7 @@ function showEventOptions(pool) {
   const contentDiv = document.getElementById("game-content");
   contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
   const eventKey = "events" + pool.toLowerCase();
-  const eventsArr = config[eventKey]; // Ensure config has the appropriate events array for the pool
+  const eventsArr = config[eventKey][pool]; // Access the array of events
   // Randomly shuffle and select 2 distinct events:
   const shuffled = eventsArr.sort(() => 0.5 - Math.random());
   const selectedEvents = shuffled.slice(0, 2);
@@ -446,6 +446,7 @@ function showEventOptions(pool) {
     contentDiv.appendChild(card);
   });
 }
+
 
 
  function selectEvent(ev) {
