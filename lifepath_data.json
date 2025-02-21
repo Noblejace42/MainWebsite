@@ -447,22 +447,22 @@
         }
       },
       {
-        "id": "laborevent5",
-        "description": "You search for a new job after you are layed off.",
-        "rewards": {
-          "item": "Old Company ID Badge",
-          "credits": 100,
-          "bond": "I lost my job at _____ due to sudden cutbacks, and now I must start over."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0,
-          "extraItem": {
-            "item": "Power Cell (Special, Charging 1)",
-            "chance": 0.5
-          }
-        }
-      },
+  "id": "laborevent5",
+  "description": "You search for a new job after you are laid off.",
+  "rewards": {
+    "item": "Old Company ID Badge",
+    "credits": 100,
+    "bond": "I lost my job at _____ due to sudden cutbacks, and now I must start over."
+  },
+  "penalties": {
+    "scarChance": 0.05,
+    "deathChance": 0.0,
+    "extraItem": {
+      "item": "Power Cell (Special, Charging 1)",
+      "chance": 0.5
+    }
+  }
+},
       {
         "id": "laborevent6",
         "description": "Get assigned to a deadly line of work by management - for great pay.",
