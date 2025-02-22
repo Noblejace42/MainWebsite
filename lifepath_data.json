@@ -716,7 +716,7 @@
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.05,
+          "deathChance": 0.02,
           "extraItem": {
             "item": "Fake ID",
             "chance": 0.2
@@ -733,7 +733,7 @@
         },
         "penalties": {
           "scarChance": 0.2,
-          "deathChance": 0.1
+          "deathChance": 0.03
         }
       },
       {
@@ -757,9 +757,9 @@
         "id": "crimeevent7",
         "description": "Attempt a breakout from the prison you're stuck in.",
         "rewards": {
-          "item": "Burner Commlinks",
+          "item": "2 Commlinks (charging5)",
           "credits": 180,
-          "bond": "I made a legendary escape that still haunts the guards to this day."
+          "bond": "I made a legendary escape from the prison on _____ that still haunts the guards to this day."
         },
         "penalties": {
           "scarChance": 0.3,
@@ -768,11 +768,11 @@
       },
       {
         "id": "crimeevent8",
-        "description": "You successfully extort a corrupt official, securing a hefty sum and valuable connections.",
+        "description": "Extort a corrupt official, securing a hefty sum and valuable connections.",
         "rewards": {
           "item": "Corrupt Official's Ledger",
-          "credits": 400,
-          "bond": "I extorted a crooked official and carved my name into the underworld’s records."
+          "credits": 600,
+          "bond": "I extorted _____, they still fear me revealing what I know about them."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -781,41 +781,28 @@
       },
       {
         "id": "crimeevent9",
-        "description": "A meticulously planned burglary nets you rare items, though the risk of getting caught still looms.",
+        "description": "Plan a meticulous burgulary of a powerful item.",
         "rewards": {
-          "item": "Rare Jewel (1d4)",
-          "credits": 250,
-          "bond": "I broke into a vault and made off with treasures that many only dream of."
+          "item": "Arco-tech Healing Stimulant",
+          "credits": 50,
+          "bond": "I broke into a vault at _____ and made off with treasures that many only dream of."
         },
         "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.05,
+          "scarChance": 0.35,
+          "deathChance": 0.1,
           "extraItem": {
-            "item": "Stolen Key",
-            "chance": 0.15
+            "item": "Chameleon Mask",
+            "chance": 0.35
           }
         }
       },
       {
-        "id": "crimeevent10",
-        "description": "You pull off a flawless heist that defies expectations, instantly elevating your status.",
-        "rewards": {
-          "item": "High-Tech Gadget",
-          "credits": 500,
-          "bond": "I executed a flawless heist that no one in the underworld will ever forget."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.03
-        }
-      },
-      {
         "id": "crimeevent11",
-        "description": "A miscalculation during a heist results in collateral damage and increased heat from the law.",
+        "description": "After a miscalculated heist, flee from the law as it pursues you.",
         "rewards": {
-          "item": "Scrap of Stolen Tech",
-          "credits": 100,
-          "bond": "I made a mistake that put my crew in jeopardy—lesson learned the hard way."
+          "item": "Officer's Shotgun 1d10 (Quick, Unruly, Near-range, Ammo, Forceful, Loading)",
+          "credits": 200,
+          "bond": "I made a mistake that put myself and my friend _____ in jeopardy, a lesson learned the hard way."
         },
         "penalties": {
           "scarChance": 0.3,
@@ -824,11 +811,11 @@
       },
       {
         "id": "crimeevent12",
-        "description": "You are betrayed by a trusted partner, forcing a narrow escape and a tarnished reputation.",
+        "description": "Attempt to escape the betrayal of your trusted partner, barely making it out.",
         "rewards": {
-          "item": "Discarded Partner's Watch",
-          "credits": 80,
-          "bond": "I was betrayed by someone I trusted, and now I carry that scar in more ways than one."
+          "item": "Partner's Viblade 1d8 (Ergonomic, Quick, Melee, Piercing3)",
+          "credits": 120,
+          "bond": "I was betrayed by _____, and now I carry that scar in more ways than one."
         },
         "penalties": {
           "scarChance": 0.35,
@@ -837,114 +824,100 @@
       },
       {
         "id": "crimeevent13",
-        "description": "An ambush by rival criminals forces you into a desperate fight for survival.",
+        "description": "Fight for survival when you are ambushed by a rival syndicate.",
         "rewards": {
-          "item": "Bloodstained Revolver",
-          "credits": 120,
-          "bond": "I survived an ambush that left me forever wary of those who envy my success."
+          "item": "Bulletproof Vest 1d6 (Chest, Armored 4, Tough 1)",
+          "credits": 320,
+          "bond": "I survived an ambush from _____, it left me forever wary of those who envy my success."
         },
         "penalties": {
-          "scarChance": 0.4,
-          "deathChance": 0.25
+          "scarChance": 0.6,
+          "deathChance": 0.1
         }
       },
       {
         "id": "crimeevent14",
-        "description": "A risky smuggling run ends in a close call with law enforcement, bruising both your ego and body.",
+        "description": "Partake in a risky smuggling operation that transports illegal goods.",
         "rewards": {
-          "item": "Contraband Package",
-          "credits": 130,
-          "bond": "I barely escaped a smuggling bust—it shook me to the core but taught me caution."
+          "item": "Stolen Lockbox, Smuggler's Knife 1d4 (Quick, Unruly, Melee)",
+          "credits": 230,
+          "bond": "I barely escaped a smuggling bust—I still wonder if _____ ever escaped."
         },
         "penalties": {
           "scarChance": 0.3,
-          "deathChance": 0.2
+          "deathChance": 0.15
         }
       },
       {
         "id": "crimeevent15",
-        "description": "A high-stakes con leaves you deeply indebted to dangerous figures, forcing a risky alliance.",
+        "description": "Spend a night gambling at the casino and partaking in revelry and hedonism.",
         "rewards": {
-          "item": "Counterfeit Currency",
-          "credits": 90,
-          "bond": "I got in over my head with ruthless debt collectors and now owe a heavy price."
+          "item": "10,000 Credit Debt Settlement",
+          "credits": 500,
+          "bond": "My gambling finally got me into trouble, I owe 10,000 credits to _____ and they always collect."
         },
         "penalties": {
-          "scarChance": 0.25,
-          "deathChance": 0.15,
+          "scarChance": 0.00,
+          "deathChance": 0.00,
           "extraItem": {
-            "item": "IOU Note",
+            "item": "Lucky Boots 1d4 (Lucky, Tough 2)",
             "chance": 0.2
           }
         }
       },
       {
         "id": "crimeevent16",
-        "description": "A botched burglary leaves you cornered; you manage to escape but not without a lasting scar.",
-        "rewards": {
-          "item": "Shattered Safe Lock",
-          "credits": 70,
-          "bond": "A botched burglary left me scarred—and taught me to never work alone."
+        "description": "A burglary goes wrong and you attempt to make it out alive - fortunately escaping with a large sum of credits.",
+        "rewards": "Old Bullet Casing",
+          "credits": 800,
+          "bond": "A botched burglary left me scarred—and taught me to never work alone, now I work with _____."
         },
         "penalties": {
-          "scarChance": 0.5,
-          "deathChance": 0.1
+          "scarChance": 1.0,
+          "deathChance": 0
         }
       },
       {
         "id": "crimeevent17",
-        "description": "A solo score goes awry, forcing you to flee empty-handed and humbled.",
+        "description": "Escape from a solo heist empty-handed but alive.",
         "rewards": {
-          "item": "Empty Wallet",
+          "item": "Crowbar 1d6 (Aid|Might)",
           "credits": 0,
-          "bond": "My solo job ended in failure, a harsh lesson in the cost of pride."
+          "bond": "My solo job ended in failure, I vow to not fall victim to my pride ever again."
         },
         "penalties": {
-          "scarChance": 0.4,
-          "deathChance": 0.2,
+          "scarChance": 0.05,
+          "deathChance": 0.0,
           "extraItem": {
-            "item": "Broken Lockpick",
+            "item": "Lockpicks 1d8",
             "chance": 0.25
           }
         }
       },
       {
         "id": "crimeevent18",
-        "description": "A failed attempt to intimidate a rival leaves you exposed and vulnerable to retribution.",
+        "description": "Attempt to intimidate my rival with an aggressive attack.",
         "rewards": {
-          "item": "Crumpled Threat Letter",
+          "item": "Grenade 1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
           "credits": 50,
-          "bond": "I tried to intimidate a rival—and it backfired in the worst possible way."
+          "bond": "I tried to intimidate my rival _____ and it backfired in the worst possible way."
         },
         "penalties": {
           "scarChance": 0.45,
-          "deathChance": 0.25
+          "deathChance": 0.1
         }
       },
       {
         "id": "crimeevent19",
-        "description": "A violent confrontation with a rival gang leaves you injured and forced onto the run.",
+        "description": "Double cross your boss during a high-stakes operation, if it works you'll be rich enough to retire, if not, well, it was a good run.",
         "rewards": {
-          "item": "Ripped Gang Jacket",
-          "credits": 60,
-          "bond": "A clash with a rival gang changed everything—I'm now forever on the run."
-        },
-        "penalties": {
-          "scarChance": 0.5,
-          "deathChance": 0.3
-        }
-      },
-      {
-        "id": "crimeevent20",
-        "description": "You cross the wrong person in the underworld—a critical mistake that nearly costs you your life. Roll a d4: on a 4, you die; otherwise, you gain a scar and are forced into a life of servitude.",
-        "rewards": {
-          "item": "Single Bullet",
-          "credits": 50,
+          "item": "3 Ammo, Slugthrower 1d8 (Unruly, Ergonomic, Near-range, Ammo, Loading, Piercing 8)",
+          "credits": 1000,
           "bond": "I made a critical mistake by crossing the wrong person, and now my future is forever uncertain."
         },
         "penalties": {
-          "scarChance": 0.75,
-          "deathChance": 0.25
+          "scarChance": 0.5,
+          "deathChance": 0.5
         }
       }
     ]
@@ -953,17 +926,17 @@
     "Exploration": [
       {
         "id": "exploerevent1",
-        "description": "While trekking through a dense, alien jungle, you stumble upon a hidden grove of exotic plants.",
+        "description": "Investigate the exotic plants you found on a megaflora world.",
         "rewards": {
-          "item": "Xenoflora Sample (1d6)",
-          "credits": 120,
-          "bond": "I discovered a secret grove that revealed nature’s mysteries."
+          "item": "2 Bandage (Consumable), 3 Rations, Binoculars 1d6 (Aid|Awareness)",
+          "credits": 100,
+          "bond": "The plants on _____ left me stunned and fascinated."
         },
         "penalties": {
           "scarChance": 0.1,
           "deathChance": 0.02,
           "extraItem": {
-            "item": "Fallen Leaf (1d4)",
+            "item": "Preserved Flower",
             "chance": 0.1
           }
         }
