@@ -16,37 +16,40 @@
     #combat-tracker {
       position: relative;
       width: 100%;
-      height: 600px;
+      height: 700px; /* Make the overall tracker area taller */
       background: #1a1a1a;
       border: 1px solid #444;
       overflow: hidden;
     }
+    /* ZONE (initially bigger) */
     .zone {
       position: absolute;
-      width: 150px;
-      height: 100px;
+      width: 200px;  /* Default width larger */
+      height: 120px; /* Default height larger */
       background: rgba(0, 128, 128, 0.2);
       border: 2px solid teal;
       color: #ccc;
       text-align: center;
-      line-height: 100px;
+      line-height: 120px;
       cursor: move;
       user-select: none;
+      box-sizing: border-box;
     }
+    /* TOKEN (rectangular) */
     .token {
       position: absolute;
-      width: 30px;
-      height: 30px;
+      width: 60px;  /* Default token width */
+      height: 40px; /* Default token height */
       background: #888;
       border: 2px solid #ccc;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 30px;
       color: #000;
+      text-align: center;
+      line-height: 40px;
       cursor: move;
       user-select: none;
+      box-sizing: border-box;
     }
-    /* Cover level styles */
+    /* Cover level styles for tokens */
     .cover-none {
       border-color: #ccc;
     }
@@ -65,6 +68,18 @@
       height: 100%;
       pointer-events: none;
     }
+    /* Resizer handle (bottom-right corner) */
+    .resizer {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      bottom: 0;
+      right: 0;
+      background: #444;
+      border: 1px solid #888;
+      cursor: se-resize;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
@@ -76,7 +91,7 @@
   </nav>
   
   <div class="container">
-    <h2>Astral Axial Combat Tracker</h2>
+    <h2>FATE-Style Combat Tracker</h2>
     <div id="tracker-controls">
       <button id="add-zone-btn">Add Zone</button>
       <button id="add-token-btn">Add Token</button>
@@ -101,7 +116,7 @@
     let isLinkMode = false;
     let linkStartZone = null;
     let connections = [];
-    
+
     const tracker = document.getElementById('combat-tracker');
     const svgOverlay = document.getElementById('connection-overlay');
 
@@ -110,12 +125,15 @@
       return prefix + '-' + Math.random().toString(36).substr(2, 9);
     }
 
-    // Enable dragging for zones and tokens
+    // Enable dragging for zones/tokens
     function makeDraggable(el) {
       let offsetX, offsetY;
       el.addEventListener('mousedown', dragMouseDown);
-      
+
       function dragMouseDown(e) {
+        // If we clicked the resizer, ignore normal dragging
+        if (e.target.classList.contains('resizer')) return;
+
         // In link mode, if clicking on a zone, use it for connection
         if (isLinkMode && el.classList.contains('zone')) {
           handleLinking(el);
@@ -128,7 +146,7 @@
         document.addEventListener('mousemove', elementDrag);
         document.addEventListener('mouseup', closeDragElement);
       }
-      
+
       function elementDrag(e) {
         e.preventDefault();
         let trackerRect = tracker.getBoundingClientRect();
@@ -141,10 +159,56 @@
         el.style.top = newY + 'px';
         updateConnections(el);
       }
-      
+
       function closeDragElement() {
         document.removeEventListener('mousemove', elementDrag);
         document.removeEventListener('mouseup', closeDragElement);
+      }
+    }
+
+    // Enable resizing for zones/tokens
+    function makeResizable(el) {
+      const resizer = document.createElement('div');
+      resizer.classList.add('resizer');
+      el.appendChild(resizer);
+
+      resizer.addEventListener('mousedown', initResize);
+
+      function initResize(e) {
+        e.stopPropagation(); // Prevent triggering drag
+        e.preventDefault();
+        document.addEventListener('mousemove', startResizing);
+        document.addEventListener('mouseup', stopResizing);
+      }
+
+      function startResizing(e) {
+        let trackerRect = tracker.getBoundingClientRect();
+        let rect = el.getBoundingClientRect();
+        // Calculate new width/height based on mouse
+        let newWidth = e.clientX - rect.left;
+        let newHeight = e.clientY - rect.top;
+        // Keep min sizes so it doesn't vanish
+        newWidth = Math.max(40, newWidth);
+        newHeight = Math.max(30, newHeight);
+
+        // Also ensure it doesn't go out of the tracker
+        let maxWidth = tracker.clientWidth - (rect.left - trackerRect.left);
+        let maxHeight = tracker.clientHeight - (rect.top - trackerRect.top);
+        newWidth = Math.min(newWidth, maxWidth);
+        newHeight = Math.min(newHeight, maxHeight);
+
+        el.style.width = newWidth + 'px';
+        el.style.height = newHeight + 'px';
+        // If it's a zone, adjust line-height for centering text
+        if (el.classList.contains('zone')) {
+          el.style.lineHeight = newHeight + 'px';
+        }
+        updateConnections(el);
+      }
+
+      function stopResizing() {
+        document.removeEventListener('mousemove', startResizing);
+        document.removeEventListener('mouseup', stopResizing);
       }
     }
 
@@ -152,14 +216,17 @@
     document.getElementById('add-zone-btn').addEventListener('click', () => {
       const zone = document.createElement('div');
       zone.classList.add('zone');
-      zone.textContent = 'Zone';
       zone.id = uniqueId('zone');
+      zone.textContent = 'Zone';
+
       // Random starting position
-      zone.style.left = Math.random() * (tracker.clientWidth - 150) + 'px';
-      zone.style.top = Math.random() * (tracker.clientHeight - 100) + 'px';
+      zone.style.left = Math.random() * (tracker.clientWidth - 200) + 'px';
+      zone.style.top = Math.random() * (tracker.clientHeight - 120) + 'px';
+
       tracker.appendChild(zone);
       makeDraggable(zone);
-      
+      makeResizable(zone);
+
       // Allow renaming the zone on double-click
       zone.addEventListener('dblclick', () => {
         const newLabel = prompt('Enter zone label:', zone.textContent);
@@ -173,18 +240,32 @@
     document.getElementById('add-token-btn').addEventListener('click', () => {
       const token = document.createElement('div');
       token.classList.add('token', 'cover-none');
-      token.textContent = 'T';
       token.id = uniqueId('token');
+      token.textContent = 'T';
+
       // Random starting position
-      token.style.left = Math.random() * (tracker.clientWidth - 30) + 'px';
-      token.style.top = Math.random() * (tracker.clientHeight - 30) + 'px';
+      token.style.left = Math.random() * (tracker.clientWidth - 60) + 'px';
+      token.style.top = Math.random() * (tracker.clientHeight - 40) + 'px';
+
       tracker.appendChild(token);
       makeDraggable(token);
-      
-      // Cycle cover level on click (None → Partial → Full → None)
+      makeResizable(token);
+
+      // Cycle cover level on single-click (None → Partial → Full → None)
       token.addEventListener('click', (e) => {
+        // If we clicked the resizer, ignore cover cycling
+        if (e.target.classList.contains('resizer')) return;
         e.stopPropagation();
         cycleCover(token);
+      });
+
+      // Rename token on double-click
+      token.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        const newLabel = prompt('Enter token label:', token.textContent);
+        if (newLabel !== null) {
+          token.textContent = newLabel;
+        }
       });
     });
 
@@ -243,28 +324,105 @@
       line.setAttribute('stroke-width', '2');
       line.setAttribute('marker-end', 'url(#arrowhead)');
       svgOverlay.appendChild(line);
-      const conn = {zoneA, zoneB, line};
+
+      const conn = { zoneA, zoneB, line };
       connections.push(conn);
       updateLinePosition(conn);
     }
 
-    // Update the position of a connection line based on the zones’ positions
+    // Recalculate line endpoints from border to border
     function updateLinePosition(conn) {
-      const rectA = conn.zoneA.getBoundingClientRect();
-      const rectB = conn.zoneB.getBoundingClientRect();
-      const trackerRect = tracker.getBoundingClientRect();
-      // Calculate center points relative to the tracker
-      const x1 = rectA.left - trackerRect.left + rectA.width / 2;
-      const y1 = rectA.top - trackerRect.top + rectA.height / 2;
-      const x2 = rectB.left - trackerRect.left + rectB.width / 2;
-      const y2 = rectB.top - trackerRect.top + rectB.height / 2;
-      conn.line.setAttribute('x1', x1);
-      conn.line.setAttribute('y1', y1);
-      conn.line.setAttribute('x2', x2);
-      conn.line.setAttribute('y2', y2);
+      const { zoneA, zoneB, line } = conn;
+
+      // 1) Get center coords for each zone
+      let rectA = zoneA.getBoundingClientRect();
+      let rectB = zoneB.getBoundingClientRect();
+      let trackerRect = tracker.getBoundingClientRect();
+
+      // We'll find the intersection from zoneA's center toward zoneB's center
+      // and from zoneB's center toward zoneA's center
+      let centerA = {
+        x: rectA.left + rectA.width / 2 - trackerRect.left,
+        y: rectA.top + rectA.height / 2 - trackerRect.top
+      };
+      let centerB = {
+        x: rectB.left + rectB.width / 2 - trackerRect.left,
+        y: rectB.top + rectB.height / 2 - trackerRect.top
+      };
+
+      let start = getBorderPoint(zoneA, centerB.x, centerB.y);
+      let end = getBorderPoint(zoneB, centerA.x, centerA.y);
+
+      line.setAttribute('x1', start.x);
+      line.setAttribute('y1', start.y);
+      line.setAttribute('x2', end.x);
+      line.setAttribute('y2', end.y);
     }
 
-    // When an element moves, update any connection lines it is involved in
+    // Calculate where the line from the center of "zone" toward (targetX, targetY) hits the zone's border
+    function getBorderPoint(zone, targetX, targetY) {
+      const rect = zone.getBoundingClientRect();
+      const trackerRect = tracker.getBoundingClientRect();
+
+      // Center of the zone in tracker coords
+      let zx = rect.left + rect.width / 2 - trackerRect.left;
+      let zy = rect.top + rect.height / 2 - trackerRect.top;
+
+      let dx = targetX - zx;
+      let dy = targetY - zy;
+
+      // If there's no difference, return center
+      if (dx === 0 && dy === 0) {
+        return { x: zx, y: zy };
+      }
+
+      // Parametric line approach:
+      // point(t) = (zx, zy) + t*(dx, dy), we want the intersection with zone edges in [0,1]
+      // The zone edges in local coords:
+      // left = zx - (rect.width/2), right = zx + (rect.width/2)
+      // top = zy - (rect.height/2), bottom = zy + (rect.height/2)
+      // We'll solve for t with each boundary, then pick the smallest valid t in [0,1].
+
+      let tValues = [];
+
+      // Convert bounding box corners to tracker's coordinate space:
+      let left = rect.left - trackerRect.left;
+      let right = left + rect.width;
+      let top = rect.top - trackerRect.top;
+      let bottom = top + rect.height;
+
+      // Intersection with left or right
+      if (dx !== 0) {
+        // Solve x(t) = left => zx + dx*t = left => t = (left - zx) / dx
+        let tLeft = (left - zx) / dx;
+        if (tLeft >= 0 && tLeft <= 1) tValues.push(tLeft);
+
+        // Solve x(t) = right
+        let tRight = (right - zx) / dx;
+        if (tRight >= 0 && tRight <= 1) tValues.push(tRight);
+      }
+      // Intersection with top or bottom
+      if (dy !== 0) {
+        let tTop = (top - zy) / dy;
+        if (tTop >= 0 && tTop <= 1) tValues.push(tTop);
+
+        let tBottom = (bottom - zy) / dy;
+        if (tBottom >= 0 && tBottom <= 1) tValues.push(tBottom);
+      }
+
+      if (tValues.length === 0) {
+        // No intersection in [0,1], fallback to center
+        return { x: zx, y: zy };
+      }
+
+      // pick the smallest t in [0,1] => first boundary we hit
+      let tMin = Math.min(...tValues);
+      let finalX = zx + dx * tMin;
+      let finalY = zy + dy * tMin;
+      return { x: finalX, y: finalY };
+    }
+
+    // When an element moves or resizes, update any connection lines it’s involved in
     function updateConnections(movedElement) {
       connections.forEach(conn => {
         if (conn.zoneA === movedElement || conn.zoneB === movedElement) {
@@ -275,4 +433,3 @@
   </script>
 </body>
 </html>
-
