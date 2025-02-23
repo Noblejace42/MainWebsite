@@ -231,83 +231,85 @@
       return totals;
     }
     function updateSummary() {
-      const summaryDiv = document.getElementById("summary-content");
-      let html = `
-        <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
-          <h3>General</h3>
-          <p><strong>Age:</strong> ${character.age}</p>
-          <p><strong>Scars:</strong> ${character.scars}</p>
-          let bondsHTML = character.bonds.length 
-  ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
-  : "None";
+  const summaryDiv = document.getElementById("summary-content");
+  let html = `
+    <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
+      <h3>General</h3>
+      <p><strong>Age:</strong> ${character.age}</p>
+      <p><strong>Scars:</strong> ${character.scars}</p>
+      <p><strong>Credits:</strong> ${character.credits}</p>
+    </div>
+  `;
 
-html += `
-  <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
-    <h3>Bonds</h3>
-    ${bondsHTML}
-  </div>
-`;
+  // Build the Bonds section
+  let bondsHTML = character.bonds.length 
+      ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
+      : "None";
+  html += `
+    <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+      <h3>Bonds</h3>
+      ${bondsHTML}
+    </div>
+  `;
 
-          let itemsHTML = character.items.length 
-  ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
-  : "None";
+  // Build the Items section
+  let itemsHTML = character.items.length 
+      ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
+      : "None";
+  html += `
+    <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
+      <h3>Items</h3>
+      ${itemsHTML}
+    </div>
+  `;
 
-html += `
-  <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
-    <h3>Items</h3>
-    ${itemsHTML}
-  </div>
-`;
-
-          <p><strong>Credits:</strong> ${character.credits}</p>
-        </div>
-      `;
-      html += `
-        <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
-          <h3>Skills</h3>
-          <ul>
-      `;
-      for (let skill in character.skills) {
-        let dice = skillLevelToDice(character.skills[skill]);
-        html += `<li>${skill}: ${character.skills[skill]} (${dice})</li>`;
-      }
-      html += `</ul></div>`;
-      const aggregatedTalents = aggregateTalents();
-      html += `
-        <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
-          <h3>Talents</h3>
-          <ul>
-      `;
-      for (let talent in aggregatedTalents) {
-  if (aggregatedTalents[talent] > 0) {
-    let dice = levelToDice(aggregatedTalents[talent]);
-    html += `<li>${talent}: ${dice} (Level ${aggregatedTalents[talent]})</li>`;
+  // Build the Skills section
+  html += `
+    <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
+      <h3>Skills</h3>
+      <ul>
+  `;
+  for (let skill in character.skills) {
+    let dice = skillLevelToDice(character.skills[skill]);
+    html += `<li>${skill}: ${character.skills[skill]} (${dice})</li>`;
   }
-}
-      html += `</ul></div>`;
-      // For each lifepath that has an event, look up its description from config.events based on the lifepath's pool.
-let eventDescriptions = character.lifepaths
-  .filter(lp => lp.event)
-  .map(lp => {
-    // Assuming config.events is an object where each key is a lifepath pool (like "Labor") and the value is an array of events.
-    let poolEvents = config.events[lp.pool] || [];
-    let eventObj = poolEvents.find(ev => ev.id === lp.event);
-    return eventObj ? eventObj.description : lp.event;
-  });
+  html += `</ul></div>`;
 
-// Create an ordered list (chronological numbering)
-let eventsHTML = eventDescriptions.length 
-  ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
-  : "None";
-
-html += `
-  <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
-    <h3>Events</h3>
-    ${eventsHTML}
-  </div>
-`;
-      summaryDiv.innerHTML = html;
+  // Build the Talents section
+  const aggregatedTalents = aggregateTalents();
+  html += `
+    <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
+      <h3>Talents</h3>
+      <ul>
+  `;
+  for (let talent in aggregatedTalents) {
+    if (aggregatedTalents[talent] > 0) {
+      let dice = levelToDice(aggregatedTalents[talent]);
+      html += `<li>${talent}: ${dice} (Level ${aggregatedTalents[talent]})</li>`;
     }
+  }
+  html += `</ul></div>`;
+
+  // Build the Events section by looking up event descriptions
+  let eventDescriptions = character.lifepaths
+    .filter(lp => lp.event)
+    .map(lp => {
+      let poolEvents = config.events[lp.pool] || [];
+      let eventObj = poolEvents.find(ev => ev.id === lp.event);
+      return eventObj ? eventObj.description : lp.event;
+    });
+  let eventsHTML = eventDescriptions.length 
+      ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
+      : "None";
+  html += `
+    <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+      <h3>Events</h3>
+      ${eventsHTML}
+    </div>
+  `;
+
+  summaryDiv.innerHTML = html;
+}
 
     function increaseSkills(pool) {
       const skillPools = {
@@ -627,63 +629,83 @@ function askContinue() {
     }
 
     function displayFinalSummary() {
-      const contentDiv = document.getElementById("game-content");
-      let html = `
-        <h2>Final Character Sheet</h2>
-        <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
-          <h3>General</h3>
-          <p><strong>Age:</strong> ${character.age}</p>
-          <p><strong>Scars:</strong> ${character.scars}</p>
-          let bondsHTML = character.bonds.length 
-  ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
-  : "None";
+  const contentDiv = document.getElementById("game-content");
+  let html = `
+    <h2>Final Character Sheet</h2>
+    <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
+      <h3>General</h3>
+      <p><strong>Age:</strong> ${character.age}</p>
+      <p><strong>Scars:</strong> ${character.scars}</p>
+    </div>
+  `;
 
-html += `
-  <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
-    <h3>Bonds</h3>
-    ${bondsHTML}
-  </div>
-`;
-          let itemsHTML = character.items.length 
-  ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
-  : "None";
+  // Build the Bonds section
+  let bondsHTML = character.bonds.length 
+      ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
+      : "None";
+  html += `
+    <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+      <h3>Bonds</h3>
+      ${bondsHTML}
+    </div>
+  `;
 
-html += `
-  <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
-    <h3>Items</h3>
-    ${itemsHTML}
-  </div>
-`;
+  // Build the Items section
+  let itemsHTML = character.items.length 
+      ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
+      : "None";
+  html += `
+    <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
+      <h3>Items</h3>
+      ${itemsHTML}
+    </div>
+  `;
 
-        </div>
-        <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
-          <h3>Skills</h3>
-          <ul>
-      `;
-      for (let skill in character.skills) {
-        html += `<li>${skill}: ${character.skills[skill]} (${skillLevelToDice(character.skills[skill])})</li>`;
-      }
-      html += `</ul></div>`;
-      const aggregatedTalents = aggregateTalents();
-      html += `
-        <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
-          <h3>Aggregated Talents</h3>
-          <ul>
-      `;
-      for (let talent in aggregatedTalents) {
-        html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
-      }
-      html += `</ul></div>`;
-      let eventsTaken = character.lifepaths.map(lp => lp.event).filter(ev => ev).join("; ");
-      html += `
-        <div class="summary-section" style="background:#1e1e1e; padding:5px;">
-          <h3>Events</h3>
-          <p>${eventsTaken || "None"}</p>
-        </div>
-      `;
-      contentDiv.innerHTML = html;
-      updateSummary();
-    }
+  // Build the Skills section
+  html += `
+    <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
+      <h3>Skills</h3>
+      <ul>
+  `;
+  for (let skill in character.skills) {
+    html += `<li>${skill}: ${character.skills[skill]} (${skillLevelToDice(character.skills[skill])})</li>`;
+  }
+  html += `</ul></div>`;
+
+  // Build the Aggregated Talents section
+  const aggregatedTalents = aggregateTalents();
+  html += `
+    <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
+      <h3>Aggregated Talents</h3>
+      <ul>
+  `;
+  for (let talent in aggregatedTalents) {
+    html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
+  }
+  html += `</ul></div>`;
+
+  // Build the Events section by looking up event descriptions
+  let eventDescriptions = character.lifepaths
+    .filter(lp => lp.event)
+    .map(lp => {
+      let poolEvents = config.events[lp.pool] || [];
+      let eventObj = poolEvents.find(ev => ev.id === lp.event);
+      return eventObj ? eventObj.description : lp.event;
+    });
+  let eventsHTML = eventDescriptions.length 
+      ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
+      : "None";
+  html += `
+    <div class="summary-section" style="background:#1e1e1e; padding:5px;">
+      <h3>Events</h3>
+      ${eventsHTML}
+    </div>
+  `;
+
+  contentDiv.innerHTML = html;
+  updateSummary();
+}
+
 
     document.addEventListener("DOMContentLoaded", function() {
       fetch("lifepath_data.json")
