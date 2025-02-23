@@ -870,7 +870,7 @@
         "description": "A burglary goes wrong and you attempt to make it out alive - fortunately escaping with a large sum of credits.",
         "rewards": "Old Bullet Casing",
           "credits": 800,
-          "bond": "A botched burglary left me scarred—and taught me to never work alone, now I work with _____."
+          "bond": "A botched burglary left me scarred—and taught me to never work alone, now I work with _____.",
         "penalties": {
           "scarChance": 1.0,
           "deathChance": 0
