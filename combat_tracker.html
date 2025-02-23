@@ -1,1 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Combat Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Custom styles for Combat Tracker */
+    #tracker-controls {
+      margin-bottom: 10px;
+    }
+    #tracker-controls button {
+      margin-right: 10px;
+    }
+    #combat-tracker {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      overflow: hidden;
+    }
+    .zone {
+      position: absolute;
+      width: 150px;
+      height: 100px;
+      background: rgba(0, 128, 128, 0.2);
+      border: 2px solid teal;
+      color: #ccc;
+      text-align: center;
+      line-height: 100px;
+      cursor: move;
+      user-select: none;
+    }
+    .token {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: #888;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 30px;
+      color: #000;
+      cursor: move;
+      user-select: none;
+    }
+    /* Cover level styles */
+    .cover-none {
+      border-color: #ccc;
+    }
+    .cover-partial {
+      border-color: orange;
+    }
+    .cover-full {
+      border-color: red;
+    }
+    /* SVG overlay for drawing connections */
+    #connection-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">System Generator</a> |
+    <a href="lifepath.html">Lifepath Generator</a> |
+    <a href="weapongenerator.html">Weapon Generator</a> |
+    <a href="combat_tracker.html">Combat Tracker</a>
+  </nav>
+  
+  <div class="container">
+    <h2>FATE-Style Combat Tracker</h2>
+    <div id="tracker-controls">
+      <button id="add-zone-btn">Add Zone</button>
+      <button id="add-token-btn">Add Token</button>
+      <button id="link-zones-btn">Link Zones</button>
+      <button id="clear-links-btn">Clear Links</button>
+      <span id="link-mode-indicator" style="color: yellow; margin-left: 10px;"></span>
+    </div>
+    <div id="combat-tracker">
+      <!-- SVG overlay for connection arrows -->
+      <svg id="connection-overlay">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="teal" />
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    // Global variables for link mode and connection tracking
+    let isLinkMode = false;
+    let linkStartZone = null;
+    let connections = [];
+    
+    const tracker = document.getElementById('combat-tracker');
+    const svgOverlay = document.getElementById('connection-overlay');
+
+    // Utility: generate unique IDs for new elements
+    function uniqueId(prefix='id') {
+      return prefix + '-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Enable dragging for zones and tokens
+    function makeDraggable(el) {
+      let offsetX, offsetY;
+      el.addEventListener('mousedown', dragMouseDown);
+      
+      function dragMouseDown(e) {
+        // In link mode, if clicking on a zone, use it for connection
+        if (isLinkMode && el.classList.contains('zone')) {
+          handleLinking(el);
+          e.stopPropagation();
+          return;
+        }
+        e.preventDefault();
+        offsetX = e.clientX - el.getBoundingClientRect().left;
+        offsetY = e.clientY - el.getBoundingClientRect().top;
+        document.addEventListener('mousemove', elementDrag);
+        document.addEventListener('mouseup', closeDragElement);
+      }
+      
+      function elementDrag(e) {
+        e.preventDefault();
+        let trackerRect = tracker.getBoundingClientRect();
+        let newX = e.clientX - trackerRect.left - offsetX;
+        let newY = e.clientY - trackerRect.top - offsetY;
+        // Keep element within tracker bounds
+        newX = Math.max(0, Math.min(tracker.clientWidth - el.offsetWidth, newX));
+        newY = Math.max(0, Math.min(tracker.clientHeight - el.offsetHeight, newY));
+        el.style.left = newX + 'px';
+        el.style.top = newY + 'px';
+        updateConnections(el);
+      }
+      
+      function closeDragElement() {
+        document.removeEventListener('mousemove', elementDrag);
+        document.removeEventListener('mouseup', closeDragElement);
+      }
+    }
+
+    // Handler for "Add Zone" button
+    document.getElementById('add-zone-btn').addEventListener('click', () => {
+      const zone = document.createElement('div');
+      zone.classList.add('zone');
+      zone.textContent = 'Zone';
+      zone.id = uniqueId('zone');
+      // Random starting position
+      zone.style.left = Math.random() * (tracker.clientWidth - 150) + 'px';
+      zone.style.top = Math.random() * (tracker.clientHeight - 100) + 'px';
+      tracker.appendChild(zone);
+      makeDraggable(zone);
+      
+      // Allow renaming the zone on double-click
+      zone.addEventListener('dblclick', () => {
+        const newLabel = prompt('Enter zone label:', zone.textContent);
+        if (newLabel !== null) {
+          zone.textContent = newLabel;
+        }
+      });
+    });
+
+    // Handler for "Add Token" button
+    document.getElementById('add-token-btn').addEventListener('click', () => {
+      const token = document.createElement('div');
+      token.classList.add('token', 'cover-none');
+      token.textContent = 'T';
+      token.id = uniqueId('token');
+      // Random starting position
+      token.style.left = Math.random() * (tracker.clientWidth - 30) + 'px';
+      token.style.top = Math.random() * (tracker.clientHeight - 30) + 'px';
+      tracker.appendChild(token);
+      makeDraggable(token);
+      
+      // Cycle cover level on click (None → Partial → Full → None)
+      token.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cycleCover(token);
+      });
+    });
+
+    // Cycle cover levels by toggling classes
+    function cycleCover(token) {
+      if (token.classList.contains('cover-none')) {
+        token.classList.remove('cover-none');
+        token.classList.add('cover-partial');
+      } else if (token.classList.contains('cover-partial')) {
+        token.classList.remove('cover-partial');
+        token.classList.add('cover-full');
+      } else if (token.classList.contains('cover-full')) {
+        token.classList.remove('cover-full');
+        token.classList.add('cover-none');
+      }
+    }
+
+    // Toggle link mode for connecting zones
+    document.getElementById('link-zones-btn').addEventListener('click', () => {
+      isLinkMode = !isLinkMode;
+      linkStartZone = null;
+      document.getElementById('link-mode-indicator').textContent = isLinkMode ? 'Link Mode: ON' : '';
+    });
+
+    // Clear all drawn connections
+    document.getElementById('clear-links-btn').addEventListener('click', () => {
+      connections.forEach(conn => {
+        svgOverlay.removeChild(conn.line);
+      });
+      connections = [];
+    });
+
+    // Handle zone selection when in link mode
+    function handleLinking(zone) {
+      if (!linkStartZone) {
+        linkStartZone = zone;
+        zone.style.borderColor = 'yellow';
+      } else if (linkStartZone === zone) {
+        // Deselect if same zone is clicked
+        zone.style.borderColor = 'teal';
+        linkStartZone = null;
+      } else {
+        // Create connection between the first and second zone
+        createConnection(linkStartZone, zone);
+        // Reset the border color
+        linkStartZone.style.borderColor = 'teal';
+        zone.style.borderColor = 'teal';
+        linkStartZone = null;
+      }
+    }
+
+    // Create an SVG line (with an arrowhead) between two zones
+    function createConnection(zoneA, zoneB) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute('stroke', 'teal');
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('marker-end', 'url(#arrowhead)');
+      svgOverlay.appendChild(line);
+      const conn = {zoneA, zoneB, line};
+      connections.push(conn);
+      updateLinePosition(conn);
+    }
+
+    // Update the position of a connection line based on the zones’ positions
+    function updateLinePosition(conn) {
+      const rectA = conn.zoneA.getBoundingClientRect();
+      const rectB = conn.zoneB.getBoundingClientRect();
+      const trackerRect = tracker.getBoundingClientRect();
+      // Calculate center points relative to the tracker
+      const x1 = rectA.left - trackerRect.left + rectA.width / 2;
+      const y1 = rectA.top - trackerRect.top + rectA.height / 2;
+      const x2 = rectB.left - trackerRect.left + rectB.width / 2;
+      const y2 = rectB.top - trackerRect.top + rectB.height / 2;
+      conn.line.setAttribute('x1', x1);
+      conn.line.setAttribute('y1', y1);
+      conn.line.setAttribute('x2', x2);
+      conn.line.setAttribute('y2', y2);
+    }
+
+    // When an element moves, update any connection lines it is involved in
+    function updateConnections(movedElement) {
+      connections.forEach(conn => {
+        if (conn.zoneA === movedElement || conn.zoneB === movedElement) {
+          updateLinePosition(conn);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
 
