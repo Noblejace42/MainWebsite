@@ -13,19 +13,20 @@
     #tracker-controls button {
       margin-right: 10px;
     }
+    /* Set initial work area size; it will expand as needed */
     #combat-tracker {
       position: relative;
-      width: 100%;
-      height: 700px; /* Make the overall tracker area taller */
+      width: 1000px;
+      height: 700px;
       background: #1a1a1a;
       border: 1px solid #444;
-      overflow: hidden;
+      overflow: auto;
     }
-    /* ZONE (initially bigger) */
+    /* ZONE (bigger by default) */
     .zone {
       position: absolute;
-      width: 200px;  /* Default width larger */
-      height: 120px; /* Default height larger */
+      width: 200px;
+      height: 120px;
       background: rgba(0, 128, 128, 0.2);
       border: 2px solid teal;
       color: #ccc;
@@ -35,29 +36,41 @@
       user-select: none;
       box-sizing: border-box;
     }
-    /* TOKEN (rectangular) */
+    /* TOKEN (rectangular) with internal label */
     .token {
       position: absolute;
-      width: 60px;  /* Default token width */
-      height: 40px; /* Default token height */
+      width: 60px;
+      height: 40px;
       background: #888;
       border: 2px solid #ccc;
-      color: #000;
-      text-align: center;
-      line-height: 40px;
+      box-sizing: border-box;
       cursor: move;
       user-select: none;
-      box-sizing: border-box;
     }
-    /* Cover level styles for tokens */
+    /* The token label – separate so renaming doesn’t disturb other controls */
+    .token .token-label {
+      display: block;
+      text-align: center;
+      line-height: 40px;
+      pointer-events: none;
+      color: #000;
+    }
+    /* Delete button for tokens */
+    .delete-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: #f00;
+      color: #fff;
+      font-size: 10px;
+      border: none;
+      cursor: pointer;
+      padding: 2px 4px;
+      z-index: 20;
+    }
+    /* We now only use the cover-none style */
     .cover-none {
       border-color: #ccc;
-    }
-    .cover-partial {
-      border-color: orange;
-    }
-    .cover-full {
-      border-color: red;
     }
     /* SVG overlay for drawing connections */
     #connection-overlay {
@@ -125,14 +138,39 @@
       return prefix + '-' + Math.random().toString(36).substr(2, 9);
     }
 
+    // Check and expand work area if an element is dragged near the right or bottom edge
+    function checkExpandWorkArea(el) {
+      let padding = 50; // threshold before expanding
+      let currentWidth = tracker.offsetWidth;
+      let currentHeight = tracker.offsetHeight;
+      let elLeft = parseInt(el.style.left) || 0;
+      let elTop = parseInt(el.style.top) || 0;
+      let elRight = elLeft + el.offsetWidth;
+      let elBottom = elTop + el.offsetHeight;
+      let newWidth = currentWidth;
+      let newHeight = currentHeight;
+      if (elRight > currentWidth - padding) {
+        newWidth = elRight + padding;
+      }
+      if (elBottom > currentHeight - padding) {
+        newHeight = elBottom + padding;
+      }
+      if (newWidth > currentWidth) {
+        tracker.style.width = newWidth + "px";
+      }
+      if (newHeight > currentHeight) {
+        tracker.style.height = newHeight + "px";
+      }
+    }
+
     // Enable dragging for zones/tokens
     function makeDraggable(el) {
       let offsetX, offsetY;
       el.addEventListener('mousedown', dragMouseDown);
 
       function dragMouseDown(e) {
-        // If we clicked the resizer, ignore normal dragging
-        if (e.target.classList.contains('resizer')) return;
+        // Ignore if clicking on the resizer or delete button
+        if (e.target.classList.contains('resizer') || e.target.classList.contains('delete-btn')) return;
 
         // In link mode, if clicking on a zone, use it for connection
         if (isLinkMode && el.classList.contains('zone')) {
@@ -152,12 +190,13 @@
         let trackerRect = tracker.getBoundingClientRect();
         let newX = e.clientX - trackerRect.left - offsetX;
         let newY = e.clientY - trackerRect.top - offsetY;
-        // Keep element within tracker bounds
-        newX = Math.max(0, Math.min(tracker.clientWidth - el.offsetWidth, newX));
-        newY = Math.max(0, Math.min(tracker.clientHeight - el.offsetHeight, newY));
+        // Ensure the element doesn't go negative
+        newX = Math.max(0, newX);
+        newY = Math.max(0, newY);
         el.style.left = newX + 'px';
         el.style.top = newY + 'px';
         updateConnections(el);
+        checkExpandWorkArea(el);
       }
 
       function closeDragElement() {
@@ -187,29 +226,42 @@
         // Calculate new width/height based on mouse
         let newWidth = e.clientX - rect.left;
         let newHeight = e.clientY - rect.top;
-        // Keep min sizes so it doesn't vanish
+        // Set minimum sizes
         newWidth = Math.max(40, newWidth);
         newHeight = Math.max(30, newHeight);
-
-        // Also ensure it doesn't go out of the tracker
-        let maxWidth = tracker.clientWidth - (rect.left - trackerRect.left);
-        let maxHeight = tracker.clientHeight - (rect.top - trackerRect.top);
+        // Ensure the element doesn't extend outside the tracker initially
+        let maxWidth = tracker.offsetWidth - (rect.left - trackerRect.left);
+        let maxHeight = tracker.offsetHeight - (rect.top - trackerRect.top);
         newWidth = Math.min(newWidth, maxWidth);
         newHeight = Math.min(newHeight, maxHeight);
-
         el.style.width = newWidth + 'px';
         el.style.height = newHeight + 'px';
-        // If it's a zone, adjust line-height for centering text
+        // For zones, adjust line-height to vertically center text
         if (el.classList.contains('zone')) {
           el.style.lineHeight = newHeight + 'px';
         }
         updateConnections(el);
+        checkExpandWorkArea(el);
       }
 
       function stopResizing() {
         document.removeEventListener('mousemove', startResizing);
         document.removeEventListener('mouseup', stopResizing);
       }
+    }
+
+    // Create and add a delete button for tokens
+    function addDeleteButton(token) {
+      const delBtn = document.createElement('button');
+      delBtn.classList.add('delete-btn');
+      delBtn.textContent = 'X';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Remove token and update connections if needed
+        token.parentElement.removeChild(token);
+        connections = connections.filter(conn => conn.zoneA !== token && conn.zoneB !== token);
+      });
+      token.appendChild(delBtn);
     }
 
     // Handler for "Add Zone" button
@@ -219,9 +271,9 @@
       zone.id = uniqueId('zone');
       zone.textContent = 'Zone';
 
-      // Random starting position
-      zone.style.left = Math.random() * (tracker.clientWidth - 200) + 'px';
-      zone.style.top = Math.random() * (tracker.clientHeight - 120) + 'px';
+      // Random starting position within tracker
+      zone.style.left = Math.random() * (tracker.offsetWidth - 200) + 'px';
+      zone.style.top = Math.random() * (tracker.offsetHeight - 120) + 'px';
 
       tracker.appendChild(zone);
       makeDraggable(zone);
@@ -232,6 +284,8 @@
         const newLabel = prompt('Enter zone label:', zone.textContent);
         if (newLabel !== null) {
           zone.textContent = newLabel;
+          // Re-add the resizer since renaming wipes out child nodes
+          makeResizable(zone);
         }
       });
     });
@@ -241,47 +295,31 @@
       const token = document.createElement('div');
       token.classList.add('token', 'cover-none');
       token.id = uniqueId('token');
-      token.textContent = 'T';
 
-      // Random starting position
-      token.style.left = Math.random() * (tracker.clientWidth - 60) + 'px';
-      token.style.top = Math.random() * (tracker.clientHeight - 40) + 'px';
+      // Create a separate span for the token label
+      const labelSpan = document.createElement('span');
+      labelSpan.classList.add('token-label');
+      labelSpan.textContent = 'T';
+      token.appendChild(labelSpan);
+
+      // Set random starting position within tracker
+      token.style.left = Math.random() * (tracker.offsetWidth - 60) + 'px';
+      token.style.top = Math.random() * (tracker.offsetHeight - 40) + 'px';
 
       tracker.appendChild(token);
       makeDraggable(token);
       makeResizable(token);
+      addDeleteButton(token);
 
-      // Cycle cover level on single-click (None → Partial → Full → None)
-      token.addEventListener('click', (e) => {
-        // If we clicked the resizer, ignore cover cycling
-        if (e.target.classList.contains('resizer')) return;
-        e.stopPropagation();
-        cycleCover(token);
-      });
-
-      // Rename token on double-click
+      // Rename token on double-click without interfering with the resizer or delete button
       token.addEventListener('dblclick', (e) => {
         e.stopPropagation();
-        const newLabel = prompt('Enter token label:', token.textContent);
+        const newLabel = prompt('Enter token label:', labelSpan.textContent);
         if (newLabel !== null) {
-          token.textContent = newLabel;
+          labelSpan.textContent = newLabel;
         }
       });
     });
-
-    // Cycle cover levels by toggling classes
-    function cycleCover(token) {
-      if (token.classList.contains('cover-none')) {
-        token.classList.remove('cover-none');
-        token.classList.add('cover-partial');
-      } else if (token.classList.contains('cover-partial')) {
-        token.classList.remove('cover-partial');
-        token.classList.add('cover-full');
-      } else if (token.classList.contains('cover-full')) {
-        token.classList.remove('cover-full');
-        token.classList.add('cover-none');
-      }
-    }
 
     // Toggle link mode for connecting zones
     document.getElementById('link-zones-btn').addEventListener('click', () => {
@@ -308,9 +346,8 @@
         zone.style.borderColor = 'teal';
         linkStartZone = null;
       } else {
-        // Create connection between the first and second zone
+        // Create connection between the two zones
         createConnection(linkStartZone, zone);
-        // Reset the border color
         linkStartZone.style.borderColor = 'teal';
         zone.style.borderColor = 'teal';
         linkStartZone = null;
@@ -324,7 +361,6 @@
       line.setAttribute('stroke-width', '2');
       line.setAttribute('marker-end', 'url(#arrowhead)');
       svgOverlay.appendChild(line);
-
       const conn = { zoneA, zoneB, line };
       connections.push(conn);
       updateLinePosition(conn);
@@ -333,14 +369,11 @@
     // Recalculate line endpoints from border to border
     function updateLinePosition(conn) {
       const { zoneA, zoneB, line } = conn;
-
-      // 1) Get center coords for each zone
       let rectA = zoneA.getBoundingClientRect();
       let rectB = zoneB.getBoundingClientRect();
       let trackerRect = tracker.getBoundingClientRect();
 
-      // We'll find the intersection from zoneA's center toward zoneB's center
-      // and from zoneB's center toward zoneA's center
+      // Calculate center points in tracker coordinates
       let centerA = {
         x: rectA.left + rectA.width / 2 - trackerRect.left,
         y: rectA.top + rectA.height / 2 - trackerRect.top
@@ -359,67 +392,35 @@
       line.setAttribute('y2', end.y);
     }
 
-    // Calculate where the line from the center of "zone" toward (targetX, targetY) hits the zone's border
-    function getBorderPoint(zone, targetX, targetY) {
-      const rect = zone.getBoundingClientRect();
+    // Calculate where a line from the center of an element toward (targetX, targetY) hits its border
+    function getBorderPoint(el, targetX, targetY) {
+      const rect = el.getBoundingClientRect();
       const trackerRect = tracker.getBoundingClientRect();
-
-      // Center of the zone in tracker coords
       let zx = rect.left + rect.width / 2 - trackerRect.left;
       let zy = rect.top + rect.height / 2 - trackerRect.top;
-
       let dx = targetX - zx;
       let dy = targetY - zy;
-
-      // If there's no difference, return center
-      if (dx === 0 && dy === 0) {
-        return { x: zx, y: zy };
-      }
-
-      // Parametric line approach:
-      // point(t) = (zx, zy) + t*(dx, dy), we want the intersection with zone edges in [0,1]
-      // The zone edges in local coords:
-      // left = zx - (rect.width/2), right = zx + (rect.width/2)
-      // top = zy - (rect.height/2), bottom = zy + (rect.height/2)
-      // We'll solve for t with each boundary, then pick the smallest valid t in [0,1].
-
+      if (dx === 0 && dy === 0) return { x: zx, y: zy };
       let tValues = [];
-
-      // Convert bounding box corners to tracker's coordinate space:
       let left = rect.left - trackerRect.left;
       let right = left + rect.width;
       let top = rect.top - trackerRect.top;
       let bottom = top + rect.height;
-
-      // Intersection with left or right
       if (dx !== 0) {
-        // Solve x(t) = left => zx + dx*t = left => t = (left - zx) / dx
         let tLeft = (left - zx) / dx;
         if (tLeft >= 0 && tLeft <= 1) tValues.push(tLeft);
-
-        // Solve x(t) = right
         let tRight = (right - zx) / dx;
         if (tRight >= 0 && tRight <= 1) tValues.push(tRight);
       }
-      // Intersection with top or bottom
       if (dy !== 0) {
         let tTop = (top - zy) / dy;
         if (tTop >= 0 && tTop <= 1) tValues.push(tTop);
-
         let tBottom = (bottom - zy) / dy;
         if (tBottom >= 0 && tBottom <= 1) tValues.push(tBottom);
       }
-
-      if (tValues.length === 0) {
-        // No intersection in [0,1], fallback to center
-        return { x: zx, y: zy };
-      }
-
-      // pick the smallest t in [0,1] => first boundary we hit
+      if (tValues.length === 0) return { x: zx, y: zy };
       let tMin = Math.min(...tValues);
-      let finalX = zx + dx * tMin;
-      let finalY = zy + dy * tMin;
-      return { x: finalX, y: finalY };
+      return { x: zx + dx * tMin, y: zy + dy * tMin };
     }
 
     // When an element moves or resizes, update any connection lines it’s involved in
