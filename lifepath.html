@@ -237,8 +237,28 @@
           <h3>General</h3>
           <p><strong>Age:</strong> ${character.age}</p>
           <p><strong>Scars:</strong> ${character.scars}</p>
-          <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
-          <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+          let bondsHTML = character.bonds.length 
+  ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
+  : "None";
+
+html += `
+  <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+    <h3>Bonds</h3>
+    ${bondsHTML}
+  </div>
+`;
+
+          let itemsHTML = character.items.length 
+  ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
+  : "None";
+
+html += `
+  <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
+    <h3>Items</h3>
+    ${itemsHTML}
+  </div>
+`;
+
           <p><strong>Credits:</strong> ${character.credits}</p>
         </div>
       `;
@@ -265,13 +285,27 @@
   }
 }
       html += `</ul></div>`;
-      let eventsTaken = character.lifepaths.map(lp => lp.event).filter(ev => ev).join("; ");
-      html += `
-        <div class="summary-section" style="background:#1e1e1e; padding:5px;">
-          <h3>Events</h3>
-          <p>${eventsTaken || "None"}</p>
-        </div>
-      `;
+      // For each lifepath that has an event, look up its description from config.events based on the lifepath's pool.
+let eventDescriptions = character.lifepaths
+  .filter(lp => lp.event)
+  .map(lp => {
+    // Assuming config.events is an object where each key is a lifepath pool (like "Labor") and the value is an array of events.
+    let poolEvents = config.events[lp.pool] || [];
+    let eventObj = poolEvents.find(ev => ev.id === lp.event);
+    return eventObj ? eventObj.description : lp.event;
+  });
+
+// Create an ordered list (chronological numbering)
+let eventsHTML = eventDescriptions.length 
+  ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
+  : "None";
+
+html += `
+  <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+    <h3>Events</h3>
+    ${eventsHTML}
+  </div>
+`;
       summaryDiv.innerHTML = html;
     }
 
@@ -600,8 +634,27 @@ function askContinue() {
           <h3>General</h3>
           <p><strong>Age:</strong> ${character.age}</p>
           <p><strong>Scars:</strong> ${character.scars}</p>
-          <p><strong>Bonds:</strong> ${character.bonds.join("; ") || "None"}</p>
-          <p><strong>Items:</strong> ${character.items.join("; ") || "None"}</p>
+          let bondsHTML = character.bonds.length 
+  ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
+  : "None";
+
+html += `
+  <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+    <h3>Bonds</h3>
+    ${bondsHTML}
+  </div>
+`;
+          let itemsHTML = character.items.length 
+  ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
+  : "None";
+
+html += `
+  <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
+    <h3>Items</h3>
+    ${itemsHTML}
+  </div>
+`;
+
         </div>
         <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
           <h3>Skills</h3>
