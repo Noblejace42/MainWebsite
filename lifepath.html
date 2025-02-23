@@ -231,6 +231,9 @@
       }
       return totals;
     }
+    
+    
+    
     function updateSummary() {
   const summaryDiv = document.getElementById("summary-content");
   let html = `
@@ -292,22 +295,29 @@
   html += `</ul></div>`;
 
   // Build the Events section by looking up event descriptions
-  let eventDescriptions = character.lifepaths
-    .filter(lp => lp.event)
-    .map(lp => {
-      let poolEvents = config.events[lp.pool] || [];
-      let eventObj = poolEvents.find(ev => ev.id === lp.event);
-      return eventObj ? eventObj.description : lp.event;
-    });
-  let eventsHTML = eventDescriptions.length 
-      ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
-      : "None";
-  html += `
-    <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
-      <h3>Events</h3>
-      ${eventsHTML}
-    </div>
-  `;
+let eventDescriptions = character.lifepaths
+  .filter(lp => lp.event)
+  .map(lp => {
+    // Construct the event key based on the lifepath pool (e.g., "eventslabor")
+    let eventKey = "events" + lp.pool.toLowerCase();
+    // Retrieve the array of events for this pool from the config
+    let poolEvents = (config[eventKey] && config[eventKey][lp.pool]) ? config[eventKey][lp.pool] : [];
+    // Find the event object that matches the lifepath's event id
+    let eventObj = poolEvents.find(ev => ev.id === lp.event);
+    return eventObj ? eventObj.description : lp.event;
+  });
+
+let eventsHTML = eventDescriptions.length 
+    ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
+    : "None";
+
+html += `
+  <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+    <h3>Events</h3>
+    ${eventsHTML}
+  </div>
+`;
+
 
   summaryDiv.innerHTML = html;
 }
