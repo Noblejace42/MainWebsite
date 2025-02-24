@@ -2870,12 +2870,12 @@
       "5": "d12"
     },
     "rarityProbabilities": {
-      "common": 0.85,
+      "common": 0.9,
       "intermediate": 0.1,
-      "expert": 0.05
+      "expert": 0.0
     },
-    "rarityProgressionMultiplier": 0.02,
+    "rarityProgressionMultiplier": 0.05,
     "wildcardOptionEnabled": true,
-    "wildcardOptionChance": 0.75
+    "wildcardOptionChance": 0.85
   }
 }
