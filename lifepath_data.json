@@ -1381,123 +1381,119 @@
     "Espionage": [
       {
         "id": "espionageevent1",
-        "description": "Undercover, you infiltrate a high-security facility and steal sensitive intel.",
+        "description": "Infiltrate a high-security facility as part of a team.",
         "rewards": {
-          "item": "Encrypted Data Drive",
-          "credits": 200,
-          "bond": "I acquired classified secrets that could topple empires."
+          "item": "Silenced Light Handgun 1d6 (Quick, Ergonomic, Ammo, Suppressed, Near-range)",
+          "credits": 300,
+          "bond": "I acquired classified secrets with my teammates _____ and _____."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.05
+          "scarChance": 0.15,
+          "deathChance": 0.08
         }
       },
       {
         "id": "espionageevent2",
-        "description": "You successfully plant a surveillance bug in a rival agency's office.",
+        "description": "Plant a surveillance bug at the order of your coordinator.",
         "rewards": {
-          "item": "Surveillance Bug",
-          "credits": 150,
-          "bond": "I left a trace that will keep them guessing for months."
+          "item": "Covert 30-min Listening Device (Charging 1)",
+          "credits": 250,
+          "bond": "I left a trace that will keep _____ guessing for months."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.1,
           "deathChance": 0.02
         }
       },
       {
         "id": "espionageevent3",
-        "description": "During a covert meeting, you intercept a message that reveals a hidden conspiracy.",
+        "description": "Hack into a secure terminal to find information on a conspiracy.",
         "rewards": {
-          "item": "Intercepted Message",
-          "credits": 180,
-          "bond": "I uncovered a conspiracy that might change the balance of power."
+          "item": "Hacklance 1d6 (Charging 2, Complicated)",
+          "credits": 300,
+          "bond": "I uncovered a conspiracy involving _____ that might jeopardize their position of power."
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.04
+          "deathChance": 0.02
         }
       },
       {
         "id": "espionageevent4",
-        "description": "Your cover is nearly blown during a high-stakes negotiation.",
+        "description": "Try to prevent your cover being blown during a high-stakes mission.",
         "rewards": {
-          "item": "Disguised Identity Card",
-          "credits": 130,
-          "bond": "I narrowly escaped exposure during a critical negotiation."
+          "item": "Fake Personal ID 1d8, Concealed Single-shot 1d8 (Quick, Ergonomic, Consumable 1, Suppressed, Shredding 2)",
+          "credits": 230,
+          "bond": "I narrowly escaped exposure during a critical negotiation with _____."
         },
         "penalties": {
           "scarChance": 0.15,
           "deathChance": 0.05,
           "extraItem": {
-            "item": "Fake Passport",
+            "item": "Fake Job ID Card 1d8",
             "chance": 0.1
           }
         }
       },
       {
         "id": "espionageevent5",
-        "description": "While shadowing a target, you gather incriminating evidence against a powerful adversary.",
+        "description": "Shadow a target to gather incriminating evidence against a powerful adversary.",
         "rewards": {
-          "item": "Incriminating Documents",
+          "item": "Digital Binoculars 1d10 (Charging 2, Complicated)",
           "credits": 220,
-          "bond": "I secured evidence that could bring down a corrupt regime."
+          "bond": "I secured evidence that could bring down _____."
         },
         "penalties": {
-          "scarChance": 0.1,
+          "scarChance": 0.15,
           "deathChance": 0.05
         }
       },
       {
         "id": "espionageevent6",
-        "description": "A risky extraction mission goes awry, leaving you injured but with valuable intel.",
+        "description": "Fall victim to a failed extraction, selling your information to your captors for your freedom.",
         "rewards": {
-          "item": "Stolen USB Drive",
-          "credits": 170,
-          "bond": "I risked it all on a failed extraction that still yielded secrets."
+          "item": "50ft of Rope, 3 Rations",
+          "credits": 400,
+          "bond": "I risked it all on a failed extraction, I had to betray _____ to get out alive."
         },
         "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.1,
-          "extraItem": {
-            "item": "Damaged Earpiece",
-            "chance": 0.15
-          }
+          "scarChance": 0.6,
+          "deathChance": 0.03,
         }
       },
       {
         "id": "espionageevent7",
-        "description": "You hack into a secure network to retrieve confidential files.",
+        "description": "Hack into a secure facility controlled by a dangerous criminal.",
         "rewards": {
-          "item": "Hacked Access Codes",
-          "credits": 190,
-          "bond": "I cracked a high-security network and accessed forbidden data."
+          "item": "Automated Door Bypass Assist 1d12 (Charging 1, Complicated)",
+          "credits": 300,
+          "bond": "I broke into a facility controlled by _____, stealing valuable information about their operations."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.03
+          "scarChance": 0.15,
+          "deathChance": 0.1
         }
       },
       {
         "id": "espionageevent8",
-        "description": "A surveillance drone malfunctions during a mission, drawing unwanted attention.",
+        "description": "Take footage of an illicit deal to prove someone's guilt.",
         "rewards": {
-          "item": "Surveillance Footage",
-          "credits": 160,
-          "bond": "I captured unexpected footage that could expose hidden plots."
+          "item": "1-Min Battery Surveillance Drone (Far-range, Charging 1)",
+          "credits": 300,
+          "bond": "I captured footage of _____ that got them arrested and imprisoned."
         },
         "penalties": {
           "scarChance": 0.15,
-          "deathChance": 0.06
+          "deathChance": 0.02
         }
       },
       {
         "id": "espionageevent9",
-        "description": "In disguise, you attend a secretive gala to extract critical information.",
+        "description": "Disguise yourself to infiltrate a secret gala filled with dangerous figures.",
         "rewards": {
-          "item": "Guest Pass",
-          "credits": 210,
-          "bond": "I blended in at a high-profile event and extracted delicate secrets."
+          "item": "Disguise Kit 1d8 (Consumable 3, Aid|Charm)",
+          "credits": 300,
+          "bond": "I blended in at a high-profile event and befriended _____."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -1506,41 +1502,41 @@
       },
       {
         "id": "espionageevent10",
-        "description": "Your eavesdropping reveals a planned coup—you must decide whether to intervene or observe.",
+        "description": "Intervene in a planned coup against your employer.",
         "rewards": {
-          "item": "Confidential Coup Blueprint",
+          "item": "Light Sniper Rifle 1d6 (Ergonomic, Scoped, Ammo, Far-range, Piercing 5)",
           "credits": 230,
-          "bond": "I witnessed a coup in the making, and my silence may speak volumes."
+          "bond": "I witnessed a coup in the making, I intervened to save the life of my employer _____."
         },
         "penalties": {
-          "scarChance": 0.1,
+          "scarChance": 0.25,
           "deathChance": 0.05
         }
       },
       {
         "id": "espionageevent11",
-        "description": "A rival spy attempts to frame you, forcing you to prove your innocence.",
+        "description": "Prove yourself innocent after being framed as a traitor by a rival spy.",
         "rewards": {
-          "item": "Clearing Document",
-          "credits": 150,
-          "bond": "I exposed the real traitor when I was framed."
+          "item": "Wakazashi 1d6 (Quick, Ergonomic, Melee, Violent 1)",
+          "credits": 250,
+          "bond": "I exposed the real traitor: my rival _____."
         },
         "penalties": {
           "scarChance": 0.2,
           "deathChance": 0.07,
           "extraItem": {
-            "item": "Forged Signature",
+            "item": "Active Stealth Helmet 1d6 (Head, Aid|Speed, Aid|Precision, Charging 2)",
             "chance": 0.1
           }
         }
       },
       {
         "id": "espionageevent12",
-        "description": "During a covert operation, you narrowly escape a security ambush with crucial intel.",
+        "description": "Escape a security ambush during a covert operation, proving your shooting skills.",
         "rewards": {
-          "item": "Ambush Report",
-          "credits": 180,
-          "bond": "I escaped a deadly ambush with secrets that can change the game."
+          "item": "Precision Carbine (Scoped, Ergonomic, Ammo, Long-range, Cycling, Potent 1)",
+          "credits": 250,
+          "bond": "Security coordinator _____ almost killed me when I escaped from them."
         },
         "penalties": {
           "scarChance": 0.25,
@@ -1549,35 +1545,22 @@
       },
       {
         "id": "espionageevent13",
-        "description": "You secure a confidential meeting with a high-ranking official under false pretenses.",
+        "description": "Secure a confidential meeting with a high-ranking official under false pretenses.",
         "rewards": {
-          "item": "Official Briefcase",
+          "item": "Stolen Keycard, Fake ID 1d8",
           "credits": 240,
-          "bond": "I secured a meeting that granted me unprecedented access."
+          "bond": "I secured a meeting with _____, allowing me to steal their information."
         },
         "penalties": {
           "scarChance": 0.05,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "espionageevent14",
-        "description": "A last-minute extraction leaves you with limited time to erase your tracks.",
-        "rewards": {
-          "item": "Quick-Disposal Kit",
-          "credits": 140,
-          "bond": "I managed to erase all traces of my operation just in time."
-        },
-        "penalties": {
-          "scarChance": 0.15,
           "deathChance": 0.05
         }
       },
       {
         "id": "espionageevent15",
-        "description": "Infiltrating a hostile headquarters, you dodge security measures to retrieve secret files.",
+        "description": "Infiltrate a hostile stronghold, dodging security measures to retrieve secret files.",
         "rewards": {
-          "item": "Stealth Suit",
+          "item": "Stealth Cloak 1d8 (Back, Complicated, Charging 2, Armored 1)",
           "credits": 220,
           "bond": "I infiltrated enemy headquarters and emerged with their darkest secrets."
         },
