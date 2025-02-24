@@ -1152,8 +1152,8 @@
           "bond": "I survived a meteor shower by trusting my pilot _____."
         },
         "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.05,
+          "scarChance": 0.1,
+          "deathChance": 0.01,
           "extraItem": {
             "item": "Crowbar 1d6 (Aid|Might)",
             "chance": 0.2
@@ -1162,11 +1162,11 @@
       },
       {
         "id": "spaceevent2",
-        "description": "While navigating an asteroid belt, you discover a hidden cache of abandoned satellite parts.",
+        "description": "Navigate through an asteroid belt to a mysterious distress beacon.",
         "rewards": {
-          "item": "Satellite Parts",
-          "credits": 200,
-          "bond": "I salvaged valuable satellite parts in the midst of a deadly asteroid field."
+          "item": "Power Cell (Charging 1)",
+          "credits": 300,
+          "bond": "I salvaged valuable satellite parts with my copilot _____ in the midst of a deadly asteroid field."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -1177,39 +1177,39 @@
         "id": "spaceevent3",
         "description": "A sudden engine malfunction in deep space forces you to perform an emergency repair.",
         "rewards": {
-          "item": "Emergency Engine Toolkit",
+          "item": "Nanite Repair Kit (Consumable 1)",
           "credits": 180,
-          "bond": "I overcame an engine malfunction that almost cost us our lives."
+          "bond": "I overcame an engine malfunction caused by _____'s careless negligence."
         },
         "penalties": {
           "scarChance": 0.2,
           "deathChance": 0.06,
           "extraItem": {
-            "item": "Faulty Circuit (1d4)",
+            "item": "Starship Repair Kit 1d10 (Consumable 1)",
             "chance": 0.15
           }
         }
       },
       {
         "id": "spaceevent4",
-        "description": "During a hyperspace jump, a spatial distortion sends you off-course.",
+        "description": "Attempt to hold your ship together when it hits a spatial distortion and is sent wildly off course.",
         "rewards": {
-          "item": "Navigation Override Chip",
+          "item": "Old Welding Kit 1d4 (Aid|Tech, Charging 1)",
           "credits": 220,
-          "bond": "I survived a hyperspace anomaly and learned to trust my navigation systems."
+          "bond": "I survived an axial navigation error and saved my friend ______."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.04
+          "scarChance": 0.15,
+          "deathChance": 0.1
         }
       },
       {
         "id": "spaceevent5",
-        "description": "Exploring a derelict starship, you uncover advanced alien technology.",
+        "description": "Explore a derelict starship you found floating in deep space.",
         "rewards": {
-          "item": "Alien Tech Module",
-          "credits": 250,
-          "bond": "I uncovered mysterious alien technology that promised untold power."
+          "item": "Windlance Rifle 1d8 (Electrified, Ergonomic, Energized, Accurate 1)",
+          "credits": 0,
+          "bond": "I uncovered a powerful weapon in a destroyed starship lost in the _____ system."
         },
         "penalties": {
           "scarChance": 0.15,
@@ -1222,11 +1222,11 @@
       },
       {
         "id": "spaceevent6",
-        "description": "A routine patrol takes you through a nebula, where colorful gases obscure your sensors.",
+        "description": "Take a routine patrol through a beautiful gas nebula.",
         "rewards": {
-          "item": "Nebula Gas Sample",
-          "credits": 160,
-          "bond": "I charted the beauty and dangers of a nebula, earning respect among my peers."
+          "item": "Handheld Material Analyzer 1d8 (Charging 1, Complicated)",
+          "credits": 260,
+          "bond": "I charted the beauty and dangers of a nebula, earning respect from _____."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -1235,11 +1235,11 @@
       },
       {
         "id": "spaceevent7",
-        "description": "While docking at a remote space station, you negotiate crucial repairs at a discount.",
+        "description": "Negotiate for crucial repairs to your ship at a station in the middle of nowhere.",
         "rewards": {
-          "item": "Discounted Repair Voucher",
-          "credits": 100,
-          "bond": "I earned favor with a shady station mechanic through savvy negotiation."
+          "item": "Mechanic Station Coordinates",
+          "credits": 400,
+          "bond": "I earned favor with the mechanic _____ in the _____ system."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -1248,11 +1248,11 @@
       },
       {
         "id": "spaceevent8",
-        "description": "A rogue asteroid collides with your vessel’s side, forcing emergency repairs in zero gravity.",
+        "description": "Survive getting hit by a rogue asteroid.",
         "rewards": {
-          "item": "Zero-G Repair Kit",
-          "credits": 140,
-          "bond": "I braved a collision in the void and emerged with my ship barely intact."
+          "item": "EVA Backpack 1d4 (Pressurized, Armored 2)",
+          "credits": 240,
+          "bond": "I braved a deepspace collision, I survived thanks to my and my friend _____'s quick thinking."
         },
         "penalties": {
           "scarChance": 0.25,
@@ -1261,180 +1261,116 @@
       },
       {
         "id": "spaceevent9",
-        "description": "During a supply run, you intercept a distress signal from a stranded cargo ship.",
+        "description": "Go on routine supply runs.",
         "rewards": {
-          "item": "Rescue Beacon",
-          "credits": 130,
-          "bond": "I answered a distress call and forged a bond with a grateful survivor."
+          "item": "Unopened Small Cargo Crate",
+          "credits": 430,
+          "bond": "I transported supplies for ______."
         },
         "penalties": {
           "scarChance": 0.1,
           "deathChance": 0.02,
           "extraItem": {
-            "item": "Lost Cargo (1d4)",
-            "chance": 0.15
+            "item": "Pilot's Sidearm 1d6 (Quick, Ergonomic, Near-range, Ammo)",
+            "chance": 0.25
           }
         }
       },
       {
         "id": "spaceevent10",
-        "description": "A chance encounter with space pirates leaves you with a cryptic warning and minor injuries.",
+        "description": "Fight a group of pirates that board your ship, hopefully making them reconsider robbing you.",
         "rewards": {
-          "item": "Pirate's Token",
-          "credits": 80,
-          "bond": "I crossed paths with pirates, and their cryptic warning still haunts me."
+          "item": "Breacher Shotgun 1d8 (Unruly, Aid|Might, Near-range, Ammo, Loading, Violent 1)",
+          "credits": 160,
+          "bond": "I crossed paths with pirates led by the dread captain _____."
         },
         "penalties": {
-          "scarChance": 0.3,
+          "scarChance": 0.8,
           "deathChance": 0.1
         }
       },
       {
         "id": "spaceevent11",
-        "description": "An uncharted wormhole offers a shortcut to distant systems—but at great risk.",
+        "description": "Uncover a stash of dangerous anti-ship weapons, drawing the ire of the smugglers who owned them.",
         "rewards": {
-          "item": "Wormhole Map Fragment",
+          "item": "Surface to Air Ion Cannon 1d12 (charging 1, Loading, Ammo, Far-range, Violent 3, Volatile)",
           "credits": 240,
-          "bond": "I braved an uncharted wormhole and discovered a shortcut that changed everything."
+          "bond": "I stole a dangerous weapon from a ship belonging to the criminal _____."
         },
         "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.07,
+          "scarChance": 0.25,
+          "deathChance": 0.1,
           "extraItem": {
-            "item": "Time Distortion Residue",
-            "chance": 0.1
+            "item": "Levered Light Rifle (Ergonomic, Scoped, Ammo, Consistent)",
+            "chance": 0.25
           }
         }
       },
       {
         "id": "spaceevent12",
-        "description": "While conducting a deep-space survey, you detect an unexpected energy signature.",
+        "description": "Practice scanning for incoming and fleeing ships by tracking their Axials.",
         "rewards": {
-          "item": "Energy Signature Reader",
-          "credits": 210,
-          "bond": "I uncovered an energy anomaly that might hint at a new power source."
+          "item": "Axial Activation Detector 1d10 (Charging 1)",
+          "credits": 200,
+          "bond": "I tracked _____ and their ship through a skip."
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.03
-        }
-      },
-      {
-        "id": "spaceevent13",
-        "description": "A malfunctioning life support system forces you into a desperate struggle for survival.",
-        "rewards": {
-          "item": "Portable Oxygen Converter",
-          "credits": 170,
-          "bond": "I fixed a critical life support malfunction and saved my crew from certain doom."
-        },
-        "penalties": {
-          "scarChance": 0.3,
-          "deathChance": 0.12,
-          "extraItem": {
-            "item": "Damaged Filter (1d4)",
-            "chance": 0.2
-          }
-        }
-      },
-      {
-        "id": "spaceevent14",
-        "description": "A distress call from a derelict research vessel leads you to a trove of experimental data.",
-        "rewards": {
-          "item": "Experimental Data Disk",
-          "credits": 230,
-          "bond": "I salvaged experimental data from a derelict vessel, opening doors to new discoveries."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.05
-        }
-      },
-      {
-        "id": "spaceevent15",
-        "description": "A high-stakes maneuver through a cosmic storm tests your piloting skills to the limit.",
-        "rewards": {
-          "item": "Storm Navigation Module",
-          "credits": 190,
-          "bond": "I navigated a cosmic storm that challenged every ounce of my resolve."
-        },
-        "penalties": {
-          "scarChance": 0.25,
-          "deathChance": 0.08,
-          "extraItem": {
-            "item": "Charged Particle Residue",
-            "chance": 0.15
-          }
+          "deathChance": 0.0
         }
       },
       {
         "id": "spaceevent16",
-        "description": "While charting a new trade route, you encounter an unusual cosmic phenomenon.",
+        "description": "Help chart a new trade route to a desperate system, hopefully finding great profit.",
         "rewards": {
-          "item": "Trade Route Chart",
-          "credits": 220,
-          "bond": "I discovered a new trade route through a cosmic anomaly that could revolutionize commerce."
+          "item": "Expired Trade License",
+          "credits": 700,
+          "bond": "I helped _____ and their people get the resources they need."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "spaceevent17",
-        "description": "A routine cargo delivery turns perilous when your vessel is ambushed by space marauders.",
-        "rewards": {
-          "item": "Stolen Cargo Manifest",
-          "credits": 160,
-          "bond": "I survived an ambush by space marauders, and the loot speaks for itself."
-        },
-        "penalties": {
-          "scarChance": 0.35,
-          "deathChance": 0.15,
-          "extraItem": {
-            "item": "Damaged Cargo Container",
-            "chance": 0.2
-          }
+          "scarChance": 0.25,
+          "deathChance": 0.00
         }
       },
       {
         "id": "spaceevent18",
-        "description": "Your ship’s sensors pick up a rare cosmic event—a nearby supernova illuminating the void.",
+        "description": "Pause a moment to admire a beautiful supernova from a safe distance, probably.",
         "rewards": {
-          "item": "Supernova Remnant Sample",
-          "credits": 250,
-          "bond": "I witnessed a supernova and collected its remnants—a sight few ever see."
+          "item": "2 Fuel, 4 Rations, Bandage 1d6 (Consumable 1)",
+          "credits": 50,
+          "bond": "I witnessed a supernova while traveling with my friend _____, I'll cherish that memory."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.04
+          "scarChance": 0.0,
+          "deathChance": 0.1
         }
       },
       {
         "id": "spaceevent19",
-        "description": "While refueling at a remote outpost, you uncover a secret deal that could change your fortunes.",
+        "description": "Explore an abandoned station filled with unused fuel.",
         "rewards": {
-          "item": "Secret Fuel Voucher",
-          "credits": 180,
-          "bond": "I discovered a covert fuel deal that promises a lucrative future."
+          "item": "3 Fuel, 2 Rations",
+          "credits": 380,
+          "bond": "I discovered an abandoned station in the _____ system, I could always make it a base of operations."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.1,
           "deathChance": 0.02
         }
       },
       {
         "id": "spaceevent20",
-        "description": "During a high-risk maneuver, a critical system failure nearly spells disaster, but you pull through against all odds.",
+        "description": "Help pull off a deadly high-risk maneuver during a combat scenario.",
         "rewards": {
-          "item": "Emergency Override Module",
+          "item": "Pilot Assistance Scanner 1d10 (Head, Aid|Precision, Charging 1)",
           "credits": 200,
-          "bond": "I averted a catastrophic system failure and proved my mettle in the void."
+          "bond": "I averted a catastrophic death in deep space, I will make sure I get my revenge against _____."
         },
         "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.06,
+          "scarChance": 0.25,
+          "deathChance": 0.1,
           "extraItem": {
-            "item": "Spare Circuit Board (1d4)",
+            "item": "Nanite Repair Kit (Consumable 1)",
             "chance": 0.15
           }
         }
