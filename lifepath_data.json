@@ -912,7 +912,7 @@
         "rewards": {
           "item": "3 Ammo, Slugthrower 1d8 (Unruly, Ergonomic, Near-range, Ammo, Loading, Piercing 8)",
           "credits": 1000,
-          "bond": "I made a critical mistake by crossing the wrong person, and now my future is forever uncertain."
+          "bond": "I made a critical mistake by crossing _____, and now my future is forever uncertain."
         },
         "penalties": {
           "scarChance": 0.5,
@@ -941,120 +941,107 @@
         }
       },
       {
-        "id": "exploerevent2",
-        "description": "Crossing a vast desert, you uncover ancient petroglyphs etched in sandstone.",
-        "rewards": {
-          "item": "Ancient Petroglyph Fragment",
-          "credits": 100,
-          "bond": "I found evidence of a lost civilization carved in stone."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0
-        }
-      },
-      {
         "id": "exploerevent3",
-        "description": "Climbing a treacherous mountain, you discover a hidden cave filled with luminous crystals.",
+        "description": "Venture into a mountainside cave you find one day while traveling.",
         "rewards": {
-          "item": "Luminous Crystal (1d4)",
-          "credits": 130,
-          "bond": "I braved the heights to uncover a cave of shimmering wonders."
+          "item": "Flashlight 1d6 (Charging 3), 50ft Rope",
+          "credits": 500,
+          "bond": "I braved the heights of Mt. _____ on the planet _____ to uncover a cave rich in gemstones."
         },
         "penalties": {
           "scarChance": 0.15,
-          "deathChance": 0.05
+          "deathChance": 0.03
         }
       },
       {
         "id": "exploerevent4",
-        "description": "Exploring an abandoned alien outpost, you salvage fragments of lost technology.",
+        "description": "Attempt to enter the seemingly abandoned outpost that lies ahead of you.",
         "rewards": {
-          "item": "Alien Tech Shard",
+          "item": "Rusted Phase Shifter (Charging 1, Complicated, Damaged)",
           "credits": 150,
-          "bond": "I salvaged secrets from a forgotten outpost."
+          "bond": "I salvaged classified technology from an old forgotten outpost that used to belong to _____."
         },
         "penalties": {
           "scarChance": 0.1,
           "deathChance": 0.04,
           "extraItem": {
-            "item": "Data Chip",
+            "item": "Mag Boots (Feet, Heavy)",
             "chance": 0.1
           }
         }
       },
       {
         "id": "exploerevent5",
-        "description": "Venturing into a misty swamp, you navigate treacherous bogs to collect rare medicinal herbs.",
+        "description": "You spy some rare medicinal herbs on the side of a trail, you attempt to gather them",
         "rewards": {
-          "item": "Medicinal Herb Bundle",
+          "item": "3 Regenerative Bandage 1d6 (Consumable 1)",
           "credits": 90,
-          "bond": "I braved the swamp to harvest nature's hidden remedies."
+          "bond": "I braved the swamp to harvest nature's hidden remedies on _____."
         },
         "penalties": {
           "scarChance": 0.2,
-          "deathChance": 0.05
+          "deathChance": 0.00
         }
       },
       {
         "id": "exploerevent6",
-        "description": "While mapping an uncharted island, you discover a hidden waterfall with pristine water.",
+        "description": "Relax and enjoy the beauty of a pristine hidden waterfall.",
         "rewards": {
-          "item": "Crystal Water Sample",
-          "credits": 110,
-          "bond": "I found a secret waterfall that promised untold secrets."
+          "item": "Old Camera (Charging 3)",
+          "credits": 150,
+          "bond": "Me and my friend _____ spent a while relaxing at the waterfall."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.0,
           "deathChance": 0.0
         }
       },
       {
         "id": "exploerevent7",
-        "description": "Exploring an eerie, abandoned mining colony, you unearth relics of a once-thriving settlement.",
+        "description": "Take a mission to an abandoned mining colony to figure out what happened there.",
         "rewards": {
-          "item": "Old Miner’s Helmet",
+          "item": "Gas Mask 1d4 (Pressurized, Armored 2)",
           "credits": 80,
-          "bond": "I uncovered relics from a lost mining colony."
+          "bond": "I can't believe what happened at the mining colony on _____."
         },
         "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.03
+          "scarChance": 0.25,
+          "deathChance": 0.02
         }
       },
       {
         "id": "exploerevent8",
-        "description": "Navigating dense fog along a coastal cliff, you spot a sunken shipwreck off the shore.",
+        "description": "Press on through the dense coastal fog as it surrounds you.",
         "rewards": {
-          "item": "Nautical Salvage",
+          "item": "Digital Astrolabe 1d8 (Complicated)",
           "credits": 140,
-          "bond": "I discovered secrets beneath the waves from a forgotten shipwreck."
+          "bond": "I discovered what happened to the crew that crashed in the fog on _____."
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.05
+          "deathChance": 0.00
         }
       },
       {
         "id": "exploerevent9",
-        "description": "During a perilous river crossing, you rescue a stranded local who pledges lifelong loyalty.",
+        "description": "Attempt to rescue a stranded person stuck on a perilous river crossing.",
         "rewards": {
-          "item": "Rescued Trinket",
-          "credits": 100,
-          "bond": "I saved a local from a deadly river, forging an unbreakable bond."
+          "item": "50ft Rope, Climbing Gear 1d6",
+          "credits": 200,
+          "bond": "I saved _____ from a fall into a deadly river."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.03
+          "scarChance": 0.05,
+          "deathChance": 0.05
         }
       },
       {
         "id": "exploerevent10",
-        "description": "Deep within an ancient forest, you discover a tree bearing mysterious, glowing fruit.",
+        "description": "Try the mysterious golden fruit hanging down from a tree that has crossed your path.",
         "rewards": {
-          "item": "Glowing Fruit",
+          "item": "Plant Identifier 1d10 (Charging 1)",
           "credits": 120,
-          "bond": "I encountered a botanical enigma in the heart of the forest."
+          "bond": "I encountered a botanical enigma on _____."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -1063,24 +1050,24 @@
       },
       {
         "id": "exploerevent11",
-        "description": "While exploring an intricate cavern system, you find underground lakes shimmering with bioluminescence.",
+        "description": "Attempt to traverse an underground cavern system to find a lost caver.",
         "rewards": {
-          "item": "Bioluminescent Water Vial",
-          "credits": 130,
-          "bond": "I delved deep and uncovered hidden lakes of light."
+          "item": "Caving Helmet 1d6 (Head, Tough 1, Armored 2), Climbing Gear 1d6",
+          "credits": 200,
+          "bond": "I delved deep and rescued _____ from the caves that trapped them."
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.04
+          "deathChance": 0.08
         }
       },
       {
         "id": "exploerevent12",
-        "description": "Traversing a rugged canyon, you find ancient carvings hinting at forgotten rituals.",
+        "description": "Traverse an ancient canyon looking for carvings of an underdeveloped tribe.",
         "rewards": {
-          "item": "Ancient Carving Fragment",
+          "item": "Bone Dagger 1d4 (Violent 2)",
           "credits": 110,
-          "bond": "I discovered carvings that tell tales of bygone rituals."
+          "bond": "I discovered carvings left by a tribe on _____."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -1089,11 +1076,11 @@
       },
       {
         "id": "exploerevent13",
-        "description": "Wandering through a labyrinthine canyon, you stumble upon a natural arch that inspires awe.",
+        "description": "Gaze up at a majestic arch over a canyon.",
         "rewards": {
-          "item": "Natural Arch Photograph",
+          "item": "Digital Binoculars 1d8 (Aid|Awareness, Charging 2)",
           "credits": 90,
-          "bond": "I witnessed a natural wonder that will forever stay in my memory."
+          "bond": "I witnessed a beautiful natural formation in the canyons on _____."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -1102,37 +1089,24 @@
       },
       {
         "id": "exploerevent14",
-        "description": "A sudden sandstorm forces you to seek shelter in a forgotten ruin in a barren desert.",
+        "description": "Seek shelter with your caravan from a sudden desert sandstorm.",
         "rewards": {
-          "item": "Ruined Artifact",
-          "credits": 100,
-          "bond": "I found refuge in a ruin during a relentless sandstorm."
+          "item": "Desert Camouflage Cloak 1d8 (Back, Aid|Precision)",
+          "credits": 0,
+          "bond": "I found refuge in a ruin with my friend _____."
         },
         "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.05
-        }
-      },
-      {
-        "id": "exploerevent15",
-        "description": "In a frozen tundra, you discover a hidden glacier cave filled with ancient ice formations.",
-        "rewards": {
-          "item": "Ice Crystal Shard",
-          "credits": 140,
-          "bond": "I uncovered the frozen beauty of a hidden glacier cave."
-        },
-        "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.04
+          "scarChance": 0.4,
+          "deathChance": 0.15
         }
       },
       {
         "id": "exploerevent16",
-        "description": "Exploring a vast arid plateau, you uncover mysterious stone circles that defy explanation.",
+        "description": "Attempt to mine some weird glowing rocks you find in a glacial tundra.",
         "rewards": {
-          "item": "Stone Circle Relic",
+          "item": "Power Cell (Charging 1)",
           "credits": 125,
-          "bond": "I discovered enigmatic stone circles that whisper secrets of the past."
+          "bond": "I discovered rocks on the planet _____ that make perfect capacitors."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -1140,55 +1114,25 @@
         }
       },
       {
-        "id": "exploerevent17",
-        "description": "While navigating a network of subterranean tunnels, you uncover a secret underground river.",
-        "rewards": {
-          "item": "Subterranean River Map",
-          "credits": 115,
-          "bond": "I charted a hidden waterway beneath the earth—a secret of the deep."
-        },
-        "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.05
-        }
-      },
-      {
         "id": "exploerevent18",
-        "description": "Scaling an ancient ziggurat in a remote desert, you uncover a sealed chamber filled with relics.",
+        "description": "Step into an extremely deadly, trapped, temple in pursuit of riches beyond my wildest dreams.",
         "rewards": {
-          "item": "Sealed Relic Chest",
-          "credits": 160,
-          "bond": "I unlocked secrets within an ancient ziggurat that rewrote history."
+          "item": "2 Bandages (Consumable 1), Worn Boots 1d6 (Feet, Armored 2)",
+          "credits": 2000,
+          "bond": "I found incredible riches in the dangerous ziggurat on _____, my partner _____ fell to their doom along the way."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.04
-        }
-      },
-      {
-        "id": "exploerevent19",
-        "description": "In a mysterious forest at twilight, you find a clearing where the air shimmers with unknown energy.",
-        "rewards": {
-          "item": "Ethereal Essence Vial",
-          "credits": 130,
-          "bond": "I experienced the mystical energy of an enchanted clearing."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.02,
-          "extraItem": {
-            "item": "Mystic Leaf",
-            "chance": 0.15
-          }
+          "scarChance": 0.5,
+          "deathChance": 0.5
         }
       },
       {
         "id": "exploerevent20",
         "description": "On a solo expedition through treacherous highlands, you narrowly escape a sudden landslide.",
         "rewards": {
-          "item": "Survival Kit",
-          "credits": 90,
-          "bond": "I survived a landslide in the highlands, forever changed by nature’s fury."
+          "item": "Camping Gear 1d10 (Consumable 2)",
+          "credits": 100,
+          "bond": "I survived a landslide in the highlands on _____."
         },
         "penalties": {
           "scarChance": 0.3,
@@ -1201,17 +1145,17 @@
     "Space": [
       {
         "id": "spaceevent1",
-        "description": "During a routine inspection on your freighter, a sudden meteor shower forces evasive maneuvers.",
+        "description": "Fix up your starship after it sustains heavy damage in a meteor shower.",
         "rewards": {
-          "item": "Hull Repair Drone",
+          "item": "Starship Repair Tool 1d8 (Charging 2, Complicated)",
           "credits": 150,
-          "bond": "I survived a meteor shower by trusting my instincts and my crew's coordination."
+          "bond": "I survived a meteor shower by trusting my pilot _____."
         },
         "penalties": {
           "scarChance": 0.15,
           "deathChance": 0.05,
           "extraItem": {
-            "item": "Scrap Metal (1d4)",
+            "item": "Crowbar 1d6 (Aid|Might)",
             "chance": 0.2
           }
         }
