@@ -96,14 +96,15 @@
       let systemDesignation = prefix + core;
       let systemName = code + " " + systemDesignation;
 
-      // Determine number of planets (using planetCountRange from config).
-      let numPlanets = randomInt(config.system.planetCountRange.min, config.system.planetCountRange.max);
+      // Fallback for planetCountRange if not provided.
+      const planetCountRange = config.system.planetCountRange || { min: 0, max: 6 };
+      let numPlanets = randomInt(planetCountRange.min, planetCountRange.max);
       let planets = [];
       if (numPlanets > 0) {
         for (let i = 1; i <= numPlanets; i++) {
           // Choose a random planet type.
           let planetType = weightedRandom(config.planet.types);
-          // Choose a planetary condition (e.g., biome) from the conditions array.
+          // Choose a planetary biome from planet conditions.
           let biome = config.planet.conditions[randomInt(0, config.planet.conditions.length - 1)];
           let planetName = systemDesignation + " " + toRoman(i);
           let planet = {
@@ -112,7 +113,7 @@
             type: planetType,
             settlements: []
           };
-          // For each planet, generate between 1 and 4 settlements.
+          // Generate between 1 and 4 settlements for this planet.
           let settlementCount = randomInt(1, 4);
           for (let j = 0; j < settlementCount; j++) {
             planet.settlements.push(generateSettlementData(false, planetType));
@@ -121,13 +122,13 @@
         }
       }
 
-      // If there are no planets, generate one standalone settlement.
+      // If no planets are generated, create a standalone settlement.
       let settlements = [];
       if (numPlanets === 0) {
         settlements.push(generateSettlementData(true));
       }
 
-      // System conditions – choose up to 3 random conditions.
+      // Choose system conditions (up to 3).
       let sysConditions = config.system.conditions.sort(() => Math.random() - 0.5)
                         .slice(0, randomInt(0, 3));
 
@@ -175,7 +176,7 @@
       prosperity = Math.max(0, Math.min(prosperity, 150));
       stability = Math.max(0, Math.min(stability, 150));
 
-      // Population: based on prosperity, global max, and settlement type multiplier.
+      // Population is based on prosperity, global max, and settlement type multiplier.
       let popMax = Math.floor((prosperity / 100) * config.globalSettings.defaultRanges.population.max * settlementType.populationMultiplier);
       popMax = Math.max(popMax, config.globalSettings.defaultRanges.population.min);
       let population = randomInt(config.globalSettings.defaultRanges.population.min, popMax);
@@ -213,14 +214,14 @@
       let poiCount = randomInt(1, poiPool.length);
       let poi = poiPool.sort(() => Math.random() - 0.5).slice(0, poiCount);
 
-      // Conditions.
+      // Settlement conditions.
       let conds = config.settlement.conditions.settlement.sort(() => Math.random() - 0.5)
                  .slice(0, randomInt(0, 3));
 
       // Military assets.
       let military = generateMilitaryData(population, militarism, forceType);
 
-      // Military structures: number influenced by militarism.
+      // Military structures: count influenced by militarism.
       let baseStructCount = randomInt(config.settlement.military.structures.minCount, config.settlement.military.structures.maxCount);
       if (militarism > 70) baseStructCount += 2;
       else if (militarism < 40) baseStructCount = Math.max(1, baseStructCount - 1);
@@ -231,6 +232,19 @@
       }
 
       // Traders: number determined by prosperity and modified by stability.
+      const settlementTraderOptions = config.system.settlementCountOptions || [
+        { value: 0, weight: 3 },
+        { value: 1, weight: 3 },
+        { value: 2, weight: 3 },
+        { value: 3, weight: 3 },
+        { value: 4, weight: 1 },
+        { value: 5, weight: 1 },
+        { value: 6, weight: 1 },
+        { value: 7, weight: 1 },
+        { value: 8, weight: 1 },
+        { value: 9, weight: 1 },
+        { value: 10, weight: 1 }
+      ];
       let traderMin = config.settlement.traders.defaultCountRange.min;
       let traderMax = config.settlement.traders.defaultCountRange.max;
       if (stability < 40) traderMax = Math.max(traderMin, traderMax - 1);
@@ -279,7 +293,7 @@
       let soldierMultiplier = militarism / 50; // Factor of 1 when militarism = 50.
       let soldiers = Math.floor(population * basePerc * soldierMultiplier);
 
-      // Armored vehicles are determined by dividing soldier count by a ratio.
+      // Armored vehicles determined by dividing soldier count by a random ratio.
       let vehiclesRatio = randomInt(config.settlement.military.armoredVehicles.soldiersPerVehicle.min,
                                     config.settlement.military.armoredVehicles.soldiersPerVehicle.max);
       let armoredVehicles = Math.max(1, Math.floor(soldiers / vehiclesRatio));
@@ -361,15 +375,14 @@
 
     function renderSystem() {
       const outputDiv = document.getElementById("systemOutput");
+      let totalSettlements = systemData.planets.length > 0
+          ? systemData.planets.reduce((sum, p) => sum + p.settlements.length, 0)
+          : systemData.settlements.length;
       let html = `<div class="section">
         <h2>System: ${systemData.systemName}</h2>
         <p><strong>System Conditions:</strong> ${systemData.sysConditions.join(", ") || "None"}</p>
         <p><strong>Number of Planets:</strong> ${systemData.planets.length}</p>
-        <p><strong>Total Settlements:</strong> ${
-          systemData.planets.length > 0
-            ? systemData.planets.reduce((sum, p) => sum + p.settlements.length, 0)
-            : systemData.settlements.length
-        }</p>
+        <p><strong>Total Settlements:</strong> ${totalSettlements}</p>
       </div>`;
 
       if (systemData.planets.length > 0) {
@@ -397,7 +410,6 @@
 
     function regenerateSettlement(planetIndex, settlementIndex) {
       if (systemData.planets && systemData.planets.length > 0) {
-        // Regenerate settlement for a specific planet.
         let planet = systemData.planets[planetIndex];
         // Pass planet.type as modifier.
         planet.settlements[settlementIndex] = generateSettlementData(false, planet.type);
@@ -413,8 +425,8 @@
 
     // Initial load: fetch configuration then wait for user interaction.
     loadConfig().then(() => {
-      // Uncomment the following line to auto-generate a system on load.
-      // generateSystem();
+      // Uncomment the following line to auto-generate a system on load:
+     generateSystem();
     });
   </script>
 </body>
