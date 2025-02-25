@@ -1458,7 +1458,7 @@
         },
         "penalties": {
           "scarChance": 0.6,
-          "deathChance": 0.03,
+          "deathChance": 0.03
         }
       },
       {
@@ -1560,9 +1560,9 @@
         "id": "espionageevent15",
         "description": "Infiltrate a hostile stronghold, dodging security measures to retrieve secret files.",
         "rewards": {
-          "item": "Stealth Cloak 1d8 (Back, Complicated, Charging 2, Armored 1)",
+          "item": "Stealth Cloak I1d10 (Back, Complicated, Charging 1)",
           "credits": 220,
-          "bond": "I infiltrated enemy headquarters and emerged with their darkest secrets."
+          "bond": "I infiltrated enemy headquarters and emerged plans held by _____."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -1570,72 +1570,42 @@
         }
       },
       {
-        "id": "espionageevent16",
-        "description": "A miscommunication in the field sparks a chaotic chase across urban rooftops.",
-        "rewards": {
-          "item": "Rooftop Drone",
-          "credits": 160,
-          "bond": "I escaped a dangerous chase, proving my agility in the urban jungle."
-        },
-        "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.08
-        }
-      },
-      {
         "id": "espionageevent17",
-        "description": "Your covert mission is compromised by a mole within your organization, shaking your trust.",
+        "description": "Attempt to salvage a mission compromised by a mole within your organization.",
         "rewards": {
-          "item": "Mole Exposé",
+          "item": "Assassin's Knife W1d6 (Ergonomic, Quick, Melee, Throwable, Consistent)",
           "credits": 170,
-          "bond": "I uncovered betrayal within my ranks that changed everything."
+          "bond": "I uncovered a bertayal by _____, I will make them pay."
         },
         "penalties": {
           "scarChance": 0.3,
-          "deathChance": 0.1,
+          "deathChance": 0.03,
           "extraItem": {
-            "item": "Burned Flash Drive",
+            "item": "Terrifying Mask I1d8 (Head, Aid|Presence)",
             "chance": 0.15
           }
         }
       },
       {
         "id": "espionageevent18",
-        "description": "Under cover, you plant disinformation that sows chaos among enemy ranks.",
+        "description": "Plant disinformation to sow chaos within the enemy.",
         "rewards": {
-          "item": "Disinformation Packet",
+          "item": "Chameoleon Mask 1d8 (Special, Charging 1)",
           "credits": 190,
-          "bond": "I planted seeds of chaos that will confuse our enemies for months."
+          "bond": "I planted seeds of chaos that will confuse my enemy _____ for months."
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.04
-        }
-      },
-      {
-        "id": "espionageevent19",
-        "description": "A covert rendezvous with an informant yields dangerous and unexpected information.",
-        "rewards": {
-          "item": "Secret Contact's Memo",
-          "credits": 210,
-          "bond": "An informant handed me intel that could alter the power dynamics in the region."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.05,
-          "extraItem": {
-            "item": "Encrypted Keycard",
-            "chance": 0.1
-          }
+          "deathChance": 0.03
         }
       },
       {
         "id": "espionageevent20",
-        "description": "In a daring solo operation, you infiltrate a fortified compound and extract high-value secrets.",
+        "description": "Attempt a daring solo operation to rescue a prisoner from a maximum security prison.",
         "rewards": {
-          "item": "High-Value Intel Package",
+          "item": "AP Vibro-Katana W1d8 (Unruly, Electrified, Melee, Piercing 8)",
           "credits": 250,
-          "bond": "I risked it all on a solo run, emerging with secrets worth their weight in gold."
+          "bond": "I saved _____ from almost certain death."
         },
         "penalties": {
           "scarChance": 0.15,
@@ -1648,7 +1618,7 @@
     "Education": [
       {
         "id": "educationevent1",
-        "description": "You deliver a groundbreaking lecture that captivates renowned scholars.",
+        "description": "Deliver a textbook .",
         "rewards": {
           "item": "Signed Textbook",
           "credits": 150,
