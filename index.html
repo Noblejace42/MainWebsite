@@ -4,9 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral Axial System Generator</title>
+  <!-- Use Rajdhani for a modern, sci-fi sans-serif look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body style="font-family: 'Rajdhani', sans-serif;">
   <nav>
     <a href="index.html">System Generator</a> |
     <a href="lifepath.html">Lifepath Generator</a> |
@@ -16,15 +20,10 @@
 
   <div class="container">
     <h1>Astral Axial System Generator</h1>
-
     <div class="button-bar">
-      <button id="generateSystemButton" class="btn-system">
-        Generate System
-      </button>
+      <button id="generateSystemButton" class="btn-system">Generate System</button>
     </div>
-
     <div id="systemOutput"></div>
-
     <div id="advancedOptions" style="display: none;">
       <h2>Advanced Settings</h2>
       <!-- Future dynamic UI elements can be added here -->
@@ -38,38 +37,33 @@
   </div>
 
   <script>
-    // Global config & system data
     let config = null;
     let systemData = null;
 
-    // Weighted random that expects "baseWeight"
+    // Helper: weighted random for objects with "baseWeight" (used for government)
     function weightedRandomBaseWeight(choices) {
       let total = 0;
-      for (const choice of choices) {
-        total += choice.baseWeight;
+      for (const c of choices) {
+        total += c.baseWeight;
       }
       let rnd = Math.random() * total;
-      for (const choice of choices) {
-        if (rnd < choice.baseWeight) {
-          return choice;
-        }
-        rnd -= choice.baseWeight;
+      for (const c of choices) {
+        if (rnd < c.baseWeight) return c;
+        rnd -= c.baseWeight;
       }
       return choices[choices.length - 1];
     }
 
-    // Weighted random that expects "weight"
+    // Helper: weighted random for objects with "weight"
     function weightedRandom(choices) {
       let total = 0;
-      for (const choice of choices) {
-        total += (choice.weight || 1);
+      for (const c of choices) {
+        total += (c.weight || 1);
       }
       let rnd = Math.random() * total;
-      for (const choice of choices) {
-        const w = (choice.weight || 1);
-        if (rnd < w) {
-          return choice;
-        }
+      for (const c of choices) {
+        let w = (c.weight || 1);
+        if (rnd < w) return c;
         rnd -= w;
       }
       return choices[choices.length - 1];
@@ -80,22 +74,20 @@
     }
 
     function toRoman(num) {
-      const romans = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+      const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
       return romans[num - 1] || num;
     }
 
-    // Load config from systemgeneratorinfo.json
     async function loadConfig() {
       try {
-        const resp = await fetch("systemgeneratorinfo.json");
+        const resp = await fetch("systemgeneratorinfo(2).json");
         config = await resp.json();
         console.log("Config loaded:", config);
-      } catch(e) {
+      } catch (e) {
         console.error("Error loading config:", e);
       }
     }
 
-    // Generate a system code, e.g. "AB12C3"
     function generateSystemCode() {
       const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       const digits = "0123456789";
@@ -109,16 +101,32 @@
       return code;
     }
 
+    // Government selection influenced by stability and militarism
+    function pickGovernment(mil, pro, sta) {
+      let govArr = config.settlement.government.types.slice();
+      for (let g of govArr) {
+        if (g.name === "Pirate Den" && sta < 30) g.baseWeight *= 3;
+        if (g.name === "Anarchic Collective" && sta < 30) g.baseWeight *= 2;
+        if ((g.name === "Democracy" || g.name === "Elected Governor" || g.name === "Technocratic Council") && sta > 70) {
+          g.baseWeight *= 3;
+        }
+        if (g.name === "Military Junta" && mil > 70) g.baseWeight *= 2;
+      }
+      return weightedRandomBaseWeight(govArr).name;
+    }
+
+    function pickRulerTitle(mil, pro, sta) {
+      return weightedRandomBaseWeight(config.settlement.government.rulerTitles).title;
+    }
+
+    // Generate system with weighted settlement count (0-10, favoring 0/1)
     function generateSystem() {
       let code = generateSystemCode();
-      let prefix = weightedRandom(config.system.nameComponents.prefix);
-      let core = weightedRandom(config.system.nameComponents.core);
-      let sysDesignation = prefix.name + core.name;
+      let pre = weightedRandom(config.system.nameComponents.prefix);
+      let co = weightedRandom(config.system.nameComponents.core);
+      let sysDesignation = pre.name + co.name;
       let systemName = code + " " + sysDesignation;
 
-      // We'll define custom settlementCountOptions:
-      // 0 and 1 are more likely, then it tapers off for 2..10
-      // e.g. 0 -> weight 5, 1 -> weight 4, 2->3, 3->2, 4->1, 5->1, etc.
       const settlementCountOptions = [
         { value: 0, weight: 5 },
         { value: 1, weight: 4 },
@@ -132,8 +140,6 @@
         { value: 9, weight: 1 },
         { value: 10, weight: 1 }
       ];
-
-      // Weighted random for settlement count
       let totalWeight = settlementCountOptions.reduce((sum, opt) => sum + opt.weight, 0);
       let rnd = Math.random() * totalWeight;
       let finalSettlementCount = 0;
@@ -145,223 +151,160 @@
         rnd -= opt.weight;
       }
 
-      // Planet generation is unchanged
-      const planetRange = config.system.planetCountRange || { min:0, max:6 };
+      // Planet generation: 0 to 6 planets
+      const planetRange = config.system.planetCountRange || { min: 0, max: 6 };
       let planetCount = randomInt(planetRange.min, planetRange.max);
       let planets = [];
       if (planetCount > 0) {
-        for (let i=1; i<=planetCount; i++){
+        for (let i = 1; i <= planetCount; i++) {
           let planetType = weightedRandom(config.planet.types);
           let biome = config.planet.conditions[randomInt(0, config.planet.conditions.length - 1)];
           let planetName = sysDesignation + " " + toRoman(i);
-
-          let planet = {
+          planets.push({
             name: planetName,
             biome: biome,
             type: planetType,
             settlements: []
-          };
-          planets.push(planet);
+          });
         }
       }
 
-      // If we have planets, let's distribute the settlementCount across them
-      // If no planets exist, we'll create a single forced station if finalSettlementCount>0
-      let settlements = [];
-      if (planetCount === 0 && finalSettlementCount>0) {
-        // Just push a forced station
-        settlements.push( generateSettlementData(true) );
-      } else if (planetCount>0) {
-        // We'll create finalSettlementCount total settlements, distributing them among planets
-        for (let s=0; s<finalSettlementCount; s++){
-          // 10% chance to be forced station
-          const forcedStation = (Math.random()<0.1);
-          let newSettlement = generateSettlementData(forcedStation);
-          // place into random planet
-          let pIndex = randomInt(0, planetCount-1);
-          planets[pIndex].settlements.push(newSettlement);
+      // If no planets and settlements are forced, generate forced stations
+      if (planetCount === 0 && finalSettlementCount > 0) {
+        let forcedSetts = [];
+        for (let i = 0; i < finalSettlementCount; i++) {
+          forcedSetts.push(generateSettlementData(true));
         }
+        systemData = {
+          systemName,
+          planets: [],
+          settlements: forcedSetts,
+          sysConditions: (function() {
+            let conds = [...config.system.conditions];
+            conds.sort(() => Math.random() - 0.5);
+            return conds.slice(0, randomInt(0, 3));
+          })()
+        };
+      } else {
+        // Distribute settlements among planets
+        for (let s = 0; s < finalSettlementCount; s++) {
+          let forceStation = (Math.random() < 0.05);
+          let newSett = generateSettlementData(forceStation);
+          let pickPlanet = randomInt(0, planets.length - 1);
+          planets[pickPlanet].settlements.push(newSett);
+        }
+        systemData = {
+          systemName,
+          planets,
+          settlements: null,
+          sysConditions: (function() {
+            let conds = [...config.system.conditions];
+            conds.sort(() => Math.random() - 0.5);
+            return conds.slice(0, randomInt(0, 3));
+          })()
+        };
       }
-
-      // System conditions (unchanged)
-      let sysConditions = [...config.system.conditions];
-      sysConditions.sort(() => Math.random() - 0.5);
-      sysConditions = sysConditions.slice(0, randomInt(0,3));
-
-      systemData = {
-        systemName,
-        planets,
-        settlements: (planetCount===0 && finalSettlementCount>0) ? settlements : null,
-        sysConditions
-      };
       renderSystem();
     }
 
     // Settlement Generation
-    function generateSettlementData(forceStation=false, planetType=null) {
-      // pick settlement type
-      let settlementType;
+    function generateSettlementData(forceStation = false, planetType = null) {
+      let types = Object.values(config.settlement.types);
+      let chosenType;
       if (forceStation) {
-        settlementType = config.settlement.types.station;
+        chosenType = config.settlement.types.station;
       } else {
-        const stTypes = Object.values(config.settlement.types);
-        settlementType = stTypes[randomInt(0, stTypes.length-1)];
-        if (settlementType.forceType) {
-          forceStation = true;
-        }
+        chosenType = types[randomInt(0, types.length - 1)];
+        if (chosenType.forceType) forceStation = true;
       }
+      let pre = weightedRandom(config.names.settlementPrefix);
+      let co = weightedRandom(config.names.settlementCore);
+      let suf = forceStation ? { name: "Station" } : weightedRandom(config.names.settlementSuffix);
+      let settlementName = pre.name + co.name + " " + suf.name;
 
-      // Name generation
-      let prefix = weightedRandom(config.names.settlementPrefix);
-      let core = weightedRandom(config.names.settlementCore);
-      let suffix = (forceStation && settlementType.forceType)
-                   ? settlementType.name
-                   : weightedRandom(config.names.settlementSuffix);
-      let settlementName = prefix.name + core.name + " " + suffix.name;
-
-      // generate stats
-      let mil = randomInt(
-        config.settlement.coreStats.militarism.base.min,
-        config.settlement.coreStats.militarism.base.max
-      );
-      let pro = randomInt(
-        config.settlement.coreStats.prosperity.base.min,
-        config.settlement.coreStats.prosperity.base.max
-      );
-      let sta = randomInt(
-        config.settlement.coreStats.stability.base.min,
-        config.settlement.coreStats.stability.base.max
-      );
-
-      // apply planet modifiers
+      let mil = randomInt(config.settlement.coreStats.militarism.base.min, config.settlement.coreStats.militarism.base.max);
+      let pro = randomInt(config.settlement.coreStats.prosperity.base.min, config.settlement.coreStats.prosperity.base.max);
+      let sta = randomInt(config.settlement.coreStats.stability.base.min, config.settlement.coreStats.stability.base.max);
       if (planetType && planetType.modifiers) {
-        mil += planetType.modifiers.militarism || 0;
-        pro += planetType.modifiers.prosperity || 0;
-        sta += planetType.modifiers.stability || 0;
+        mil += (planetType.modifiers.militarism || 0);
+        pro += (planetType.modifiers.prosperity || 0);
+        sta += (planetType.modifiers.stability || 0);
       }
-      // apply type modifiers
-      mil += settlementType.modifiers.militarism;
-      pro += settlementType.modifiers.prosperity;
-      sta += settlementType.modifiers.stability;
-
-      // clamp
+      mil += chosenType.modifiers.militarism;
+      pro += chosenType.modifiers.prosperity;
+      sta += chosenType.modifiers.stability;
       mil = Math.max(0, Math.min(150, mil));
       pro = Math.max(0, Math.min(150, pro));
       sta = Math.max(0, Math.min(150, sta));
 
-      // population
-      let popMax = Math.floor(
-        (pro / 100) * config.globalSettings.defaultRanges.population.max * settlementType.populationMultiplier
-      );
-      if (settlementType.name === "Station" && Math.random() < 0.95) {
+      let popMax = Math.floor((pro / 100) * config.globalSettings.defaultRanges.population.max * chosenType.populationMultiplier);
+      if (chosenType.name === "Station" && Math.random() < 0.95) {
         popMax = Math.min(popMax, 200);
       }
       popMax = Math.max(popMax, config.globalSettings.defaultRanges.population.min);
       let population = randomInt(config.globalSettings.defaultRanges.population.min, popMax);
 
-      // Government
-      let govChoice = weightedRandomBaseWeight(config.settlement.government.types);
-      let governmentName = govChoice.name;
+      // Government and ruler, using our custom functions
+      let gov = pickGovernment(mil, pro, sta);
+      let ruler = pickRulerTitle(mil, pro, sta);
 
-      // Ruler Title
-      let rulerChoice = weightedRandomBaseWeight(config.settlement.government.rulerTitles);
-      let rulerTitle = rulerChoice.title;
-
-      // Important Figure
       let firstPre = weightedRandom(config.names.firstNamePrefixes).name;
       let firstSuf = weightedRandom(config.names.firstNameSuffixes).name;
-      let lastPre  = weightedRandom(config.names.lastNamePrefixes).name;
-      let lastSuf  = weightedRandom(config.names.lastNameSuffixes).name;
-      let importantFigure = rulerTitle + " " + firstPre + firstSuf + " " + lastPre + lastSuf;
+      let lastPre = weightedRandom(config.names.lastNamePrefixes).name;
+      let lastSuf = weightedRandom(config.names.lastNameSuffixes).name;
+      let importantFigure = ruler + " " + firstPre + firstSuf + " " + lastPre + lastSuf;
 
-      // exports
-      let exportsPool;
-      if (pro < 40) {
-        exportsPool = [...config.settlement.attributes.exports.lowProsperity];
-      } else if (pro < 70) {
-        exportsPool = [...config.settlement.attributes.exports.mediumProsperity];
-      } else {
-        exportsPool = [...config.settlement.attributes.exports.highProsperity];
-      }
-      exportsPool.sort(() => Math.random() - 0.5);
-      let expCount = randomInt(1,5);
-      let exportsArr = exportsPool.slice(0, expCount);
+      // Exports
+      let exPool;
+      if (pro < 40) exPool = [...config.settlement.attributes.exports.lowProsperity];
+      else if (pro < 70) exPool = [...config.settlement.attributes.exports.mediumProsperity];
+      else exPool = [...config.settlement.attributes.exports.highProsperity];
+      exPool.sort(() => Math.random() - 0.5);
+      let exCount = randomInt(1, 5);
+      let exportsArr = exPool.slice(0, exCount);
 
-      // POI
+      // Points of Interest: rare (0-2)
       let poiPool;
-      if (pro < 40) {
-        poiPool = [...config.settlement.attributes.pointsOfInterest.lowProsperity];
-      } else if (pro < 70) {
-        poiPool = [...config.settlement.attributes.pointsOfInterest.mediumProsperity];
-      } else {
-        poiPool = [...config.settlement.attributes.pointsOfInterest.highProsperity];
-      }
+      if (pro < 40) poiPool = [...config.settlement.attributes.pointsOfInterest.lowProsperity];
+      else if (pro < 70) poiPool = [...config.settlement.attributes.pointsOfInterest.mediumProsperity];
+      else poiPool = [...config.settlement.attributes.pointsOfInterest.highProsperity];
       poiPool.sort(() => Math.random() - 0.5);
-      let poiCount = randomInt(1, poiPool.length);
+      let poiCount = randomInt(0, 2);
       let poi = poiPool.slice(0, poiCount);
 
-      // conditions
+      // Conditions: rare (0-2)
       let condPool = [...config.settlement.conditions.settlement];
       condPool.sort(() => Math.random() - 0.5);
-      let condCount = randomInt(0,3);
+      let condCount = randomInt(0, 2);
       let conditions = condPool.slice(0, condCount);
 
-      // military
       let military = generateMilitaryData(population, mil);
 
-      // military structures
-      let baseStructCount = randomInt(
-        config.settlement.military.structures.minCount,
-        config.settlement.military.structures.maxCount
-      );
-      if (mil > 70) baseStructCount += 2;
-      else if (mil < 40) baseStructCount = Math.max(1, baseStructCount - 1);
+      // Military structures: rare (0-3)
+      let structMin = config.settlement.military.structures.minCount;
+      let structMax = config.settlement.military.structures.maxCount;
+      let baseStructCount = randomInt(structMin, structMax);
+      if (mil > 80) baseStructCount += 1;
+      if (baseStructCount < 0) baseStructCount = 0;
+      let sList = [...config.settlement.military.structures.structureList];
+      sList.sort(() => Math.random() - 0.5);
+      let militaryStructures = sList.slice(0, baseStructCount);
 
-      let structList = [...config.settlement.military.structures.structureList];
-      structList.sort(() => Math.random() - 0.5);
-      let militaryStructures = structList.slice(0, baseStructCount);
-
-      // traders
+      // Traders
       let tMin = config.settlement.traders.defaultCountRange.min;
       let tMax = config.settlement.traders.defaultCountRange.max;
-      if (sta < 40) tMax = Math.max(tMin, tMax - 1);
+      if (sta < 30) tMax = Math.max(tMin, tMax - 1);
       else if (sta > 70) tMax = Math.min(6, tMax + 1);
-      let traderCount = randomInt(tMin, tMax);
-
-      let traders = [];
-      for (let i=0; i<traderCount; i++){
-        let cFirstPre = weightedRandom(config.names.firstNamePrefixes).name;
-        let cFirstSuf = weightedRandom(config.names.firstNameSuffixes).name;
-        let cLastPre  = weightedRandom(config.names.lastNamePrefixes).name;
-        let cLastSuf  = weightedRandom(config.names.lastNameSuffixes).name;
-        let cName = cFirstPre + cFirstSuf + " " + cLastPre + cLastSuf;
-
-        let matPool;
-        if (pro < 40) {
-          matPool = config.extensions.traders.configuration.attributes.tradedMaterial.lowProsperity;
-        } else if (pro < 70) {
-          matPool = config.extensions.traders.configuration.attributes.tradedMaterial.mediumProsperity;
-        } else {
-          matPool = config.extensions.traders.configuration.attributes.tradedMaterial.highProsperity;
-        }
-        let mat = matPool[randomInt(0, matPool.length -1)];
-        traders.push({
-          captainName: cName,
-          tradedMaterial: mat
-        });
-      }
+      let tCount = randomInt(tMin, tMax);
+      let traders = generateTraders(tCount, pro);
 
       return {
         name: settlementName.trim(),
-        settlementType: settlementType.name,
+        settlementType: chosenType.name,
         population,
-        government: governmentName,
+        government: gov,
         importantFigure,
-        coreStats: {
-          militarism: mil,
-          prosperity: pro,
-          stability: sta
-        },
+        coreStats: { militarism: mil, prosperity: pro, stability: sta },
         exports: exportsArr,
         pointsOfInterest: poi,
         conditions,
@@ -371,39 +314,25 @@
       };
     }
 
-    // Allows for soldier count to exceed population for very high militarism
-    // or a random chance. This is "rare but possible."
     function generateMilitaryData(population, militarism) {
-      // Base percentage
       let basePerc = randomInt(
         config.settlement.military.assets.soldiers.populationPercentage.min * 100,
         config.settlement.military.assets.soldiers.populationPercentage.max * 100
       ) / 100;
-      // Additional factor from militarism
-      // For example, militarism=100 => soldierMult=2.0 => effectively doubling the soldier count
-      let soldierMult = militarism / 50; 
-
+      let soldierMult = militarism / 50;
       let soldiers = Math.floor(population * basePerc * soldierMult);
-
-      // 1% random chance to push soldiers even higher if militarism>80
-      if (militarism > 80 && Math.random() < 0.01) {
+      // Rare chance to exceed population if militarism is super high
+      if (militarism > 80 && Math.random() < 0.02) {
         soldiers += randomInt(1, population);
       }
-
-      // No clamp here, so soldiers can exceed population
-      // for very militarized small settlements
-
       let ratio = randomInt(
         config.settlement.military.assets.armoredVehicles.soldiersPerVehicle.min,
         config.settlement.military.assets.armoredVehicles.soldiersPerVehicle.max
       );
       let armoredVehicles = Math.max(1, Math.floor(soldiers / ratio));
-
       let ships = {};
       if (config.settlement.military.assets.ships.enabled) {
         let totalShips = 0;
-        // We remove forcedStation param since we do settlement type logic outside
-        // But you can reintroduce if you want forced stations to always have min ships
         if (population >= config.settlement.military.assets.ships.defaultMinimumPopulation) {
           totalShips = randomInt(
             config.settlement.military.assets.ships.defaultShipCountRange.min,
@@ -413,95 +342,127 @@
         for (let st of config.settlement.military.assets.ships.shipTypes) {
           ships[st.name] = 0;
         }
-        for (let i=0; i<totalShips; i++){
-          let chosenType = weightedRandom(config.settlement.military.assets.ships.shipTypes);
-          ships[chosenType.name]++;
+        for (let i = 0; i < totalShips; i++) {
+          let chosen = weightedRandom(config.settlement.military.assets.ships.shipTypes);
+          ships[chosen.name]++;
         }
       }
       return { soldiers, armoredVehicles, ships };
     }
 
-    // Render settlement
-    function renderSettlement(settlement, planetIndex, settlementIndex) {
-      let shipStr = "None";
-      let shipObj = settlement.military.ships;
-      if (shipObj) {
-        let arr = [];
-        for (let s in shipObj) {
-          if (shipObj[s] > 0) arr.push(`${s} x${shipObj[s]}`);
+    function generateTraders(numTraders, prosperity) {
+      let out = [];
+      for (let i = 0; i < numTraders; i++) {
+        let specializedChance = 0.1;
+        if (config.settlement.traders.specializedTraders && Math.random() < specializedChance) {
+          out.push(generateSpecializedTrader());
+        } else {
+          out.push(generateNormalTrader(prosperity));
         }
-        if (arr.length > 0) shipStr = arr.join(", ");
       }
+      return out;
+    }
 
+    function generateSpecializedTrader() {
+      let arr = config.settlement.traders.specializedTraders;
+      let total = arr.reduce((sum, x) => sum + x.rarity, 0);
+      let rnd = Math.random() * total;
+      for (let sp of arr) {
+        if (rnd < sp.rarity) return buildSpecTrader(sp);
+        rnd -= sp.rarity;
+      }
+      return buildSpecTrader(arr[arr.length - 1]);
+    }
+
+    function buildSpecTrader(spObj) {
+      let cFirstPre = weightedRandom(config.names.firstNamePrefixes).name;
+      let cFirstSuf = weightedRandom(config.names.firstNameSuffixes).name;
+      let cLastPre = weightedRandom(config.names.lastNamePrefixes).name;
+      let cLastSuf = weightedRandom(config.names.lastNameSuffixes).name;
+      let cName = cFirstPre + cFirstSuf + " " + cLastPre + cLastSuf;
+      let item = spObj.items[randomInt(0, spObj.items.length - 1)];
+      return {
+        captainName: cName,
+        tradedMaterial: item,
+        type: spObj.type,
+        flavor: spObj.flavor
+      };
+    }
+
+    function generateNormalTrader(prosperity) {
+      let cFirstPre = weightedRandom(config.names.firstNamePrefixes).name;
+      let cFirstSuf = weightedRandom(config.names.firstNameSuffixes).name;
+      let cLastPre = weightedRandom(config.names.lastNamePrefixes).name;
+      let cLastSuf = weightedRandom(config.names.lastNameSuffixes).name;
+      let cName = cFirstPre + cFirstSuf + " " + cLastPre + cLastSuf;
+      let matPool;
+      if (prosperity < 40) matPool = config.extensions.traders.configuration.attributes.tradedMaterial.lowProsperity;
+      else if (prosperity < 70) matPool = config.extensions.traders.configuration.attributes.tradedMaterial.mediumProsperity;
+      else matPool = config.extensions.traders.configuration.attributes.tradedMaterial.highProsperity;
+      let item = matPool[randomInt(0, matPool.length - 1)];
+      return {
+        captainName: cName,
+        tradedMaterial: item
+      };
+    }
+
+    function renderSettlement(sett, planetIndex, settlementIndex) {
+      let shipStr = "None";
+      let arr = [];
+      for (let s in sett.military.ships) {
+        if (sett.military.ships[s] > 0) arr.push(s + " x" + sett.military.ships[s]);
+      }
+      if (arr.length > 0) shipStr = arr.join(", ");
       let tradersStr = "None";
-      if (settlement.traders && settlement.traders.length>0) {
-        let tArr = settlement.traders.map(t => `${t.captainName} (${t.tradedMaterial})`);
-        tradersStr = tArr.join(", ");
+      if (sett.traders && sett.traders.length > 0) {
+        tradersStr = sett.traders.map(t => t.type ? `${t.type} ${t.captainName} [${t.tradedMaterial}]` : `${t.captainName} (${t.tradedMaterial})`).join(", ");
       }
-
-      let milStructs = settlement.militaryStructures.length > 0
-                       ? settlement.militaryStructures.join(", ")
-                       : "None";
-
+      let milStructs = sett.militaryStructures.length > 0 ? sett.militaryStructures.join(", ") : "None";
       return `
       <div class="settlement">
-        <!-- Force a sans-serif font for settlement text to improve readability -->
-        <div class="settlement-output" style="font-family: Arial, sans-serif;">
-          <p><strong>Name:</strong> ${settlement.name}</p>
-          <p><strong>Type:</strong> ${settlement.settlementType}</p>
-          <p><strong>Population:</strong> ${settlement.population}</p>
-          <p><strong>Government:</strong> ${settlement.government}</p>
-          <p><strong>Important Figure:</strong> ${settlement.importantFigure}</p>
-          <p><strong>Core Stats:</strong>
-             Militarism: ${settlement.coreStats.militarism},
-             Prosperity: ${settlement.coreStats.prosperity},
-             Stability: ${settlement.coreStats.stability}
-          </p>
-          <p><strong>Exports:</strong> ${settlement.exports.join(", ") || "None"}</p>
-          <p><strong>Points of Interest:</strong> ${settlement.pointsOfInterest.join(", ") || "None"}</p>
-          <p><strong>Conditions:</strong> ${settlement.conditions.join(", ") || "None"}</p>
-          <p><strong>Military:</strong>
-             Soldiers: ${settlement.military.soldiers},
-             Armored Vehicles: ${settlement.military.armoredVehicles},
-             Ships: ${shipStr}
-          </p>
+        <div class="settlement-output">
+          <p><strong>Name:</strong> ${sett.name}</p>
+          <p><strong>Type:</strong> ${sett.settlementType}</p>
+          <p><strong>Population:</strong> ${sett.population}</p>
+          <p><strong>Government:</strong> ${sett.government}</p>
+          <p><strong>Important Figure:</strong> ${sett.importantFigure}</p>
+          <p><strong>Core Stats:</strong> Militarism: ${sett.coreStats.militarism}, Prosperity: ${sett.coreStats.prosperity}, Stability: ${sett.coreStats.stability}</p>
+          <p><strong>Exports:</strong> ${sett.exports.join(", ") || "None"}</p>
+          <p><strong>Points of Interest:</strong> ${sett.pointsOfInterest.join(", ") || "None"}</p>
+          <p><strong>Conditions:</strong> ${sett.conditions.join(", ") || "None"}</p>
+          <p><strong>Military:</strong> Soldiers: ${sett.military.soldiers}, Armored Vehicles: ${sett.military.armoredVehicles}, Ships: ${shipStr}</p>
           <p><strong>Military Structures:</strong> ${milStructs}</p>
           <p><strong>Traders:</strong> ${tradersStr}</p>
         </div>
-        <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})"
-                class="${config.ui.elements.regenerateButton.class}">
+        <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})" class="${config.ui.elements.regenerateButton.class}">
           ${config.ui.elements.regenerateButton.label}
         </button>
       </div>`;
     }
 
-    // Render entire system
     function renderSystem() {
       const out = document.getElementById("systemOutput");
-      let totalSettlements = 0;
-      if (systemData.planets.length>0) {
-        totalSettlements = systemData.planets.reduce((sum,pl)=> sum+pl.settlements.length, 0);
+      let totalSett = 0;
+      if (systemData.planets && systemData.planets.length > 0) {
+        totalSett = systemData.planets.reduce((sum, pl) => sum + pl.settlements.length, 0);
       } else if (systemData.settlements) {
-        totalSettlements = systemData.settlements.length;
+        totalSett = systemData.settlements.length;
       }
-
       let html = `
       <div class="section">
         <h2>System: ${systemData.systemName}</h2>
         <p><strong>System Conditions:</strong> ${systemData.sysConditions.join(", ") || "None"}</p>
-        <p><strong>Number of Planets:</strong> ${systemData.planets.length}</p>
-        <p><strong>Total Settlements:</strong> ${totalSettlements}</p>
+        <p><strong>Number of Planets:</strong> ${systemData.planets ? systemData.planets.length : 0}</p>
+        <p><strong>Total Settlements:</strong> ${totalSett}</p>
       </div>`;
-
-      if (systemData.planets.length>0) {
-        systemData.planets.forEach((planet, pIndex)=>{
+      if (systemData.planets && systemData.planets.length > 0) {
+        systemData.planets.forEach((planet, pIndex) => {
           html += `<div class="section planet">
             <h3>Planet: ${planet.name}</h3>
             <p><strong>Biome:</strong> ${planet.biome} (${planet.type ? planet.type.name : "Unknown"})</p>`;
-
-          if (planet.settlements.length>0) {
-            planet.settlements.forEach((s, sIndex)=>{
-              html += renderSettlement(s, pIndex, sIndex);
+          if (planet.settlements.length > 0) {
+            planet.settlements.forEach((sett, sIndex) => {
+              html += renderSettlement(sett, pIndex, sIndex);
             });
           } else {
             html += `<p>No settlements on this planet.</p>`;
@@ -509,34 +470,29 @@
           html += `</div>`;
         });
       } else if (systemData.settlements) {
-        // single settlement if no planets
-        systemData.settlements.forEach((settlement, sIndex)=>{
+        systemData.settlements.forEach((sett, i) => {
           html += `<div class="section">
             <h3>Settlement (Space Station):</h3>
-            ${renderSettlement(settlement, 0, sIndex)}
+            ${renderSettlement(sett, 0, i)}
           </div>`;
         });
       }
-
       out.innerHTML = html;
     }
 
-    // Regenerate a single settlement
     function regenerateSettlement(planetIndex, settlementIndex) {
-      if (systemData.planets && systemData.planets.length>0 && systemData.planets[planetIndex]) {
-        const planetType = systemData.planets[planetIndex].type;
+      if (systemData.planets && systemData.planets.length > 0 && systemData.planets[planetIndex]) {
+        let planetType = systemData.planets[planetIndex].type;
         systemData.planets[planetIndex].settlements[settlementIndex] = generateSettlementData(false, planetType);
       } else if (systemData.settlements) {
-        // If no planets, we assume forced station(s)
         systemData.settlements[settlementIndex] = generateSettlementData(true);
       }
       renderSystem();
     }
 
     document.getElementById("generateSystemButton").addEventListener("click", generateSystem);
-
-    loadConfig().then(()=>{
-      // optional auto-gen
+    loadConfig().then(() => {
+      // Uncomment to auto-generate on page load:
       // generateSystem();
     });
   </script>
