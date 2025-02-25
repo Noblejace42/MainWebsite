@@ -110,7 +110,7 @@
           let planet = {
             name: planetName,
             biome: biome,
-            type: planetType,
+            type: planetType, // planet type is set here
             settlements: []
           };
           // Generate between 1 and 4 settlements for this planet.
@@ -384,7 +384,7 @@
         systemData.planets.forEach((planet, pIndex) => {
           html += `<div class="section planet">
             <h3>Planet: ${planet.name}</h3>
-            <p><strong>Biome:</strong> ${planet.biome} (${planet.type.name})</p>`;
+            <p><strong>Biome:</strong> ${planet.biome} (${planet.type ? planet.type.name : "Unknown"})</p>`;
           if (planet.settlements.length > 0) {
             planet.settlements.forEach((settlement, sIndex) => {
               html += renderSettlement(settlement, pIndex, sIndex);
