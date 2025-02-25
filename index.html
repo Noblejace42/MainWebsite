@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Astral Axial System Generator</title>
-  <!-- Ensure "styles.css" is in the same directory, or adjust the path as needed -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Navigation bar -->
   <nav>
     <a href="index.html">System Generator</a> |
     <a href="lifepath.html">Lifepath Generator</a> |
@@ -16,15 +14,15 @@
     <a href="combat_tracker.html">Combat Tracker</a>
   </nav>
 
-  <!-- Moved generate button to the top of the page -->
-  <div id="topControls">
-    <button id="generateSystemButton" class="btn-system">
-      Generate System
-    </button>
-  </div>
-
   <div class="container">
     <h1>Astral Axial System Generator</h1>
+
+    <!-- Button now placed below the title card -->
+    <div class="button-bar">
+      <button id="generateSystemButton" class="btn-system">
+        Generate System
+      </button>
+    </div>
 
     <!-- Main output container where the system and settlements will be rendered -->
     <div id="systemOutput"></div>
@@ -41,7 +39,6 @@
       Art Credit: Vincent Fleetwood
     </a>
   </div>
-
   <script>
     /* 
       Global variables to hold the configuration and generated system data.
