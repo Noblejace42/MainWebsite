@@ -1,159 +1,152 @@
+/* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
+/* -------------------- */
+/* Base Styles          */
+/* -------------------- */
 body {
   font-family: 'Orbitron', sans-serif;
   background: #1a1a1a url("spacebackground.png") repeat-y center top;
   background-attachment: fixed;
-  background-size: auto;
+  background-size: cover;
   color: #ccc;
   margin: 0;
-  padding-top: 0px; /* Adjust based on navbar height */
+  padding: 0;
   line-height: 1.5;
 }
 
- 
-h1, h2, h3 {
-  margin: 0.5em 0;
+/* -------------------- */
+/* Navbar               */
+/* -------------------- */
+nav {
+  background-color: #262626;
+  width: 100%;
+  padding: 10px 15px;
+  text-align: center;
+  border-bottom: 2px solid #444;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
+nav a {
+  color: #ccc;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+nav a:hover {
+  color: #fff;
+}
+
+/* -------------------- */
+/* Container            */
+/* -------------------- */
 .container {
   max-width: 900px;
-  margin: 60px auto 20px auto; /* Pushes content down below navbar */
+  margin: 80px auto 20px auto; /* 80px top margin to clear the fixed navbar */
   padding: 20px;
   background: #262626;
   border: 1px solid #444;
   border-radius: 4px;
 }
 
-.section {
-  margin-bottom: 1.5em;
-  padding-bottom: 1em;
-  border-bottom: 1px solid #444;
+/* -------------------- */
+/* Headings             */
+/* -------------------- */
+h1 {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 28px;
 }
 
-button {
+h2, h3 {
+  margin: 0.5em 0;
+}
+
+/* -------------------- */
+/* Button Styling       */
+/* -------------------- */
+.button-bar {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.btn-system,
+.btn-regenerate {
   background-color: #444;
-  color: #ccc;
   border: 1px solid #555;
-  padding: 6px 12px;
-  font-size: 0.9em;
+  color: #eee;
+  padding: 8px 16px;
+  font-size: 16px;
   cursor: pointer;
   border-radius: 3px;
-  margin-top: 5px;
+  transition: background 0.3s;
 }
 
-button:hover {
+.btn-system:hover,
+.btn-regenerate:hover {
   background-color: #555;
 }
 
-.settlement,
-.planet {
-  margin: 0.5em 0;
-  padding: 0.5em;
-  background: #333;
-  border: 1px solid #444;
-  border-radius: 3px;
-}
-
-.settlement-output {
-  white-space: pre-wrap;
-  font-family: monospace;
-  font-size: 0.9em;
-}
-
-/* Navbar Fix - Full Width & Attached to Top */
-nav {
-  background-color: #262626; /* Match container background */
-  width: 100%;
-  padding: 10px;
-  text-align: center;
-  border-bottom: 2px solid #444; /* Add a subtle bottom border */
-  position: fixed; /* Keeps it at the top while scrolling */
-  top: 0;
-  left: 0;
-  z-index: 1000; /* Ensures it appears above other content */
-}
-
-nav a {
-  color: #ccc;
-  text-decoration: none;
-  font-size: 1.1em;
-  margin: 0 15px; /* Adds spacing between links */
-  font-weight: bold;
-}
-
-nav a:hover {
-  color: #fff; /* Highlights when hovered */
-}
-
-.settlement-output {
-  background: #1a1a1a; /* Lighter than its border, for contrast */
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #555;
-  text-align: left;
-  color: #ddd;
-  line-height: 1.4;
-}
-
-.weapon-output {
-  margin-top: 20px;       /* Spacing above the entire list */
-  padding: 10px;
-  background: #1a1a1a;    /* Keep consistent with your overall theme */
-  border: 1px solid #555;
-  border-radius: 5px;
-  color: #ddd;
-  line-height: 1.4;
-}
-
-.weapon-item {
-  margin-bottom: 10px;
-  padding: 10px;
-  background: #333;
-  border: 1px solid #444;
-  border-radius: 3px;
-}
-
-.weapon-output {
-  background: #1a1a1a;  /* Dark background to match your style */
-  padding: 15px;
+/* -------------------- */
+/* Section/Card Styling */
+/* -------------------- */
+.section {
+  background-color: #2a2a2a;
   border: 1px solid #444;
   border-radius: 4px;
-  margin-top: 10px;
+  margin: 12px 0;
+  padding: 12px;
 }
 
-.weapon-item {
-  background: #333;
-  margin-bottom: 10px;
+.planet {
+  margin: 8px 0;
+}
+
+/* Settlement Card: moderately condensed, multi-line display */
+.settlement {
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  margin: 8px 0;
   padding: 10px;
-  border: 1px solid #444;
-  border-radius: 3px;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
-.weapon-name {
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #fff;
-  font-size: 1.05em;
+.settlement-output p {
+  margin: 4px 0;
 }
 
-.weapon-stats {
-  color: #ccc;
-  line-height: 1.5;
-  font-size: 0.95em;
+/* Inline list styling for traders or military structures if needed */
+.inline-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: inline;
 }
 
+.inline-list li {
+  display: inline;
+  margin-right: 5px;
+}
+
+/* -------------------- */
+/* Art Credit           */
+/* -------------------- */
 .art-credit {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  font-size: 0.4em; /* Half of previous 0.8em size */
-  color: rgba(255, 255, 255, 0.5); /* Subtle transparency */
-  background: rgba(0, 0, 0, 0.2); /* Light transparent black for readability */
+  text-align: center;
+  margin: 10px 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.2);
   padding: 2px 4px;
   border-radius: 2px;
-  text-decoration: none;
-  width: auto;
 }
 
 .art-credit a {
@@ -165,6 +158,9 @@ nav a:hover {
   text-decoration: underline;
 }
 
+/* -------------------- */
+/* Additional Elements  */
+/* -------------------- */
 .centered-death-screen {
   position: fixed;
   top: 50%;
@@ -178,8 +174,7 @@ nav a:hover {
   z-index: 2000;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-
+/* Extra cards for future modules */
 .bond-card, .item-card {
   font-family: 'Roboto', sans-serif;
   background: #333;
@@ -213,102 +208,4 @@ nav a:hover {
   color: #ff5555;
   font-weight: bold;
   margin-top: 10px;
-}
-
-/* Base styles */
-body {
-  font-family: Arial, sans-serif;
-  background-color: #222;
-  color: #eee;
-  margin: 0;
-  padding: 0;
-}
-
-nav {
-  background-color: #333;
-  padding: 5px 10px;
-  text-align: center;
-}
-
-nav a {
-  color: #ddd;
-  text-decoration: none;
-  margin: 0 5px;
-  font-size: 14px;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 10px;
-}
-
-/* Title and button */
-h1 {
-  text-align: center;
-  margin: 10px 0;
-  font-size: 24px;
-}
-
-.button-bar {
-  text-align: center;
-  margin: 10px 0;
-}
-
-.btn-system, .btn-regenerate {
-  background-color: #444;
-  border: 1px solid #555;
-  color: #eee;
-  padding: 5px 10px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 3px;
-}
-
-/* Section/card styling */
-.section {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 4px;
-  margin: 8px 0;
-  padding: 8px;
-}
-
-.planet {
-  margin: 6px 0;
-}
-
-/* Settlement card styling - more condensed */
-.settlement {
-  background-color: #333;
-  border: 1px solid #555;
-  border-radius: 4px;
-  margin: 4px 0;
-  padding: 6px;
-  font-size: 14px;
-}
-
-.settlement-output {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.inline-list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: inline;
-}
-
-.inline-list li {
-  display: inline;
-  margin-right: 5px;
-}
-
-/* Art credit styling */
-.art-credit {
-  text-align: center;
-  margin: 10px 0;
-  font-size: 12px;
 }
