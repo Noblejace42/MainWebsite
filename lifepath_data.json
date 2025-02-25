@@ -897,7 +897,7 @@
         "id": "crimeevent18",
         "description": "Attempt to intimidate my rival with an aggressive attack.",
         "rewards": {
-          "item": "Grenade 1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
+          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
           "credits": 50,
           "bond": "I tried to intimidate my rival _____ and it backfired in the worst possible way."
         },
@@ -1478,7 +1478,7 @@
         "id": "espionageevent8",
         "description": "Take footage of an illicit deal to prove someone's guilt.",
         "rewards": {
-          "item": "1-Min Battery Surveillance Drone (Far-range, Charging 1)",
+          "item": "Surveillance Drone (Far-range, Charging 1, Special)",
           "credits": 300,
           "bond": "I captured footage of _____ that got them arrested and imprisoned."
         },
@@ -1618,123 +1618,24 @@
     "Education": [
       {
         "id": "educationevent1",
-        "description": "Deliver a textbook .",
+        "description": "Deliver a lecture to a crowd of experts.",
         "rewards": {
-          "item": "Signed Textbook",
+          "item": "Thank You Note",
           "credits": 150,
-          "bond": "I captivated an audience of experts and earned their lasting admiration."
+          "bond": "I captivated an audience of experts and earned the lasting admiration of _____."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.01,
           "deathChance": 0.0
         }
       },
       {
         "id": "educationevent2",
-        "description": "Deciphering an ancient text, you uncover lost knowledge of a bygone era.",
+        "description": "Decipher an old text to help translate it.",
         "rewards": {
-          "item": "Ancient Manuscript Fragment",
+          "item": "Auto-Translator I1d8 (Charging 1, Special)",
           "credits": 200,
-          "bond": "I uncovered secrets that challenge our understanding of history."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0,
-          "extraItem": {
-            "item": "Rare Glossary (1d4)",
-            "chance": 0.1
-          }
-        }
-      },
-      {
-        "id": "educationevent3",
-        "description": "A heated debate in a prestigious seminar forces you to defend your theories.",
-        "rewards": {
-          "item": "Debate Winner Certificate",
-          "credits": 120,
-          "bond": "I defended my ideas with unwavering conviction in the face of criticism."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "educationevent4",
-        "description": "While researching in a dusty archive, you unearth a document of great importance.",
-        "rewards": {
-          "item": "Archival Record",
-          "credits": 180,
-          "bond": "I discovered a document that could reshape academic thought."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0,
-          "extraItem": {
-            "item": "Antique Quill",
-            "chance": 0.1
-          }
-        }
-      },
-      {
-        "id": "educationevent5",
-        "description": "Your innovative experiment in material science leads to a breakthrough.",
-        "rewards": {
-          "item": "Prototype Lab Equipment",
-          "credits": 220,
-          "bond": "I revolutionized my field with a breakthrough that defied expectations."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "educationevent6",
-        "description": "A miscalculation in the lab causes a minor explosion, injuring you.",
-        "rewards": {
-          "item": "Experimental Data Sheet",
-          "credits": 80,
-          "bond": "I learned a harsh lesson from a failed experiment."
-        },
-        "penalties": {
-          "scarChance": 0.3,
-          "deathChance": 0.05
-        }
-      },
-      {
-        "id": "educationevent7",
-        "description": "Your research paper is published in a leading journal, earning you accolades.",
-        "rewards": {
-          "item": "Prestigious Publication",
-          "credits": 250,
-          "bond": "My work was heralded as a turning point in my field."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "educationevent8",
-        "description": "A rival challenges your findings, igniting an intense academic confrontation.",
-        "rewards": {
-          "item": "Rivalry Token",
-          "credits": 100,
-          "bond": "I stood up to fierce criticism and defended my research with passion."
-        },
-        "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "educationevent9",
-        "description": "You mentor a promising student who later credits you for their success.",
-        "rewards": {
-          "item": "Mentor's Emblem",
-          "credits": 130,
-          "bond": "I nurtured a brilliant mind that now shines in academia."
+          "bond": "I uncovered a piece of history with my friend _____."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -1742,25 +1643,90 @@
         }
       },
       {
-        "id": "educationevent10",
-        "description": "At an international conference, your debate skills earn you widespread respect.",
+        "id": "educationevent3",
+        "description": "Defend your theories in a heated and rigorous debate.",
         "rewards": {
-          "item": "Conference Badge",
-          "credits": 140,
-          "bond": "I defended my ideas on a global stage and emerged victorious."
+          "item": "Tailored Suit I1d8 (Chest, Ornate)",
+          "credits": 150,
+          "bond": "I defended my ideas against _____, my academic rival."
         },
         "penalties": {
-          "scarChance": 0.1,
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent4",
+        "description": "Discover a document in an old archive and make it public.",
+        "rewards": {
+          "item": "Hacklance I1d8 (Complicated, Charging 1, Aid|Tech)",
+          "credits": 180,
+          "bond": "I discovered a document that disproved the theory made by _____."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent6",
+        "description": "Attempt to avoid a minor explosion due to a miscalculation during a lab.",
+        "rewards": {
+          "item": "Safety Goggles A1d4 (Head, Armored 2)",
+          "credits": 200,
+          "bond": "_____ is an absolutely incompetent scientist and almost got me killed."
+        },
+        "penalties": {
+          "scarChance": 0.45,
+          "deathChance": 0.1
+        }
+      },
+      {
+        "id": "educationevent7",
+        "description": "Publish in a leading journal in an attempt to win some accolades.",
+        "rewards": {
+          "item": "Scientific Journal I1d4",
+          "credits": 350,
+          "bond": "My work was heralded in a journal ran by _____."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent8",
+        "description": "Challenge the findings of a rival in your field.",
+        "rewards": {
+          "item": "Scholar Database Access Credential",
+          "credits": 200,
+          "bond": "I fiercely criticized the works of _____."
+        },
+        "penalties": {
+          "scarChance": 0.0,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "educationevent9",
+        "description": "Mentor a promising student.",
+        "rewards": {
+          "item": "Nanite Repair Kit (Special)",
+          "credits": 100,
+          "bond": "I mentored ____, they made brilliant advances in nanite technology."
+        },
+        "penalties": {
+          "scarChance": 0.0,
           "deathChance": 0.0
         }
       },
       {
         "id": "educationevent11",
-        "description": "A grant committee awards you funding for your innovative research proposal.",
+        "description": "Make an innovative research proposal to a grant committee.",
         "rewards": {
-          "item": "Research Grant Check",
-          "credits": 300,
-          "bond": "I secured vital funding that will propel my research forward."
+          "item": "Honarary Saber W1d6 (Quick, Unruly, Melee, Ornate, Potent 2)",
+          "credits": 600,
+          "bond": "I secured vital funding from _____, but I still owe them the fruits of my labor."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -1769,24 +1735,24 @@
       },
       {
         "id": "educationevent12",
-        "description": "A field study in remote terrain yields unexpected findings that challenge conventional wisdom.",
+        "description": "Partake in a field study on a remote and dangerous planet.",
         "rewards": {
-          "item": "Field Study Report",
+          "item": "Digital Binoculars I1d10 (Charging 1)",
           "credits": 160,
-          "bond": "I ventured into the unknown and returned with data that defied expectations."
+          "bond": "I ventured into the unknown with my friend _____."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.0
+          "scarChance": 0.4,
+          "deathChance": 0.08
         }
       },
       {
         "id": "educationevent13",
-        "description": "You lead a groundbreaking workshop that inspires a generation of learners.",
+        "description": "Enroll in a new university program, hoping to find a scholarship.",
         "rewards": {
-          "item": "Workshop Certificate",
-          "credits": 180,
-          "bond": "I sparked a passion for knowledge that will endure for years to come."
+          "item": "10,000 Credit Debt Settlement",
+          "credits": 300,
+          "bond": "I owe a massive debt to _____ and their university, they might try and collect."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -1795,93 +1761,28 @@
       },
       {
         "id": "educationevent14",
-        "description": "A lab accident forces you to reassess your safety protocols, costing valuable time.",
+        "description": "Reassess lab safety protocols and testing procedures.",
         "rewards": {
-          "item": "Revised Lab Manual",
+          "item": "Plasteel weave Coat A1d6 (Chest, Armored 3)",
           "credits": 90,
-          "bond": "I emerged wiser from a chaotic lab incident that taught me caution."
+          "bond": "I emerged wiser from a chaotic lab incident caused by the idiot _____."
         },
         "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "educationevent15",
-        "description": "A forgotten library yields rare texts that offer new insights into your field.",
-        "rewards": {
-          "item": "Historical Artifact",
-          "credits": 210,
-          "bond": "I uncovered records that promise to reshape academic paradigms."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "educationevent16",
-        "description": "A collaborative project with esteemed colleagues leads to a multifaceted study.",
-        "rewards": {
-          "item": "Collaborative Research Token",
-          "credits": 230,
-          "bond": "I forged alliances that enriched our collective understanding."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0
+          "scarChance": 0.25,
+          "deathChance": 0.8
         }
       },
       {
         "id": "educationevent17",
-        "description": "Your experimental invention malfunctions catastrophically, forcing a hasty lab retreat.",
+        "description": "Attempt to avoid a catastrophic malfunction of a machine that is going to make you rich.",
         "rewards": {
-          "item": "Shattered Prototype",
-          "credits": 70,
-          "bond": "I faced the perils of innovation and learned the cost of overreaching ambition."
+          "item": "Welding Kit I1d8 (Charging 1)",
+          "credits": 700,
+          "bond": "I faced the perils of innovation, _____ was not so lucky and bears the scars of it."
         },
         "penalties": {
           "scarChance": 0.35,
-          "deathChance": 0.05
-        }
-      },
-      {
-        "id": "educationevent18",
-        "description": "A visiting scholar from a distant world shares revolutionary ideas with you.",
-        "rewards": {
-          "item": "Exotic Research Notes",
-          "credits": 200,
-          "bond": "I exchanged ideas with a visionary, broadening my academic horizons."
-        },
-        "penalties": {
-          "scarChance": 0.0,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "educationevent19",
-        "description": "A scathing peer review challenges your published work, sparking a fierce debate.",
-        "rewards": {
-          "item": "Peer Review Critique",
-          "credits": 120,
-          "bond": "I embraced criticism that will ultimately strengthen my future research."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "educationevent20",
-        "description": "While exploring a forgotten library, you discover a trove of rare texts that inspire a new direction.",
-        "rewards": {
-          "item": "Rare Text Collection",
-          "credits": 250,
-          "bond": "I uncovered hidden knowledge that promises to redefine my field."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0
+          "deathChance": 0.1
         }
       }
     ]
@@ -1890,41 +1791,37 @@
     "Prosperity": [
       {
         "id": "prosperityevent1",
-        "description": "You orchestrate a financial coup that catapults you into high society.",
+        "description": "Orchestrate a financial coup of a local business.",
         "rewards": {
-          "item": "Investment Portfolio",
+          "item": "Ownership Deed",
           "credits": 500,
-          "bond": "My daring financial maneuver turned the tables, making me a respected magnate."
+          "bond": "My daring financial maneuver against ____, making me a backwater magnate."
         },
         "penalties": {
           "scarChance": 0.05,
-          "deathChance": 0.02,
-          "extraItem": {
-            "item": "Golden Contract",
-            "chance": 0.1
-          }
+          "deathChance": 0.02
         }
       },
       {
         "id": "prosperityevent2",
-        "description": "You forge a lucrative alliance with a powerful corporation, securing future benefits.",
+        "description": "Forge a lucrative alliance with a dangerous corporation.",
         "rewards": {
-          "item": "Exclusive Contract",
+          "item": "Vocal Modulator I1d8 (Aid|Presence, Charging 2)",
           "credits": 450,
-          "bond": "I built a partnership that promised wealth beyond my wildest dreams."
+          "bond": "I built a partnership with ____ that promised me great wealth."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.01
+          "scarChance": 0.15,
+          "deathChance": 0.03
         }
       },
       {
         "id": "prosperityevent3",
-        "description": "Your savvy investments yield unexpected profits, boosting your fortune significantly.",
+        "description": "Focus on making some savvy investments.",
         "rewards": {
-          "item": "High-Yield Stock Options",
+          "item": "Stock-selling Receipt",
           "credits": 550,
-          "bond": "My investments paid off, proving that fortune truly favors the bold."
+          "bond": "My investments in _____ paid off, proving that fortune truly favors the bold."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -1933,149 +1830,89 @@
       },
       {
         "id": "prosperityevent4",
-        "description": "A sudden market crash tests your resolve, but you emerge with valuable assets.",
+        "description": "Navigate a sudden market crash.",
         "rewards": {
-          "item": "Discounted Real Estate",
-          "credits": 300,
-          "bond": "I weathered a market crash, turning risk into opportunity."
+          "item": "Far-away Property Deed",
+          "credits": -500,
+          "bond": "I weathered a market crash caused by _____'s incompetent leadership."
         },
         "penalties": {
-          "scarChance": 0.1,
+          "scarChance": 0.15,
           "deathChance": 0.0
         }
       },
       {
         "id": "prosperityevent5",
-        "description": "Your charismatic negotiation skills secure a major government contract.",
+        "description": "Use your charisma to secure a government contract on a frontier world.",
         "rewards": {
-          "item": "Government Contract",
+          "item": "Tac Revolver W1d8 (Quick, Ergonomic, Loading, Ammo, Near-range, Piercing 3)",
           "credits": 400,
-          "bond": "I sealed a deal that cemented my reputation among the elite."
+          "bond": "I sealed a deal that cemented my reputation with _____."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.1,
           "deathChance": 0.01
         }
       },
       {
         "id": "prosperityevent6",
-        "description": "An innovative business idea strikes gold, attracting investors and media attention.",
+        "description": "Focus on your innovative business plan, attracting investors and media attention.",
         "rewards": {
-          "item": "Startup Blueprint",
-          "credits": 350,
-          "bond": "My groundbreaking idea captured the imagination of investors."
+          "item": "Old Newsprint",
+          "credits": 550,
+          "bond": "My groundbreaking idea captured the imagination of investors like _____."
         },
         "penalties": {
           "scarChance": 0.0,
-          "deathChance": 0.0,
-          "extraItem": {
-            "item": "Prototype Device",
-            "chance": 0.15
-          }
-        }
-      },
-      {
-        "id": "prosperityevent7",
-        "description": "You secure a lucrative merger with a rival company, doubling your assets overnight.",
-        "rewards": {
-          "item": "Merger Agreement",
-          "credits": 600,
-          "bond": "I orchestrated a merger that redefined the corporate landscape."
-        },
-        "penalties": {
-          "scarChance": 0.02,
-          "deathChance": 0.01
+          "deathChance": 0.0
         }
       },
       {
         "id": "prosperityevent8",
-        "description": "A savvy acquisition gives you control of a key market niche.",
+        "description": "Make an acquisition that gives you control of a key market niche.",
         "rewards": {
-          "item": "Acquisition Deed",
-          "credits": 450,
-          "bond": "I acquired a company that unlocked a dominant market position."
+          "item": "Unopened Resource Crate",
+          "credits": 550,
+          "bond": "I acquired a company that unlocked a dominant market position, ruining _____'s company."
         },
         "penalties": {
           "scarChance": 0.05,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "prosperityevent9",
-        "description": "Your reputation as a financial wizard attracts a secret benefactor with mysterious resources.",
-        "rewards": {
-          "item": "Confidential Investment Brief",
-          "credits": 400,
-          "bond": "A mysterious benefactor recognized my potential and lent their support."
-        },
-        "penalties": {
-          "scarChance": 0.0,
-          "deathChance": 0.0,
-          "extraItem": {
-            "item": "Mysterious Token",
-            "chance": 0.1
-          }
+          "deathChance": 0.0
         }
       },
       {
         "id": "prosperityevent10",
-        "description": "A high-profile scandal rocks the financial district, and you skillfully navigate the fallout.",
+        "description": "Work hard and toil away at your job for long hours.",
         "rewards": {
-          "item": "Reputation Shield",
-          "credits": 300,
-          "bond": "I weathered a scandal and emerged with my reputation intact."
+          "item": "3 Rations",
+          "credits": 500,
+          "bond": "I enjoyed my long hours working for _____."
         },
         "penalties": {
-          "scarChance": 0.1,
+          "scarChance": 0.25,
           "deathChance": 0.0
         }
       },
       {
         "id": "prosperityevent11",
-        "description": "Your astute business strategy leads to a windfall from a failing competitor.",
+        "description": "Work hard and toil away at your job with little hope for promotion.",
         "rewards": {
-          "item": "Competitive Buyout Offer",
-          "credits": 500,
-          "bond": "I capitalized on a competitor’s misfortune to expand my empire."
+          "item": "3 Rations",
+          "credits": 200,
+          "bond": "I weathered miserably my long hours working for _____."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.01
-        }
-      },
-      {
-        "id": "prosperityevent12",
-        "description": "An unexpected tax incentive and government rebate boost your cash flow.",
-        "rewards": {
-          "item": "Tax Incentive Certificate",
-          "credits": 350,
-          "bond": "A stroke of bureaucratic luck enriched my business endeavors."
-        },
-        "penalties": {
-          "scarChance": 0.0,
-          "deathChance": 0.0
-        }
-      },
-      {
-        "id": "prosperityevent13",
-        "description": "Your innovative marketing campaign captures public attention and increases sales dramatically.",
-        "rewards": {
-          "item": "Award-Winning Ad Campaign",
-          "credits": 400,
-          "bond": "I launched a campaign that turned public opinion in my favor."
-        },
-        "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.25,
           "deathChance": 0.0
         }
       },
       {
         "id": "prosperityevent14",
-        "description": "A sudden surge in market demand for your product results in record-breaking profits.",
+        "description": "Purchase a new rare medical product that hit the market.",
         "rewards": {
-          "item": "Limited Edition Product Run",
-          "credits": 550,
-          "bond": "Market demand soared, and my business reaped the rewards."
+          "item": "2 Regenerative Bandages I1d8 (Special, Consumable 1)",
+          "credits": 50,
+          "bond": "_____ makes an interesting product, that's for sure."
         },
         "penalties": {
           "scarChance": 0.02,
@@ -2083,55 +1920,42 @@
         }
       },
       {
-        "id": "prosperityevent15",
-        "description": "You negotiate a groundbreaking deal with a multinational corporation.",
-        "rewards": {
-          "item": "Multinational Contract",
-          "credits": 600,
-          "bond": "I sealed a deal that promised global expansion and vast wealth."
-        },
-        "penalties": {
-          "scarChance": 0.03,
-          "deathChance": 0.01
-        }
-      },
-      {
         "id": "prosperityevent16",
-        "description": "A risky venture pays off as you discover a new, untapped resource in the market.",
+        "description": "Focus on exploiting and managing a dangerous untapped resource in the market.",
         "rewards": {
-          "item": "Resource Extraction Blueprint",
+          "item": "Protective Goggles A1d4 (Head, Armored 2)",
           "credits": 500,
-          "bond": "I ventured into the unknown and discovered a new source of prosperity."
+          "bond": "I almost got my business partner _____ killed."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.02,
+          "scarChance": 0.15,
+          "deathChance": 0.03,
           "extraItem": {
-            "item": "Resource Sample (1d4)",
-            "chance": 0.1
+            "item": "Power Cell (Special, Charging 1)",
+            "chance": 0.15
           }
         }
       },
       {
         "id": "prosperityevent17",
-        "description": "A major trade fair opens new opportunities, and your booth becomes the center of attention.",
+        "description": "Spend time networking at a career fair.",
         "rewards": {
-          "item": "Trade Fair Invitation",
-          "credits": 450,
-          "bond": "I turned heads at the trade fair, drawing lucrative opportunities my way."
+          "item": "Old Resume",
+          "credits": 150,
+          "bond": "I think I impressed _____ and their company."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.02,
           "deathChance": 0.0
         }
       },
       {
         "id": "prosperityevent18",
-        "description": "Your strategic risk in a volatile market pays off handsomely, increasing your assets overnight.",
+        "description": "Invest a large sum of money in leveraged futures.",
         "rewards": {
-          "item": "High-Risk Investment Portfolio",
-          "credits": 550,
-          "bond": "I took a calculated risk and the market rewarded my boldness."
+          "item": "20,000 Credit Debt Settlement",
+          "credits": 1450,
+          "bond": "I took a calculated risk and it failed miserably, _____ wants their money and wants it now."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -2140,32 +1964,19 @@
       },
       {
         "id": "prosperityevent19",
-        "description": "An insider tip leads you to a secret auction where rare assets are sold.",
+        "description": "Insult a business competitor to bait them into something rash.",
         "rewards": {
-          "item": "Auction Win Certificate",
+          "item": "Taser Baton W1d10 (Unruly, Electrified, Forceful, Melee, Charging 1)",
           "credits": 500,
-          "bond": "I won a secret auction, acquiring assets that few could imagine."
+          "bond": "I taunted ____ into trying to kill me, they failed of course."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.01,
+          "scarChance": 0.4,
+          "deathChance": 0.15,
           "extraItem": {
-            "item": "Rare Asset (1d4)",
-            "chance": 0.1
+            "item": "Concealable Revolver W1d4 (Quick, Ammo, Near-range, Suppressed)",
+            "chance": 0.5
           }
-        }
-      },
-      {
-        "id": "prosperityevent20",
-        "description": "In a high-stakes negotiation, you turn a financial crisis into a stepping stone for success.",
-        "rewards": {
-          "item": "Crisis Management Award",
-          "credits": 600,
-          "bond": "I transformed a crisis into an opportunity, cementing my status among the elite."
-        },
-        "penalties": {
-          "scarChance": 0.03,
-          "deathChance": 0.01
         }
       }
     ]
@@ -2174,11 +1985,11 @@
     "Politics": [
       {
         "id": "politicsevent1",
-        "description": "During a high-profile rally, you deliver a stirring speech that unites a divided constituency.",
+        "description": "Deliver a stirring speech that helps facilitate discussion between rivals.",
         "rewards": {
-          "item": "Campaign Banner",
+          "item": "Vocal Modulator I1d6 (Aid|Presence, Charging 1)",
           "credits": 200,
-          "bond": "I inspired a movement with words that resonated with the people."
+          "bond": "I inspired _____ and _____ to see past their differences."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -2187,41 +1998,11 @@
       },
       {
         "id": "politicsevent2",
-        "description": "A heated debate on live television forces you to defend your policies under intense scrutiny.",
+        "description": "Defend yourself from a scandal on a live broadcast.",
         "rewards": {
-          "item": "Debate Trophy",
+          "item": "5 Rations",
           "credits": 150,
-          "bond": "I held my ground on national TV and earned respect among my peers."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.0,
-          "extraItem": {
-            "item": "Critical Media Clip",
-            "chance": 0.1
-          }
-        }
-      },
-      {
-        "id": "politicsevent3",
-        "description": "You broker a crucial alliance with a powerful political faction, gaining influence in key circles.",
-        "rewards": {
-          "item": "Alliance Charter",
-          "credits": 250,
-          "bond": "I forged an alliance that reshaped the power structure in our region."
-        },
-        "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "politicsevent4",
-        "description": "A scandal erupts, and you skillfully spin the narrative to protect your reputation.",
-        "rewards": {
-          "item": "Crisis Management Plan",
-          "credits": 180,
-          "bond": "I turned a scandal into an opportunity and emerged even stronger."
+          "bond": "I held my ground against _____ and their (maybe) baseless accusations."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -2229,29 +2010,38 @@
         }
       },
       {
-        "id": "politicsevent5",
-        "description": "During a secret meeting, you uncover compromising information on a rival faction.",
+        "id": "politicsevent3",
+        "description": "Broker a crucial alliance by joining a political faction.",
         "rewards": {
-          "item": "Confidential Dossier",
-          "credits": 220,
-          "bond": "I obtained explosive secrets that could shift the political balance."
+          "item": "Faction Membership Card",
+          "credits": 250,
+          "bond": "I forged an alliance with _____."
+        },
+        "penalties": {
+          "scarChance": 0.05,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "politicsevent4",
+        "description": "Spin the narrative of a scandal to protect your reputation.",
+        "rewards": {
+          "item": "Delta-Shot",
+          "credits": 180,
+          "bond": "_____ attempted to embroil me in a scandal to tarnish my reputation."
         },
         "penalties": {
           "scarChance": 0.1,
-          "deathChance": 0.03,
-          "extraItem": {
-            "item": "Stolen Briefcase",
-            "chance": 0.15
-          }
+          "deathChance": 0.0
         }
       },
       {
         "id": "politicsevent6",
-        "description": "A surprise endorsement from a celebrity-politician boosts your public image overnight.",
+        "description": "Receive a surprise endorsement from a celebrity politician.",
         "rewards": {
           "item": "Endorsement Letter",
           "credits": 200,
-          "bond": "A famous figure backed me, and my influence skyrocketed."
+          "bond": "_____ has backed me and my influence has skyrocketed."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -2260,106 +2050,80 @@
       },
       {
         "id": "politicsevent7",
-        "description": "You expose corruption within your own party, risking internal backlash for the greater good.",
+        "description": "Expose corruption within your own party, risking internal backlash for the greater good.",
         "rewards": {
-          "item": "Whistleblower Medal",
+          "item": "Surveillance Drone (Far-range, Charging 1, Special)",
           "credits": 230,
-          "bond": "I risked everything to root out corruption, earning both friends and foes."
+          "bond": "I risked everything to root out corruption, earning the respect of _____ and the hate of _____."
         },
         "penalties": {
           "scarChance": 0.15,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "politicsevent8",
-        "description": "A covert operation results in a surprise victory against a rival politician.",
-        "rewards": {
-          "item": "Secret Strategy Blueprint",
-          "credits": 210,
-          "bond": "I pulled off a covert maneuver that left my opponent reeling."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.03
+          "deathChance": 0.05
         }
       },
       {
         "id": "politicsevent9",
-        "description": "You secure a key position on an influential committee, expanding your political clout.",
+        "description": "Try to suvive an attempted assassination.",
         "rewards": {
-          "item": "Committee Appointment Letter",
-          "credits": 240,
-          "bond": "My appointment to a crucial committee changed the course of policy-making."
+          "item": "Bulletproof Vest A1d6 (Chest, Tough 1, Armored 3)",
+          "credits": 340,
+          "bond": "_____ tried to have me killed for what I did to them."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.0
+          "scarChance": 0.45,
+          "deathChance": 0.15
         }
       },
       {
         "id": "politicsevent10",
-        "description": "A public outcry forces your party to reconsider its stance, and you emerge as the voice of change.",
+        "description": "Force your party to reconsider its stance on a hot-topic issue.",
         "rewards": {
-          "item": "Public Apology Transcript",
-          "credits": 190,
-          "bond": "I turned public dissent into a rallying cry for reform."
+          "item": "Old Pamphlets",
+          "credits": 290,
+          "bond": "I turned public dissent into a rallying cry for reform which earned me the respect of _____."
         },
         "penalties": {
-          "scarChance": 0.1,
+          "scarChance": 0.0,
           "deathChance": 0.0
         }
       },
       {
         "id": "politicsevent11",
-        "description": "During a clandestine meeting, you negotiate a peace treaty between warring factions.",
+        "description": "Negotiate a peace treaty between two warring groups.",
         "rewards": {
-          "item": "Treaty Document",
+          "item": "Steelweave Cloak A1d8 (Back, Armored 4, Heavy)",
           "credits": 260,
-          "bond": "I brokered peace in a turbulent time, becoming a respected mediator."
+          "bond": "I brokered peace between _____ and _____."
         },
         "penalties": {
-          "scarChance": 0.05,
-          "deathChance": 0.02
+          "scarChance": 0.15,
+          "deathChance": 0.04
         }
       },
       {
         "id": "politicsevent12",
-        "description": "Your investigative efforts reveal a hidden conspiracy that shakes the foundations of power.",
+        "description": "Investigate a hidden conspiracy in your local area.",
         "rewards": {
-          "item": "Conspiracy File",
+          "item": "Scope I1d6 (Aid|Awareness)",
           "credits": 220,
-          "bond": "I uncovered a plot that threatens to upend the political order."
+          "bond": "I uncovered a plot by _____ to upend the order of things."
         },
         "penalties": {
           "scarChance": 0.15,
           "deathChance": 0.04,
           "extraItem": {
-            "item": "Anonymous Tip",
+            "item": "High Caliber Rifle W1d10 (Unruly, Scoped, Long-range, Ammo, Loading, Piercing 5, Violent 1)",
             "chance": 0.1
           }
         }
       },
       {
-        "id": "politicsevent13",
-        "description": "A bitter internal conflict forces you to choose sides, defining your political future.",
-        "rewards": {
-          "item": "Faction Emblem",
-          "credits": 180,
-          "bond": "I made a defining choice that sealed my loyalty and set my path."
-        },
-        "penalties": {
-          "scarChance": 0.2,
-          "deathChance": 0.03
-        }
-      },
-      {
         "id": "politicsevent14",
-        "description": "You orchestrate a daring political stunt that wins over undecided voters.",
+        "description": "Orchestrate a daring political stunt to win over undecided voters.",
         "rewards": {
-          "item": "Stunt Memorabilia",
+          "item": "Exquisite Hat A1d4 (Head, Ornate, Armored 1, Aid|Presence)",
           "credits": 210,
-          "bond": "My bold political stunt changed the tide of public opinion."
+          "bond": "My bold political stunt won over my rival _____."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -2368,41 +2132,24 @@
       },
       {
         "id": "politicsevent15",
-        "description": "An unexpected alliance with an influential lobby group promises to reshape the policy landscape.",
+        "description": "Take bribes of drugs and money, avoiding the law.",
         "rewards": {
-          "item": "Lobbyist Contract",
-          "credits": 250,
-          "bond": "I struck a deal with powerful lobbyists that promises vast rewards."
+          "item": "Tornado-shot (Special, Consumable 1), Delta-shot (Special, Consumable 1)",
+          "credits": 500,
+          "bond": "I struck a deal with _____ for bribes at the cost of my integrity."
         },
         "penalties": {
-          "scarChance": 0.05,
+          "scarChance": 0.15,
           "deathChance": 0.01
         }
       },
       {
-        "id": "politicsevent16",
-        "description": "A contentious town hall meeting forces you to confront public dissent head-on.",
-        "rewards": {
-          "item": "Town Hall Minutes",
-          "credits": 170,
-          "bond": "I faced down a hostile crowd and emerged with my principles intact."
-        },
-        "penalties": {
-          "scarChance": 0.15,
-          "deathChance": 0.0,
-          "extraItem": {
-            "item": "Protest Sign",
-            "chance": 0.1
-          }
-        }
-      },
-      {
         "id": "politicsevent17",
-        "description": "You navigate a labyrinth of bureaucracy to secure a vital government grant.",
+        "description": "Navigate a maze of bureaucratic proceedings to secure yourself a grant.",
         "rewards": {
-          "item": "Grant Approval Letter",
-          "credits": 240,
-          "bond": "I battled red tape and emerged victorious with funds that would change everything."
+          "item": "Document Scanner I1d8 (Charging 2)",
+          "credits": 340,
+          "bond": "I battled red tape set up by _____ and managed to win."
         },
         "penalties": {
           "scarChance": 0.05,
@@ -2410,38 +2157,12 @@
         }
       },
       {
-        "id": "politicsevent18",
-        "description": "An unexpected diplomatic incident abroad forces you into a delicate negotiation.",
-        "rewards": {
-          "item": "Diplomatic Passport",
-          "credits": 230,
-          "bond": "I turned an international crisis into an opportunity for dialogue."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "politicsevent19",
-        "description": "A late-night strategy session with key advisors results in a bold, controversial proposal.",
-        "rewards": {
-          "item": "Strategy Blueprint",
-          "credits": 210,
-          "bond": "I crafted a daring proposal that could redefine our future."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.01
-        }
-      },
-      {
         "id": "politicsevent20",
-        "description": "In the midst of a political crisis, you make a sacrificial decision that cements your legacy.",
+        "description": "In the midst of a political crisis, you are sued for all you're worth, you think you can pull through.",
         "rewards": {
-          "item": "Legacy Document",
+          "item": "10,000 credit debt settlement",
           "credits": 260,
-          "bond": "I made a hard choice that will be remembered as a turning point in our history."
+          "bond": "I finally fell victim to my opponent _____'s ultimate plan, they ruined me."
         },
         "penalties": {
           "scarChance": 0.2,
@@ -2454,54 +2175,54 @@
     "Warfare": [
       {
         "id": "warfareevent1",
-        "description": "You lead a desperate charge against overwhelming enemy forces.",
+        "description": "Lead a desperate charge against overwhelming enemy forces.",
         "rewards": {
-          "item": "Battle-Worn Saber",
-          "credits": 200,
-          "bond": "I led from the front, defying the odds in the face of death."
+          "item": "Battle-worn Scattergun (Damaged, Ergonomic, Unruly, Near-range, Ammo, Potent 2, Cycling)",
+          "credits": 10,
+          "bond": "I led from the front, defying _____ and their army."
         },
         "penalties": {
-          "scarChance": 0.3,
-          "deathChance": 0.1
+          "scarChance": 0.5,
+          "deathChance": 0.25
         }
       },
       {
         "id": "warfareevent2",
-        "description": "A grueling siege stretches on for weeks, testing your endurance and willpower.",
+        "description": "Push through a grueling siege that lasts for weeks.",
         "rewards": {
-          "item": "Emergency Rations",
-          "credits": 180,
-          "bond": "I endured the agony of siege warfare and lived to tell the tale."
+          "item": "3 Rations, Camping Gear I1d6, Binoculars I1d6 (Aid|Awareness)",
+          "credits": 80,
+          "bond": "I endured the agony of the siege of _____ and lived to tell the tale."
         },
         "penalties": {
           "scarChance": 0.25,
-          "deathChance": 0.05
+          "deathChance": 0.1
         }
       },
       {
         "id": "warfareevent3",
-        "description": "You successfully sabotage an enemy installation behind enemy lines.",
+        "description": "Sabotage an enemy installation deep behind their lines.",
         "rewards": {
-          "item": "Demolition Charges",
-          "credits": 250,
-          "bond": "I struck at the heart of the enemy’s war machine."
+          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
+          "credits": 50,
+          "bond": "I struck at the heart of the enemy’s war machine on _____."
         },
         "penalties": {
           "scarChance": 0.2,
           "deathChance": 0.1,
           "extraItem": {
-            "item": "Explosive Residue Sample",
-            "chance": 0.2
+            "item": "Crowbar I1d6 (Aid|Might)",
+            "chance": 0.28
           }
         }
       },
       {
         "id": "warfareevent4",
-        "description": "Your squad is ambushed in a dense jungle. You fight tooth and nail to escape.",
+        "description": "Fight tooth and nail to escape an ambush in the deep jungle.",
         "rewards": {
-          "item": "Jungle Survival Kit",
-          "credits": 190,
-          "bond": "I clawed my way out of an ambush that should have been my end."
+          "item": "Green Camouflage Cloak I1d8 (Back, Aid|Precision), 3 Rations", 
+          "credits": 90,
+          "bond": "I clawed my way out of an ambush led by _____ and their soldiers."
         },
         "penalties": {
           "scarChance": 0.3,
@@ -2510,24 +2231,24 @@
       },
       {
         "id": "warfareevent5",
-        "description": "An intense firefight leaves you wounded, but you hold the line against all odds.",
+        "description": "Hold the line in an intense firefight after being wounded.",
         "rewards": {
-          "item": "Medic’s Field Patch",
-          "credits": 170,
-          "bond": "I bled for my comrades, refusing to yield under fire."
+          "item": "Regenerative Bandage I1d6 (Special, Consumable 1), Tornado-shot (Special, Consumable 1)",
+          "credits": 70,
+          "bond": "I bled for my comrade _____, refusing to yield under fire."
         },
         "penalties": {
-          "scarChance": 0.4,
-          "deathChance": 0.15
+          "scarChance": 0.98,
+          "deathChance": 0.02
         }
       },
       {
         "id": "warfareevent6",
-        "description": "A brilliant tactical maneuver turns the tide of battle in your favor.",
+        "description": "Prove yourself through hard work and dedication, earning yourself a promotion.",
         "rewards": {
-          "item": "Officer's Tactical Manual",
+          "item": "Officer's Revolver W1d6 (Quick, Ergonomic, Near-range, Ammo, Ornate, Piercing 3)",
           "credits": 220,
-          "bond": "My strategic mind altered the course of a hard-fought battle."
+          "bond": "My hard work and steadfast dedication earned me the respect of _____."
         },
         "penalties": {
           "scarChance": 0.1,
@@ -2536,11 +2257,11 @@
       },
       {
         "id": "warfareevent7",
-        "description": "You are taken prisoner by enemy forces, forced to endure brutal conditions.",
+        "description": "Endure brutal conditions as a prisoner of war.",
         "rewards": {
-          "item": "Prisoner’s Tag",
-          "credits": 140,
-          "bond": "I suffered in captivity, but my spirit remained unbroken."
+          "item": "Metal Beatstick 1d8 (Heavy, Unruly, Quick, Melee, Forceful), Bolt-driller I1d10 (Heavy, Loading)",
+          "credits": 10,
+          "bond": "I suffered in captivity, but met my lifelong friend _____ during the escape."
         },
         "penalties": {
           "scarChance": 0.5,
@@ -2548,25 +2269,12 @@
         }
       },
       {
-        "id": "warfareevent8",
-        "description": "A last-minute airstrike obliterates an enemy stronghold, ensuring victory.",
-        "rewards": {
-          "item": "Targeting Coordinates",
-          "credits": 260,
-          "bond": "I called in a strike that changed the battlefield forever."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.03
-        }
-      },
-      {
         "id": "warfareevent9",
-        "description": "You train a group of raw recruits, shaping them into a formidable unit.",
+        "description": "Train a group of new recruits headed for the frontlines.",
         "rewards": {
-          "item": "Drill Sergeant’s Whistle",
+          "item": "R85 Scout Rifle W1d8 (Ergonomic, Scoped, Far-range, Ammo)",
           "credits": 150,
-          "bond": "I turned green soldiers into warriors ready for war."
+          "bond": "I turned green soldiers into warriors ready for war, I hope _____ survives out there."
         },
         "penalties": {
           "scarChance": 0.0,
@@ -2574,64 +2282,51 @@
         }
       },
       {
-        "id": "warfareevent10",
-        "description": "A failed operation leaves you stranded behind enemy lines, forcing you to survive alone.",
-        "rewards": {
-          "item": "Camouflage Cloak",
-          "credits": 180,
-          "bond": "I was left for dead behind enemy lines, yet I endured."
-        },
-        "penalties": {
-          "scarChance": 0.35,
-          "deathChance": 0.1
-        }
-      },
-      {
         "id": "warfareevent11",
-        "description": "You form an unbreakable bond with a fellow soldier after saving their life in combat.",
+        "description": "Form an unbreakable bond with a fellow soldier after saving their life in combat.",
         "rewards": {
-          "item": "Bloodstained Dog Tags",
-          "credits": 200,
-          "bond": "I saved a comrade, and our loyalty to each other will never waver."
+          "item": "Ripsaw Machete W1d10 (Charging 2, Unruly, Electrified, Melee, Brutal, Violent 2)",
+          "credits": 10,
+          "bond": "I saved ______, and our loyalty to each other will never waver."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.02
-        }
-      },
-      {
-        "id": "warfareevent12",
-        "description": "An unexpected betrayal within your ranks forces you to act swiftly.",
-        "rewards": {
-          "item": "Confiscated Orders",
-          "credits": 220,
-          "bond": "I exposed a traitor before they could do irreparable damage."
-        },
-        "penalties": {
-          "scarChance": 0.15,
+          "scarChance": 0.18,
           "deathChance": 0.05
         }
       },
       {
-        "id": "warfareevent13",
-        "description": "A brutal hand-to-hand fight leaves you scarred but victorious.",
+        "id": "warfareevent12",
+        "description": "Deal with an unexpected betrayal within your ranks.",
         "rewards": {
-          "item": "Enemy Combat Knife",
-          "credits": 190,
-          "bond": "I survived the struggle of steel and fists, emerging victorious."
+          "item": "Martialing Rifle W1d8 (Ergonomic, Quick, Near-range, Ammo, Piercing 5)",
+          "credits": 120,
+          "bond": "I exposed the traitor _____ before they could do irreparable damage."
         },
         "penalties": {
-          "scarChance": 0.3,
+          "scarChance": 0.15,
+          "deathChance": 0.0
+        }
+      },
+      {
+        "id": "warfareevent13",
+        "description": "Partake in a brutal hand-to-hand fight.",
+        "rewards": {
+          "item": "Combat Axe W1d6 (Unruly, Ergonomic, Melee, Brutal, Piercing 5)",
+          "credits": 90,
+          "bond": "I survived the struggle of steel and fists, emerging victorious and impressing my commander: _____."
+        },
+        "penalties": {
+          "scarChance": 0.55,
           "deathChance": 0.1
         }
       },
       {
         "id": "warfareevent14",
-        "description": "You coordinate an underground resistance movement in occupied territory.",
+        "description": "Fight in swift, guerrilla strikes that leave your enemy guessing.",
         "rewards": {
-          "item": "Resistance Symbol",
-          "credits": 230,
-          "bond": "I led the resistance when all hope seemed lost."
+          "item": "R30 Scout Repeater (Quick, Scoped, Long-range, Cycling, Ammo), Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
+          "credits": 30,
+          "bond": "I led the resistance on _____ when all hope seemed lost."
         },
         "penalties": {
           "scarChance": 0.25,
@@ -2640,11 +2335,11 @@
       },
       {
         "id": "warfareevent15",
-        "description": "You withstand a relentless artillery bombardment, holding your position.",
+        "description": "Withstand a relentless artillery bombardment, holding your position.",
         "rewards": {
-          "item": "Battlefield Journal",
-          "credits": 200,
-          "bond": "I braved a hellstorm of fire and steel, refusing to retreat."
+          "item": "Kinetic Chestplate A1d6 (Chest, Armored 5, Tough 1, Aid|Fortitude)",
+          "credits": 10,
+          "bond": "I braved a hellstorm of fire and steel, refusing to die to _____ and their forces."
         },
         "penalties": {
           "scarChance": 0.4,
@@ -2652,42 +2347,29 @@
         }
       },
       {
-        "id": "warfareevent16",
-        "description": "A daring nighttime raid leaves your squad victorious.",
-        "rewards": {
-          "item": "Stealth Gear",
-          "credits": 210,
-          "bond": "I thrived in the shadows, striking where the enemy least expected."
-        },
-        "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.02
-        }
-      },
-      {
         "id": "warfareevent17",
-        "description": "A devastating injury forces you to leave the battlefield and adapt to a new life.",
+        "description": "Suffer a devastating injury that takes you out of the fight.",
         "rewards": {
-          "item": "Medical Discharge Papers",
-          "credits": 160,
-          "bond": "The war took its toll, but I refused to let it break me."
+          "item": "3 Ammo, 2 Bandages (Special, Consumable 1), 2 Rations",
+          "credits": 360,
+          "bond": "The war took its toll, but I will keep more people from being injured."
         },
         "penalties": {
-          "scarChance": 0.5,
-          "deathChance": 0.1
+          "scarChance": 0.8,
+          "deathChance": 0.0
         }
       },
       {
         "id": "warfareevent18",
-        "description": "Your leadership in a desperate situation earns you a battlefield promotion.",
+        "description": "Loot a rich town with your squad, razing it to the ground.",
         "rewards": {
-          "item": "Officer’s Insignia",
-          "credits": 240,
+          "item": "10 Rations, 5 Ammo",
+          "credits": 600,
           "bond": "I proved my worth in the fires of war and was recognized for it."
         },
         "penalties": {
-          "scarChance": 0.1,
-          "deathChance": 0.02
+          "scarChance": 0.15,
+          "deathChance": 0.05
         }
       }
     ]
