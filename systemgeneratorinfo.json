@@ -9,7 +9,7 @@
       "population": { "min": 20, "max": 10000 }
     }
   },
-  "names": {
+  "names": { 
     "settlementPrefix": [
       { "name": "Cor", "weight": 1 },
       { "name": "Ald", "weight": 1 },
