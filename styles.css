@@ -1,28 +1,40 @@
-/* Import fonts */
+/* --------------------------------------------------
+   Import Fonts
+-------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-/* -------------------- */
-/* Base Styles          */
-/* -------------------- */
+/* --------------------------------------------------
+   Base Styling & Body
+-------------------------------------------------- */
 body {
   font-family: 'Orbitron', sans-serif;
   background: #1a1a1a url("spacebackground.png") repeat-y center top;
   background-attachment: fixed;
-  background-size: cover;
+  background-size: auto;
   color: #ccc;
   margin: 0;
   padding: 0;
   line-height: 1.5;
 }
 
-/* -------------------- */
-/* Navbar               */
-/* -------------------- */
+/* Duplicate body rule from further down: 
+   We keep it to avoid breaking references from other pages. */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #222;
+  color: #eee;
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------
+   Navbar
+-------------------------------------------------- */
 nav {
-  background-color: #262626;
+  background-color: #262626; /* or #333 from older snippet */
   width: 100%;
-  padding: 10px 15px;
+  padding: 10px;
   text-align: center;
   border-bottom: 2px solid #444;
   position: fixed;
@@ -34,8 +46,8 @@ nav {
 nav a {
   color: #ccc;
   text-decoration: none;
-  margin: 0 15px;
   font-size: 1.1em;
+  margin: 0 15px;
   font-weight: bold;
 }
 
@@ -43,59 +55,104 @@ nav a:hover {
   color: #fff;
 }
 
-/* -------------------- */
-/* Container            */
-/* -------------------- */
+/* 
+   Another nav block from earlier. Keeping it, 
+   in case a page specifically references 'nav a' with different styling. 
+*/
+nav {
+  background-color: #333;
+  padding: 5px 10px;
+  text-align: center;
+}
+
+nav a {
+  color: #ddd;
+  text-decoration: none;
+  margin: 0 5px;
+  font-size: 14px;
+}
+
+/* --------------------------------------------------
+   Container & Headings
+-------------------------------------------------- */
 .container {
   max-width: 900px;
-  margin: 80px auto 20px auto; /* 80px top margin to clear the fixed navbar */
+  margin: 80px auto 20px auto; /* ensures content is below the fixed navbar */
   padding: 20px;
   background: #262626;
   border: 1px solid #444;
   border-radius: 4px;
 }
 
-/* -------------------- */
-/* Headings             */
-/* -------------------- */
+h1, h2, h3 {
+  margin: 0.5em 0;
+}
+
+/* Title specifically for some pages */
 h1 {
   text-align: center;
   margin: 10px 0;
   font-size: 28px;
 }
 
-h2, h3 {
-  margin: 0.5em 0;
+/* Duplicate/alternative h1 styling from older snippet 
+   We'll keep it in case other pages rely on it. */
+h1 {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 24px;
 }
 
-/* -------------------- */
-/* Button Styling       */
-/* -------------------- */
+/* --------------------------------------------------
+   Buttons
+-------------------------------------------------- */
+button {
+  background-color: #444;
+  color: #ccc;
+  border: 1px solid #555;
+  padding: 6px 12px;
+  font-size: 0.9em;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-top: 5px;
+}
+
+button:hover {
+  background-color: #555;
+}
+
 .button-bar {
   text-align: center;
   margin: 15px 0;
 }
 
-.btn-system,
-.btn-regenerate {
+/* Specific classes for system & regeneration buttons */
+.btn-system, .btn-regenerate {
   background-color: #444;
   border: 1px solid #555;
   color: #eee;
-  padding: 8px 16px;
+  padding: 5px 10px;
   font-size: 16px;
   cursor: pointer;
   border-radius: 3px;
-  transition: background 0.3s;
 }
 
-.btn-system:hover,
-.btn-regenerate:hover {
-  background-color: #555;
+/* Another snippet for .btn-system / .btn-regenerate, 
+   we keep it in case references exist:
+*/
+.btn-system, .btn-regenerate {
+  background-color: #444;
+  border: 1px solid #555;
+  color: #eee;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 3px;
 }
 
-/* -------------------- */
-/* Section/Card Styling */
-/* -------------------- */
+/* --------------------------------------------------
+   Sections & Cards
+-------------------------------------------------- */
 .section {
   background-color: #2a2a2a;
   border: 1px solid #444;
@@ -108,7 +165,9 @@ h2, h3 {
   margin: 8px 0;
 }
 
-/* Settlement Card: moderately condensed, multi-line display */
+/* Settlement cards with multi-line detail. 
+   Less compact than previous "inline" approach, 
+   so you can see all lines at a glance. */
 .settlement {
   background-color: #333;
   border: 1px solid #555;
@@ -119,11 +178,24 @@ h2, h3 {
   line-height: 1.4;
 }
 
-.settlement-output p {
-  margin: 4px 0;
+/* Pre-existing .settlement-output from older snippet 
+   We'll revert to multi-line and ensure wrapping. */
+.settlement-output {
+  background: #1a1a1a; /* Subtle difference from #333 if used */
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  text-align: left;
+  color: #ddd;
+  line-height: 1.4;
+
+  /* removed overflow/ellipsis so lines can expand fully */
+  white-space: normal;
+  text-overflow: unset;
 }
 
-/* Inline list styling for traders or military structures if needed */
+/* Inline list if used for traders or structures 
+   We'll keep it in case some page references it. */
 .inline-list {
   list-style-type: none;
   margin: 0;
@@ -136,45 +208,45 @@ h2, h3 {
   margin-right: 5px;
 }
 
-/* -------------------- */
-/* Art Credit           */
-/* -------------------- */
-.art-credit {
-  text-align: center;
-  margin: 10px 0;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  background: rgba(0, 0, 0, 0.2);
-  padding: 2px 4px;
-  border-radius: 2px;
+/* 
+   Additional older references:
+   We keep them in case used on other pages 
+   (weapons, bond-cards, etc.). 
+*/
+
+/* Weapons */
+.weapon-output {
+  margin-top: 20px;
+  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid #555;
+  border-radius: 5px;
+  color: #ddd;
+  line-height: 1.4;
 }
 
-.art-credit a {
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-}
-
-.art-credit a:hover {
-  text-decoration: underline;
-}
-
-/* -------------------- */
-/* Additional Elements  */
-/* -------------------- */
-.centered-death-screen {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #262626;
+.weapon-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #333;
   border: 1px solid #444;
-  padding: 20px;
-  border-radius: 4px;
-  text-align: center;
-  z-index: 2000;
+  border-radius: 3px;
 }
 
-/* Extra cards for future modules */
+.weapon-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #fff;
+  font-size: 1.05em;
+}
+
+.weapon-stats {
+  color: #ccc;
+  line-height: 1.5;
+  font-size: 0.95em;
+}
+
+/* Additional "bond-card" or "item-card" references for other pages */
 .bond-card, .item-card {
   font-family: 'Roboto', sans-serif;
   background: #333;
@@ -184,11 +256,13 @@ h2, h3 {
   margin-bottom: 5px;
 }
 
-.bond-card ul, .item-card ul {
+.bond-card ul,
+.item-card ul {
   margin: 0;
   padding-left: 20px;
 }
 
+/* Possibly used for event modules */
 .event-card {
   background: #333;
   border: 1px solid #444;
@@ -208,4 +282,47 @@ h2, h3 {
   color: #ff5555;
   font-weight: bold;
   margin-top: 10px;
+}
+
+/* 
+   Death-screen reference 
+   (We keep it in case used by other pages)
+*/
+.centered-death-screen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #262626;
+  border: 1px solid #444;
+  padding: 20px;
+  border-radius: 4px;
+  text-align: center;
+  z-index: 2000;
+}
+
+/* 
+   The .art-credit at the bottom, 
+   as in older snippet 
+*/
+.art-credit {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 2px 4px;
+  border-radius: 2px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
+
+.art-credit a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+}
+
+.art-credit a:hover {
+  text-decoration: underline;
 }
