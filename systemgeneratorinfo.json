@@ -9,7 +9,6 @@
       "population": { "min": 20, "max": 10000 }
     }
   },
-
   "names": {
     "settlementPrefix": [
       { "name": "Cor", "weight": 1 },
@@ -62,7 +61,7 @@
       { "name": "Jol", "weight": 1 },
       { "name": "Fron", "weight": 1 },
       { "name": "Grev", "weight": 1 }
-      // ... etc ...
+      /* ... (expand to hundreds as desired) ... */
     ],
     "settlementCore": [
       { "name": "anta", "weight": 1 },
@@ -101,7 +100,7 @@
       { "name": "dral", "weight": 1 },
       { "name": "azar", "weight": 1 },
       { "name": "texis", "weight": 1 }
-      // ...
+      /* ... expand as needed ... */
     ],
     "settlementSuffix": [
       { "name": "Prime", "weight": 1 },
@@ -126,6 +125,7 @@
       { "name": "Mesa", "weight": 1 },
       { "name": "Ridge", "weight": 1 },
       { "name": "Gulch", "weight": 1 }
+      /* ... expand further ... */
     ],
     "firstNamePrefixes": [
       { "name": "Xan", "weight": 1 },
@@ -160,6 +160,7 @@
       { "name": "Har", "weight": 1 },
       { "name": "Lom", "weight": 1 },
       { "name": "Fex", "weight": 1 }
+      /* ... expand ... */
     ],
     "firstNameSuffixes": [
       { "name": "dor", "weight": 1 },
@@ -179,6 +180,7 @@
       { "name": "ell", "weight": 1 },
       { "name": "o", "weight": 1 },
       { "name": "an", "weight": 1 }
+      /* ... expand ... */
     ],
     "lastNamePrefixes": [
       { "name": "Xan", "weight": 1 },
@@ -209,6 +211,7 @@
       { "name": "Hel", "weight": 1 },
       { "name": "Arc", "weight": 1 },
       { "name": "Ryd", "weight": 1 }
+      /* ... expand ... */
     ],
     "lastNameSuffixes": [
       { "name": "dor", "weight": 1 },
@@ -229,16 +232,15 @@
       { "name": "blade", "weight": 1 },
       { "name": "sen", "weight": 1 },
       { "name": "al", "weight": 1 }
+      /* ... expand ... */
     ]
   },
-
   "settlement": {
     "coreStats": {
       "militarism": { "base": { "min": 20, "max": 100 } },
       "prosperity": { "base": { "min": 20, "max": 100 } },
       "stability": { "base": { "min": 20, "max": 100 } }
     },
-
     "types": {
       "default": {
         "name": "Settlement",
@@ -266,7 +268,6 @@
         "specialFeatures": ["Rustic Cantina", "Makeshift Saloon", "Ranch Yards"]
       }
     },
-
     "attributes": {
       "pointsOfInterest": {
         "highProsperity": [
@@ -317,7 +318,6 @@
           "Irradiated Copper Scraps",
           "Low-Grade Polymers",
           "Recycled Aluminum Sheets"
-          // ... expand ...
         ],
         "mediumProsperity": [
           "Refined Titanium Ingots",
@@ -332,7 +332,6 @@
           "Pressurized Oxygen Tanks",
           "Gravitic Stabilizers (Mid-tier)",
           "Desert Spice Extracts"
-          // ...
         ],
         "highProsperity": [
           "Axial Drive Components",
@@ -347,11 +346,9 @@
           "Warp Relay Nodes",
           "Antimatter Fuel Capsules",
           "Psionic Shield Generators"
-          // ...
         ]
       }
     },
-
     "military": {
       "assets": {
         "soldiers": {
@@ -390,11 +387,9 @@
           "Defense Grid",
           "Sniper Perch",
           "Anti-Cavalry Turrets"
-          // ...
         ]
       }
     },
-
     "traders": {
       "enabled": true,
       "defaultCountRange": { "min": 1, "max": 6 },
@@ -459,7 +454,6 @@
         }
       ]
     },
-
     "government": {
       "types": [
         { "name": "Pirate Den", "baseWeight": 3 },
@@ -488,7 +482,6 @@
         { "title": "High Councilor", "baseWeight": 3 }
       ]
     },
-
     "conditions": {
       "settlement": [
         "Under martial law due to raider threats",
@@ -505,7 +498,6 @@
       ]
     }
   },
-
   "planet": {
     "types": [
       {
@@ -559,7 +551,6 @@
       "Ion Storms in Upper Atmosphere"
     ]
   },
-
   "system": {
     "nameComponents": {
       "prefix": [
@@ -600,7 +591,6 @@
       "Mystic Energy Field"
     ]
   },
-
   "ui": {
     "theme": "dark",
     "showAdvancedOptions": true,
@@ -609,7 +599,6 @@
       "systemButton": { "label": "Generate System", "class": "btn-system" }
     }
   },
-
   "extensions": {
     "traders": {
       "enabled": true,
