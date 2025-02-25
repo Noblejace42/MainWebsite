@@ -104,7 +104,7 @@
         for (let i = 1; i <= numPlanets; i++) {
           // Choose a random planet type.
           let planetType = weightedRandom(config.planet.types);
-          // Choose a planetary biome from planet conditions.
+          // Choose a planetary biome from the conditions array.
           let biome = config.planet.conditions[randomInt(0, config.planet.conditions.length - 1)];
           let planetName = systemDesignation + " " + toRoman(i);
           let planet = {
@@ -147,9 +147,9 @@
       // Choose settlement type.
       let settlementType;
       if (forceType) {
-        settlementType = config.settlement.settlementTypes.station;
+        settlementType = config.settlement.types.station;
       } else {
-        const types = Object.values(config.settlement.settlementTypes);
+        const types = Object.values(config.settlement.types);
         settlementType = types[randomInt(0, types.length - 1)];
         if (settlementType.forceType) forceType = true;
       }
@@ -232,19 +232,6 @@
       }
 
       // Traders: number determined by prosperity and modified by stability.
-      const settlementTraderOptions = config.system.settlementCountOptions || [
-        { value: 0, weight: 3 },
-        { value: 1, weight: 3 },
-        { value: 2, weight: 3 },
-        { value: 3, weight: 3 },
-        { value: 4, weight: 1 },
-        { value: 5, weight: 1 },
-        { value: 6, weight: 1 },
-        { value: 7, weight: 1 },
-        { value: 8, weight: 1 },
-        { value: 9, weight: 1 },
-        { value: 10, weight: 1 }
-      ];
       let traderMin = config.settlement.traders.defaultCountRange.min;
       let traderMax = config.settlement.traders.defaultCountRange.max;
       if (stability < 40) traderMax = Math.max(traderMin, traderMax - 1);
@@ -426,7 +413,7 @@
     // Initial load: fetch configuration then wait for user interaction.
     loadConfig().then(() => {
       // Uncomment the following line to auto-generate a system on load:
-     generateSystem();
+      // generateSystem();
     });
   </script>
 </body>
