@@ -42,59 +42,49 @@
     let config = null;
     let systemData = null;
 
-    // --------------------
-    // Weighted Random Helpers
-    // --------------------
+    // Weighted random that expects "baseWeight"
     function weightedRandomBaseWeight(choices) {
-      /* This version of weightedRandom looks for "baseWeight" 
-         instead of "weight" so it works with government/ruler data. */
       let total = 0;
       for (const choice of choices) {
         total += choice.baseWeight;
       }
-      let randomNum = Math.random() * total;
+      let rnd = Math.random() * total;
       for (const choice of choices) {
-        if (randomNum < choice.baseWeight) {
+        if (rnd < choice.baseWeight) {
           return choice;
         }
-        randomNum -= choice.baseWeight;
-      }
-      return choices[choices.length - 1]; // fallback
-    }
-
-    function weightedRandom(choices) {
-      /* For data that uses "weight" property. 
-         (Currently, your JSON for planet types or settlement prefixes uses "weight", 
-          but government uses "baseWeight".) */
-      let total = 0;
-      for (const choice of choices) {
-        total += (choice.weight || 1);
-      }
-      let randomNum = Math.random() * total;
-      for (const choice of choices) {
-        let w = (choice.weight || 1);
-        if (randomNum < w) {
-          return choice;
-        }
-        randomNum -= w;
+        rnd -= choice.baseWeight;
       }
       return choices[choices.length - 1];
     }
 
-    // Basic integer random
+    // Weighted random that expects "weight"
+    function weightedRandom(choices) {
+      let total = 0;
+      for (const choice of choices) {
+        total += (choice.weight || 1);
+      }
+      let rnd = Math.random() * total;
+      for (const choice of choices) {
+        const w = (choice.weight || 1);
+        if (rnd < w) {
+          return choice;
+        }
+        rnd -= w;
+      }
+      return choices[choices.length - 1];
+    }
+
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    // Convert 1..10 to Roman
     function toRoman(num) {
       const romans = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
       return romans[num - 1] || num;
     }
 
-    // --------------------
-    // Load the JSON config
-    // --------------------
+    // Load config from systemgeneratorinfo.json
     async function loadConfig() {
       try {
         const resp = await fetch("systemgeneratorinfo.json");
@@ -105,9 +95,7 @@
       }
     }
 
-    // --------------------
-    // System Generation
-    // --------------------
+    // Generate a system code, e.g. "AB12C3"
     function generateSystemCode() {
       const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       const digits = "0123456789";
@@ -128,7 +116,36 @@
       let sysDesignation = prefix.name + core.name;
       let systemName = code + " " + sysDesignation;
 
-      // planet count
+      // We'll define custom settlementCountOptions:
+      // 0 and 1 are more likely, then it tapers off for 2..10
+      // e.g. 0 -> weight 5, 1 -> weight 4, 2->3, 3->2, 4->1, 5->1, etc.
+      const settlementCountOptions = [
+        { value: 0, weight: 5 },
+        { value: 1, weight: 4 },
+        { value: 2, weight: 3 },
+        { value: 3, weight: 2 },
+        { value: 4, weight: 1 },
+        { value: 5, weight: 1 },
+        { value: 6, weight: 1 },
+        { value: 7, weight: 1 },
+        { value: 8, weight: 1 },
+        { value: 9, weight: 1 },
+        { value: 10, weight: 1 }
+      ];
+
+      // Weighted random for settlement count
+      let totalWeight = settlementCountOptions.reduce((sum, opt) => sum + opt.weight, 0);
+      let rnd = Math.random() * totalWeight;
+      let finalSettlementCount = 0;
+      for (let opt of settlementCountOptions) {
+        if (rnd < opt.weight) {
+          finalSettlementCount = opt.value;
+          break;
+        }
+        rnd -= opt.weight;
+      }
+
+      // Planet generation is unchanged
       const planetRange = config.system.planetCountRange || { min:0, max:6 };
       let planetCount = randomInt(planetRange.min, planetRange.max);
       let planets = [];
@@ -144,21 +161,29 @@
             type: planetType,
             settlements: []
           };
-          // each planet gets 1-4 settlements
-          let settlementCount = randomInt(0,4);
-          for (let j=0; j<settlementCount; j++){
-            planet.settlements.push( generateSettlementData(false, planetType) );
-          }
           planets.push(planet);
         }
       }
 
+      // If we have planets, let's distribute the settlementCount across them
+      // If no planets exist, we'll create a single forced station if finalSettlementCount>0
       let settlements = [];
-      if (planetCount === 0) {
-        // if no planets, we create a single forced station
+      if (planetCount === 0 && finalSettlementCount>0) {
+        // Just push a forced station
         settlements.push( generateSettlementData(true) );
+      } else if (planetCount>0) {
+        // We'll create finalSettlementCount total settlements, distributing them among planets
+        for (let s=0; s<finalSettlementCount; s++){
+          // 10% chance to be forced station
+          const forcedStation = (Math.random()<0.1);
+          let newSettlement = generateSettlementData(forcedStation);
+          // place into random planet
+          let pIndex = randomInt(0, planetCount-1);
+          planets[pIndex].settlements.push(newSettlement);
+        }
       }
 
+      // System conditions (unchanged)
       let sysConditions = [...config.system.conditions];
       sysConditions.sort(() => Math.random() - 0.5);
       sysConditions = sysConditions.slice(0, randomInt(0,3));
@@ -166,15 +191,13 @@
       systemData = {
         systemName,
         planets,
-        settlements: planetCount === 0 ? settlements : null,
+        settlements: (planetCount===0 && finalSettlementCount>0) ? settlements : null,
         sysConditions
       };
       renderSystem();
     }
 
-    // --------------------
     // Settlement Generation
-    // --------------------
     function generateSettlementData(forceStation=false, planetType=null) {
       // pick settlement type
       let settlementType;
@@ -238,11 +261,11 @@
 
       // Government
       let govChoice = weightedRandomBaseWeight(config.settlement.government.types);
-      let governmentName = govChoice.name; // e.g. "Elected Governor"
+      let governmentName = govChoice.name;
 
       // Ruler Title
       let rulerChoice = weightedRandomBaseWeight(config.settlement.government.rulerTitles);
-      let rulerTitle = rulerChoice.title; // e.g. "Commander"
+      let rulerTitle = rulerChoice.title;
 
       // Important Figure
       let firstPre = weightedRandom(config.names.firstNamePrefixes).name;
@@ -284,7 +307,7 @@
       let conditions = condPool.slice(0, condCount);
 
       // military
-      let military = generateMilitaryData(population, mil, forceStation);
+      let military = generateMilitaryData(population, mil);
 
       // military structures
       let baseStructCount = randomInt(
@@ -348,14 +371,27 @@
       };
     }
 
-    function generateMilitaryData(population, militarism, forcedStation) {
+    // Allows for soldier count to exceed population for very high militarism
+    // or a random chance. This is "rare but possible."
+    function generateMilitaryData(population, militarism) {
+      // Base percentage
       let basePerc = randomInt(
         config.settlement.military.assets.soldiers.populationPercentage.min * 100,
         config.settlement.military.assets.soldiers.populationPercentage.max * 100
       ) / 100;
+      // Additional factor from militarism
+      // For example, militarism=100 => soldierMult=2.0 => effectively doubling the soldier count
       let soldierMult = militarism / 50; 
+
       let soldiers = Math.floor(population * basePerc * soldierMult);
-      soldiers = Math.min(soldiers, population);
+
+      // 1% random chance to push soldiers even higher if militarism>80
+      if (militarism > 80 && Math.random() < 0.01) {
+        soldiers += randomInt(1, population);
+      }
+
+      // No clamp here, so soldiers can exceed population
+      // for very militarized small settlements
 
       let ratio = randomInt(
         config.settlement.military.assets.armoredVehicles.soldiersPerVehicle.min,
@@ -366,18 +402,14 @@
       let ships = {};
       if (config.settlement.military.assets.ships.enabled) {
         let totalShips = 0;
-        if (forcedStation) {
-          totalShips = randomInt(
-            config.settlement.military.assets.ships.forcedStationMinimum.min,
-            config.settlement.military.assets.ships.forcedStationMinimum.max
-          );
-        } else if (population >= config.settlement.military.assets.ships.defaultMinimumPopulation) {
+        // We remove forcedStation param since we do settlement type logic outside
+        // But you can reintroduce if you want forced stations to always have min ships
+        if (population >= config.settlement.military.assets.ships.defaultMinimumPopulation) {
           totalShips = randomInt(
             config.settlement.military.assets.ships.defaultShipCountRange.min,
             config.settlement.military.assets.ships.defaultShipCountRange.max
           );
         }
-        // init
         for (let st of config.settlement.military.assets.ships.shipTypes) {
           ships[st.name] = 0;
         }
@@ -389,11 +421,8 @@
       return { soldiers, armoredVehicles, ships };
     }
 
-    // --------------------
-    // Rendering
-    // --------------------
+    // Render settlement
     function renderSettlement(settlement, planetIndex, settlementIndex) {
-      // Prepare ships as a string
       let shipStr = "None";
       let shipObj = settlement.military.ships;
       if (shipObj) {
@@ -401,60 +430,58 @@
         for (let s in shipObj) {
           if (shipObj[s] > 0) arr.push(`${s} x${shipObj[s]}`);
         }
-        if (arr.length > 0) {
-          shipStr = arr.join(", ");
-        }
+        if (arr.length > 0) shipStr = arr.join(", ");
       }
 
-      // Format traders
       let tradersStr = "None";
       if (settlement.traders && settlement.traders.length>0) {
         let tArr = settlement.traders.map(t => `${t.captainName} (${t.tradedMaterial})`);
         tradersStr = tArr.join(", ");
       }
 
-      // Format military structures
       let milStructs = settlement.militaryStructures.length > 0
                        ? settlement.militaryStructures.join(", ")
                        : "None";
 
       return `
       <div class="settlement">
-        <div class="settlement-output">
+        <!-- Force a sans-serif font for settlement text to improve readability -->
+        <div class="settlement-output" style="font-family: Arial, sans-serif;">
           <p><strong>Name:</strong> ${settlement.name}</p>
           <p><strong>Type:</strong> ${settlement.settlementType}</p>
           <p><strong>Population:</strong> ${settlement.population}</p>
           <p><strong>Government:</strong> ${settlement.government}</p>
           <p><strong>Important Figure:</strong> ${settlement.importantFigure}</p>
-          <p><strong>Core Stats:</strong> 
-             Militarism: ${settlement.coreStats.militarism}, 
-             Prosperity: ${settlement.coreStats.prosperity}, 
+          <p><strong>Core Stats:</strong>
+             Militarism: ${settlement.coreStats.militarism},
+             Prosperity: ${settlement.coreStats.prosperity},
              Stability: ${settlement.coreStats.stability}
           </p>
           <p><strong>Exports:</strong> ${settlement.exports.join(", ") || "None"}</p>
           <p><strong>Points of Interest:</strong> ${settlement.pointsOfInterest.join(", ") || "None"}</p>
           <p><strong>Conditions:</strong> ${settlement.conditions.join(", ") || "None"}</p>
-          <p><strong>Military:</strong> 
-             Soldiers: ${settlement.military.soldiers}, 
-             Armored Vehicles: ${settlement.military.armoredVehicles}, 
+          <p><strong>Military:</strong>
+             Soldiers: ${settlement.military.soldiers},
+             Armored Vehicles: ${settlement.military.armoredVehicles},
              Ships: ${shipStr}
           </p>
           <p><strong>Military Structures:</strong> ${milStructs}</p>
           <p><strong>Traders:</strong> ${tradersStr}</p>
         </div>
-        <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})" 
+        <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})"
                 class="${config.ui.elements.regenerateButton.class}">
           ${config.ui.elements.regenerateButton.label}
         </button>
       </div>`;
     }
 
+    // Render entire system
     function renderSystem() {
       const out = document.getElementById("systemOutput");
       let totalSettlements = 0;
       if (systemData.planets.length>0) {
         totalSettlements = systemData.planets.reduce((sum,pl)=> sum+pl.settlements.length, 0);
-      } else {
+      } else if (systemData.settlements) {
         totalSettlements = systemData.settlements.length;
       }
 
@@ -481,34 +508,35 @@
           }
           html += `</div>`;
         });
-      } else {
+      } else if (systemData.settlements) {
         // single settlement if no planets
-        html += `<div class="section">
-          <h3>Settlement (Space Station):</h3>
-          ${renderSettlement(systemData.settlements[0], 0, 0)}
-        </div>`;
+        systemData.settlements.forEach((settlement, sIndex)=>{
+          html += `<div class="section">
+            <h3>Settlement (Space Station):</h3>
+            ${renderSettlement(settlement, 0, sIndex)}
+          </div>`;
+        });
       }
 
       out.innerHTML = html;
     }
 
+    // Regenerate a single settlement
     function regenerateSettlement(planetIndex, settlementIndex) {
-      if (systemData.planets && systemData.planets.length>0) {
-        let planet = systemData.planets[planetIndex];
-        planet.settlements[settlementIndex] = generateSettlementData(false, planet.type);
-      } else {
+      if (systemData.planets && systemData.planets.length>0 && systemData.planets[planetIndex]) {
+        const planetType = systemData.planets[planetIndex].type;
+        systemData.planets[planetIndex].settlements[settlementIndex] = generateSettlementData(false, planetType);
+      } else if (systemData.settlements) {
+        // If no planets, we assume forced station(s)
         systemData.settlements[settlementIndex] = generateSettlementData(true);
       }
       renderSystem();
     }
 
-    // --------------------
-    // Event Listeners
-    // --------------------
     document.getElementById("generateSystemButton").addEventListener("click", generateSystem);
 
     loadConfig().then(()=>{
-      // optionally auto-generate
+      // optional auto-gen
       // generateSystem();
     });
   </script>
