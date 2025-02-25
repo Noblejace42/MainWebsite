@@ -190,7 +190,7 @@
         "name": "Settlement",
         "modifiers": {
           "militarism": 0,
-          "prosperity": 0,
+          "prosperity": 10,
           "stability": 0
         },
         "populationMultiplier": 1,
@@ -199,20 +199,20 @@
       "station": {
         "name": "Station",
         "modifiers": {
-          "militarism": 0,
+          "militarism": -20,
           "prosperity": -10,
           "stability": 5
         },
-        "populationMultiplier": 0.5,
+        "populationMultiplier": 0.1,
         "specialFeatures": ["Docking Bays", "Orbital Trade Hub"],
         "forceType": true
       },
       "stronghold": {
         "name": "Stronghold",
         "modifiers": {
-          "militarism": 20,
-          "prosperity": -5,
-          "stability": 5
+          "militarism": 50,
+          "prosperity": -15,
+          "stability": 0
         },
         "populationMultiplier": 0.8,
         "specialFeatures": ["Fortifications", "Barracks"]
@@ -249,53 +249,56 @@
       },
       "exports": {
         "lowProsperity": [
-          "Basic Raw Materials",
+          "Basic Organic Materials",
           "Unrefined Metals",
           "Common Textiles",
-          "Simple Electronics"
+          "Simple Electronics",
+          "Simple Foodstuffs"
         ],
         "mediumProsperity": [
           "Refined Metals",
           "Processed Foodstuffs",
           "Standard Machinery",
-          "Intermediate Electronics"
+          "Intermediate Electronics",
+          "Weapons & Armor"
         ],
         "highProsperity": [
-          "Fusion Reactor Components",
+          "Axial Components",
           "Quantum Processors",
-          "Nanotube Superconductors",
-          "Advanced AI Modules"
+          "Superconductors",
+          "Military Tech"
         ]
       }
     },
     "military": {
       "assets": {
         "soldiers": {
-          "populationPercentage": { "min": 0.05, "max": 0.15 }
+          "populationPercentage": { "min": 0.03, "max": 0.1 }
         },
         "armoredVehicles": {
-          "soldiersPerVehicle": { "min": 20, "max": 40 }
+          "soldiersPerVehicle": { "min": 20, "max": 60 }
         },
         "ships": {
           "enabled": true,
           "shipTypes": [
-            { "name": "Fighter", "weight": 5 },
-            { "name": "Gunship", "weight": 3 },
-            { "name": "Frigate", "weight": 1 },
-            { "name": "Cruiser", "weight": 0.2 }
+            { "name": "Fighter", "weight": 8 },
+            { "name": "Gunship", "weight": 5 },
+            { "name": "Frigate", "weight": 0.5 },
+            { "name": "Cruiser", "weight": 0.1 }
           ],
           "forcedStationMinimum": { "min": 2, "max": 4 },
           "defaultMinimumPopulation": 1000,
-          "defaultShipCountRange": { "min": 1, "max": 3 }
+          "defaultShipCountRange": { "min": 1, "max": 5 }
         }
       },
       "structures": {
         "minCount": 1,
         "maxCount": 10,
         "structureList": [
-          "Anti-Air Emplacement",
+          "Light Anti-Air Emplacement",
+          "Orbital Defenses",
           "Military Academy",
-          "Barracks",
+          "Barrack Complexes",
           "Command Center",
           "Radar Station",
           "Missile Silo",
