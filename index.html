@@ -145,7 +145,7 @@
             settlements: []
           };
           // each planet gets 1-4 settlements
-          let settlementCount = randomInt(1,4);
+          let settlementCount = randomInt(0,4);
           for (let j=0; j<settlementCount; j++){
             planet.settlements.push( generateSettlementData(false, planetType) );
           }
