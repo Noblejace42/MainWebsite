@@ -1459,7 +1459,7 @@
         "penalties": {
           "scarChance": 0.15,
           "deathChance": 0.1
-        }
+        } 
       },
     {
         "id": "espionageevent6",
