@@ -1,52 +1,28 @@
 /* --------------------------------------------------
-   FONT IMPORTS
-   (Orbitron primary, Roboto secondary)
+   Import Fonts
 -------------------------------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 /* --------------------------------------------------
-   GLOBAL BASE STYLES
+   Global Base Styles
 -------------------------------------------------- */
-/* Merging the multiple body rules into one:
-   – Using Orbitron as the default for everything.
-   – Kept background references for your space image.
-   – Ensured margin=0/padding=0 to fix page overflow issues. */
 body {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   background: #1a1a1a url("spacebackground.png") repeat-y center top;
   background-attachment: fixed;
-  background-size: auto; 
+  background-size: cover;
   color: #ccc;
   margin: 0;
   padding: 0;
   line-height: 1.5;
 }
 
-/* If you have pages that rely on “Arial, sans-serif; background-color: #222;” 
-   you can fallback to something like:
-   font-family: 'Orbitron', Arial, sans-serif; 
-   background-color: #222;
-   – but we’ll keep the older references commented, so they’re not lost:
-
-   body {
-     font-family: Arial, sans-serif;
-     background-color: #222;
-     color: #eee;
-     margin: 0;
-     padding: 0;
-   }
-*/
-
 /* --------------------------------------------------
-   NAVBAR (Fixed at Top)
+   Navbar
 -------------------------------------------------- */
-/* 
-   Single merged nav style. 
-   Enough top padding in container so content isn’t hidden behind the nav.
-*/
 nav {
-  background-color: #262626;  /* Dark bar consistent with container */
+  background-color: #262626;
   width: 100%;
   padding: 10px 15px;
   text-align: center;
@@ -54,7 +30,7 @@ nav {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* Above content */
+  z-index: 1000;
 }
 
 nav a {
@@ -69,95 +45,58 @@ nav a:hover {
   color: #fff;
 }
 
-/* 
-   We keep the older nav styles commented below in case some page references them specifically:
-
-   nav {
-     background-color: #333;
-     padding: 5px 10px;
-     text-align: center;
-   }
-
-   nav a {
-     color: #ddd;
-     text-decoration: none;
-     margin: 0 5px;
-     font-size: 14px;
-   }
-*/
-
 /* --------------------------------------------------
-   CONTAINER & HEADINGS
+   Container & Headings
 -------------------------------------------------- */
 .container {
-  /* Pushed down by ~70px so it doesn't hide behind fixed nav */
   max-width: 900px;
-  margin: 70px auto 20px auto; 
+  margin: 70px auto 20px auto; /* Top margin to clear fixed nav */
   padding: 20px;
   background: #262626;
   border: 1px solid #444;
   border-radius: 4px;
 }
 
-h1, h2, h3 {
-  margin: 0.5em 0;
-}
-
-/* Larger heading for the main title if needed. 
-   Keeping it for pages that rely on it. */
 h1 {
   text-align: center;
   margin: 10px 0;
   font-size: 28px;
 }
 
-/* Some older references from your prior file:
-   
-   h1 {
-     text-align: center;
-     margin: 10px 0;
-     font-size: 24px;
-   }
-*/
+h2, h3 {
+  margin: 0.5em 0;
+}
 
 /* --------------------------------------------------
-   BUTTONS
+   Buttons
 -------------------------------------------------- */
-/* Basic universal button style from older snippet */
-button {
-  background-color: #444;
-  color: #ccc;
-  border: 1px solid #555;
-  padding: 6px 12px;
-  font-size: 0.9em;
-  cursor: pointer;
-  border-radius: 3px;
-  margin-top: 5px;
-}
-button:hover {
-  background-color: #555;
-}
-
-/* Additional .btn-system & .btn-regenerate references 
-   from your older code. 
-   Preserved to avoid breaks. */
-.btn-system, .btn-regenerate {
-  background-color: #444;
-  border: 1px solid #555;
-  color: #eee;
-  padding: 5px 10px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 3px;
-}
-
 .button-bar {
   text-align: center;
   margin: 15px 0;
 }
 
+button,
+.btn-system,
+.btn-regenerate {
+  background-color: #444;
+  color: #ccc;
+  border: 1px solid #555;
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-top: 5px;
+  transition: background 0.3s;
+}
+
+button:hover,
+.btn-system:hover,
+.btn-regenerate:hover {
+  background-color: #555;
+}
+
 /* --------------------------------------------------
-   SECTIONS / CARDS
+   Sections & Cards
 -------------------------------------------------- */
 .section {
   background-color: #2a2a2a;
@@ -171,10 +110,7 @@ button:hover {
   margin: 8px 0;
 }
 
-/* 
-   Settlement card: multi-line layout so you can see all details 
-   at a glance. 
-*/
+/* Settlement Cards */
 .settlement {
   background-color: #333;
   border: 1px solid #555;
@@ -185,33 +121,19 @@ button:hover {
   line-height: 1.4;
 }
 
-/* 
-   Multi-line .settlement-output: 
-   We ensure no “nowrap” or “ellipsis.” 
-   Also keep older references from the snippet 
-   to avoid breakages.
-*/
+/* Settlement Output: use sans-serif for readability */
 .settlement-output {
-  background: #1a1a1a; 
+  background: #1a1a1a;
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #555;
   text-align: left;
   color: #ddd;
   line-height: 1.4;
-
-  /* Removed overflow & ellipsis. */
-  white-space: normal; 
-  text-overflow: unset;
+  white-space: normal;
 }
 
-/* If you want minimal or no background inside settlement-output, 
-   comment out the background/border lines:
-   background: none;
-   border: none;
-*/
-
-/* Inline lists for e.g. traders or structures in older code */
+/* Inline List (if used) */
 .inline-list {
   list-style-type: none;
   margin: 0;
@@ -224,8 +146,7 @@ button:hover {
 }
 
 /* --------------------------------------------------
-   WEAPONS / BOND / ITEM / EVENTS
-   (Preserved references for other pages)
+   Weapons, Bonds, Items, Events (Preserved for other pages)
 -------------------------------------------------- */
 .weapon-output {
   margin-top: 20px;
@@ -281,6 +202,7 @@ button:hover {
   font-family: 'Roboto', sans-serif;
   font-size: 1.1em;
 }
+
 .event-card:hover {
   background: #444;
 }
@@ -291,10 +213,9 @@ button:hover {
   margin-top: 10px;
 }
 
-/* 
-   Possibly used on some pages:
-   .centered-death-screen
-*/
+/* --------------------------------------------------
+   Centered Death Screen (if used)
+-------------------------------------------------- */
 .centered-death-screen {
   position: fixed;
   top: 50%;
@@ -309,8 +230,7 @@ button:hover {
 }
 
 /* --------------------------------------------------
-   ART-CREDIT
-   (Footer or fixed corner)
+   Art Credit
 -------------------------------------------------- */
 .art-credit {
   text-align: center;
@@ -329,6 +249,7 @@ button:hover {
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
 }
+
 .art-credit a:hover {
   text-decoration: underline;
 }
