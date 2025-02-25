@@ -275,25 +275,33 @@
 
     function generateMilitaryData(population, militarism, forcedStation) {
       // Calculate soldier count using a base percentage modified by militarism.
-      let basePerc = randomInt(config.settlement.military.assets.soldiers.populationPercentage.min * 100,
-                                 config.settlement.military.assets.soldiers.populationPercentage.max * 100) / 100;
+      let basePerc = randomInt(
+        config.settlement.military.assets.soldiers.populationPercentage.min * 100,
+        config.settlement.military.assets.soldiers.populationPercentage.max * 100
+      ) / 100;
       let soldierMultiplier = militarism / 50; // Factor of 1 when militarism = 50.
       let soldiers = Math.floor(population * basePerc * soldierMultiplier);
 
       // Armored vehicles determined by dividing soldier count by a random ratio.
-      let vehiclesRatio = randomInt(config.settlement.military.armoredVehicles.soldiersPerVehicle.min,
-                                    config.settlement.military.armoredVehicles.soldiersPerVehicle.max);
+      let vehiclesRatio = randomInt(
+        config.settlement.military.assets.armoredVehicles.soldiersPerVehicle.min,
+        config.settlement.military.assets.armoredVehicles.soldiersPerVehicle.max
+      );
       let armoredVehicles = Math.max(1, Math.floor(soldiers / vehiclesRatio));
 
       let ships = {};
       if (config.settlement.military.assets.ships.enabled) {
         let totalShips = 0;
         if (forcedStation) {
-          totalShips = randomInt(config.settlement.military.assets.ships.forcedStationMinimum.min,
-                                 config.settlement.military.assets.ships.forcedStationMinimum.max);
+          totalShips = randomInt(
+            config.settlement.military.assets.ships.forcedStationMinimum.min,
+            config.settlement.military.assets.ships.forcedStationMinimum.max
+          );
         } else if (population >= config.settlement.military.assets.ships.defaultMinimumPopulation) {
-          totalShips = randomInt(config.settlement.military.assets.ships.defaultShipCountRange.min,
-                                 config.settlement.military.assets.ships.defaultShipCountRange.max);
+          totalShips = randomInt(
+            config.settlement.military.assets.ships.defaultShipCountRange.min,
+            config.settlement.military.assets.ships.defaultShipCountRange.max
+          );
         }
         config.settlement.military.assets.ships.shipTypes.forEach(shipType => {
           ships[shipType.name] = 0;
