@@ -1,157 +1,105 @@
-/* --------------------------------------------------
-   Import Fonts
--------------------------------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
 
-/* --------------------------------------------------
-   Global Base Styles
--------------------------------------------------- */
 body {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   background: #1a1a1a url("spacebackground.png") repeat-y center top;
   background-attachment: fixed;
-  background-size: cover;
+  background-size: auto;
   color: #ccc;
   margin: 0;
-  padding: 0;
+  padding-top: 0px; /* Adjust based on navbar height */
   line-height: 1.5;
 }
 
-/* --------------------------------------------------
-   Navbar
--------------------------------------------------- */
-nav {
-  background-color: #262626;
-  width: 100%;
-  padding: 10px 15px;
-  text-align: center;
-  border-bottom: 2px solid #444;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
+ 
+h1, h2, h3 {
+  margin: 0.5em 0;
 }
 
-nav a {
-  color: #ccc;
-  text-decoration: none;
-  font-size: 1.1em;
-  margin: 0 15px;
-  font-weight: bold;
-}
-
-nav a:hover {
-  color: #fff;
-}
-
-/* --------------------------------------------------
-   Container & Headings
--------------------------------------------------- */
 .container {
   max-width: 900px;
-  margin: 70px auto 20px auto; /* Top margin to clear fixed nav */
+  margin: 60px auto 20px auto; /* Pushes content down below navbar */
   padding: 20px;
   background: #262626;
   border: 1px solid #444;
   border-radius: 4px;
 }
 
-h1 {
-  text-align: center;
-  margin: 10px 0;
-  font-size: 28px;
+.section {
+  margin-bottom: 1.5em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #444;
 }
 
-h2, h3 {
-  margin: 0.5em 0;
-}
-
-/* --------------------------------------------------
-   Buttons
--------------------------------------------------- */
-.button-bar {
-  text-align: center;
-  margin: 15px 0;
-}
-
-button,
-.btn-system,
-.btn-regenerate {
+button {
   background-color: #444;
   color: #ccc;
   border: 1px solid #555;
   padding: 6px 12px;
-  font-size: 16px;
+  font-size: 0.9em;
   cursor: pointer;
   border-radius: 3px;
   margin-top: 5px;
-  transition: background 0.3s;
 }
 
-button:hover,
-.btn-system:hover,
-.btn-regenerate:hover {
+button:hover {
   background-color: #555;
 }
 
-/* --------------------------------------------------
-   Sections & Cards
--------------------------------------------------- */
-.section {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 4px;
-  margin: 12px 0;
-  padding: 12px;
-}
-
+.settlement,
 .planet {
-  margin: 8px 0;
+  margin: 0.5em 0;
+  padding: 0.5em;
+  background: #333;
+  border: 1px solid #444;
+  border-radius: 3px;
 }
 
-/* Settlement Cards */
-.settlement {
-  background-color: #333;
-  border: 1px solid #555;
-  border-radius: 4px;
-  margin: 8px 0;
-  padding: 10px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* Settlement Output: use sans-serif for readability */
 .settlement-output {
-  background: #1a1a1a;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+/* Navbar Fix - Full Width & Attached to Top */
+nav {
+  background-color: #262626; /* Match container background */
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 2px solid #444; /* Add a subtle bottom border */
+  position: fixed; /* Keeps it at the top while scrolling */
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Ensures it appears above other content */
+}
+
+nav a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 1.1em;
+  margin: 0 15px; /* Adds spacing between links */
+  font-weight: bold;
+}
+
+nav a:hover {
+  color: #fff; /* Highlights when hovered */
+}
+
+.settlement-output {
+  background: #1a1a1a; /* Lighter than its border, for contrast */
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #555;
   text-align: left;
   color: #ddd;
   line-height: 1.4;
-  white-space: normal;
 }
 
-/* Inline List (if used) */
-.inline-list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: inline;
-}
-.inline-list li {
-  display: inline;
-  margin-right: 5px;
-}
-
-/* --------------------------------------------------
-   Weapons, Bonds, Items, Events (Preserved for other pages)
--------------------------------------------------- */
 .weapon-output {
-  margin-top: 20px;
+  margin-top: 20px;       /* Spacing above the entire list */
   padding: 10px;
-  background: #1a1a1a;
+  background: #1a1a1a;    /* Keep consistent with your overall theme */
   border: 1px solid #555;
   border-radius: 5px;
   color: #ddd;
@@ -162,6 +110,22 @@ button:hover,
   margin-bottom: 10px;
   padding: 10px;
   background: #333;
+  border: 1px solid #444;
+  border-radius: 3px;
+}
+
+.weapon-output {
+  background: #1a1a1a;  /* Dark background to match your style */
+  padding: 15px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.weapon-item {
+  background: #333;
+  margin-bottom: 10px;
+  padding: 10px;
   border: 1px solid #444;
   border-radius: 3px;
 }
@@ -179,6 +143,43 @@ button:hover,
   font-size: 0.95em;
 }
 
+.art-credit {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  font-size: 0.4em; /* Half of previous 0.8em size */
+  color: rgba(255, 255, 255, 0.5); /* Subtle transparency */
+  background: rgba(0, 0, 0, 0.2); /* Light transparent black for readability */
+  padding: 2px 4px;
+  border-radius: 2px;
+  text-decoration: none;
+  width: auto;
+}
+
+.art-credit a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+}
+
+.art-credit a:hover {
+  text-decoration: underline;
+}
+
+.centered-death-screen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #262626;
+  border: 1px solid #444;
+  padding: 20px;
+  border-radius: 4px;
+  text-align: center;
+  z-index: 2000;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 .bond-card, .item-card {
   font-family: 'Roboto', sans-serif;
   background: #333;
@@ -187,6 +188,7 @@ button:hover,
   padding: 10px;
   margin-bottom: 5px;
 }
+
 .bond-card ul, .item-card ul {
   margin: 0;
   padding-left: 20px;
@@ -213,43 +215,100 @@ button:hover,
   margin-top: 10px;
 }
 
-/* --------------------------------------------------
-   Centered Death Screen (if used)
--------------------------------------------------- */
-.centered-death-screen {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #262626;
-  border: 1px solid #444;
-  padding: 20px;
-  border-radius: 4px;
-  text-align: center;
-  z-index: 2000;
+/* Base styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #222;
+  color: #eee;
+  margin: 0;
+  padding: 0;
 }
 
-/* --------------------------------------------------
-   Art Credit
--------------------------------------------------- */
+nav {
+  background-color: #333;
+  padding: 5px 10px;
+  text-align: center;
+}
+
+nav a {
+  color: #ddd;
+  text-decoration: none;
+  margin: 0 5px;
+  font-size: 14px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+/* Title and button */
+h1 {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 24px;
+}
+
+.button-bar {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.btn-system, .btn-regenerate {
+  background-color: #444;
+  border: 1px solid #555;
+  color: #eee;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+/* Section/card styling */
+.section {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  margin: 8px 0;
+  padding: 8px;
+}
+
+.planet {
+  margin: 6px 0;
+}
+
+/* Settlement card styling - more condensed */
+.settlement {
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  margin: 4px 0;
+  padding: 6px;
+  font-size: 14px;
+}
+
+.settlement-output {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.inline-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+.inline-list li {
+  display: inline;
+  margin-right: 5px;
+}
+
+/* Art credit styling */
 .art-credit {
   text-align: center;
   margin: 10px 0;
   font-size: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  color: rgba(255, 255, 255, 0.5);
-  padding: 2px 4px;
-  border-radius: 2px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-}
-
-.art-credit a {
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-}
-
-.art-credit a:hover {
-  text-decoration: underline;
 }
