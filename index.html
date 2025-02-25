@@ -14,14 +14,17 @@
     <a href="combat_tracker.html">Combat Tracker</a>
   </nav>
 
+  <!-- Moved generate button to the top of the page -->
+  <div id="topControls">
+    <button id="generateSystemButton" class="btn-system">
+      Generate System
+    </button>
+  </div>
+
   <div class="container">
     <h1>Astral Axial System Generator</h1>
     <!-- Main output container where the system and settlements will be rendered -->
     <div id="systemOutput"></div>
-    <!-- Button to generate a new system -->
-    <button id="generateSystemButton" class="btn-system">
-      Generate System
-    </button>
     <!-- Advanced options panel (collapsible/hidden for now) -->
     <div id="advancedOptions" style="display: none;">
       <h2>Advanced Settings</h2>
@@ -110,7 +113,7 @@
           let planet = {
             name: planetName,
             biome: biome,
-            type: planetType, // planet type is set here
+            type: planetType,
             settlements: []
           };
           // Generate between 1 and 4 settlements for this planet.
@@ -178,6 +181,10 @@
 
       // Population is based on prosperity, global max, and settlement type multiplier.
       let popMax = Math.floor((prosperity / 100) * config.globalSettings.defaultRanges.population.max * settlementType.populationMultiplier);
+      // For Space Stations, cap population to 200 in 95% of cases.
+      if (settlementType.name === "Station" && Math.random() < 0.95) {
+        popMax = Math.min(popMax, 200);
+      }
       popMax = Math.max(popMax, config.globalSettings.defaultRanges.population.min);
       let population = randomInt(config.globalSettings.defaultRanges.population.min, popMax);
 
@@ -281,6 +288,8 @@
       ) / 100;
       let soldierMultiplier = militarism / 50; // Factor of 1 when militarism = 50.
       let soldiers = Math.floor(population * basePerc * soldierMultiplier);
+      // Ensure soldiers do not exceed the total population.
+      soldiers = Math.min(soldiers, population);
 
       // Armored vehicles determined by dividing soldier count by a random ratio.
       let vehiclesRatio = randomInt(
