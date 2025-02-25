@@ -61,7 +61,6 @@
       { "name": "Jol", "weight": 1 },
       { "name": "Fron", "weight": 1 },
       { "name": "Grev", "weight": 1 }
-      /* ... (expand to hundreds as desired) ... */
     ],
     "settlementCore": [
       { "name": "anta", "weight": 1 },
@@ -100,7 +99,6 @@
       { "name": "dral", "weight": 1 },
       { "name": "azar", "weight": 1 },
       { "name": "texis", "weight": 1 }
-      /* ... expand as needed ... */
     ],
     "settlementSuffix": [
       { "name": "Prime", "weight": 1 },
@@ -125,7 +123,6 @@
       { "name": "Mesa", "weight": 1 },
       { "name": "Ridge", "weight": 1 },
       { "name": "Gulch", "weight": 1 }
-      /* ... expand further ... */
     ],
     "firstNamePrefixes": [
       { "name": "Xan", "weight": 1 },
@@ -160,7 +157,6 @@
       { "name": "Har", "weight": 1 },
       { "name": "Lom", "weight": 1 },
       { "name": "Fex", "weight": 1 }
-      /* ... expand ... */
     ],
     "firstNameSuffixes": [
       { "name": "dor", "weight": 1 },
@@ -180,7 +176,6 @@
       { "name": "ell", "weight": 1 },
       { "name": "o", "weight": 1 },
       { "name": "an", "weight": 1 }
-      /* ... expand ... */
     ],
     "lastNamePrefixes": [
       { "name": "Xan", "weight": 1 },
@@ -211,7 +206,6 @@
       { "name": "Hel", "weight": 1 },
       { "name": "Arc", "weight": 1 },
       { "name": "Ryd", "weight": 1 }
-      /* ... expand ... */
     ],
     "lastNameSuffixes": [
       { "name": "dor", "weight": 1 },
@@ -232,7 +226,6 @@
       { "name": "blade", "weight": 1 },
       { "name": "sen", "weight": 1 },
       { "name": "al", "weight": 1 }
-      /* ... expand ... */
     ]
   },
   "settlement": {
