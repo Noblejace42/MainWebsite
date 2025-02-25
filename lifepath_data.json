@@ -1449,19 +1449,6 @@
         }
       },
       {
-        "id": "espionageevent6",
-        "description": "Fall victim to a failed extraction, selling your information to your captors for your freedom.",
-        "rewards": {
-          "item": "50ft of Rope, 3 Rations",
-          "credits": 400,
-          "bond": "I risked it all on a failed extraction, I had to betray _____ to get out alive."
-        },
-        "penalties": {
-          "scarChance": 0.6,
-          "deathChance": 0.03
-        }
-      },
-      {
         "id": "espionageevent7",
         "description": "Hack into a secure facility controlled by a dangerous criminal.",
         "rewards": {
