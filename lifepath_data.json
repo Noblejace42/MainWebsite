@@ -390,7 +390,7 @@
         "id": "laborevent1",
         "description": "Labor in a hazardous environment, risking injury but earning rewards.",
         "rewards": {
-          "item": "Work Gloves 1d6 (Arms, Armored 2)",
+          "item": "Work Gloves A1d6 (Arms, Armored 2)",
           "credits": 150,
           "bond": "I earned the trust of an influential supervisor named _____, and they gave me a chance at something greater."
         },
@@ -398,7 +398,7 @@
           "scarChance": 0.2,
           "deathChance": 0.05,
           "extraItem": {
-            "item": "Tool Kit 1d6",
+            "item": "Tool Kit I1d6",
             "chance": 0.25
           }
         }
@@ -407,7 +407,7 @@
         "id": "laborevent2",
         "description": "Spend time gaining skill in your craft, becoming a reliable worker in your field.",
         "rewards": {
-          "item": "Specialized Tool 1d8 (aid|Skill)",
+          "item": "Specialized Tool I1d8 (aid|Skill)",
           "credits": 100,
           "bond": "I honed my skills under a seasoned mentor named _____, who taught me everything I know."
         },
@@ -420,7 +420,7 @@
         "id": "laborevent3",
         "description": "Take a job at a dangerous factory working with a volatile substance.",
         "rewards": {
-          "item": "Old Tool Kit 1d6 (aid|Skill), Bandages 1d8 (Special, Consumable1)",
+          "item": "Old Tool Kit I1d4 (aid|Precision), Bandages I1d8 (Special, Consumable1)",
           "credits": 100,
           "bond": "The accident at the factory in _____ changed me forever."
         },
@@ -428,7 +428,7 @@
           "scarChance": 0.5,
           "deathChance": 0.15,
           "extraItem": {
-            "item": "Bandages 1d8 (Special, Consumable1)",
+            "item": "Bandages I1d8 (Special, Consumable1)",
             "chance": 0.75
           }
         }
@@ -437,7 +437,7 @@
         "id": "laborevent4",
         "description": "Work long hours to try and move up the ladder.",
         "rewards": {
-          "item": "Worn Pants 1d6 (Legs, Armored 2)",
+          "item": "Worn Pants A1d6 (Legs, Armored 2)",
           "credits": 200,
           "bond": "I spent years breaking my back for _____, yet they never paid me what I deserved."
         },
@@ -467,20 +467,20 @@
         "id": "laborevent6",
         "description": "Get assigned to a deadly line of work by management - for great pay.",
         "rewards": {
-          "item": "Broken Hard-hat (1d4, Lucky)",
+          "item": "Broken Hard-hat A1d4 (Head, Lucky)",
           "credits": 500,
           "bond": "I almost died doing _____, and I will make sure never to go back."
         },
         "penalties": {
           "scarChance": 0.6,
-          "deathChance": 0.25
+          "deathChance": 0.2
         }
       },
       {
         "id": "laborevent7",
         "description": "Invent a new idea to improve workflow.",
         "rewards": {
-          "item": "Exo-Locomotive Pack (Back, aid|Fortitude, Charging3)",
+          "item": "Exo-Locomotive Pack I1d8 (Back, aid|Fortitude, Charging3)",
           "credits": 100,
           "bond": "I devised a method that revolutionized work at the plant on _____."
         },
@@ -493,7 +493,7 @@
         "id": "laborevent8",
         "description": "Attempt to negotiate better working conditions.",
         "rewards": {
-          "item": "Secure Helmet 1d6 (Head, Armored 3, Tough 1)",
+          "item": "Secure Helmet A1d6 (Head, Armored 3, Tough 1)",
           "credits": 25,
           "bond": "I negotiated fair treatment at work with my boss _____, and earned their respect."
         },
@@ -519,7 +519,7 @@
         "id": "laborevent10",
         "description": "Repair a malfunctioning machine before it becomes a danger.",
         "rewards": {
-          "item": "Fuse-Welder 1d10 (Heavy, Charging 1)",
+          "item": "Fuse-Welder I1d10 (Heavy, Charging 1)",
           "credits": 100,
           "bond": "I fixed a critical breakdown at _____ when no one else could."
         },
@@ -527,7 +527,7 @@
           "scarChance": 0.2,
           "deathChance": 0.06,
           "extraItem": {
-            "item": "Ripped Pants 1d4 (Legs, Armored 2)",
+            "item": "Ripped Pants A1d4 (Legs, Armored 2)",
             "chance": 0.1
           }
         }
@@ -536,7 +536,7 @@
         "id": "laborevent11",
         "description": "Get promoted for your hard work, securing a nice bonus.",
         "rewards": {
-          "item": "Nice Hat 1d4 (Head)",
+          "item": "Nice Hat A1d4 (Head)",
           "credits": 500,
           "bond": "I was promoted during my work at _____, for my dedication and skill."
         },
@@ -549,7 +549,7 @@
         "id": "laborevent12",
         "description": "Work through a power outage during a freak storm.",
         "rewards": {
-          "item": "3 Rations, Camping Gear 1d8",
+          "item": "3 Rations, Camping Gear I1d8",
           "credits": 200,
           "bond": "I endured the chaos from the _____ and kept the operation running."
         },
@@ -562,7 +562,7 @@
         "id": "laborevent13",
         "description": "Fix minor safety violations.",
         "rewards": {
-          "item": "Material Scanner 1d8 (Charging 1, Aid|Awareness",
+          "item": "Material Scanner I1d8 (Charging 1, Aid|Awareness",
           "credits": 15,
           "bond": "I took charge during the safety review and earned my boss _____'s trust."
         },
@@ -614,7 +614,7 @@
         "id": "laborevent17",
         "description": "Witness your jobs competition falter.",
         "rewards": {
-          "item": "Nice Boots 1d8 (Legs)",
+          "item": "Nice Boots A1d8 (Legs, Tough 1)",
           "credits": 300,
           "bond": "The misfortune at a rival plant on _____ paved the way for our success."
         },
@@ -653,7 +653,7 @@
         "id": "laborevent20",
         "description": "You witness a machine explode violently.",
         "rewards": {
-          "item": "Protective Vest 1d8 (Chest, Tough 1, Armored 3)",
+          "item": "Protective Vest A1d8 (Chest, Tough 1, Armored 3)",
           "credits": 200,
           "bond": "The explosion I witnessed almost killed me, but thanks to my friend _____, I survived."
         },
@@ -671,7 +671,7 @@
         "id": "crimeevent1",
         "description": "Attempt a dangerous heist.",
         "rewards": {
-          "item": "Lockbreaker 1d10 (Heavy, Loading)",
+          "item": "Lockbreaker I1d10 (Heavy, Loading)",
           "credits": 800,
           "bond": "I pulled off the job of a lifetime, robbing _____."
         },
@@ -697,7 +697,7 @@
         "id": "crimeevent3",
         "description": "Form an alliance with a powerful crime lord.",
         "rewards": {
-          "item": "Marked Deck of Cards 1d6 (Aid|Recall)",
+          "item": "Marked Deck of Cards I1d6 (Aid|Recall)",
           "credits": 300,
           "bond": "I worked with ______, a powerful crime lord who no longer likes me."
         },
@@ -710,7 +710,7 @@
         "id": "crimeevent4",
         "description": "Join a rival syndicate to your current employer.",
         "rewards": {
-          "item": "Crowbar 1d6 (Aid|Might), Light Revolver 1d6 (Quick, Ergonomic, Near-Ranged, Ammo)",
+          "item": "Crowbar I1d6 (Aid|Might), Light Revolver W1d6 (Quick, Ergonomic, Near-Ranged, Ammo)",
           "credits": 350,
           "bond": "I received an offer I couldn’t refuse from a rival syndicate called _____, forever altering my path."
         },
@@ -727,7 +727,7 @@
         "id": "crimeevent5",
         "description": "Witness a close associate of yours get arrested.",
         "rewards": {
-          "item": "Contraband Shotgun 1d8 (Unruly, Quick, Near-Ranged, Ammo)",
+          "item": "Contraband Shotgun W1d8 (Unruly, Quick, Near-Ranged, Ammo)",
           "credits": 200,
           "bond": "I let my friend _____ take the fall for me—and they'll never forget my betrayal."
         },
@@ -740,13 +740,13 @@
         "id": "crimeevent6",
         "description": "Escape a failed undercover operation before you're killed.",
         "rewards": {
-          "item": "Smuggler's Knife 1d4 (Quick, Unruly, Melee)",
+          "item": "Smuggler's Knife W1d4 (Quick, Unruly, Melee)",
           "credits": 150,
           "bond": "I escaped an undercover bust by the skin of my teeth—_____ is still hunting me."
         },
         "penalties": {
           "scarChance": 0.25,
-          "deathChance": 0.15,
+          "deathChance": 0.1,
           "extraItem": {
             "item": "Fake ID",
             "chance": 0.5
@@ -757,7 +757,7 @@
         "id": "crimeevent7",
         "description": "Attempt a breakout from the prison you're stuck in.",
         "rewards": {
-          "item": "2 Commlinks (charging5)",
+          "item": "2 Field Radios (Special, Charging5)",
           "credits": 180,
           "bond": "I made a legendary escape from the prison on _____ that still haunts the guards to this day."
         },
@@ -783,7 +783,7 @@
         "id": "crimeevent9",
         "description": "Plan a meticulous burgulary of a powerful item.",
         "rewards": {
-          "item": "Arco-tech Healing Stimulant",
+          "item": "Arco-tech Healing Stimulant (Special)",
           "credits": 50,
           "bond": "I broke into a vault at _____ and made off with treasures that many only dream of."
         },
@@ -791,7 +791,7 @@
           "scarChance": 0.35,
           "deathChance": 0.1,
           "extraItem": {
-            "item": "Chameleon Mask",
+            "item": "Chameleon Mask I1d10 (Charging 1, Special, Aid|Charm)",
             "chance": 0.35
           }
         }
@@ -800,7 +800,7 @@
         "id": "crimeevent11",
         "description": "After a miscalculated heist, flee from the law as it pursues you.",
         "rewards": {
-          "item": "Officer's Shotgun 1d10 (Quick, Unruly, Near-range, Ammo, Forceful, Loading)",
+          "item": "Officer's Shotgun W1d10 (Quick, Unruly, Near-range, Ammo, Forceful, Loading)",
           "credits": 200,
           "bond": "I made a mistake that put myself and my friend _____ in jeopardy, a lesson learned the hard way."
         },
@@ -813,7 +813,7 @@
         "id": "crimeevent12",
         "description": "Attempt to escape the betrayal of your trusted partner, barely making it out.",
         "rewards": {
-          "item": "Partner's Viblade 1d8 (Ergonomic, Quick, Melee, Piercing3)",
+          "item": "Partner's Viblade W1d8 (Ergonomic, Quick, Melee, Piercing3)",
           "credits": 120,
           "bond": "I was betrayed by _____, and now I carry that scar in more ways than one."
         },
@@ -826,7 +826,7 @@
         "id": "crimeevent13",
         "description": "Fight for survival when you are ambushed by a rival syndicate.",
         "rewards": {
-          "item": "Bulletproof Vest 1d6 (Chest, Armored 4, Tough 1)",
+          "item": "Bulletproof Vest A1d6 (Chest, Armored 4, Tough 1)",
           "credits": 320,
           "bond": "I survived an ambush from _____, it left me forever wary of those who envy my success."
         },
@@ -839,7 +839,7 @@
         "id": "crimeevent14",
         "description": "Partake in a risky smuggling operation that transports illegal goods.",
         "rewards": {
-          "item": "Stolen Lockbox, Smuggler's Knife 1d4 (Quick, Unruly, Melee)",
+          "item": "Stolen Lockbox, Smuggler's Knife W1d4 (Quick, Unruly, Melee)",
           "credits": 230,
           "bond": "I barely escaped a smuggling bust—I still wonder if _____ ever escaped."
         },
@@ -860,7 +860,7 @@
           "scarChance": 0.00,
           "deathChance": 0.00,
           "extraItem": {
-            "item": "Lucky Boots 1d4 (Lucky, Tough 2)",
+            "item": "Lucky Boots A1d4 (Lucky, Tough 2)",
             "chance": 0.2
           }
         }
@@ -880,7 +880,7 @@
         "id": "crimeevent17",
         "description": "Escape from a solo heist empty-handed but alive.",
         "rewards": {
-          "item": "Crowbar 1d6 (Aid|Might)",
+          "item": "Crowbar I1d6 (Aid|Might)",
           "credits": 0,
           "bond": "My solo job ended in failure, I vow to not fall victim to my pride ever again."
         },
@@ -888,7 +888,7 @@
           "scarChance": 0.05,
           "deathChance": 0.0,
           "extraItem": {
-            "item": "Lockpicks 1d8",
+            "item": "Lockpicks I1d8",
             "chance": 0.25
           }
         }
@@ -910,7 +910,7 @@
         "id": "crimeevent19",
         "description": "Double cross your boss during a high-stakes operation, if it works you'll be rich enough to retire, if not, well, it was a good run.",
         "rewards": {
-          "item": "3 Ammo, Slugthrower 1d8 (Unruly, Ergonomic, Near-range, Ammo, Loading, Piercing 8)",
+          "item": "3 Ammo, Slugthrower W1d8 (Unruly, Ergonomic, Near-range, Ammo, Loading, Piercing 8)",
           "credits": 1000,
           "bond": "I made a critical mistake by crossing _____, and now my future is forever uncertain."
         },
@@ -927,7 +927,7 @@
         "id": "exploerevent1",
         "description": "Investigate the exotic plants you found on a megaflora world.",
         "rewards": {
-          "item": "2 Bandage (Consumable), 3 Rations, Binoculars 1d6 (Aid|Awareness)",
+          "item": "2 Bandage I1d6 (Special, Consumable 1), 3 Rations, Binoculars I1d6 (Aid|Awareness)",
           "credits": 100,
           "bond": "The plants on _____ left me stunned and fascinated."
         },
@@ -944,7 +944,7 @@
         "id": "exploerevent3",
         "description": "Venture into a mountainside cave you find one day while traveling.",
         "rewards": {
-          "item": "Flashlight 1d6 (Charging 3), 50ft Rope",
+          "item": "Flashlight I1d6 (Charging 3), 50ft Rope Coil I1d8 (Aid|Might)",
           "credits": 500,
           "bond": "I braved the heights of Mt. _____ on the planet _____ to uncover a cave rich in gemstones."
         },
@@ -957,7 +957,7 @@
         "id": "exploerevent4",
         "description": "Attempt to enter the seemingly abandoned outpost that lies ahead of you.",
         "rewards": {
-          "item": "Rusted Phase Shifter (Charging 1, Complicated, Damaged)",
+          "item": "Rusted Phase Shifter (Special, Charging 1, Complicated, Damaged)",
           "credits": 150,
           "bond": "I salvaged classified technology from an old forgotten outpost that used to belong to _____."
         },
@@ -965,7 +965,7 @@
           "scarChance": 0.1,
           "deathChance": 0.04,
           "extraItem": {
-            "item": "Mag Boots (Feet, Heavy)",
+            "item": "Mag Boots (Feet, Special, Heavy)",
             "chance": 0.1
           }
         }
@@ -974,7 +974,7 @@
         "id": "exploerevent5",
         "description": "You spy some rare medicinal herbs on the side of a trail, you attempt to gather them",
         "rewards": {
-          "item": "3 Regenerative Bandage 1d6 (Consumable 1)",
+          "item": "3 Regenerative Bandage I1d6 (Special, Consumable 1)",
           "credits": 90,
           "bond": "I braved the swamp to harvest nature's hidden remedies on _____."
         },
@@ -1000,7 +1000,7 @@
         "id": "exploerevent7",
         "description": "Take a mission to an abandoned mining colony to figure out what happened there.",
         "rewards": {
-          "item": "Gas Mask 1d4 (Pressurized, Armored 2)",
+          "item": "Gas Mask A1d4 (Pressurized, Armored 2)",
           "credits": 80,
           "bond": "I can't believe what happened at the mining colony on _____."
         },
@@ -1013,7 +1013,7 @@
         "id": "exploerevent8",
         "description": "Press on through the dense coastal fog as it surrounds you.",
         "rewards": {
-          "item": "Digital Astrolabe 1d8 (Complicated)",
+          "item": "Digital Astrolabe I1d8 (Complicated)",
           "credits": 140,
           "bond": "I discovered what happened to the crew that crashed in the fog on _____."
         },
@@ -1026,7 +1026,7 @@
         "id": "exploerevent9",
         "description": "Attempt to rescue a stranded person stuck on a perilous river crossing.",
         "rewards": {
-          "item": "50ft Rope, Climbing Gear 1d6",
+          "item": "50ft Rope Coil I1d8 (Aid|Might), Climbing Gear I1d6",
           "credits": 200,
           "bond": "I saved _____ from a fall into a deadly river."
         },
@@ -1039,7 +1039,7 @@
         "id": "exploerevent10",
         "description": "Try the mysterious golden fruit hanging down from a tree that has crossed your path.",
         "rewards": {
-          "item": "Plant Identifier 1d10 (Charging 1)",
+          "item": "Plant Identifier I1d10 (Charging 1)",
           "credits": 120,
           "bond": "I encountered a botanical enigma on _____."
         },
@@ -1052,7 +1052,7 @@
         "id": "exploerevent11",
         "description": "Attempt to traverse an underground cavern system to find a lost caver.",
         "rewards": {
-          "item": "Caving Helmet 1d6 (Head, Tough 1, Armored 2), Climbing Gear 1d6",
+          "item": "Caving Helmet A1d6 (Head, Tough 1, Armored 2), Climbing Gear I1d6",
           "credits": 200,
           "bond": "I delved deep and rescued _____ from the caves that trapped them."
         },
@@ -1065,7 +1065,7 @@
         "id": "exploerevent12",
         "description": "Traverse an ancient canyon looking for carvings of an underdeveloped tribe.",
         "rewards": {
-          "item": "Bone Dagger 1d4 (Violent 2)",
+          "item": "Bone Dagger W1d4 (Violent 2)",
           "credits": 110,
           "bond": "I discovered carvings left by a tribe on _____."
         },
@@ -1078,7 +1078,7 @@
         "id": "exploerevent13",
         "description": "Gaze up at a majestic arch over a canyon.",
         "rewards": {
-          "item": "Digital Binoculars 1d8 (Aid|Awareness, Charging 2)",
+          "item": "Digital Binoculars I1d8 (Aid|Awareness, Charging 2)",
           "credits": 90,
           "bond": "I witnessed a beautiful natural formation in the canyons on _____."
         },
@@ -1091,7 +1091,7 @@
         "id": "exploerevent14",
         "description": "Seek shelter with your caravan from a sudden desert sandstorm.",
         "rewards": {
-          "item": "Desert Camouflage Cloak 1d8 (Back, Aid|Precision)",
+          "item": "Desert Camouflage Cloak I1d8 (Back, Aid|Precision)",
           "credits": 0,
           "bond": "I found refuge in a ruin with my friend _____."
         },
@@ -1104,7 +1104,7 @@
         "id": "exploerevent16",
         "description": "Attempt to mine some weird glowing rocks you find in a glacial tundra.",
         "rewards": {
-          "item": "Power Cell (Charging 1)",
+          "item": "Power Cell (Special, Charging 1)",
           "credits": 125,
           "bond": "I discovered rocks on the planet _____ that make perfect capacitors."
         },
@@ -1117,7 +1117,7 @@
         "id": "exploerevent18",
         "description": "Step into an extremely deadly, trapped, temple in pursuit of riches beyond my wildest dreams.",
         "rewards": {
-          "item": "2 Bandages (Consumable 1), Worn Boots 1d6 (Feet, Armored 2)",
+          "item": "2 Bandages I1d6 (Special, Consumable 1), Worn Boots A1d6 (Feet, Armored 2)",
           "credits": 2000,
           "bond": "I found incredible riches in the dangerous ziggurat on _____, my partner _____ fell to their doom along the way."
         },
@@ -1130,7 +1130,7 @@
         "id": "exploerevent20",
         "description": "On a solo expedition through treacherous highlands, you narrowly escape a sudden landslide.",
         "rewards": {
-          "item": "Camping Gear 1d10 (Consumable 2)",
+          "item": "Camping Gear I1d10 (Consumable 2)",
           "credits": 100,
           "bond": "I survived a landslide in the highlands on _____."
         },
@@ -1147,7 +1147,7 @@
         "id": "spaceevent1",
         "description": "Fix up your starship after it sustains heavy damage in a meteor shower.",
         "rewards": {
-          "item": "Starship Repair Tool 1d8 (Charging 2, Complicated)",
+          "item": "Starship Repair Tool I1d8 (Charging 2, Complicated)",
           "credits": 150,
           "bond": "I survived a meteor shower by trusting my pilot _____."
         },
@@ -1155,7 +1155,7 @@
           "scarChance": 0.1,
           "deathChance": 0.01,
           "extraItem": {
-            "item": "Crowbar 1d6 (Aid|Might)",
+            "item": "Crowbar I1d6 (Aid|Might)",
             "chance": 0.2
           }
         }
@@ -1164,7 +1164,7 @@
         "id": "spaceevent2",
         "description": "Navigate through an asteroid belt to a mysterious distress beacon.",
         "rewards": {
-          "item": "Power Cell (Charging 1)",
+          "item": "Power Cell (Special, Charging 1)",
           "credits": 300,
           "bond": "I salvaged valuable satellite parts with my copilot _____ in the midst of a deadly asteroid field."
         },
@@ -1177,7 +1177,7 @@
         "id": "spaceevent3",
         "description": "A sudden engine malfunction in deep space forces you to perform an emergency repair.",
         "rewards": {
-          "item": "Nanite Repair Kit (Consumable 1)",
+          "item": "Nanite Repair Kit (Special, Consumable 1)",
           "credits": 180,
           "bond": "I overcame an engine malfunction caused by _____'s careless negligence."
         },
@@ -1185,7 +1185,7 @@
           "scarChance": 0.2,
           "deathChance": 0.06,
           "extraItem": {
-            "item": "Starship Repair Kit 1d10 (Consumable 1)",
+            "item": "Starship Repair Kit I1d10 (Consumable 1)",
             "chance": 0.15
           }
         }
@@ -1194,7 +1194,7 @@
         "id": "spaceevent4",
         "description": "Attempt to hold your ship together when it hits a spatial distortion and is sent wildly off course.",
         "rewards": {
-          "item": "Old Welding Kit 1d4 (Aid|Tech, Charging 1)",
+          "item": "Old Welding Kit I1d4 (Aid|Tech, Charging 1)",
           "credits": 220,
           "bond": "I survived an axial navigation error and saved my friend ______."
         },
@@ -1207,7 +1207,7 @@
         "id": "spaceevent5",
         "description": "Explore a derelict starship you found floating in deep space.",
         "rewards": {
-          "item": "Windlance Rifle 1d8 (Electrified, Ergonomic, Energized, Accurate 1)",
+          "item": "Windlance Rifle W1d8 (Electrified, Ergonomic, Energized, Accurate 1)",
           "credits": 0,
           "bond": "I uncovered a powerful weapon in a destroyed starship lost in the _____ system."
         },
@@ -1215,7 +1215,7 @@
           "scarChance": 0.15,
           "deathChance": 0.07,
           "extraItem": {
-            "item": "Ancient Data Core",
+            "item": "Corrupted Data Core",
             "chance": 0.1
           }
         }
@@ -1224,7 +1224,7 @@
         "id": "spaceevent6",
         "description": "Take a routine patrol through a beautiful gas nebula.",
         "rewards": {
-          "item": "Handheld Material Analyzer 1d8 (Charging 1, Complicated)",
+          "item": "Handheld Material Analyzer 1Id8 (Charging 1, Complicated)",
           "credits": 260,
           "bond": "I charted the beauty and dangers of a nebula, earning respect from _____."
         },
@@ -1250,7 +1250,7 @@
         "id": "spaceevent8",
         "description": "Survive getting hit by a rogue asteroid.",
         "rewards": {
-          "item": "EVA Backpack 1d4 (Pressurized, Armored 2)",
+          "item": "EVA Backpack A1d4 (Pressurized, Armored 2)",
           "credits": 240,
           "bond": "I braved a deepspace collision, I survived thanks to my and my friend _____'s quick thinking."
         },
@@ -1271,7 +1271,7 @@
           "scarChance": 0.1,
           "deathChance": 0.02,
           "extraItem": {
-            "item": "Pilot's Sidearm 1d6 (Quick, Ergonomic, Near-range, Ammo)",
+            "item": "Pilot's Sidearm W1d6 (Quick, Ergonomic, Near-range, Ammo)",
             "chance": 0.25
           }
         }
@@ -1280,7 +1280,7 @@
         "id": "spaceevent10",
         "description": "Fight a group of pirates that board your ship, hopefully making them reconsider robbing you.",
         "rewards": {
-          "item": "Breacher Shotgun 1d8 (Unruly, Aid|Might, Near-range, Ammo, Loading, Violent 1)",
+          "item": "Breacher Shotgun W1d8 (Unruly, Multipurpose, Aid|Might, Near-range, Ammo, Loading, Violent 1)",
           "credits": 160,
           "bond": "I crossed paths with pirates led by the dread captain _____."
         },
@@ -1293,7 +1293,7 @@
         "id": "spaceevent11",
         "description": "Uncover a stash of dangerous anti-ship weapons, drawing the ire of the smugglers who owned them.",
         "rewards": {
-          "item": "Surface to Air Ion Cannon 1d12 (charging 1, Loading, Ammo, Far-range, Violent 3, Volatile)",
+          "item": "Surface to Air Ion Cannon W1d12 (charging 1, Missile, Far-range, Violent 3, Volatile)",
           "credits": 240,
           "bond": "I stole a dangerous weapon from a ship belonging to the criminal _____."
         },
@@ -1301,7 +1301,7 @@
           "scarChance": 0.25,
           "deathChance": 0.1,
           "extraItem": {
-            "item": "Levered Light Rifle (Ergonomic, Scoped, Ammo, Consistent)",
+            "item": "Levered Light Rifle W1d6 (Ergonomic, Scoped, Ammo, Consistent)",
             "chance": 0.25
           }
         }
@@ -1310,7 +1310,7 @@
         "id": "spaceevent12",
         "description": "Practice scanning for incoming and fleeing ships by tracking their Axials.",
         "rewards": {
-          "item": "Axial Activation Detector 1d10 (Charging 1)",
+          "item": "Axial Activation Detector I1d10 (Charging 1)",
           "credits": 200,
           "bond": "I tracked _____ and their ship through a skip."
         },
@@ -1336,7 +1336,7 @@
         "id": "spaceevent18",
         "description": "Pause a moment to admire a beautiful supernova from a safe distance, probably.",
         "rewards": {
-          "item": "2 Fuel, 4 Rations, Bandage 1d6 (Consumable 1)",
+          "item": "2 Fuel, 4 Rations, Bandage I1d6 (Special, Consumable 1)",
           "credits": 50,
           "bond": "I witnessed a supernova while traveling with my friend _____, I'll cherish that memory."
         },
@@ -1362,7 +1362,7 @@
         "id": "spaceevent20",
         "description": "Help pull off a deadly high-risk maneuver during a combat scenario.",
         "rewards": {
-          "item": "Pilot Assistance Scanner 1d10 (Head, Aid|Precision, Charging 1)",
+          "item": "Pilot Assistance Scanner I1d10 (Head, Aid|Precision, Charging 1)",
           "credits": 200,
           "bond": "I averted a catastrophic death in deep space, I will make sure I get my revenge against _____."
         },
@@ -1370,7 +1370,7 @@
           "scarChance": 0.25,
           "deathChance": 0.1,
           "extraItem": {
-            "item": "Nanite Repair Kit (Consumable 1)",
+            "item": "Nanite Repair Kit (Special, Consumable 1)",
             "chance": 0.15
           }
         }
@@ -1383,7 +1383,7 @@
         "id": "espionageevent1",
         "description": "Infiltrate a high-security facility as part of a team.",
         "rewards": {
-          "item": "Silenced Light Handgun 1d6 (Quick, Ergonomic, Ammo, Suppressed, Near-range)",
+          "item": "Silenced Light Handgun W1d6 (Quick, Ergonomic, Ammo, Suppressed, Near-range)",
           "credits": 300,
           "bond": "I acquired classified secrets with my teammates _____ and _____."
         },
@@ -1409,7 +1409,7 @@
         "id": "espionageevent3",
         "description": "Hack into a secure terminal to find information on a conspiracy.",
         "rewards": {
-          "item": "Hacklance 1d6 (Charging 2, Complicated)",
+          "item": "Hacklance I1d6 (Charging 2, Complicated)",
           "credits": 300,
           "bond": "I uncovered a conspiracy involving _____ that might jeopardize their position of power."
         },
@@ -1422,7 +1422,7 @@
         "id": "espionageevent4",
         "description": "Try to prevent your cover being blown during a high-stakes mission.",
         "rewards": {
-          "item": "Fake Personal ID 1d8, Concealed Single-shot 1d8 (Quick, Ergonomic, Consumable 1, Suppressed, Shredding 2)",
+          "item": "Fake Personal ID I1d8, Concealed Single-shot W1d8 (Quick, Ergonomic, Consumable 1, Suppressed, Shredding 2)",
           "credits": 230,
           "bond": "I narrowly escaped exposure during a critical negotiation with _____."
         },
@@ -1439,7 +1439,7 @@
         "id": "espionageevent5",
         "description": "Shadow a target to gather incriminating evidence against a powerful adversary.",
         "rewards": {
-          "item": "Digital Binoculars 1d10 (Charging 2, Complicated)",
+          "item": "Digital Binoculars I1d10 (Charging 2, Complicated)",
           "credits": 220,
           "bond": "I secured evidence that could bring down _____."
         },
@@ -1452,7 +1452,7 @@
         "id": "espionageevent7",
         "description": "Hack into a secure facility controlled by a dangerous criminal.",
         "rewards": {
-          "item": "Automated Door Bypass Assist 1d12 (Charging 1, Complicated)",
+          "item": "Automated Door Bypass Assist I1d12 (Charging 1, Complicated)",
           "credits": 300,
           "bond": "I broke into a facility controlled by _____, stealing valuable information about their operations."
         },
@@ -1465,7 +1465,7 @@
         "id": "espionageevent6",
         "description": "Fall victim to a failed extraction, selling your information to your captors for your freedom.",
         "rewards": {
-          "item": "50ft of Rope, 3 Rations",
+          "item": "50ft Rope Coil I1d8 (Aid|Might), 3 Rations",
           "credits": 400,
           "bond": "I risked it all on a failed extraction, I had to betray _____ to get out alive."
         },
@@ -1491,7 +1491,7 @@
         "id": "espionageevent9",
         "description": "Disguise yourself to infiltrate a secret gala filled with dangerous figures.",
         "rewards": {
-          "item": "Disguise Kit 1d8 (Consumable 3, Aid|Charm)",
+          "item": "Disguise Kit I1d8 (Consumable 3, Aid|Charm)",
           "credits": 300,
           "bond": "I blended in at a high-profile event and befriended _____."
         },
@@ -1504,7 +1504,7 @@
         "id": "espionageevent10",
         "description": "Intervene in a planned coup against your employer.",
         "rewards": {
-          "item": "Light Sniper Rifle 1d6 (Ergonomic, Scoped, Ammo, Far-range, Piercing 5)",
+          "item": "Light Sniper Rifle W1d6 (Ergonomic, Scoped, Ammo, Far-range, Piercing 5)",
           "credits": 230,
           "bond": "I witnessed a coup in the making, I intervened to save the life of my employer _____."
         },
@@ -1517,7 +1517,7 @@
         "id": "espionageevent11",
         "description": "Prove yourself innocent after being framed as a traitor by a rival spy.",
         "rewards": {
-          "item": "Wakazashi 1d6 (Quick, Ergonomic, Melee, Violent 1)",
+          "item": "Wakazashi W1d6 (Quick, Ergonomic, Melee, Violent 1)",
           "credits": 250,
           "bond": "I exposed the real traitor: my rival _____."
         },
@@ -1534,7 +1534,7 @@
         "id": "espionageevent12",
         "description": "Escape a security ambush during a covert operation, proving your shooting skills.",
         "rewards": {
-          "item": "Precision Carbine (Scoped, Ergonomic, Ammo, Long-range, Cycling, Potent 1)",
+          "item": "Precision Carbine W1d8 (Scoped, Ergonomic, Ammo, Long-range, Cycling, Potent 1)",
           "credits": 250,
           "bond": "Security coordinator _____ almost killed me when I escaped from them."
         },
@@ -1547,7 +1547,7 @@
         "id": "espionageevent13",
         "description": "Secure a confidential meeting with a high-ranking official under false pretenses.",
         "rewards": {
-          "item": "Stolen Keycard, Fake ID 1d8",
+          "item": "Stolen Keycard, Fake ID I1d8",
           "credits": 240,
           "bond": "I secured a meeting with _____, allowing me to steal their information."
         },
@@ -1590,7 +1590,7 @@
         "id": "espionageevent18",
         "description": "Plant disinformation to sow chaos within the enemy.",
         "rewards": {
-          "item": "Chameoleon Mask 1d8 (Special, Charging 1)",
+          "item": "Chameoleon Mask I1d8 (Special, Charging 1)",
           "credits": 190,
           "bond": "I planted seeds of chaos that will confuse my enemy _____ for months."
         },
