@@ -22,9 +22,9 @@
       border: 1px solid #444;
       padding: 50px;
       border-radius: 4px;
-      max-height: calc(100vh - 60px); /* Adjusted for navbar */
+      max-height: calc(100vh - 60px);
       overflow-y: auto;
-      margin-top: 10px; /* Ensures it doesn't start under the navbar */
+      margin-top: 10px;
     }
     .talent-row {
       display: flex;
@@ -66,6 +66,10 @@
       text-align: center;
       z-index: 2000;
     }
+    /* Monospaced font for Bonds and Items */
+    .bond-card, .item-card {
+      font-family: "Consolas", "Courier New", monospace;
+    }
   </style>
 </head>
 <body>
@@ -102,7 +106,7 @@
       bonds: [],
       items: [],
       talentDecreases: [],
-      credits: 0, // New field for tracking credits
+      credits: 0, // For tracking credits
       skills: {
         "Tech": 1,
         "Recall": 1,
@@ -170,48 +174,47 @@
       else if (roll < commonProb + intermediateProb) return "intermediate";
       else return "expert";
     }
-
     
     function generateLifepathOptions() {
-  let options = [];
-  let attempts = 0;
-  while (options.length < 3 && attempts < 10) {
-    attempts++;
-    let pools = Object.keys(config.lifepathPools);
-    let weightedPools = pools.map(p => ({ pool: p, weight: 1 + 2 + (poolCounts[p] || 0) }));
-    let totalWeight = weightedPools.reduce((sum, p) => sum + p.weight, 0);
-    let r = Math.random() * totalWeight;
-    let chosenPool;
-    for (let wp of weightedPools) {
-      r -= wp.weight;
-      if (r <= 0) {
-        chosenPool = wp.pool;
-        break;
+      let options = [];
+      let attempts = 0;
+      while (options.length < 3 && attempts < 10) {
+        attempts++;
+        let pools = Object.keys(config.lifepathPools);
+        // You can tweak the weight multiplier here (currently adds a flat bonus of 2)
+        let weightedPools = pools.map(p => ({ pool: p, weight: 1 + 2 * (poolCounts[p] || 0) }));
+        let totalWeight = weightedPools.reduce((sum, p) => sum + p.weight, 0);
+        let r = Math.random() * totalWeight;
+        let chosenPool;
+        for (let wp of weightedPools) {
+          r -= wp.weight;
+          if (r <= 0) {
+            chosenPool = wp.pool;
+            break;
+          }
+        }
+        let rarity = determineRarity(chosenPool);
+        let jobs = config.lifepathPools[chosenPool].jobs[rarity];
+        let job = getRandomElement(jobs);
+        // Filter out duplicate jobs by name:
+        if (!options.some(opt => opt.job.name === job.name)) {
+          options.push({ pool: chosenPool, job: job });
+        }
       }
+      
+      if (config.settings.wildcardOptionEnabled && randomChance() <= config.settings.wildcardOptionChance) {
+        let allPools = Object.keys(config.lifepathPools);
+        let randomPool = getRandomElement(allPools);
+        let possibleJobs = config.lifepathPools[randomPool].jobs["common"].filter(j => 
+          !options.some(opt => opt.job.name === j.name)
+        );
+        if (possibleJobs.length > 0) {
+          let job = getRandomElement(possibleJobs);
+          options.push({ pool: randomPool, job: job, wildcard: true });
+        }
+      }
+      return options;
     }
-    let rarity = determineRarity(chosenPool);
-    let jobs = config.lifepathPools[chosenPool].jobs[rarity];
-    let job = getRandomElement(jobs);
-    // Filter out duplicate jobs by name:
-    if (!options.some(opt => opt.job.name === job.name)) {
-      options.push({ pool: chosenPool, job: job });
-    }
-  }
-  
-  if (config.settings.wildcardOptionEnabled && randomChance() <= config.settings.wildcardOptionChance) {
-    let allPools = Object.keys(config.lifepathPools);
-    let randomPool = getRandomElement(allPools);
-    let possibleJobs = config.lifepathPools[randomPool].jobs["common"].filter(j => 
-      !options.some(opt => opt.job.name === j.name)
-    );
-    if (possibleJobs.length > 0) {
-      let job = getRandomElement(possibleJobs);
-      options.push({ pool: randomPool, job: job, wildcard: true });
-    }
-  }
-  return options;
-}
-
 
     /*****************************************
      *********** Summaries & Skills **********
@@ -232,95 +235,87 @@
       return totals;
     }
     
-    
-    
     function updateSummary() {
-  const summaryDiv = document.getElementById("summary-content");
-  let html = `
-    <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
-      <h3>General</h3>
-      <p><strong>Age:</strong> ${character.age}</p>
-      <p><strong>Scars:</strong> ${character.scars}</p>
-      <p><strong>Credits:</strong> ${character.credits}</p>
-    </div>
-  `;
+      const summaryDiv = document.getElementById("summary-content");
+      let html = `
+        <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
+          <h3>General</h3>
+          <p><strong>Age:</strong> ${character.age}</p>
+          <p><strong>Scars:</strong> ${character.scars}</p>
+          <p><strong>Credits:</strong> ${character.credits}</p>
+        </div>
+      `;
 
-  // Build the Bonds section
-  let bondsHTML = character.bonds.length 
-      ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
-      : "None";
-  html += `
-    <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
-      <h3>Bonds</h3>
-      ${bondsHTML}
-    </div>
-  `;
+      // Bonds section with monospaced font
+      let bondsHTML = character.bonds.length 
+          ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
+          : "None";
+      html += `
+        <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+          <h3>Bonds</h3>
+          ${bondsHTML}
+        </div>
+      `;
 
-  // Build the Items section
-  let itemsHTML = character.items.length 
-      ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
-      : "None";
-  html += `
-    <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
-      <h3>Items</h3>
-      ${itemsHTML}
-    </div>
-  `;
+      // Items section with monospaced font
+      let itemsHTML = character.items.length 
+          ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
+          : "None";
+      html += `
+        <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
+          <h3>Items</h3>
+          ${itemsHTML}
+        </div>
+      `;
 
-  // Build the Skills section
-  html += `
-    <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
-      <h3>Skills</h3>
-      <ul>
-  `;
-  for (let skill in character.skills) {
-    let dice = skillLevelToDice(character.skills[skill]);
-    html += `<li>${skill}: ${character.skills[skill]} (${dice})</li>`;
-  }
-  html += `</ul></div>`;
+      // Skills section
+      html += `
+        <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
+          <h3>Skills</h3>
+          <ul>
+      `;
+      for (let skill in character.skills) {
+        let dice = skillLevelToDice(character.skills[skill]);
+        html += `<li>${skill}: ${character.skills[skill]} (${dice})</li>`;
+      }
+      html += `</ul></div>`;
 
-  // Build the Talents section
-  const aggregatedTalents = aggregateTalents();
-  html += `
-    <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
-      <h3>Talents</h3>
-      <ul>
-  `;
-  for (let talent in aggregatedTalents) {
-    if (aggregatedTalents[talent] > 0) {
-      let dice = levelToDice(aggregatedTalents[talent]);
-      html += `<li>${talent}: ${dice} (Level ${aggregatedTalents[talent]})</li>`;
+      // Talents section (only show nonzero talents)
+      const aggregatedTalents = aggregateTalents();
+      html += `
+        <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
+          <h3>Talents</h3>
+          <ul>
+      `;
+      for (let talent in aggregatedTalents) {
+        if (aggregatedTalents[talent] > 0) {
+          let dice = levelToDice(aggregatedTalents[talent]);
+          html += `<li>${talent}: ${dice} (Level ${aggregatedTalents[talent]})</li>`;
+        }
+      }
+      html += `</ul></div>`;
+
+      // Events section: look up event descriptions
+      let eventDescriptions = character.lifepaths
+        .filter(lp => lp.event)
+        .map(lp => {
+          let eventKey = "events" + lp.pool.toLowerCase();
+          let poolEvents = (config[eventKey] && config[eventKey][lp.pool]) ? config[eventKey][lp.pool] : [];
+          let eventObj = poolEvents.find(ev => ev.id === lp.event);
+          return eventObj ? eventObj.description : lp.event;
+        });
+      let eventsHTML = eventDescriptions.length 
+          ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
+          : "None";
+      html += `
+        <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+          <h3>Events</h3>
+          ${eventsHTML}
+        </div>
+      `;
+
+      summaryDiv.innerHTML = html;
     }
-  }
-  html += `</ul></div>`;
-
-  // Build the Events section by looking up event descriptions
-let eventDescriptions = character.lifepaths
-  .filter(lp => lp.event)
-  .map(lp => {
-    // Construct the event key based on the lifepath pool (e.g., "eventslabor")
-    let eventKey = "events" + lp.pool.toLowerCase();
-    // Retrieve the array of events for this pool from the config
-    let poolEvents = (config[eventKey] && config[eventKey][lp.pool]) ? config[eventKey][lp.pool] : [];
-    // Find the event object that matches the lifepath's event id
-    let eventObj = poolEvents.find(ev => ev.id === lp.event);
-    return eventObj ? eventObj.description : lp.event;
-  });
-
-let eventsHTML = eventDescriptions.length 
-    ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
-    : "None";
-
-html += `
-  <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
-    <h3>Events</h3>
-    ${eventsHTML}
-  </div>
-`;
-
-
-  summaryDiv.innerHTML = html;
-}
 
     function increaseSkills(pool) {
       const skillPools = {
@@ -380,7 +375,12 @@ html += `
       };
       increaseSkills(pool);
       character.lifepaths.push(newLP);
-      character.age += 5;
+      // Change lifepath age increment from 5 to 3 years
+      character.age += 3;
+      // Add a flat 5% chance to gain an additional scar on aging (no announcement)
+      if (Math.random() < 0.05) {
+        character.scars++;
+      }
       remainingTalentPoints = job.talentPoints;
       showTalentAllocation(newLP);
       updateSummary();
@@ -477,131 +477,162 @@ html += `
       updateSummary();
     }
 
-function showEventOptions(pool) {
-  const contentDiv = document.getElementById("game-content");
-  contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
-  const eventKey = "events" + pool.toLowerCase();
-  // Check if the events for this pool exist
-  if (!config[eventKey] || !config[eventKey][pool]) {
-    console.warn("No events defined for pool: " + pool);
-    // If no events exist, simply proceed to the next stage
-    askContinue();
-    return;
-  }
-  const eventsArr = config[eventKey][pool]; // Access the array of events
-  // Randomly shuffle and select 2 distinct events:
-  const shuffled = eventsArr.sort(() => 0.5 - Math.random());
-  const selectedEvents = shuffled.slice(0, 2);
-  
-  selectedEvents.forEach(ev => {
-    const card = document.createElement("div");
-    card.className = "event-card";
-    // Display the event description instead of its ID
-    card.innerHTML = `<p>${ev.description}</p>`;
-    card.onclick = () => selectEvent(ev);
-    contentDiv.appendChild(card);
-  });
-}
-
-
-
-
- function selectEvent(ev) {
-  // Remove event options so the event cannot be selected multiple times
-  document.getElementById("game-content").innerHTML = "";
-
-  // 1. Update the character with event rewards:
-  //    (push items, bonds, add credits, check for extra items)
-  if (ev.rewards) {
-    if (ev.rewards.item) {
-      character.items.push(ev.rewards.item);
+    function showEventOptions(pool) {
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
+      const eventKey = "events" + pool.toLowerCase();
+      // Check if the events for this pool exist
+      if (!config[eventKey] || !config[eventKey][pool]) {
+        console.warn("No events defined for pool: " + pool);
+        askContinue();
+        return;
+      }
+      const eventsArr = config[eventKey][pool]; // Access the array of events
+      const shuffled = eventsArr.sort(() => 0.5 - Math.random());
+      const selectedEvents = shuffled.slice(0, 2);
+      
+      selectedEvents.forEach(ev => {
+        const card = document.createElement("div");
+        card.className = "event-card";
+        card.innerHTML = `<p>${ev.description}</p>`;
+        card.onclick = () => selectEvent(ev);
+        contentDiv.appendChild(card);
+      });
     }
-    if (ev.rewards.credits) {
-      character.credits += ev.rewards.credits;
+
+    function selectEvent(ev) {
+      document.getElementById("game-content").innerHTML = "";
+      if (ev.rewards) {
+        if (ev.rewards.item) {
+          character.items.push(ev.rewards.item);
+        }
+        if (ev.rewards.credits) {
+          character.credits += ev.rewards.credits;
+        }
+        if (ev.rewards.bond) {
+          character.bonds.push(ev.rewards.bond);
+        }
+      }
+      let scarHappened = false;
+      if (ev.penalties) {
+        if (ev.penalties.scarChance && Math.random() < ev.penalties.scarChance) {
+          character.scars++;
+          scarHappened = true;
+        }
+        if (ev.penalties.deathChance && Math.random() < ev.penalties.deathChance) {
+          displayDeathScreen();
+          return;
+        }
+        if (ev.penalties.extraItem && Math.random() < ev.penalties.extraItem.chance) {
+          character.items.push(ev.penalties.extraItem.item);
+        }
+      }
+      const currentLp = character.lifepaths[character.lifepaths.length - 1];
+      currentLp.event = ev.id;
+      let rewardHTML = `<div class="reward-card">`;
+      rewardHTML += `<p><strong>Bond:</strong> ${ev.rewards?.bond || ""}</p>`;
+      rewardHTML += `<p><strong>Item:</strong> ${ev.rewards?.item || ""}</p>`;
+      rewardHTML += `<p><strong>Credits:</strong> ${ev.rewards?.credits || 0}</p>`;
+      if (scarHappened) {
+        rewardHTML += `<p class="scar-alert">During this event, you were left scarred.</p>`;
+      }
+      rewardHTML += `</div>`;
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = rewardHTML;
+      const continueBtn = document.createElement("button");
+      continueBtn.textContent = "Continue";
+      continueBtn.className = "lifepath-btn";
+      continueBtn.onclick = () => {
+        updateSummary();
+        askContinue();
+      };
+      contentDiv.appendChild(continueBtn);
+      updateSummary();
     }
-    if (ev.rewards.bond) {
-      character.bonds.push(ev.rewards.bond);
+
+    function askContinue() {
+      const contentDiv = document.getElementById("game-content");
+      contentDiv.innerHTML = "";
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <h2>Current Age: ${character.age}</h2>
+        <p>Do you want to take another lifepath? (Each adds 3 years)</p>
+      `;
+      const contBtn = document.createElement("button");
+      contBtn.classList.add("lifepath-btn");
+      contBtn.textContent = "Continue Lifepath";
+      contBtn.onclick = function() {
+        showInitialPoolSelection();
+      };
+      div.appendChild(contBtn);
+      const finishBtn = document.createElement("button");
+      finishBtn.classList.add("lifepath-btn");
+      finishBtn.textContent = "Finish Lifepath Creation";
+      finishBtn.onclick = function() {
+        displayFinalSummary();
+      };
+      div.appendChild(finishBtn);
+      contentDiv.appendChild(div);
+      updateSummary();
     }
-  }
 
-  // 2. Handle penalties (scar, death chance, extra item):
-  let scarHappened = false;  // track whether we gave a scar
-  if (ev.penalties) {
-    // Scar
-    if (ev.penalties.scarChance && Math.random() < ev.penalties.scarChance) {
-      character.scars++;
-      scarHappened = true;
+    function displayFinalSummary() {
+      const contentDiv = document.getElementById("game-content");
+      let html = `
+        <h2>Final Character Sheet</h2>
+        <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
+          <h3>General</h3>
+          <p><strong>Age:</strong> ${character.age}</p>
+          <p><strong>Scars:</strong> ${character.scars}</p>
+          <p><strong>Credits:</strong> ${character.credits}</p>
+        </div>
+        <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+          <h3>Bonds</h3>
+          ${ character.bonds.length ? `<ol>${character.bonds.map(b => `<li>${b}</li>`).join("")}</ol>` : "None" }
+        </div>
+        <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
+          <h3>Items</h3>
+          ${ character.items.length ? `<ol>${character.items.map(i => `<li>${i}</li>`).join("")}</ol>` : "None" }
+        </div>
+        <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
+          <h3>Skills</h3>
+          <ul>
+      `;
+      for (let skill in character.skills) {
+        html += `<li>${skill}: ${character.skills[skill]} (${skillLevelToDice(character.skills[skill])})</li>`;
+      }
+      html += `</ul></div>`;
+      const aggregatedTalents = aggregateTalents();
+      html += `
+        <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
+          <h3>Talents</h3>
+          <ul>
+      `;
+      for (let talent in aggregatedTalents) {
+        if (aggregatedTalents[talent] > 0) {
+          let dice = levelToDice(aggregatedTalents[talent]);
+          html += `<li>${talent}: ${dice} (Level ${aggregatedTalents[talent]})</li>`;
+        }
+      }
+      html += `</ul></div>`;
+      let eventDescriptions = character.lifepaths
+        .filter(lp => lp.event)
+        .map(lp => {
+          let eventKey = "events" + lp.pool.toLowerCase();
+          let poolEvents = (config[eventKey] && config[eventKey][lp.pool]) ? config[eventKey][lp.pool] : [];
+          let evObj = poolEvents.find(ev => ev.id === lp.event);
+          return evObj ? evObj.description : lp.event;
+        });
+      html += `
+        <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
+          <h3>Events</h3>
+          ${ eventDescriptions.length ? `<ol>${eventDescriptions.map(d => `<li>${d}</li>`).join("")}</ol>` : "None" }
+        </div>
+      `;
+      contentDiv.innerHTML = html;
+      updateSummary();
     }
-    // Death
-    if (ev.penalties.deathChance && Math.random() < ev.penalties.deathChance) {
-      displayDeathScreen();
-      return; // Stop here since character died
-    }
-    // Extra item
-    if (ev.penalties.extraItem && Math.random() < ev.penalties.extraItem.chance) {
-      character.items.push(ev.penalties.extraItem.item);
-    }
-  }
 
-  // 3. Record which event was chosen in the most recent lifepath:
-  //    (so we can see it in the summary)
-  const currentLp = character.lifepaths[character.lifepaths.length - 1];
-  currentLp.event = ev.id;
-
-  // 4. Build a reward display card:
-  let rewardHTML = `<div class="reward-card">`;
-  rewardHTML += `<p><strong>Bond:</strong> ${ev.rewards?.bond || ""}</p>`;
-  rewardHTML += `<p><strong>Item:</strong> ${ev.rewards?.item || ""}</p>`;
-  rewardHTML += `<p><strong>Credits:</strong> ${ev.rewards?.credits || 0}</p>`;
-  if (scarHappened) {
-    rewardHTML += `<p class="scar-alert">During this event, you were left scarred.</p>`;
-  }
-  rewardHTML += `</div>`;
-
-  // 5. Display the reward card + Continue button
-  const contentDiv = document.getElementById("game-content");
-  contentDiv.innerHTML = rewardHTML;
-
-  const continueBtn = document.createElement("button");
-  continueBtn.textContent = "Continue";
-  continueBtn.className = "lifepath-btn";
-  continueBtn.onclick = () => {
-    updateSummary();
-    askContinue(); // show "Continue Lifepath" / "Finish Lifepath" options
-  };
-  contentDiv.appendChild(continueBtn);
-   
-  // Finally, update summary so user sees new totals
-  updateSummary();
-}
-
-function askContinue() {
-  const contentDiv = document.getElementById("game-content");
-  contentDiv.innerHTML = ""; // Clear out existing content first
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <h2>Current Age: ${character.age}</h2>
-    <p>Do you want to take another lifepath? (Each adds 5 years)</p>
-  `;
-  const contBtn = document.createElement("button");
-  contBtn.classList.add("lifepath-btn");
-  contBtn.textContent = "Continue Lifepath";
-  contBtn.onclick = function() {
-    showInitialPoolSelection();
-  };
-  div.appendChild(contBtn);
-  const finishBtn = document.createElement("button");
-  finishBtn.classList.add("lifepath-btn");
-  finishBtn.textContent = "Finish Lifepath Creation";
-  finishBtn.onclick = function() {
-    displayFinalSummary();
-  };
-  div.appendChild(finishBtn);
-  contentDiv.appendChild(div);
-  updateSummary();
-}
-
-    
     function displayDeathScreen() {
       const contentDiv = document.getElementById("game-content");
       contentDiv.innerHTML = `
@@ -638,85 +669,6 @@ function askContinue() {
       poolCounts = {};
       showInitialPoolSelection();
     }
-
-    function displayFinalSummary() {
-  const contentDiv = document.getElementById("game-content");
-  let html = `
-    <h2>Final Character Sheet</h2>
-    <div class="summary-section" style="background:#333; padding:5px; margin-bottom:5px;">
-      <h3>General</h3>
-      <p><strong>Age:</strong> ${character.age}</p>
-      <p><strong>Scars:</strong> ${character.scars}</p>
-    </div>
-  `;
-
-  // Build the Bonds section
-  let bondsHTML = character.bonds.length 
-      ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
-      : "None";
-  html += `
-    <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
-      <h3>Bonds</h3>
-      ${bondsHTML}
-    </div>
-  `;
-
-  // Build the Items section
-  let itemsHTML = character.items.length 
-      ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
-      : "None";
-  html += `
-    <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
-      <h3>Items</h3>
-      ${itemsHTML}
-    </div>
-  `;
-
-  // Build the Skills section
-  html += `
-    <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
-      <h3>Skills</h3>
-      <ul>
-  `;
-  for (let skill in character.skills) {
-    html += `<li>${skill}: ${character.skills[skill]} (${skillLevelToDice(character.skills[skill])})</li>`;
-  }
-  html += `</ul></div>`;
-
-  // Build the Aggregated Talents section
-  const aggregatedTalents = aggregateTalents();
-  html += `
-    <div class="summary-section" style="background:#222; padding:5px; margin-bottom:5px;">
-      <h3>Aggregated Talents</h3>
-      <ul>
-  `;
-  for (let talent in aggregatedTalents) {
-    html += `<li>${talent}: ${levelToDice(aggregatedTalents[talent])} (Level ${aggregatedTalents[talent]})</li>`;
-  }
-  html += `</ul></div>`;
-
-  // Build the Events section by looking up event descriptions
-  let eventDescriptions = character.lifepaths
-    .filter(lp => lp.event)
-    .map(lp => {
-      let poolEvents = config.events[lp.pool] || [];
-      let eventObj = poolEvents.find(ev => ev.id === lp.event);
-      return eventObj ? eventObj.description : lp.event;
-    });
-  let eventsHTML = eventDescriptions.length 
-      ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
-      : "None";
-  html += `
-    <div class="summary-section" style="background:#1e1e1e; padding:5px;">
-      <h3>Events</h3>
-      ${eventsHTML}
-    </div>
-  `;
-
-  contentDiv.innerHTML = html;
-  updateSummary();
-}
-
 
     document.addEventListener("DOMContentLoaded", function() {
       fetch("lifepath_data.json")
