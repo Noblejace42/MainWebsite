@@ -490,27 +490,51 @@
     }
 
     function showEventOptions(pool) {
-      const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `<div class="card-container"><h2>${pool} Event Options</h2>`;
-      const eventKey = "events" + pool.toLowerCase();
-      if (!config[eventKey] || !config[eventKey][pool]) {
-        console.warn("No events defined for pool: " + pool);
-        askContinue();
-        return;
-      }
-      const eventsArr = config[eventKey][pool];
-      const shuffled = eventsArr.sort(() => 0.5 - Math.random());
-      const selectedEvents = shuffled.slice(0, 2);
-      
-      selectedEvents.forEach(ev => {
-        const card = document.createElement("div");
-        card.className = "event-card";
-        card.innerHTML = `<p>${ev.description}</p>`;
-        card.onclick = () => selectEvent(ev);
-        contentDiv.appendChild(card);
-      });
-      contentDiv.innerHTML += `</div>`;
-    }
+  const contentDiv = document.getElementById("game-content");
+  // Clear out existing content
+  contentDiv.innerHTML = "";
+
+  // Create a container for the event options
+  const container = document.createElement("div");
+  container.classList.add("card-container");
+
+  // Add a heading
+  const heading = document.createElement("h2");
+  heading.textContent = `${pool} Event Options`;
+  container.appendChild(heading);
+
+  // Determine which events array to use
+  const eventKey = "events" + pool.toLowerCase();
+  if (!config[eventKey] || !config[eventKey][pool]) {
+    console.warn("No events defined for pool: " + pool);
+    askContinue();
+    return;
+  }
+
+  // Randomly select 2 events from the array
+  const eventsArr = config[eventKey][pool];
+  const shuffled = eventsArr.sort(() => 0.5 - Math.random());
+  const selectedEvents = shuffled.slice(0, 2);
+
+  // For each selected event, create a clickable card
+  selectedEvents.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "event-card";
+    // Make it look/feel like a button
+    card.style.cursor = "pointer";
+    card.style.margin = "10px 0";
+    // Show the event description
+    card.innerHTML = `<p>${ev.description}</p>`;
+    // Clicking the card selects the event
+    card.onclick = () => selectEvent(ev);
+
+    container.appendChild(card);
+  });
+
+  // Finally, add the container to the page
+  contentDiv.appendChild(container);
+}
+
 
     function selectEvent(ev) {
       document.getElementById("game-content").innerHTML = "";
