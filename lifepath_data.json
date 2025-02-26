@@ -1207,7 +1207,7 @@
         "id": "spaceevent5",
         "description": "Explore a derelict starship you found floating in deep space.",
         "rewards": {
-          "item": "Windlance Rifle W1d8 (Electrified, Ergonomic, Energized, Accurate 1)",
+          "item": "Windlance Rifle W1d8 (Technical, Ergonomic, Energized, Accurate 1)",
           "credits": 0,
           "bond": "I uncovered a powerful weapon in a destroyed starship lost in the _____ system."
         },
@@ -1603,7 +1603,7 @@
         "id": "espionageevent20",
         "description": "Attempt a daring solo operation to rescue a prisoner from a maximum security prison.",
         "rewards": {
-          "item": "AP Vibro-Katana W1d8 (Unruly, Electrified, Melee, Piercing 8)",
+          "item": "AP Vibro-Katana W1d8 (Unruly, Technical, Melee, Piercing 8)",
           "credits": 250,
           "bond": "I saved _____ from almost certain death."
         },
@@ -1966,7 +1966,7 @@
         "id": "prosperityevent19",
         "description": "Insult a business competitor to bait them into something rash.",
         "rewards": {
-          "item": "Taser Baton W1d10 (Unruly, Electrified, Forceful, Melee, Charging 1)",
+          "item": "Taser Baton W1d10 (Unruly, Technical, Forceful, Melee, Charging 1)",
           "credits": 500,
           "bond": "I taunted ____ into trying to kill me, they failed of course."
         },
@@ -2285,7 +2285,7 @@
         "id": "warfareevent11",
         "description": "Form an unbreakable bond with a fellow soldier after saving their life in combat.",
         "rewards": {
-          "item": "Ripsaw Machete W1d10 (Charging 2, Unruly, Electrified, Melee, Brutal, Violent 2)",
+          "item": "Ripsaw Machete W1d10 (Charging 2, Unruly, Technical, Melee, Brutal, Violent 2)",
           "credits": 10,
           "bond": "I saved ______, and our loyalty to each other will never waver."
         },
