@@ -70,6 +70,14 @@
     .bond-card, .item-card {
       font-family: "Consolas", "Courier New", monospace;
     }
+    /* New card container for grouping UI sections */
+    .card-container {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
@@ -181,7 +189,7 @@
       while (options.length < 3 && attempts < 10) {
         attempts++;
         let pools = Object.keys(config.lifepathPools);
-        // You can tweak the weight multiplier here (currently adds a flat bonus of 2)
+        // Tweak the weight multiplier here if desired
         let weightedPools = pools.map(p => ({ pool: p, weight: 1 + 2 * (poolCounts[p] || 0) }));
         let totalWeight = weightedPools.reduce((sum, p) => sum + p.weight, 0);
         let r = Math.random() * totalWeight;
@@ -196,7 +204,6 @@
         let rarity = determineRarity(chosenPool);
         let jobs = config.lifepathPools[chosenPool].jobs[rarity];
         let job = getRandomElement(jobs);
-        // Filter out duplicate jobs by name:
         if (!options.some(opt => opt.job.name === job.name)) {
           options.push({ pool: chosenPool, job: job });
         }
@@ -375,11 +382,16 @@
       };
       increaseSkills(pool);
       character.lifepaths.push(newLP);
-      // Change lifepath age increment from 5 to 3 years
+      // Increase age by 3 years per lifepath
       character.age += 3;
-      // Add a flat 5% chance to gain an additional scar on aging (no announcement)
+      // Add a flat 5% chance to gain an extra scar on aging
       if (Math.random() < 0.05) {
         character.scars++;
+      }
+      // Check if scars have reached 5
+      if (character.scars >= 5) {
+        displayDeathScreen();
+        return;
       }
       remainingTalentPoints = job.talentPoints;
       showTalentAllocation(newLP);
@@ -388,12 +400,12 @@
 
     function showTalentAllocation(lp) {
       const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `
+      contentDiv.innerHTML = `<div class="card-container">
         <h2>Talent Allocation for ${lp.job.name}</h2>
         <p>Remaining Points: <span id="remaining-points">${remainingTalentPoints}</span></p>
         <div id="talent-allocation-container"></div>
         <button id="talent-confirm-btn" class="lifepath-btn">Confirm Allocation</button>
-      `;
+      </div>`;
       const container = document.getElementById("talent-allocation-container");
       let talentOptions = [...lp.job.guaranteed];
       let poolTalents = config.lifepathPools[lp.pool].talents;
@@ -479,15 +491,14 @@
 
     function showEventOptions(pool) {
       const contentDiv = document.getElementById("game-content");
-      contentDiv.innerHTML = `<h2>${pool} Event Options</h2>`;
+      contentDiv.innerHTML = `<div class="card-container"><h2>${pool} Event Options</h2>`;
       const eventKey = "events" + pool.toLowerCase();
-      // Check if the events for this pool exist
       if (!config[eventKey] || !config[eventKey][pool]) {
         console.warn("No events defined for pool: " + pool);
         askContinue();
         return;
       }
-      const eventsArr = config[eventKey][pool]; // Access the array of events
+      const eventsArr = config[eventKey][pool];
       const shuffled = eventsArr.sort(() => 0.5 - Math.random());
       const selectedEvents = shuffled.slice(0, 2);
       
@@ -498,6 +509,7 @@
         card.onclick = () => selectEvent(ev);
         contentDiv.appendChild(card);
       });
+      contentDiv.innerHTML += `</div>`;
     }
 
     function selectEvent(ev) {
@@ -519,6 +531,10 @@
           character.scars++;
           scarHappened = true;
         }
+        if (character.scars >= 5) {
+          displayDeathScreen();
+          return;
+        }
         if (ev.penalties.deathChance && Math.random() < ev.penalties.deathChance) {
           displayDeathScreen();
           return;
@@ -529,7 +545,7 @@
       }
       const currentLp = character.lifepaths[character.lifepaths.length - 1];
       currentLp.event = ev.id;
-      let rewardHTML = `<div class="reward-card">`;
+      let rewardHTML = `<div class="card-container reward-card">`;
       rewardHTML += `<p><strong>Bond:</strong> ${ev.rewards?.bond || ""}</p>`;
       rewardHTML += `<p><strong>Item:</strong> ${ev.rewards?.item || ""}</p>`;
       rewardHTML += `<p><strong>Credits:</strong> ${ev.rewards?.credits || 0}</p>`;
@@ -554,6 +570,7 @@
       const contentDiv = document.getElementById("game-content");
       contentDiv.innerHTML = "";
       const div = document.createElement("div");
+      div.className = "card-container";
       div.innerHTML = `
         <h2>Current Age: ${character.age}</h2>
         <p>Do you want to take another lifepath? (Each adds 3 years)</p>
