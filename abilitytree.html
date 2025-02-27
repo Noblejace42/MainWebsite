@@ -1,27 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Astral Axial Abilities</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Classless RPG Tech Tree</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
     /* Tech Tree Specific Styles */
     #tech-tree {
-      position: relative;
-      width: 100%;
-      /* Height increased to accommodate 15 levels */
-      height: 3500px; 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
       margin-top: 20px;
+    }
+    .group-column {
+      flex: 1;
+      min-width: 250px;
+      background: #333;
+      padding: 10px;
+      border: 1px solid #444;
+      border-radius: 4px;
+    }
+    .group-column h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #fff;
     }
     .ability-card {
       background: #262626;
       border: 1px solid #444;
       border-radius: 4px;
       padding: 10px;
-      position: absolute;
-      box-sizing: border-box;
-      width: 160px; /* Slightly narrower than before for better spacing */
+      margin-bottom: 10px;
     }
     .ability-card h3 {
       margin: 0 0 5px;
@@ -37,14 +48,6 @@
       font-size: 0.9em;
       color: #ccc;
     }
-    /* SVG overlay for connection lines */
-    #tech-tree svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      overflow: visible;
-    }
   </style>
 </head>
 <body>
@@ -52,15 +55,14 @@
     <a href="index.html">System Generator</a> |
     <a href="lifepath.html">Lifepath Generator</a> |
     <a href="weapongenerator.html">Weapon Generator</a> |
-    <a href="combat_tracker.html">Combat Tracker</a> |
-    <a href="abilitytree.html">Abilities</a>
+    <a href="combat_tracker.html">Combat Tracker</a>
   </nav>
 
   <div class="container">
     <h1>Classless RPG Tech Tree</h1>
     <div id="tech-tree"></div>
   </div>
-
+  
   <div class="art-credit">
     <a href="https://www.instagram.com/vinny.longbow?igsh=c203czNuMW92MXA3" target="_blank">
       Art Credit: Vincent Fleetwood
@@ -68,187 +70,438 @@
   </div>
 
   <script>
-    // All your abilities (74 total) are defined here.
+    // Define all the abilities
     const abilities = [
-      { name: "Cheap Shot", type: "encounter/combat", description: "Attack a creature, stepping up 1 die..." },
-      { name: "Port in the Storm", type: "passive/buff", description: "Whenever you return to a place..." },
-      { name: "Called Shot", type: "encounter/free", description: "When you succeed an attack with a near-range..." },
-      { name: "Companion", type: "passive/buff", description: "Your companion is _____..." },
-      { name: "Charming and Open", type: "at-will/free", description: "When you speak frankly with someone..." },
-      { name: "Surging Support", type: "at-will/free", description: "You may use your surges on other players..." },
-      { name: "Focused Training", type: "at-will/free", description: "When you spend a period of more than a week resting..." },
-      { name: "Push beyond limit", type: "at-will/free", description: "You may step up 2 dice in your dice pool..." },
-      { name: "Second Wind", type: "recovery/combat", description: "You may recuperate." },
-      { name: "Gizmo Gadgeteer", type: "encounter/combat", description: "Gain 1 Strain and choose 2..." },
-      { name: "Under Pressure", type: "recovery/free", description: "Once per recovery, the first time you would increase..." },
-      { name: "Seeing Red", type: "passive/buff", description: "You may add your Strain die to your damage dice pool." },
-      { name: "Blood for the Blood God", type: "encounter/free", description: "When you kill an opposing character..." },
-      { name: "Signature Weapon", type: "passive/buff", description: "You have a weapon that is uniquely you..." },
-      { name: "Troubadour", type: "passive/buff", description: "When you bolster and carouse you gain credits..." },
-      { name: "Jack of all trades", type: "passive/buff", description: "Whenever you learn a new talent..." },
-      { name: "Rigid Focus", type: "at-will/free", description: "When you roll a dice pool that includes a talent..." },
-      { name: "Experienced Explorer", type: "passive/buff", description: "Choose up to 3 of the below terrains..." },
-      { name: "Herald of Law", type: "encounter/combat", description: "When you declare that a creature is breaking the law..." },
-      { name: "Windstance", type: "passive/buff", description: "When you are wearing only light armor..." },
-      { name: "Unbreakable Mind", type: "passive/buff", description: "You may always add your Will die..." },
-      { name: "Sheer Spite", type: "encounter/free", description: "Roll your will die and add it to the total..." },
-      { name: "Bulwark", type: "encounter/combat", description: "Declare a creature standing near you..." },
-      { name: "Melee Master", type: "passive/buff", description: "Whenever you use a blade or bludgeon..." },
-      { name: "Dark Confidant", type: "at-will/free", description: "You may swap a die of the same size..." },
-      { name: "Kingly Wit", type: "at-will/free", description: "When you dazzle, swindle, haggle with a creature..." },
-      { name: "Iron-willed", type: "recovery/free", description: "When you would suffer a Strain break..." },
-      { name: "Frantic Parry", type: "encounter/free", description: "When you would take damage, you may instead..." },
-      { name: "Fast Learner", type: "passive/buff", description: "When you Bolster and Carouse you may forgo..." },
-      { name: "Dumb Luck", type: "recovery/free", description: "Whenever you successfully resist peril..." },
-      { name: "Indomitable", type: "recovery/free", description: "If you would fail an attempt to overcome..." },
-      { name: "Glancing Blow", type: "encounter/free", description: "If you would take damage, you may instead..." },
-      { name: "Master Quartermaster", type: "passive/buff", description: "Whenever you contest to help set up camp..." },
-      { name: "Vacuum Training", type: "recovery/free", description: "If you are thrown into the vacuum of space..." },
-      { name: "Flames Of My Desire", type: "passive/buff", description: "Choose one of the following desires..." },
-      { name: "Rage Against the Machine", type: "encounter/free", description: "You have mastered putting yourself into a state..." },
-      { name: "Tactical Reload", type: "recovery/free", description: "When you take an hour or more to examine your weapon..." },
-      { name: "Juggernaut", type: "passive/buff", description: "If every worn gear slot is filled with 'heavy' gear..." },
-      { name: "Gatecrasher", type: "encounter/free", description: "When you contest Might|Skill to destroy an inanimate obstacle..." },
-      { name: "Strider", type: "recovery/free", description: "When you journey planetside or make camp..." },
-      { name: "Black Market Connections", type: "at-will/free", description: "When you arrive at a settlement with a criminal underground..." },
-      { name: "Setup Strike", type: "encounter/free", description: "When you hit an enemy with an attack, you may mark them..." },
-      { name: "Sage Knight", type: "passive/buff", description: "When you spend an hour or more in quiet meditation..." },
-      { name: "Blot out the Sun", type: "recovery/free", description: "When you damage using a far-range or long-range weapon..." },
-      { name: "Superior Explorer", type: "at-will/free", description: "Choose up to 3 of the below terrains..." },
-      { name: "Tricks of the Trade", type: "per encounter/free", description: "When you contest and roll the maximum value..." },
-      { name: "The Arcane and Esoteric", type: "at-will/free", description: "When you attempt to acquire information about something puzzling..." },
-      { name: "Ad Astra Per Aspera", type: "recovery/free", description: "If you would take a wound, you may instead decrease a Talent by 1." },
-      { name: "The Great Escape", type: "recovery/combat", description: "During combat or a dangerous situation..." },
-      { name: "Steal the Moon", type: "recovery/free", description: "Gain a Talent called 'heist planning'..." },
-      { name: "Font of Knowledge", type: "at-will/free", description: "When you ask a question or seek knowledge..." },
-      { name: "Fool me Once", type: "recovery/free", description: "When you fail your second contest or attack..." },
-      { name: "Discombobulate", type: "encounter/free", description: "Add your Recall and Presence to your dice pool..." },
-      { name: "Bullet Time", type: "recovery/free", description: "Until your next turn you cannot be the target of an attack..." },
-      { name: "Hondo’s Return", type: "at-will/free", description: "Whenever you return to an outpost of civilization in triumph..." },
-      { name: "Punch God", type: "recovery/free", description: "If you stand defiant in the face of overwhelming odds..." },
-      { name: "Shoot First", type: "recovery/free", description: "You may take the first action when you initiate combat..." },
-      { name: "Ask Questions Later", type: "recovery/free", description: "If you initiate combat with a creature you were meant to interrogate..." },
-      { name: "Wide Wanderer", type: "at-will/free", description: "If you journey planetside or travel through space in an unfamiliar area..." },
-      { name: "Cheat Death", type: "recovery/free", description: "The next time you would die, you do not..." },
-      { name: "Ace up the Sleeve", type: "passive/buff", description: "If you would roll to contest to overcome..." },
-      { name: "The Ability to Speak", type: "passive/buff", description: "You can generally understand any intelligent creature..." },
-      { name: "Breaker of War", type: "recovery/combat", description: "If you attempt to defuse a hostile situation..." },
-      { name: "Journey Before Destination", type: "passive/buff", description: "When you journey planetside you may write a new bond..." },
-      { name: "Forth Eorlingas!", type: "recovery/free", description: "If you initiate combat while outnumbered..." },
-      { name: "Volta Gloria", type: "encounter/free", description: "If you have no surges and you initiate combat, gain a surge." },
-      { name: "Give me Liberty!", type: "passive/buff", description: "If you die in defense of your friends or a noble cause..." },
-      { name: "Resist and Bite", type: "encounter/free", description: "When you are dealt damage by a melee weapon..." },
-      { name: "Heavy on the Saddle", type: "", description: "You can exceed your mass capacity by up to 50..." },
-      { name: "Lucky Tool", type: "", description: "You have a special tool that carries you through your journey..." },
-      { name: "NOT IMPLEMENTED FINISH", type: "", description: "" },
-      { name: "Fly By Instinct", type: "", description: "You may add your Will die to your dice pool when you dogfight..." },
-      { name: "Max Burn", type: "", description: "You may expend a fuel to kick your ship's engine into overdrive..." },
-      { name: "Engage!", type: "", description: "You can activate an axial instantaneously, randomly giving 1d4..." }
+      {
+        name: "Cheap Shot",
+        type: "encounter/combat",
+        description: "Attack a creature, stepping up 1 die of your choice. If you succeed, choose 2 of the following:<br>- Roll 2d6 and add it to your damage total.<br>- Gain a surge.<br>- Dive behind nearby cover, moving up to 20 feet.<br>- Knock the target backwards 10 feet.<br>- (Melee only) Pilfer an item not being worn or held in the hands of the opponent."
+      },
+      {
+        name: "Port in the Storm",
+        type: "passive/buff",
+        description: "Whenever you return to a place you have been before, and you are well regarded, choose 2 of the following:<br>- You learn how it has changed since you were last here.<br>- You are able to make contact with a useful NPC.<br>- You discover a local rumor.<br>- You are able to get an audience with a local ruler."
+      },
+      {
+        name: "Called Shot",
+        type: "encounter/free",
+        description: "When you succeed an attack with a weapon that has the near-range, long-range, or far-range tags, you may choose 2 of the following:<br>- You instantly kill the creature if it has less than 10 health.<br>- You may knock a weapon or object out of the target's hand.<br>- You can inflict a random wound on the target.<br>- You regain usage of this ability, increase your Strain die."
+      },
+      {
+        name: "Companion",
+        type: "passive/buff",
+        description: "Your companion is _____.<br>Robotic, Organic<br>Your companion has 1d4 in all skills. Additionally, they are ____ (choose 2):<br>- Crafty: Increase Tech and Precision by 2<br>- Strong: Increase Might and Presence by 2<br>- Fast: Increase Awareness and Speed by 2<br>- Tough: Increase Fortitude and Will by 2<br>(robotic) Technical: Increase Tech by 3<br>If your companion is nearby and aiding you, gain the following ability: When you contest or attack you may add 1 applicable die from your companion's Skills to your dice pool."
+      },
+      {
+        name: "Charming and Open",
+        type: "at-will/free",
+        description: "When you speak frankly with someone, you can ask them a question from the list below. They must answer it truthfully, then they may ask you a question (which you must answer truthfully):<br>- Whom do you serve?<br>- What do you wish I would do?<br>- How can I get you to _____?<br>- What are you really feeling right now?<br>- What do you most desire?"
+      },
+      {
+        name: "Surging Support",
+        type: "at-will/free",
+        description: "You may use your surges on other players instead of yourself. Whenever your party members use a surge, gain a surge. You can have 10 surges at a time instead of just 5."
+      },
+      {
+        name: "Focused Training",
+        type: "at-will/free",
+        description: "When you spend a period of more than a week resting, you may decrease up to 2 of your skill dice. For each die decreased this way, increase a skill die by 1."
+      },
+      {
+        name: "Push beyond limit",
+        type: "at-will/free",
+        description: "You may step up 2 dice in your dice pool. If you do this, increase your Strain die by 1."
+      },
+      {
+        name: "Second Wind",
+        type: "recovery/combat",
+        description: "You may recuperate."
+      },
+      {
+        name: "Gizmo Gadgeteer",
+        type: "encounter/combat",
+        description: "Gain 1 Strain and choose 2 o" // Incomplete text as provided
+      },
+      {
+        name: "Under Pressure",
+        type: "recovery/free",
+        description: "Once per recovery, the first time you would increase your Strain die, you may decrease it instead. You may add your Strain die to your resist peril attempts."
+      },
+      {
+        name: "Seeing Red",
+        type: "passive/buff",
+        description: "You may add your Strain die to your damage dice pool."
+      },
+      {
+        name: "Blood for the Blood God",
+        type: "encounter/free",
+        description: "When you kill an opposing character with a melee attack, blade, bludgeon, or shotgun, you may reduce your Strain die by 1."
+      },
+      {
+        name: "Signature Weapon",
+        type: "passive/buff",
+        description: "You have a weapon that is uniquely you, it is _____.<br>- An ancient rifle<br>- A bloody handgun<br>- An ornate shotgun<br>- A sinister blade<br>- An unblemished bludgeon<br>It has some unique properties: ____ ____ ____ (choose 3)<br>- Accurate 1<br>- Piercing 1<br>- Potent 1<br>- Cycling<br>- Energized<br>- Brutal<br>- Exceptional<br>Additionally, if you lose your signature weapon or it is destroyed, you may create a new one during your next recovery. Upgrading your signature weapon costs half as much as a normal weapon would."
+      },
+      {
+        name: "Troubadour",
+        type: "passive/buff",
+        description: "When you bolster and carouse you gain credits equal to the result of your roll times 5."
+      },
+      {
+        name: "Jack of all trades",
+        type: "passive/buff",
+        description: "Whenever you learn a new talent you may start it at 1d6 instead of 1d4. Learn a new talent."
+      },
+      {
+        name: "Rigid Focus",
+        type: "at-will/free",
+        description: "When you roll a dice pool that includes a talent you have mastered, you may reroll up to 2 dice and use the new results."
+      },
+      {
+        name: "Experienced Explorer",
+        type: "passive/buff",
+        description: "Choose up to 3 of the below terrains. Gain a talent called [terrain] expert for each. Your expertise in this talent is a d8.<br>- Mountain<br>- Desert<br>- Tundra<br>- Wasteland<br>- Jungle<br>- Plains<br>- Forest<br>- Urban<br>- Caves<br>- Asteroid field<br>- Nebula<br>- Ocean"
+      },
+      {
+        name: "Herald of Law",
+        type: "encounter/combat",
+        description: "When you declare that a creature is breaking the law, step up your Presence and Charm and contest Presence|Charm. On a success, the GM will choose one of the following:<br>- The creature will flee you to avoid attention.<br>- The creature will become hostile towards you, step up 2 dice next time you attack that creature.<br>- The creature will beg and plead, step up 2 dice when you next dazzle, swindle, haggle with that creature."
+      },
+      {
+        name: "Windstance",
+        type: "passive/buff",
+        description: "When you are wearing only light armor or no armor, you may add your Speed to your Defense pool."
+      },
+      {
+        name: "Unbreakable Mind",
+        type: "passive/buff",
+        description: "You may always add your Will die to your Defense pool and any resist peril attempts you make."
+      },
+      {
+        name: "Sheer Spite",
+        type: "encounter/free",
+        description: "Roll your will die and add it to the total of a roll you just made."
+      },
+      {
+        name: "Bulwark",
+        type: "encounter/combat",
+        description: "Declare a creature standing near you. Until the end of the encounter, they may add your armor dice to their defense pool. When they take damage, you can choose to take half of that damage for them."
+      },
+      {
+        name: "Melee Master",
+        type: "passive/buff",
+        description: "Whenever you use a blade or bludgeon, you may treat it as if it had the Potent 1 tag. If it already has Potent X, it now has Potent X+1. You cannot be disarmed of your melee weapons."
+      },
+      {
+        name: "Dark Confidant",
+        type: "at-will/free",
+        description: "You may swap a die of the same size in you and your opposition's dice pool after seeing the roll. When you do this, increase your Strain die."
+      },
+      {
+        name: "Kingly Wit",
+        type: "at-will/free",
+        description: "When you dazzle, swindle, haggle with a creature you have a bond with, step up 1 die in your dice pool for each bond you have with that creature. You can have 4 more bonds than normal."
+      },
+      {
+        name: "Iron-willed",
+        type: "recovery/free",
+        description: "When you would suffer a Strain break, you may instead reduce your Strain die by 1. You can choose to not be affected by Strain breaks until your next recovery."
+      },
+      {
+        name: "Frantic Parry",
+        type: "encounter/free",
+        description: "When you would take damage, you may instead take no damage. Increase your Strain die."
+      },
+      {
+        name: "Fast Learner",
+        type: "passive/buff",
+        description: "When you Bolster and Carouse you may forgo the benefit to instead increase a talent die or gain a new talent (1d4)."
+      },
+      {
+        name: "Dumb Luck",
+        type: "recovery/free",
+        description: "Whenever you successfully resist peril, you may gain a surge and regain use of this ability. Alternatively, you may increase your luck die by 1."
+      },
+      {
+        name: "Indomitable",
+        type: "recovery/free",
+        description: "If you would fail an attempt to overcome, you succeed instead."
+      },
+      {
+        name: "Glancing Blow",
+        type: "encounter/free",
+        description: "If you would take damage, you may instead have a piece of armor you’re wearing be destroyed."
+      },
+      {
+        name: "Master Quartermaster",
+        type: "passive/buff",
+        description: "Whenever you contest to help set up camp, manage logistics, or cook you may step up 2 dice in your pool. You cannot incur complications when doing these tasks."
+      },
+      {
+        name: "Vacuum Training",
+        type: "recovery/free",
+        description: "If you are thrown into the vacuum of space, step up your Fortitude and Speed, then contest Fortitude|Speed. On a success, you may ignore the adverse effects of the vacuum until the end of the encounter. You take only half damage from phenomena originating from being unprotected in space."
+      },
+      {
+        name: "Flames Of My Desire",
+        type: "passive/buff",
+        description: "Choose one of the following desires:<br>- Pure destruction<br>- Power over others<br>- Conquest<br>- Riches aplenty<br>- Fame and glory<br>- Esoteric Knowledge<br>Whenever you contest or attack in pursuit of your desire, you may step up the largest and smallest dice in your pool. If the smallest die rolls higher than the highest die, the DM may introduce a complication as a result of your heedless pursuit."
+      },
+      {
+        name: "Rage Against the Machine",
+        type: "encounter/free",
+        description: "You have mastered putting yourself into a state of murderous rage. You may step all dice in your pool for the remainder of the encounter. At the end of the encounter, increase your Strain die by 2."
+      },
+      {
+        name: "Tactical Reload",
+        type: "recovery/free",
+        description: "When you take an hour or more to examine your weapon, you may choose a tag it has to remove. If you remove a tag in this way, the GM will give you two options for tags. You may add one of the options to your weapon."
+      },
+      {
+        name: "Juggernaut",
+        type: "passive/buff",
+        description: "If every worn gear slot is filled with “heavy” gear or armor, you may step up all armor dice in your defense dice pool whenever you are attacked."
+      },
+      {
+        name: "Gatecrasher",
+        type: "encounter/free",
+        description: "When you contest Might|Skill to destroy an inanimate obstacle you may step up your Might die. Additionally on a success, choose 2 of the following:<br>- It doesn’t take a very long time<br>- It doesn’t introduce any complications<br>- It doesn’t make an inordinate amount of noise<br>- You can fix the thing without significant effort"
+      },
+      {
+        name: "Strider",
+        type: "recovery/free",
+        description: "When you journey planetside or make camp, step up all dice in your next dice pool. Your rolls cannot incur complications."
+      },
+      {
+        name: "Black Market Connections",
+        type: "at-will/free",
+        description: "When you arrive at a settlement, if it has a criminal underground, you may ask the GM one of the following questions:<br>- Who runs the criminal underworld here?<br>- What is the main illegal trade?<br>- How dangerous is the criminal underworld?<br>- Would I be able to find [item] at the black market here?"
+      },
+      {
+        name: "Setup Strike",
+        type: "encounter/free",
+        description: "When you hit an enemy with an attack, you may mark them. The next person to contest against the marked target may step up 1d4 dice in their dice pool."
+      },
+      {
+        name: "Sage Knight",
+        type: "passive/buff",
+        description: "When you spend an hour or more in quiet meditation after a battle, you may decrease your Strain die. If your Strain is 0, increase your luck die."
+      },
+      {
+        name: "Blot out the Sun",
+        type: "recovery/free",
+        description: "When you damage using a far-range or long-range weapon, you may expend an additional ammo to step up all dice in your damage pool."
+      },
+      {
+        name: "Superior Explorer",
+        type: "at-will/free",
+        description: "Choose up to 3 of the below terrains that you do not already have a skill for. Gain a talent called [terrain] expert for each. Your expertise in this talent is a d8.<br>- Mountain<br>- Desert<br>- Tundra<br>- Wasteland<br>- Jungle<br>- Plains<br>- Forest<br>- Urban<br>- Caves<br>- Asteroid field<br>- Nebula<br>- Ocean<br>You and your group only consume half the normal amount of rations when you journey planetside through these terrains."
+      },
+      {
+        name: "Tricks of the Trade",
+        type: "per encounter/free",
+        description: "When you contest and roll the maximum value on all dice in your dice pool, gain a relevant Talent (1d4) or increase a used Talent in the dice pool."
+      },
+      {
+        name: "The Arcane and Esoteric",
+        type: "at-will/free",
+        description: "When you attempt to acquire information about something puzzling, mysterious, or unknown to you, step up your Recall. You cannot incur complications when you acquire information."
+      },
+      {
+        name: "Ad Astra Per Aspera",
+        type: "recovery/free",
+        description: "If you would take a wound, you may instead decrease a Talent by 1."
+      },
+      {
+        name: "The Great Escape",
+        type: "recovery/combat",
+        description: "During combat or a dangerous situation you may ask the GM one of the following questions:<br>- Where is the nearest route to safety from here?<br>- What lies beyond a nearby door?<br>- Am I at risk of the threat increasing if I stay here?"
+      },
+      {
+        name: "Steal the Moon",
+        type: "recovery/free",
+        description: "Gain a Talent called “heist planning” at expertise 1d8. When you plot a heist, step up your Recall and “heist planning” then contest. On a success, the GM will give you a relevant and useful piece of information relating to the heist you are planning."
+      },
+      {
+        name: "Font of Knowledge",
+        type: "at-will/free",
+        description: "When you ask a question or seek knowledge related to a Talent you have, the GM will give you a useful or relevant piece of information. Increase your Strain die."
+      },
+      {
+        name: "Fool me Once",
+        type: "recovery/free",
+        description: "When you fail your second contest or attack in a given encounter, you may instead succeed."
+      },
+      {
+        name: "Discombobulate",
+        type: "encounter/free",
+        description: "Add your Recall and Presence to your dice pool the next time you attack with a melee weapon. You cannot incur complications on this roll."
+      },
+      {
+        name: "Bullet Time",
+        type: "recovery/free",
+        description: "Until your next turn you cannot be the target of an attack. Additionally, if you resist peril, step up every die in your dice pool."
+      },
+      {
+        name: "Hondo’s Return",
+        type: "at-will/free",
+        description: "Whenever you return to an outpost of civilization in triumph, you may step up your Presence and contest Presence|Charm or Presence|Might. On a success, you impress anyone who sees your return, step up a die in your dice pool the next time you dazzle, swindle, haggle with them."
+      },
+      {
+        name: "Punch God",
+        type: "recovery/free",
+        description: "If you stand defiant in the face of overwhelming odds, existential terror, or a creature far beyond your skills, you may step up all the dice in your dice pool the next time you contest or attack in opposition to this force. You cannot incur complications on this roll."
+      },
+      {
+        name: "Shoot First",
+        type: "recovery/free",
+        description: "You may take the first action when you initiate combat, even if surprised."
+      },
+      {
+        name: "Ask Questions Later",
+        type: "recovery/free",
+        description: "If you initiate combat with a creature you were meant to interrogate, question, or speak with, you may ask the GM one of the following questions at the end of combat:<br>- Why was this creature here?<br>- What did this creature want?<br>- Why did this creature attack us?<br>- Whom does this creature serve?"
+      },
+      {
+        name: "Wide Wanderer",
+        type: "at-will/free",
+        description: "If you journey planetside or travel through space in an unfamiliar area, you may step up a die in your dice pool."
+      },
+      {
+        name: "Cheat Death",
+        type: "recovery/free",
+        description: "The next time you would die, you do not, instead suffer a Strain break and set your Strain die to 1d12. Reset your health to its maximum."
+      },
+      {
+        name: "Ace up the Sleeve",
+        type: "passive/buff",
+        description: "If you would roll to contest to overcome, dazzle swindle haggle, or resist peril and you do not add a single Talent die to your dice pool, step up a die in your pool."
+      },
+      {
+        name: "The Ability to Speak",
+        type: "passive/buff",
+        description: "Regardless of whether or not you speak the language, you can get a general idea of what any intelligent creature is trying to say when they speak to you."
+      },
+      {
+        name: "Breaker of War",
+        type: "recovery/combat",
+        description: "If you attempt to defuse a hostile situation, contest Presence|Charm. On a success, the GM will choose one of the following outcomes:<br>- Confusion is sown among the enemy<br>- Discontent stirs among the enemy<br>- Defection occurs within the enemy<br>- The enemy stands down, albeit with some unease<br>Increase your Luck."
+      },
+      {
+        name: "Journey Before Destination",
+        type: "passive/buff",
+        description: "When you journey planetside you may write a new bond with one of your companions. You may have up to 2 more maximum bonds."
+      },
+      {
+        name: "Forth Eorlingas!",
+        type: "recovery/free",
+        description: "If you initiate combat while outnumbered, increase your Luck. Choose another player, they increase their Luck. Choose a different player, they gain a surge. Choose a different player, they double their initiative for this combat."
+      },
+      {
+        name: "Volta Gloria",
+        type: "encounter/free",
+        description: "If you have no surges and you initiate combat, gain a surge."
+      },
+      {
+        name: "Give me Liberty!",
+        type: "passive/buff",
+        description: "If you die in defense of your friends, innocents, or a noble cause, everyone in your party increases their luck. They all gain a surge. Your next character may start with a connection to this character and may possess an item your character died with."
+      },
+      {
+        name: "Resist and Bite",
+        type: "encounter/free",
+        description: "When you are dealt damage by a melee weapon, you may increase your Strain die. If you do, you instead take no damage and may deal up to half that damage to a target within your melee range."
+      },
+      {
+        name: "Heavy on the Saddle",
+        type: "",
+        description: "You can exceed your mass capacity by up to 50 before suffering negative consequences. You may step up 2 dice in your dice pool if you are assigned a “trailblazer” role by a move."
+      },
+      {
+        name: "Lucky Tool",
+        type: "",
+        description: "You have a special tool that carries you through your journey. The tool is _____.<br>- Old and beat up<br>- Kept clean and shiny<br>- Well worn<br>- Uniquely decorated<br>Describe the type of tool you have, the tool has a 1d8 die and the “lucky” tag. If you would step up a die in your dice pool while using this tool, step up two dice."
+      },
+      {
+        name: "NOT IMPLEMENTED FINISH",
+        type: "",
+        description: ""
+      },
+      {
+        name: "Fly By Instinct",
+        type: "",
+        description: "You may add your Will die to your dice pool when you dogfight or open fire. If you use this ability more than once in an encounter, increase your Strain by 1 each time you use it."
+      },
+      {
+        name: "Max Burn",
+        type: "",
+        description: "You may expend a fuel to kick your ship's engine into overdrive, doubling your speed modifier until the beginning of your next turn. This can be activated during a merge to increase your starting advantage instead."
+      },
+      {
+        name: "Engage!",
+        type: "",
+        description: "You can activate an axial instantaneously, randomly giving 1d4 hardpoint modules on your ship the damaged tag."
+      }
     ];
 
-    // We'll create 15 levels, with up to 5 nodes each.
-    const maxLevel = 15;
-    const nodesPerLevel = 5;
+    // Define an order for groups based on the first part of the type (or default to "other")
+    const groupOrder = ["passive", "at-will", "encounter", "recovery", "per encounter", "other"];
+    const groups = {};
+    groupOrder.forEach(g => groups[g] = []);
 
-    // Assign each ability a level (1–15) and an ID.
-    abilities.forEach((ability, i) => {
-      ability.id = i + 1;
-      // Compute which level: integer division by 5, plus 1
-      let assignedLevel = Math.floor(i / nodesPerLevel) + 1;
-      if (assignedLevel > maxLevel) assignedLevel = maxLevel;
-      ability.level = assignedLevel;
+    // Group abilities by the first part of the type (if present)
+    abilities.forEach(ability => {
+      let groupKey = "other";
+      if (ability.type) {
+        let parts = ability.type.split("/");
+        let key = parts[0].trim().toLowerCase();
+        if (groupOrder.includes(key)) {
+          groupKey = key;
+        }
+      }
+      groups[groupKey].push(ability);
     });
 
-    // Group them by level.
-    const levels = {};
-    for (let lvl = 1; lvl <= maxLevel; lvl++) {
-      levels[lvl] = abilities.filter(a => a.level === lvl);
-    }
+    // Get the container element
+    const techTree = document.getElementById("tech-tree");
 
-    // Build edges: each node from level 2..15 gets exactly 1 random prerequisite from the previous level
-    const edges = [];
-    for (let lvl = 2; lvl <= maxLevel; lvl++) {
-      const prevLevelNodes = levels[lvl - 1];
-      levels[lvl].forEach(node => {
-        // Pick exactly one random predecessor from previous level
-        const prereq = prevLevelNodes[Math.floor(Math.random() * prevLevelNodes.length)];
-        edges.push({ from: prereq.id, to: node.id });
-      });
-    }
-
-    // Render the tech tree
-    function renderTechTree() {
-      const container = document.getElementById("tech-tree");
-      container.innerHTML = "";
-
-      // Increase vertical gap for readability
-      const verticalGap = 220;  
-      // Node width slightly larger than the .ability-card width to allow spacing
-      const nodeWidth = 180;    
-      const containerWidth = container.clientWidth;
-
-      // Position each node
-      abilities.forEach(node => {
-        const levelNodes = levels[node.level];
-        const indexInLevel = levelNodes.findIndex(n => n.id === node.id);
-        const count = levelNodes.length;
-        const totalNodesWidth = count * nodeWidth;
-        const startX = (containerWidth - totalNodesWidth) / 2;
-
-        const nodeDiv = document.createElement("div");
-        nodeDiv.className = "ability-card";
-        nodeDiv.style.left = (startX + indexInLevel * nodeWidth) + "px";
-        nodeDiv.style.top = ((node.level - 1) * verticalGap) + "px";
-        nodeDiv.dataset.nodeId = node.id;
-        nodeDiv.innerHTML = `
-          <h3>${node.name}</h3>
-          <p class="ability-type">${node.type}</p>
-          <div class="ability-description">${node.description}</div>
-        `;
-        container.appendChild(nodeDiv);
-
-        // Store positions for line drawing
-        node.x = parseFloat(nodeDiv.style.left);
-        node.y = parseFloat(nodeDiv.style.top);
-        node.elemWidth = nodeDiv.offsetWidth;
-        node.elemHeight = nodeDiv.offsetHeight;
-      });
-
-      // Create an SVG overlay to draw lines
-      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      svg.style.position = "absolute";
-      svg.style.top = "0";
-      svg.style.left = "0";
-      svg.style.width = "100%";
-      svg.style.height = container.clientHeight + "px";
-      svg.style.pointerEvents = "none";
-
-      edges.forEach(edge => {
-        const fromNode = abilities.find(n => n.id === edge.from);
-        const toNode = abilities.find(n => n.id === edge.to);
-        if (!fromNode || !toNode) return;
-
-        // Calculate centers
-        const fromX = fromNode.x + fromNode.elemWidth / 2;
-        const fromY = fromNode.y + fromNode.elemHeight / 2;
-        const toX = toNode.x + toNode.elemWidth / 2;
-        const toY = toNode.y + toNode.elemHeight / 2;
-
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", fromX);
-        line.setAttribute("y1", fromY);
-        line.setAttribute("x2", toX);
-        line.setAttribute("y2", toY);
-        line.setAttribute("stroke", "#aaa");
-        line.setAttribute("stroke-width", "1.5");
-        svg.appendChild(line);
-      });
-
-      container.appendChild(svg);
-    }
-
-    window.addEventListener("resize", renderTechTree);
-    window.addEventListener("load", renderTechTree);
+    // For each group, create a column with a header and all its ability cards.
+    groupOrder.forEach(group => {
+      if (groups[group].length > 0) {
+        const col = document.createElement("div");
+        col.className = "group-column";
+        // Group header
+        const header = document.createElement("h2");
+        header.textContent = group.charAt(0).toUpperCase() + group.slice(1);
+        col.appendChild(header);
+        
+        // Create each ability card
+        groups[group].forEach(ability => {
+          const card = document.createElement("div");
+          card.className = "ability-card";
+          
+          const title = document.createElement("h3");
+          title.textContent = ability.name;
+          card.appendChild(title);
+          
+          if (ability.type) {
+            const typeEl = document.createElement("p");
+            typeEl.className = "ability-type";
+            typeEl.textContent = ability.type;
+            card.appendChild(typeEl);
+          }
+          
+          const desc = document.createElement("div");
+          desc.className = "ability-description";
+          desc.innerHTML = ability.description;
+          card.appendChild(desc);
+          
+          col.appendChild(card);
+        });
+        
+        techTree.appendChild(col);
+      }
+    });
   </script>
 </body>
 </html>
