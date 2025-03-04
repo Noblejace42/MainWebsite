@@ -105,7 +105,7 @@
       { "name": "Reloading", "weight": 4 },
       { "name": "Complicated", "appendX": true, "weight": 2 },
       { "name": "EMP", "weight": 2 },
-      { "name": "Draining", "appendX": true, "weight": 1 },
+      { "name": "Draining", "appendX": true, "weight": 1 }
     ]
   },
   "tags": {
