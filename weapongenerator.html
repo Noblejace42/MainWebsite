@@ -94,9 +94,9 @@ const baseWeapons = [
   { type: "Blade", skillTags: ["Ergonomic", "Quick"], range: "Melee" },
   { type: "Bludgeon", skillTags: ["Quick", "Unruly"], range: "Melee" },
   // New base weapon using Technical and Unruly
-  { type: "Tesla Cannon", skillTags: ["Technical", "Unruly"], range: "Mid-range", extra: "Static" },
+  { type: "Tesla", skillTags: ["Technical", "Unruly"], range: "Near-range", extra: "Static" },
   // New base weapon using Ergonomic and Technical
-  { type: "Plasma Rifle", skillTags: ["Ergonomic", "Technical"], range: "Long-range", extra: "Incendiary" }
+  { type: "Repeater", skillTags: ["Ergonomic", "Technical"], range: "Long-range", extra: "Incendiary" }
 ];
 
 const allSkillTraits = ["Scoped", "Quick", "Ergonomic", "Unruly", "Technical"];
@@ -151,7 +151,7 @@ function generateWeaponName(weapon) {
   // Expanded arrays for sci-fi naming components (used only for name generation)
   const sciFiPrefixes = [
     "Nova", "Stellar", "Nebula", "Celestial", "Hyper", "Astral", "Eclipse",
-    "Quantum", "Galactic", "Solar", "Cosmic", "Lunar", "Infinite", "Orbit", "Aether", "Zenith"
+    "Intercepter", "V-Class", "Solar", "Cosmic", "Lunar", "Infinite", "Orbit", "Aether", "Zenith", "Blitz"
   ];
   const sciFiCores = [
     "Viper", "Raven", "Phantom", "Specter", "Reaper", "Marauder", "Enforcer", 
@@ -159,15 +159,17 @@ function generateWeaponName(weapon) {
   ];
   const sciFiSuffixes = [
     "X", "Prime", "Omega", "Zero", "Alpha", "Beta", "Delta", "MK-II", "MK-III", "MK-IV", 
-    "EX", "Pro", "Ultra", "Max", "Elite", "Plus"
+    "EX", "Pro", "Ultra", "Max", "Elite", "Plus", "Phi"
   ];
   const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
   const baseTypeCores = {
     "Rifle": ["Carbine", "Longshot", "Marksman", "Rifle", "Assault", "Sniper", "Sharpshooter"],
     "Handgun": ["Sidearm", "Striker", "Revolver", "Hand Cannon", "Pistol", "Derringer"],
-    "Shotgun": ["Scatter", "Boomer", "Shotgun", "Scattergun", "Pump", "Slugger"],
+    "Shotgun": ["Scatter", "Boomer", "Shotgun", "Spread", "Pump", "Slugger"],
     "Blade": ["Edge", "Razor", "Viblade", "Monoblade", "Shortblade", "Longblade", "Katana"],
     "Bludgeon": ["Crusher", "Hammer", "Club", "Staff", "Maul", "Mallet"]
+    "Tesla": ["Coil", "Charger", "Shocklance", "Lasher", "Jolt Whip", "Thunderstrike", "Cannon"],
+    "Repeater": ["Plasmagun", "Tracer", "Boltloader", "Blaster", "Gauss", "Firestorm"]
   };
   const tagFragments = {
     "Quick": "Swift",
