@@ -158,7 +158,7 @@
           selectedOptional.push(tag);
         }
       }
-      return "Weapon|" + weight + " (" + dice + ", " + reqTag + ", " + selectedOptional.join(", ") + ")";
+      return "Weapon|" + weight + " (1d" + dice + ", " + reqTag + ", " + selectedOptional.join(", ") + ")";
     }
 
     // For non-weapon parts, remove tag generation.
