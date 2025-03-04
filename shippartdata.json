@@ -1,1 +1,194 @@
+{
+  "store": {
+    "name": "Ship Parts Emporium",
+    "owner": "Captain Nova",
+    "shipParts": {
+      "Weapon": [
+        {
+          "template": "Weapon|X (C,Y,Y…)",
+          "weight": {
+            "value": "X",
+            "weighted": true,
+            "rule": "Random integer 1-10 with probability weight = 11 - X"
+          },
+          "dice": {
+            "value": "C",
+            "weighted": true
+          },
+          "tags": {
+            "required": {
+              "oneOf": [
+                {
+                  "name": "Technical",
+                  "weighted": true,
+                  "rule": "Random integer 1-10 with probability weight = 11 - X"
+                },
+                {
+                  "name": "Targeting",
+                  "weighted": true,
+                  "rule": "Random integer 1-10 with probability weight = 11 - X"
+                },
+                {
+                  "name": "Recoiling",
+                  "weighted": true,
+                  "rule": "Random integer 1-10 with probability weight = 11 - X"
+                }
+              ]
+            },
+            "optional": [
+              {
+                "name": "Mounted",
+                "weighted": true
+              },
+              {
+                "name": "Emplacement",
+                "weighted": true
+              },
+              {
+                "name": "Swiveling X",
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
+              },
+              {
+                "name": "Stealthy",
+                "weighted": true
+              },
+              {
+                "name": "Heat seeking",
+                "weighted": true
+              },
+              {
+                "name": "Chasing",
+                "weighted": true
+              },
+              {
+                "name": "Charging X",
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
+              },
+              {
+                "name": "Overheating",
+                "weighted": true
+              },
+              {
+                "name": "Ammo",
+                "weighted": true
+              },
+              {
+                "name": "Reloading",
+                "weighted": true
+              },
+              {
+                "name": "Complicated X",
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
+              },
+              {
+                "name": "EMP",
+                "weighted": true
+              }
+            ]
+          }
+        }
+      ],
+      "Thruster": [
+        {
+          "template": "Thruster|X (1dC,Y…)",
+          "weight": {
+            "value": "X",
+            "weighted": true,
+            "rule": "Random integer 1-10 with probability weight = 11 - X"
+          },
+          "dice": {
+            "value": "C",
+            "weighted": true
+          },
+          "maneuverBonus": {
+            "value": "1dC",
+            "weighted": true
+          },
+          "tags": {
+            "optional": [
+              {
+                "name": "OptionalTag1",
+                "weighted": true
+              },
+              {
+                "name": "OptionalTag2",
+                "weighted": true
+              }
+            ]
+          }
+        }
+      ],
+      "Reactor": [
+        {
+          "template": "Reactor|X (C,Y…)",
+          "weight": {
+            "value": "X",
+            "weighted": true,
+            "rule": "Random integer 1-10 with probability weight = 11 - X"
+          },
+          "powerIncrease": {
+            "value": "C",
+            "weighted": true
+          },
+          "tags": {
+            "optional": [
+              {
+                "name": "OptionalTag1",
+                "weighted": true
+              },
+              {
+                "name": "OptionalTag2",
+                "weighted": true
+              }
+            ]
+          }
+        }
+      ],
+      "UtilityModule": [
+        {
+          "template": "Utility Module Name [weighted]",
+          "weight": {
+            "weighted": true
+          }
+        }
+      ],
+      "AdvancedModule": [
+        {
+          "template": "Advanced Module Name [weighted]",
+          "weight": {
+            "weighted": true
+          }
+        }
+      ]
+    }
+  },
+  "templates": {
+    "Weapon": "Weapon|X (C,Y,Y…)",
+    "Thruster": "Thruster|X (1dC,Y…)",
+    "Reactor": "Reactor|X (C,Y…)",
+    "UtilityModule": "Utility Module Name [weighted]",
+    "AdvancedModule": "Advanced Module Name [weighted]"
+  },
+  "tags": {
+    "generic": [
+      {
+        "name": "Damaged",
+        "weighted": true
+      },
+      {
+        "name": "Draining X",
+        "weighted": true,
+        "rule": "Random integer 1-10 with probability weight = 11 - X"
+      },
+      {
+        "name": "Large X",
+        "weighted": true,
+        "rule": "Random integer 1-10 with probability weight = 11 - X"
+      }
+    ]
+  }
+}
 
