@@ -148,20 +148,33 @@ function generateWeaponName(weapon) {
   }
   let tagArray = Array.from(combinedTags);
 
-  // Expanded arrays for sci-fi naming components (used only for name generation)
-  const sciFiPrefixes = [
-    "Nova", "Stellar", "Nebula", "Celestial", "Hyper", "Astral", "Eclipse",
-    "Intercepter", "V-Class", "Solar", "Cosmic", "Lunar", "Infinite", "Orbit", "Aether", "Zenith", "Blitz"
-  ];
-  const sciFiCores = [
-    "Viper", "Raven", "Phantom", "Specter", "Reaper", "Marauder", "Enforcer", 
-    "Stryker", "Vanguard", "Oracle", "Wraith", "Assassin", "Tempest", "Nemesis", "Raptor"
-  ];
-  const sciFiSuffixes = [
-    "X", "Prime", "Omega", "Zero", "Alpha", "Beta", "Delta", "MK-II", "MK-III", "MK-IV", 
-    "EX", "Pro", "Ultra", "Max", "Elite", "Plus", "Phi"
-  ];
-  const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+const sciFiPrefixes = [
+  "Nova", "Stellar", "Nebula", "Celestial", "Hyper", "Astral", "Eclipse",
+  "Intercepter", "V-Class", "Solar", "Cosmic", "Lunar", "Infinite", "Orbit", "Aether", "Zenith", "Blitz",
+  "Quantum", "Ion", "Pulsar", "Meteor", "Comet", "Fusion", "Warp", "Continuum",
+  "Quasar", "Eventide", "Horizon", "Gravity", "Vector", "Epoch", "Singularity"
+];
+
+const sciFiCores = [
+  "Viper", "Raven", "Phantom", "Specter", "Reaper", "Marauder", "Enforcer", 
+  "Stryker", "Vanguard", "Oracle", "Wraith", "Assassin", "Tempest", "Nemesis", "Raptor",
+  "Harbinger", "Falcon", "Predator", "Centurion", "Vortex", "Sentinel", "Reaver", 
+  "Scythe", "Avenger", "Drifter", "Mercenary", "Berserker", "Striker", "Gladiator",
+  "Interceptor", "Obsidian", "Overlord", "Phalanx"
+];
+
+const sciFiSuffixes = [
+  "X", "Prime", "Omega", "Zero", "Alpha", "Beta", "Delta", "MK-II", "MK-III", "MK-IV", 
+  "EX", "Pro", "Ultra", "Max", "Elite", "Plus", "Phi",
+  "Sigma", "Epsilon", "Kappa", "Zeta", "Gamma", "Rho", "Theta", "Circuit", "Forge", "Edge", 
+  "Pulse", "Sync", "Titan", "Torque", "Matrix", "Quantum", "Vector"
+];
+
+const romanNumerals = [
+  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+  "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"
+];
+
   const baseTypeCores = {
     "Rifle": ["Carbine", "Longshot", "Marksman", "Rifle", "Assault", "Sniper", "Sharpshooter"],
     "Handgun": ["Sidearm", "Striker", "Revolver", "Hand Cannon", "Pistol", "Derringer"],
@@ -185,7 +198,7 @@ function generateWeaponName(weapon) {
     "Consistent": "Steady",
     "Potent": "Force",
     "Multipurpose": "Versatile",
-    "Cycling": "Revolver"
+    "Cycling": "Revolving"
   };
 
   // Pick a tag fragment if available
