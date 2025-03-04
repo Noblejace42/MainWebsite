@@ -193,7 +193,7 @@
     }
     // DOM event listener: load external config and attach event listeners once DOM is ready.
     window.addEventListener("DOMContentLoaded", function() {
-      fetch("ship_part_generator_config.json")
+      fetch("shippartdata.json")
         .then(response => response.json())
         .then(json => {
           config = json;
