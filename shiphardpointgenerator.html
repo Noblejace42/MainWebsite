@@ -1,1 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ship Hardpoint Generator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #222;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .part-item {
+      border: 1px solid #444;
+      padding: 10px;
+      margin: 5px 0;
+    }
+    h1, h2, h3 {
+      margin: 10px 0;
+    }
+    button, select {
+      padding: 5px 10px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ship Hardpoint Generator</h1>
+
+    <div class="section">
+      <button onclick="generateStore()">Generate Ship Parts Store</button>
+    </div>
+
+    <div class="section">
+      <div><strong>Shipyard Name:</strong> <span id="shipyardName"></span></div>
+      <div><strong>Store Owner:</strong> <span id="storeOwner"></span></div>
+      <div><strong>Store Name:</strong> <span id="storeName"></span></div>
+    </div>
+
+    <div class="section">
+      <label for="partCount">Number of Ship Parts:</label>
+      <select id="partCount">
+        <option value="1">1</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
+      <button onclick="generateParts()">Generate Parts</button>
+    </div>
+
+    <div class="section">
+      <h2>Generated Ship Parts</h2>
+      <div id="partsOutput"></div>
+    </div>
+  </div>
+
+  <script>
+    // Helper functions
+    function weightedRandom(choices) {
+      let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+      let randomNum = Math.random() * totalWeight;
+      for (let i = 0; i < choices.length; i++) {
+        if (randomNum < choices[i].weight) {
+          return choices[i].value !== undefined ? choices[i].value : choices[i];
+        }
+        randomNum -= choices[i].weight;
+      }
+    }
+    
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    // Generates a random integer from 1-10 with weight = (11 - value)
+    function weightedRandomX() {
+      let choices = [];
+      for (let i = 1; i <= 10; i++) {
+        choices.push({ value: i, weight: 11 - i });
+      }
+      return weightedRandom(choices);
+    }
+    
+    // Dice generation (4,6,8,10,12 with weighted probabilities)
+    function generateDice() {
+      let diceOptions = [
+        { value: 4, weight: 40 },
+        { value: 6, weight: 30 },
+        { value: 8, weight: 20 },
+        { value: 10, weight: 8 },
+        { value: 12, weight: 2 }
+      ];
+      return weightedRandom(diceOptions);
+    }
+    
+    // Shipyard name generator arrays (modeled after settlement names)
+    const shipyardPrefixes = ["Cor", "Ald", "Nab", "Tar", "Ven", "Lor", "Ryl", "Mar", "Dorn", "Kess", "Zen", "Lux", "Nov", "Xen", "Sol", "Neb"];
+    const shipyardCores = ["anta", "osis", "ar", "osa", "ion", "oran", "eros", "exis", "ur", "xel"];
+    const shipyardSuffixes = ["Prime", "Major", "Station", "Hold", "Citadel", "Outpost", "Bastion", "Spire"];
+    
+    function generateShipyardName() {
+      let prefix = shipyardPrefixes[randomInt(0, shipyardPrefixes.length - 1)];
+      let core = shipyardCores[randomInt(0, shipyardCores.length - 1)];
+      let suffix = shipyardSuffixes[randomInt(0, shipyardSuffixes.length - 1)];
+      return prefix + core + " " + suffix;
+    }
+    
+    // Store owner name generator (using similar arrays as in the provided JSON)
+    const ownerFirstNamePrefixes = ["Xan", "Tal", "Ver", "Mar", "Sel", "Neo", "Sky", "Cy", "Zor", "Lex"];
+    const ownerFirstNameSuffixes = ["dor", "en", "ix", "ar", "on", "us"];
+    const ownerLastNamePrefixes = ["Xan", "Tal", "Ver", "Mar", "Sel", "Neo", "Sky", "Cy", "Zor", "Lex"];
+    const ownerLastNameSuffixes = ["dor", "en", "ix", "ar", "on", "us"];
+    
+    function generateStoreOwnerName() {
+      let first = ownerFirstNamePrefixes[randomInt(0, ownerFirstNamePrefixes.length - 1)] +
+                  ownerFirstNameSuffixes[randomInt(0, ownerFirstNameSuffixes.length - 1)];
+      let last = ownerLastNamePrefixes[randomInt(0, ownerLastNamePrefixes.length - 1)] +
+                 ownerLastNameSuffixes[randomInt(0, ownerLastNameSuffixes.length - 1)];
+      return "Captain " + first + " " + last;
+    }
+    
+    // Store name generator (for example purposes)
+    function generateStoreName() {
+      let adjectives = ["Galactic", "Stellar", "Cosmic", "Interstellar", "Orbital"];
+      let nouns = ["Emporium", "Depot", "Outpost", "Exchange", "Bazaar"];
+      return adjectives[randomInt(0, adjectives.length - 1)] + " " + nouns[randomInt(0, nouns.length - 1)];
+    }
+    
+    // Ship part generators
+    function generateWeaponPart() {
+      let weight = weightedRandomX();
+      let dice = generateDice();
+      // Exactly one required tag from the list
+      let requiredTags = ["Technical", "Targeting", "Recoiling"];
+      let reqTag = requiredTags[randomInt(0, requiredTags.length - 1)];
+      // Optional tags with weighted X values where needed
+      let optionalTags = [
+        "Mounted",
+        "Emplacement",
+        "Swiveling " + weightedRandomX(),
+        "Stealthy",
+        "Heat seeking",
+        "Chasing",
+        "Charging " + weightedRandomX(),
+        "Overheating",
+        "Ammo",
+        "Reloading",
+        "Complicated " + weightedRandomX(),
+        "EMP"
+      ];
+      // Pick 0 to 3 optional tags
+      let numOptional = randomInt(0, 3);
+      let selectedOptional = [];
+      for (let i = 0; i < numOptional; i++) {
+        let tag = optionalTags[randomInt(0, optionalTags.length - 1)];
+        if (!selectedOptional.includes(tag)) {
+          selectedOptional.push(tag);
+        }
+      }
+      return "Weapon|" + weight + " (" + dice + ", " + reqTag +
+             (selectedOptional.length ? ", " + selectedOptional.join(", ") : "") + ")";
+    }
+    
+    function generateThrusterPart() {
+      let weight = weightedRandomX();
+      let dice = generateDice();
+      let optionalTags = ["Afterburner", "Vectoring", "Stabilized"];
+      let numOptional = randomInt(0, 2);
+      let selectedOptional = [];
+      for (let i = 0; i < numOptional; i++) {
+        let tag = optionalTags[randomInt(0, optionalTags.length - 1)];
+        if (!selectedOptional.includes(tag)) {
+          selectedOptional.push(tag);
+        }
+      }
+      return "Thruster|" + weight + " (1d" + dice +
+             (selectedOptional.length ? ", " + selectedOptional.join(", ") : "") + ")";
+    }
+    
+    function generateReactorPart() {
+      let weight = weightedRandomX();
+      let powerIncrease = generateDice();
+      let optionalTags = ["Overclocked", "Efficient", "Stabilized"];
+      let numOptional = randomInt(0, 2);
+      let selectedOptional = [];
+      for (let i = 0; i < numOptional; i++) {
+        let tag = optionalTags[randomInt(0, optionalTags.length - 1)];
+        if (!selectedOptional.includes(tag)) {
+          selectedOptional.push(tag);
+        }
+      }
+      return "Reactor|" + weight + " (" + powerIncrease +
+             (selectedOptional.length ? ", " + selectedOptional.join(", ") : "") + ")";
+    }
+    
+    function generateUtilityModule() {
+      let weight = weightedRandomX();
+      return "Utility Module Name [" + weight + "]";
+    }
+    
+    function generateAdvancedModule() {
+      let weight = weightedRandomX();
+      return "Advanced Module Name [" + weight + "]";
+    }
+    
+    // Generate parts and sort by type
+    function generateParts() {
+      let count = parseInt(document.getElementById("partCount").value);
+      let parts = [];
+      let partTypes = ["Weapon", "Thruster", "Reactor", "UtilityModule", "AdvancedModule"];
+      
+      for (let i = 0; i < count; i++) {
+        let type = partTypes[randomInt(0, partTypes.length - 1)];
+        let part;
+        if (type === "Weapon") {
+          part = generateWeaponPart();
+        } else if (type === "Thruster") {
+          part = generateThrusterPart();
+        } else if (type === "Reactor") {
+          part = generateReactorPart();
+        } else if (type === "UtilityModule") {
+          part = generateUtilityModule();
+        } else if (type === "AdvancedModule") {
+          part = generateAdvancedModule();
+        }
+        parts.push({ type: type, description: part });
+      }
+      
+      // Sort parts alphabetically by type
+      parts.sort((a, b) => a.type.localeCompare(b.type));
+      
+      let output = "";
+      let currentType = "";
+      parts.forEach(p => {
+        if (p.type !== currentType) {
+          currentType = p.type;
+          output += "<h3>" + currentType + "</h3>";
+        }
+        output += "<div class='part-item'>" + p.description + "</div>";
+      });
+      document.getElementById("partsOutput").innerHTML = output;
+    }
+    
+    function generateStore() {
+      let shipyardName = generateShipyardName();
+      let storeOwner = generateStoreOwnerName();
+      let storeName = generateStoreName();
+      document.getElementById("shipyardName").textContent = shipyardName;
+      document.getElementById("storeOwner").textContent = storeOwner;
+      document.getElementById("storeName").textContent = storeName;
+    }
+  </script>
+</body>
+</html>
 
