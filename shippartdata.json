@@ -88,23 +88,24 @@
   },
   "weaponTagDefinitions": {
     "required": [
-      { "name": "Technical", "weight": 5 },
-      { "name": "Targeting", "weight": 4 },
-      { "name": "Recoiling", "weight": 3 }
+      { "name": "Technical", "weight": 4 },
+      { "name": "Targeting", "weight": 6 },
+      { "name": "Recoiling", "weight": 6 }
     ],
     "optional": [
       { "name": "Mounted", "weight": 5 },
-      { "name": "Emplacement", "weight": 4 },
-      { "name": "Swiveling", "appendX": true, "weight": 3 },
-      { "name": "Stealthy", "weight": 4 },
-      { "name": "Heat seeking", "weight": 5 },
+      { "name": "Emplacement", "weight": 2 },
+      { "name": "Swiveling", "appendX": true, "weight": 6 },
+      { "name": "Stealthy", "weight": 0 },
+      { "name": "Heat seeking", "weight": 1 },
       { "name": "Chasing", "weight": 4 },
-      { "name": "Charging", "appendX": true, "weight": 3 },
+      { "name": "Charging", "appendX": true, "weight": 2 },
       { "name": "Overheating", "weight": 2 },
-      { "name": "Ammo", "weight": 5 },
+      { "name": "Ammo", "weight": 4 },
       { "name": "Reloading", "weight": 4 },
-      { "name": "Complicated", "appendX": true, "weight": 3 },
-      { "name": "EMP", "weight": 2 }
+      { "name": "Complicated", "appendX": true, "weight": 2 },
+      { "name": "EMP", "weight": 2 },
+      { "name": "Draining", "appendX": true, "weight": 1 },
     ]
   },
   "tags": {
