@@ -30,12 +30,10 @@
       <button onclick="generateWeapons()">Generate</button>
     </div>
 
-    <!-- New section for displaying the generated weapons in a styled block -->
+    <!-- Section for displaying the generated weapons -->
     <div class="section">
       <h2>Weapons Generated</h2>
       <p>Number of Weapons: <span id="weaponCountDisplay">0</span></p>
-      
-      <!-- The output wrapper -->
       <div id="weaponOutput" class="weapon-output"></div>
     </div>
   </div>
@@ -51,7 +49,6 @@
     function weightedRandom(choices) {
       let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
       let randomNum = Math.random() * totalWeight;
-      // Loop through the choices
       for (let i = 0; i < choices.length; i++) {
         if (randomNum < choices[i].weight) {
           return choices[i].value !== undefined ? choices[i].value : choices[i];
@@ -87,162 +84,162 @@
     }
 
     // --- Base Weapons (No additional skills or tags added) ---
-const baseWeapons = [
-  { type: "Rifle", skillTags: ["Ergonomic", "Scoped"], range: "Long-range", extra: "Piercing" },
-  { type: "Handgun", skillTags: ["Quick, Ergonomic"], range: "Near-range" },
-  { type: "Shotgun", skillTags: ["Unruly, Quick"], range: "Near-range" },
-  { type: "Blade", skillTags: ["Ergonomic", "Quick"], range: "Melee" },
-  { type: "Bludgeon", skillTags: ["Quick", "Unruly"], range: "Melee" },
-  // New base weapon using Technical and Unruly
-  { type: "Tesla", skillTags: ["Technical", "Unruly"], range: "Near-range", extra: "Static" },
-  // New base weapon using Ergonomic and Technical
-  { type: "Repeater", skillTags: ["Ergonomic", "Technical"], range: "Long-range", extra: "Incendiary" }
-];
+    const baseWeapons = [
+      { type: "Rifle", skillTags: ["Ergonomic", "Scoped"], range: "Long-range", extra: "Piercing" },
+      { type: "Handgun", skillTags: ["Quick", "Ergonomic"], range: "Near-range" },
+      { type: "Shotgun", skillTags: ["Unruly", "Quick"], range: "Near-range" },
+      { type: "Blade", skillTags: ["Ergonomic", "Quick"], range: "Melee" },
+      { type: "Bludgeon", skillTags: ["Quick", "Unruly"], range: "Melee" },
+      // New base weapon using Electrified and Unruly
+      { type: "Tesla", skillTags: ["Electrified", "Unruly"], range: "Near-range", extra: "Static" },
+      // New base weapon using Ergonomic and Electrified
+      { type: "Repeater", skillTags: ["Ergonomic", "Electrified"], range: "Long-range", extra: "Incendiary" }
+    ];
 
-const allSkillTraits = ["Scoped", "Quick", "Ergonomic", "Unruly", "Technical"];
+    const allSkillTraits = ["Scoped", "Quick", "Ergonomic", "Unruly", "Electrified"];
 
-const normalTags = [
-  { tag: "Charging", weight: 10, hasParameter: true },
-  { tag: "Throwable", weight: 10, hasParameter: false },
-  { tag: "Far-range", weight: 8, hasParameter: false },
-  { tag: "Forceful", weight: 8, hasParameter: false },
-  { tag: "Energized", weight: 5, hasParameter: false },
-  { tag: "Loading", weight: 10, hasParameter: false },
-  { tag: "Heavy", weight: 7, hasParameter: false },
-  { tag: "Consumable", weight: 6, hasParameter: true },
-  { tag: "Cycling", weight: 8, hasParameter: false },
-  { tag: "Accurate", weight: 7, hasParameter: true },
-  { tag: "Potent", weight: 5, hasParameter: true },
-  { tag: "Consistent", weight: 9, hasParameter: false },
-  { tag: "Damaged", weight: 4, hasParameter: false },
-  { tag: "Multipurpose", weight: 6, hasParameter: false }
-];
+    const normalTags = [
+      { tag: "Charging", weight: 10, hasParameter: true },
+      { tag: "Throwable", weight: 10, hasParameter: false },
+      { tag: "Far-range", weight: 8, hasParameter: false },
+      { tag: "Forceful", weight: 8, hasParameter: false },
+      { tag: "Energized", weight: 5, hasParameter: false },
+      { tag: "Loading", weight: 10, hasParameter: false },
+      { tag: "Heavy", weight: 7, hasParameter: false },
+      { tag: "Consumable", weight: 6, hasParameter: true },
+      { tag: "Cycling", weight: 8, hasParameter: false },
+      { tag: "Accurate", weight: 7, hasParameter: true },
+      { tag: "Potent", weight: 5, hasParameter: true },
+      { tag: "Consistent", weight: 9, hasParameter: false },
+      { tag: "Damaged", weight: 4, hasParameter: false },
+      { tag: "Multipurpose", weight: 6, hasParameter: false }
+    ];
 
-const rareTags = [
-  { tag: "Ammo-Optimizer", weight: 3, hasParameter: false },
-  { tag: "Volatile", weight: 2, hasParameter: false },
-  { tag: "Lucky", weight: 4, hasParameter: false },
-  { tag: "Shredding", weight: 2, hasParameter: true },
-  { tag: "Covering", weight: 2, hasParameter: true },
-  { tag: "Suppressed", weight: 3, hasParameter: false },
-  { tag: "Explosive", weight: 2, hasParameter: false },
-  { tag: "Brutal", weight: 2, hasParameter: false },
-  { tag: "Violent", weight: 2, hasParameter: true },
-  { tag: "Ornate", weight: 2, hasParameter: false }
-];
+    const rareTags = [
+      { tag: "Ammo-Optimizer", weight: 3, hasParameter: false },
+      { tag: "Volatile", weight: 2, hasParameter: false },
+      { tag: "Lucky", weight: 4, hasParameter: false },
+      { tag: "Shredding", weight: 2, hasParameter: true },
+      { tag: "Covering", weight: 2, hasParameter: true },
+      { tag: "Suppressed", weight: 3, hasParameter: false },
+      { tag: "Explosive", weight: 2, hasParameter: false },
+      { tag: "Brutal", weight: 2, hasParameter: false },
+      { tag: "Violent", weight: 2, hasParameter: true },
+      { tag: "Ornate", weight: 2, hasParameter: false }
+    ];
 
-function getRandomAdditionalTag() {
-  if (Math.random() < 0.9) {
-    return weightedRandom(normalTags);
-  } else {
-    return weightedRandom(rareTags);
-  }
-}
+    function getRandomAdditionalTag() {
+      if (Math.random() < 0.9) {
+        return weightedRandom(normalTags);
+      } else {
+        return weightedRandom(rareTags);
+      }
+    }
 
-// --- Enhanced Creative Weapon Name Generator (Name Generation Variety Only) ---
-function generateWeaponName(weapon) {
-  // Combine skillTags and additionalTags (if available) for naming inspiration
-  let combinedTags = new Set([...weapon.skillTags]);
-  if (weapon.additionalTags) {
-    weapon.additionalTags.forEach(tag => combinedTags.add(tag));
-  }
-  let tagArray = Array.from(combinedTags);
+    // --- Enhanced Creative Weapon Name Generator (Name Generation Variety Only) ---
+    function generateWeaponName(weapon) {
+      // Combine skillTags and additionalTags (if available) for naming inspiration
+      let combinedTags = new Set([...weapon.skillTags]);
+      if (weapon.additionalTags) {
+        weapon.additionalTags.forEach(tag => combinedTags.add(tag));
+      }
+      let tagArray = Array.from(combinedTags);
 
-const sciFiPrefixes = [
-  "Nova", "Stellar", "Nebula", "Celestial", "Hyper", "Astral", "Eclipse",
-  "Intercepter", "V-Class", "Solar", "Cosmic", "Lunar", "Infinite", "Orbit", "Aether", "Zenith", "Blitz",
-  "Quantum", "Ion", "Pulsar", "Meteor", "Comet", "Fusion", "Warp", "Continuum",
-  "Quasar", "Eventide", "Horizon", "Gravity", "Vector", "Epoch", "Singularity"
-];
+      const sciFiPrefixes = [
+        "Nova", "Stellar", "Nebula", "Celestial", "Hyper", "Astral", "Eclipse",
+        "Intercepter", "V-Class", "Solar", "Cosmic", "Lunar", "Infinite", "Orbit", "Aether", "Zenith", "Blitz",
+        "Quantum", "Ion", "Pulsar", "Meteor", "Comet", "Fusion", "Warp", "Continuum",
+        "Quasar", "Eventide", "Horizon", "Gravity", "Vector", "Epoch", "Singularity"
+      ];
 
-const sciFiCores = [
-  "Viper", "Raven", "Phantom", "Specter", "Reaper", "Marauder", "Enforcer", 
-  "Stryker", "Vanguard", "Oracle", "Wraith", "Assassin", "Tempest", "Nemesis", "Raptor",
-  "Harbinger", "Falcon", "Predator", "Centurion", "Vortex", "Sentinel", "Reaver", 
-  "Scythe", "Avenger", "Drifter", "Mercenary", "Berserker", "Striker", "Gladiator",
-  "Interceptor", "Obsidian", "Overlord", "Phalanx"
-];
+      const sciFiCores = [
+        "Viper", "Raven", "Phantom", "Specter", "Reaper", "Marauder", "Enforcer", 
+        "Stryker", "Vanguard", "Oracle", "Wraith", "Assassin", "Tempest", "Nemesis", "Raptor",
+        "Harbinger", "Falcon", "Predator", "Centurion", "Vortex", "Sentinel", "Reaver", 
+        "Scythe", "Avenger", "Drifter", "Mercenary", "Berserker", "Striker", "Gladiator",
+        "Interceptor", "Obsidian", "Overlord", "Phalanx"
+      ];
 
-const sciFiSuffixes = [
-  "X", "Prime", "Omega", "Zero", "Alpha", "Beta", "Delta", "MK-II", "MK-III", "MK-IV", 
-  "EX", "Pro", "Ultra", "Max", "Elite", "Plus", "Phi",
-  "Sigma", "Epsilon", "Kappa", "Zeta", "Gamma", "Rho", "Theta", "Circuit", "Forge", "Edge", 
-  "Pulse", "Sync", "Titan", "Torque", "Matrix", "Quantum", "Vector"
-];
+      const sciFiSuffixes = [
+        "X", "Prime", "Omega", "Zero", "Alpha", "Beta", "Delta", "MK-II", "MK-III", "MK-IV", 
+        "EX", "Pro", "Ultra", "Max", "Elite", "Plus", "Phi",
+        "Sigma", "Epsilon", "Kappa", "Zeta", "Gamma", "Rho", "Theta", "Circuit", "Forge", "Edge", 
+        "Pulse", "Sync", "Titan", "Torque", "Matrix", "Quantum", "Vector"
+      ];
 
-const romanNumerals = [
-  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
-  "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"
-];
-};
-  const baseTypeCores = {
-    "Rifle": ["Carbine", "Longshot", "Marksman", "Rifle", "Assault", "Sniper", "Sharpshooter"],
-    "Handgun": ["Sidearm", "Striker", "Revolver", "Hand Cannon", "Pistol", "Derringer"],
-    "Shotgun": ["Scatter", "Boomer", "Shotgun", "Spread", "Pump", "Slugger"],
-    "Blade": ["Edge", "Razor", "Viblade", "Monoblade", "Shortblade", "Longblade", "Katana"],
-    "Bludgeon": ["Crusher", "Hammer", "Club", "Staff", "Maul", "Mallet"]
-    "Tesla": ["Coil", "Charger", "Shocklance", "Lasher", "Jolt Whip", "Thunderstrike", "Cannon"],
-    "Repeater": ["Plasmagun", "Tracer", "Boltloader", "Blaster", "Gauss", "Firestorm"]
-  };
-  const tagFragments = {
-    "Quick": "Swift",
-    "Ergonomic": "Precision",
-    "Unruly": "Rogue",
-    "Technical": "Volt",
-    "Scoped": "Eagle",
-    "Charging": "Pulse",
-    "Explosive": "Blast",
-    "Ammo": "Barrage",
-    "Accurate": "Deadeye",
-    "Heavy": "Titan",
-    "Consistent": "Steady",
-    "Potent": "Force",
-    "Multipurpose": "Versatile",
-    "Cycling": "Revolving"
-  };
+      const romanNumerals = [
+        "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+        "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"
+      ];
 
-  // Pick a tag fragment if available
-  let availableFragments = tagArray.map(tag => tagFragments[tag]).filter(fragment => fragment);
-  let tagFragment = availableFragments.length ? availableFragments[randomInt(0, availableFragments.length - 1)] : "";
+      const baseTypeCores = {
+        "Rifle": ["Carbine", "Longshot", "Marksman", "Rifle", "Assault", "Sniper", "Sharpshooter"],
+        "Handgun": ["Sidearm", "Striker", "Revolver", "Hand Cannon", "Pistol", "Derringer"],
+        "Shotgun": ["Scatter", "Boomer", "Shotgun", "Spread", "Pump", "Slugger"],
+        "Blade": ["Edge", "Razor", "Viblade", "Monoblade", "Shortblade", "Longblade", "Katana"],
+        "Bludgeon": ["Crusher", "Hammer", "Club", "Staff", "Maul", "Mallet"],
+        "Tesla": ["Coil", "Charger", "Shocklance", "Lasher", "Jolt Whip", "Thunderstrike", "Cannon"],
+        "Repeater": ["Plasmagun", "Tracer", "Boltloader", "Blaster", "Gauss", "Firestorm"]
+      };
 
-  // Choose a core word based on the weapon's base type
-  let baseCores = baseTypeCores[weapon.baseType] || ["Weapon"];
-  let baseCore = baseCores[randomInt(0, baseCores.length - 1)];
+      const tagFragments = {
+        "Quick": "Swift",
+        "Ergonomic": "Precision",
+        "Unruly": "Rogue",
+        "Electrified": "Volt",
+        "Scoped": "Eagle",
+        "Charging": "Pulse",
+        "Explosive": "Blast",
+        "Ammo": "Barrage",
+        "Accurate": "Deadeye",
+        "Heavy": "Titan",
+        "Consistent": "Steady",
+        "Potent": "Force",
+        "Multipurpose": "Versatile",
+        "Cycling": "Revolving"
+      };
 
-  // Randomly choose a naming pattern for added variety
-  let pattern = randomInt(1, 4);
-  let name = "";
-  switch(pattern) {
-    case 1:
-      // Pattern 1: "<Prefix> <OptionalTagFragment> <BaseCore> <Suffix>"
-      let prefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
-      let suffix = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
-      name = prefix + " " + (tagFragment ? tagFragment + " " : "") + baseCore + " " + suffix;
-      break;
-    case 2:
-      // Pattern 2: "<TagFragment> <SciFiCore> <RomanNumeral>"
-      let core = sciFiCores[randomInt(0, sciFiCores.length - 1)];
-      let numeral = romanNumerals[randomInt(0, romanNumerals.length - 1)];
-      name = (tagFragment ? tagFragment + " " : "") + core + " " + numeral;
-      break;
-    case 3:
-      // Pattern 3: "<SciFiPrefix> <BaseType> <BaseCore> - <Random Code>"
-      let sciFiPrefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
-      let randomCode = randomInt(100, 999) + "-" + randomInt(10, 99);
-      name = sciFiPrefix + " " + weapon.baseType + " " + baseCore + " " + randomCode;
-      break;
-    case 4:
-      // Pattern 4: "<BaseCore> of the <SciFiCore> <Suffix>"
-      let coreWord = sciFiCores[randomInt(0, sciFiCores.length - 1)];
-      let suffixWord = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
-      name = baseCore + " of the " + coreWord + " " + suffixWord;
-      break;
-    default:
-      name = baseCore;
-  }
-  return name;
-}
+      // Pick a tag fragment if available
+      let availableFragments = tagArray.map(tag => tagFragments[tag]).filter(fragment => fragment);
+      let tagFragment = availableFragments.length ? availableFragments[randomInt(0, availableFragments.length - 1)] : "";
 
+      // Choose a core word based on the weapon's base type
+      let baseCores = baseTypeCores[weapon.baseType] || ["Weapon"];
+      let baseCore = baseCores[randomInt(0, baseCores.length - 1)];
+
+      // Randomly choose a naming pattern for added variety
+      let pattern = randomInt(1, 4);
+      let name = "";
+      switch(pattern) {
+        case 1:
+          // Pattern 1: "<Prefix> <OptionalTagFragment> <BaseCore> <Suffix>"
+          let prefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
+          let suffix = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
+          name = prefix + " " + (tagFragment ? tagFragment + " " : "") + baseCore + " " + suffix;
+          break;
+        case 2:
+          // Pattern 2: "<TagFragment> <SciFiCore> <RomanNumeral>"
+          let core = sciFiCores[randomInt(0, sciFiCores.length - 1)];
+          let numeral = romanNumerals[randomInt(0, romanNumerals.length - 1)];
+          name = (tagFragment ? tagFragment + " " : "") + core + " " + numeral;
+          break;
+        case 3:
+          // Pattern 3: "<SciFiPrefix> <BaseType> <BaseCore> - <Random Code>"
+          let sciFiPrefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
+          let randomCode = randomInt(100, 999) + "-" + randomInt(10, 99);
+          name = sciFiPrefix + " " + weapon.baseType + " " + baseCore + " " + randomCode;
+          break;
+        case 4:
+          // Pattern 4: "<BaseCore> of the <SciFiCore> <Suffix>"
+          let coreWord = sciFiCores[randomInt(0, sciFiCores.length - 1)];
+          let suffixWord = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
+          name = baseCore + " of the " + coreWord + " " + suffixWord;
+          break;
+        default:
+          name = baseCore;
+      }
+      return name;
+    }
 
     // --- Weapon Generation Function ---
     function generateWeapon() {
