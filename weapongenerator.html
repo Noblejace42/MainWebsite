@@ -90,13 +90,13 @@
       { type: "Shotgun", skillTags: ["Unruly", "Quick"], range: "Near-range" },
       { type: "Blade", skillTags: ["Ergonomic", "Quick"], range: "Melee" },
       { type: "Bludgeon", skillTags: ["Quick", "Unruly"], range: "Melee" },
-      // New base weapon using Electrified and Unruly
-      { type: "Tesla", skillTags: ["Electrified", "Unruly"], range: "Near-range", extra: "Static" },
-      // New base weapon using Ergonomic and Electrified
-      { type: "Repeater", skillTags: ["Ergonomic", "Electrified"], range: "Long-range", extra: "Incendiary" }
+      // New base weapon using Technical and Unruly
+      { type: "Tesla", skillTags: ["Technical", "Unruly"], range: "Near-range", extra: "Static" },
+      // New base weapon using Ergonomic and Technical
+      { type: "Repeater", skillTags: ["Ergonomic", "Technical"], range: "Long-range", extra: "Incendiary" }
     ];
 
-    const allSkillTraits = ["Scoped", "Quick", "Ergonomic", "Unruly", "Electrified"];
+    const allSkillTraits = ["Scoped", "Quick", "Ergonomic", "Unruly", "Technical"];
 
     const normalTags = [
       { tag: "Charging", weight: 10, hasParameter: true },
@@ -186,7 +186,7 @@
         "Quick": "Swift",
         "Ergonomic": "Precision",
         "Unruly": "Rogue",
-        "Electrified": "Volt",
+        "Technical": "Volt",
         "Scoped": "Eagle",
         "Charging": "Pulse",
         "Explosive": "Blast",
