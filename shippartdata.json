@@ -38,11 +38,13 @@
             "optional": [
               {
                 "name": "Mounted",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Emplacement",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Swiveling X",
@@ -51,15 +53,18 @@
               },
               {
                 "name": "Stealthy",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Heat seeking",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Chasing",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Charging X",
@@ -68,15 +73,18 @@
               },
               {
                 "name": "Overheating",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Ammo",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Reloading",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               },
               {
                 "name": "Complicated X",
@@ -85,7 +93,8 @@
               },
               {
                 "name": "EMP",
-                "weighted": true
+                "weighted": true,
+                "rule": "Random integer 1-10 with probability weight = 11 - X"
               }
             ]
           }
@@ -176,7 +185,8 @@
     "generic": [
       {
         "name": "Damaged",
-        "weighted": true
+        "weighted": true,
+        "rule": "Random integer 1-10 with probability weight = 11 - X"
       },
       {
         "name": "Draining X",
@@ -189,6 +199,26 @@
         "rule": "Random integer 1-10 with probability weight = 11 - X"
       }
     ]
-  }
+  },
+  "advancedModules": [
+    { "name": "Axial Core", "weight": 5 },
+    { "name": "Axial Pillar", "weight": 4 },
+    { "name": "Axial Spike", "weight": 3 },
+    { "name": "Emergency Escape Axial", "weight": 2 },
+    { "name": "Docking Port", "weight": 3 },
+    { "name": "Boarding Tubes", "weight": 3 },
+    { "name": "Landing Gear", "weight": 4 }
+  ],
+  "utilityModules": [
+    { "name": "Weapon Anti-Tracking", "weight": 5 },
+    { "name": "Subsystem Monitor", "weight": 4 },
+    { "name": "Ground Scanners", "weight": 4 },
+    { "name": "Ship to Ship Scanners", "weight": 3 },
+    { "name": "Point Defense Scanners", "weight": 3 },
+    { "name": "Heat Flares", "weight": 4 },
+    { "name": "Flight Predictive Tracker", "weight": 3 },
+    { "name": "Targeting System", "weight": 5 },
+    { "name": "Entry Fortifications", "weight": 2 },
+    { "name": "Point Defense Lasers", "weight": 3 }
+  ]
 }
-
