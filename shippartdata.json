@@ -5,7 +5,7 @@
     "shipParts": {
       "Weapon": [
         {
-          "template": "Weapon|X (C,Y,Y…)",
+          "template": "Weapon|X (1dC, Y, Y…)",
           "weight": {
             "value": "X",
             "weighted": true,
@@ -16,93 +16,14 @@
             "weighted": true
           },
           "tags": {
-            "required": {
-              "oneOf": [
-                {
-                  "name": "Technical",
-                  "weighted": true,
-                  "rule": "Random integer 1-10 with probability weight = 11 - X"
-                },
-                {
-                  "name": "Targeting",
-                  "weighted": true,
-                  "rule": "Random integer 1-10 with probability weight = 11 - X"
-                },
-                {
-                  "name": "Recoiling",
-                  "weighted": true,
-                  "rule": "Random integer 1-10 with probability weight = 11 - X"
-                }
-              ]
-            },
-            "optional": [
-              {
-                "name": "Mounted",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Emplacement",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Swiveling X",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Stealthy",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Heat seeking",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Chasing",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Charging X",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Overheating",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Ammo",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Reloading",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "Complicated X",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              },
-              {
-                "name": "EMP",
-                "weighted": true,
-                "rule": "Random integer 1-10 with probability weight = 11 - X"
-              }
-            ]
+            "required": "weaponTagDefinitions.required",
+            "optional": "weaponTagDefinitions.optional"
           }
         }
       ],
       "Thruster": [
         {
-          "template": "Thruster|X (1dC,Y…)",
+          "template": "Thruster|X (1dC, Y…)",
           "weight": {
             "value": "X",
             "weighted": true,
@@ -118,21 +39,15 @@
           },
           "tags": {
             "optional": [
-              {
-                "name": "OptionalTag1",
-                "weighted": true
-              },
-              {
-                "name": "OptionalTag2",
-                "weighted": true
-              }
+              { "name": "OptionalTag1", "weight": 3 },
+              { "name": "OptionalTag2", "weight": 3 }
             ]
           }
         }
       ],
       "Reactor": [
         {
-          "template": "Reactor|X (C,Y…)",
+          "template": "Reactor|X (C, Y…)",
           "weight": {
             "value": "X",
             "weighted": true,
@@ -144,14 +59,8 @@
           },
           "tags": {
             "optional": [
-              {
-                "name": "OptionalTag1",
-                "weighted": true
-              },
-              {
-                "name": "OptionalTag2",
-                "weighted": true
-              }
+              { "name": "OptionalTag1", "weight": 3 },
+              { "name": "OptionalTag2", "weight": 3 }
             ]
           }
         }
@@ -159,45 +68,50 @@
       "UtilityModule": [
         {
           "template": "Utility Module Name [weighted]",
-          "weight": {
-            "weighted": true
-          }
+          "weight": { "weighted": true }
         }
       ],
       "AdvancedModule": [
         {
           "template": "Advanced Module Name [weighted]",
-          "weight": {
-            "weighted": true
-          }
+          "weight": { "weighted": true }
         }
       ]
     }
   },
   "templates": {
-    "Weapon": "Weapon|X (C,Y,Y…)",
-    "Thruster": "Thruster|X (1dC,Y…)",
-    "Reactor": "Reactor|X (C,Y…)",
+    "Weapon": "Weapon|X (1dC, Y, Y…)",
+    "Thruster": "Thruster|X (1dC, Y…)",
+    "Reactor": "Reactor|X (C, Y…)",
     "UtilityModule": "Utility Module Name [weighted]",
     "AdvancedModule": "Advanced Module Name [weighted]"
   },
+  "weaponTagDefinitions": {
+    "required": [
+      { "name": "Technical", "weight": 5 },
+      { "name": "Targeting", "weight": 4 },
+      { "name": "Recoiling", "weight": 3 }
+    ],
+    "optional": [
+      { "name": "Mounted", "weight": 5 },
+      { "name": "Emplacement", "weight": 4 },
+      { "name": "Swiveling", "appendX": true, "weight": 3 },
+      { "name": "Stealthy", "weight": 4 },
+      { "name": "Heat seeking", "weight": 5 },
+      { "name": "Chasing", "weight": 4 },
+      { "name": "Charging", "appendX": true, "weight": 3 },
+      { "name": "Overheating", "weight": 2 },
+      { "name": "Ammo", "weight": 5 },
+      { "name": "Reloading", "weight": 4 },
+      { "name": "Complicated", "appendX": true, "weight": 3 },
+      { "name": "EMP", "weight": 2 }
+    ]
+  },
   "tags": {
     "generic": [
-      {
-        "name": "Damaged",
-        "weighted": true,
-        "rule": "Random integer 1-10 with probability weight = 11 - X"
-      },
-      {
-        "name": "Draining X",
-        "weighted": true,
-        "rule": "Random integer 1-10 with probability weight = 11 - X"
-      },
-      {
-        "name": "Large X",
-        "weighted": true,
-        "rule": "Random integer 1-10 with probability weight = 11 - X"
-      }
+      { "name": "Damaged", "weight": 4 },
+      { "name": "Draining X", "weight": 3 },
+      { "name": "Large X", "weight": 3 }
     ]
   },
   "advancedModules": [
