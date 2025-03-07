@@ -288,7 +288,7 @@
       "Medical Supplies", "Simple Circuit Boards", "Photovoltaic Cells", "Hydraulics",
       "Pure Water Barrels", "Basic Machine Parts", "Unrefined Rare Earth Minerals",
       "Ceramic Tiling", "Raw Bauxite", "Power Cells", "Handheld Weapons",
-      "Armor", "Mining Equipment", "Agriculture Equipment", "Land Vehicles"
+      "Armor", "Mining Equipment", "Agriculture Equipment", "Land Vehicles", "Slaves"
     ];
     const highDevExports = [
       "U-235 Fuel Rods", "Solar Cells", "Advanced Processors", 
@@ -303,61 +303,72 @@
       "Active Armor Plating", "Advanced Medical Supplies", "Weapons-Grade Capacitors", 
       "Speciality Hardpoint Ammunition", "High Quality Ammunition", "Liquid Oxygen Tanks", 
       "Carbonfiber Frames", "Pressurized Sheeting", "Robotics Components", 
-      "Refined Titanium", "Nanites", "Medical Nanites", 
-      "Cloning Substrate", "Artificial Organ Packs", "Autonomous Repair Swarms", "Energy Harvesting Arrays", 
-      "Modular Space Stations", "Planetary Shield Generators", "AI-Controlled Defense Networks", 
-      "Encrypted Data Cores", "Hyperconductive Wiring", "Advanced AI Cores", "Axial Navigation Systems"
+      "Refined Titanium", "Structural Nanites", "Medical Nanites", 
+      "Genome Chips", "Artificial Organ Packs", "Robotic Assistants", "Ionizing Gas Canisters", 
+      "Habitat Components", "Shield Generators", "Analytics Cores", 
+      "Cartographic Processors", "Gyroscopic Navigators", "Advanced AI Cores", "Advanced Stimulants"
     ];
     // Settlement conditions
     const settlementConditions = [
-      "Occupied by a mysterious cult",
-      "Blockaded by rival factions",
-      "Under strict quarantine",
-      "Experiencing unusual temporal distortions",
-      "Haunted by echoes of the past",
-      "Infested with rogue AI",
-      "Subject to bizarre cosmic phenomena"
+      "Occupied by a hostile military operation",
+      "Cut off from astral trade by means of a blockade",
+      "In an exceptionally dangerous environment.",
+      "Unusually busy with traders",
+      "Undergoing a large construction project",
+      "Mobilizing an army for a special military operation",
+      "Under siege by a hostile faction",
+      "Critically low on an important resource",
+      "Holding a massive surplus of an export",
+      "Harboring a reputation as a haven for known criminals",
+      "Filled with crime and social chaos",
+      "Raided by bandits",
+      "Suffering from crippling power failures",
+      "Constructing new defenses",
+      "Hiring mercenaries for jobs"
     ];
     // Points of interest (for settlements)
     const poiSettlement = [
-      "Orbital Trade Station", "Shipyard", "Black Market", "Bounty Center",
-      "Research Labs", "University", "Navicenter", "Archive", "Long-Range Communicator",
-      "Shopping Districts", "Fortified Stronghold", "Industrial Refinery", "Factory Complex",
-      "Hydroponic Farms", "Mining Headquarters", "Freight Hub", "Customs and Trade Bureau",
-      "Banking Consortium", "Medical Center", "Cybernetics Clinic", "Bioengineering Lab",
-      "Security Outpost", "Barracks", "Training Grounds", "Spaceport", "Hangar Bay",
+      "Orbital Trade Docks", "Shipyard", "Black Market", "Bounty Center",
+      "Research Labs", "University", "Cartography Guild", "Archive", "Astral Telecomm Array",
+      "Cargo Docks", "Military Citadel", "Mineral Refinery", "Advanced Fabricators",
+      "Hydroponic Farms", "Quarries", "Bazaar", "Customs and Trade Bureau",
+      "Central Bank", "Medical Center", "Cybernetics Clinic", "Genomics Lab",
+      "Police Outpost", "Barracks Complex", "Military Training Grounds", "Starship Mechanic", "Vehicle Mechanic",
       "Private Hangars", "Salvage Yard", "Scrap Processing Facility", "Fueling Station",
-      "Underground Market", "Casino", "Tavern", "Trade Guild Headquarters", "Embassy",
-      "Government Offices", "Legislative Assembly", "Transit Hub", "Slums", "Luxury District",
-      "Holo-Theater", "Entertainment Complex", "Robot Foundry", "AI Research Center",
-      "Weapon Testing Range", "Stellar Cartography Lab", "Observatory", "Deep-Space Listening Post",
-      "Communication Relay", "Planetary Defense Grid", "Private Estate", "Noble Enclave",
-      "Corporate Headquarters", "Mercenary Guild", "Supply Depot", "Outfitter", "Artifact Repository",
-      "Historical Archive", "Temple", "Criminal Syndicate Hideout", "Blacksite Research Facility",
-      "Automated Drone Depot"
+      "Open Land Lots", "Casino", "Saloon", "Trade Guild", "Embassy",
+      "Government Offices", "Legislative Assembly Building", "Slums", "Luxury District",
+      "Holo-Theater", "Robotics Foundry", "Weapons Testing Center", "Museum",
+      "Gladiator Arena", "Anti-Air Turrets", "Observatory", "Sniper Nests",
+      "Intersystem Courier", "Orbital Turrets", "Private Estate", "Noble's Manor",
+      "Corporate Offices", "Mercenary Guild", "Supply Depot", "Outfitter", "Artifact Repository",
+      "Prison", "Temple", "Criminal Syndicate Hideout", "Defensive Bunkers",
+      "Artillery Deployment", "Old Battlefield", "Outer Wall", "Missile Silo", "Raider Outpost",
+      "Military Academy", "Large Generator", "Solar Farms", "Oil Derricks", "Derelict Structure", "Tavern",
+      "Hydroelectric Dam", "River", "Lake", "Open Farmland", "Open Real-Estate"
     ];
     // System conditions (for the entire system)
     const systemConditionsList = [
-      "Derelict Station", "Abandoned Research Probe", "Unstable Jump Point", "Drifting Cargo Pod",
-      "Old Navigation Beacon", "Inactive Defense Satellite", "Ancient Wreckage Field", "Lost Colony Signal",
-      "Strange Magnetic Field", "Localized Radiation Surge", "Echoing Radio Signals", "Microgravity Distortion",
+      "Derelict Station", "Distress Beacon", "Unstable Skip Difraction", "Drifting Cargo Pods",
+      "Old Navigation Beacon", "Inactive Defense Satellite", "Ancient Wreckage Field", "Volatile Gas Clouds",
+      "Filled With Pirates", "Radio Jamming", "Busy Travel Route", "Gravity Distorting Star",
       "Hidden Asteroid Cache", "Long-Dead Ship Graveyard", "Fluctuating Power Signature", "Unmapped Gravity Well",
-      "Strange Pulsar Readings", "Minor Space-Time Ripple", "Automated Distress Signal", "Orbital Debris Cluster",
-      "Residual Weapon Signatures", "Rogue Weather Satellite", "Flickering Light Anomaly", "Displaced Moonlet",
-      "Shifting Magnetic Poles", "Mysterious Energy Surge", "Localized Plasma Storm", "Unusual Asteroid Composition",
-      "Frozen Fuel Reserves", "Unknown Sensor Echo", "Failed Terraforming Attempt", "Ancient Navigation Markers",
-      "Long-Inactive Mining Rig", "Deep-Space Listening Post", "Abandoned Terraforming Equipment",
-      "Fossilized Space Organism", "Persistent EMP Interference", "Unknown Orbital Trajectory", "Forgotten Time Capsule",
-      "Localized Gravitational Flux", "Stray Deep-Space Drone", "Unfinished Construction Platform",
-      "Unusual Reflections in the Void", "Rotating Celestial Artifact", "Sudden Drop in Background Radiation",
-      "Patch of Unstable Subspace", "Residual Jump Tunnel Wake", "Unidentified Debris Field",
-      "Partially Intact Megastructure", "Erratic Solar Flare Activity"
+      "Neutron Star", "Black Hole", "Orbital Fueling Station", "Orbital Debris Cluster",
+      "Residual Weapon Signatures", "Rogue Sentinels", "Comet Storm", "Destroyed Planet",
+      "Binary Star", "EMP Storms", "Many Skip Routes", "Strange Asteroids",
+      "Frozen Fuel Reserves", "Strange Radio Signals", "Failed Terraforming Attempt", "Ancient Navigation Markers",
+      "Long-Inactive Mining Rig", "Deep-Space Listening Post", "Abandoned Space Station",
+      "Fossilized Space Organism", "Persistent EMP Interference", "Trinary Star", "Ancient Battlefield",
+      "Invading Fleet", "Starship Mercenary Platoon", "Under-construction Station",
+      "Migrating Deep Space Lifeforms", "Asteroid Belt", "Dwarf Planet",
+      "Mining Guild", "Unstable Skip Route", "Anomalous Debris",
+      "Partially Intact Megastructure", "Violent Solar Flares"
     ];
     // Planet biomes
     const planetBiomes = [
       "Rocky Plateau World", "Salt Flats World", "Jungle World", "Swamp World", "Megaflora World",
       "Archipelago World", "Steppe World", "Mountainous World", "Cloud-Covered World", "Flooded World",
-      "Savanna World", "Crystal World", "Canyon World", "Karst World", "Taiga World", "Gas World"
+      "Savanna World", "Crystal World", "Canyon World", "Karst World", "Taiga World", "Gas World", "Oceanic World", 
+      "Forested World", "Arctic World", "Volcanic World", "Dune World", "Temperate World"
     ];
 
     // --- Military Generation ---
@@ -377,9 +388,9 @@
       // If forcedStation, minimum 2 ships; if population >= 1000, 1-3 ships; otherwise, 0.
       let totalShips = 0;
       if (forcedStation) {
-        totalShips = randomInt(2, 4);
+        totalShips = randomInt(2, 6);
       } else if (population >= 1000) {
-        totalShips = randomInt(1, 3);
+        totalShips = randomInt(1, 4);
       } else {
         totalShips = 0;
       }
