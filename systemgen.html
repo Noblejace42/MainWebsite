@@ -8,19 +8,16 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <nav>
-      <div class="nav-left">
-        <a href="systemgen.html">System Generator</a> |
-        <a href="lifepath.html">Lifepath Generator</a> |
-        <a href="weapongenerator.html">Weapon Generator</a> |
-        <a href="combat_tracker.html">Combat Tracker</a> |
-        <a href="abilitytree.html">Abilities</a> |
-        <a href="shiphardpointgenerator.html">Shipyard</a>
-      </div>
-      <div class="nav-right">
-        <a href="index.html" class="distinct-button">Home</a>
-      </div>
-    </nav>
+<div id="navContainer"></div>
+<script>
+  fetch('nav.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('navContainer').innerHTML = data;
+    })
+    .catch(err => console.error('Error loading nav:', err));
+</script>
+
 
     <div class="container">
       <h1>Astral Axial System Generator</h1>
