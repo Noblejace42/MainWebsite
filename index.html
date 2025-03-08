@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Emerson Neher</title>
 
-  <!-- Unique, highly readable font -->
+  <!-- Atkinson Hyperlegible Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap">
   <!-- Main stylesheet -->
   <link rel="stylesheet" href="home.css" />
@@ -14,19 +14,19 @@
 
   <!-- Center Card -->
   <div class="center-card" id="centerCard">
-    <!-- Card Buttons Row -->
+    <!-- Buttons Row -->
     <div class="card-buttons">
       <a href="systemgen.html" class="card-btn">Astral Axial</a>
       <a href="https://emersonneher.substack.com" target="_blank" class="card-btn">Hopeless Poetic</a>
       <a href="#" class="card-btn">Miscellaneous</a>
     </div>
 
-    <!-- A nicely rounded-off image in the card -->
+    <!-- Round Personal Image -->
     <div class="card-image">
       <img src="image/sittingimage.jpg" alt="Emerson Neher" />
     </div>
 
-    <!-- Contact Card Info -->
+    <!-- Contact Info -->
     <div class="contact-card">
       <h1>Emerson Neher</h1>
       <h3>they/them/theirs</h3>
@@ -37,140 +37,145 @@
         Financial Technology Major | Information Systems Major
       </p>
       <p class="links">
-        <!-- Replace or add links as you wish -->
         <a href="https://www.linkedin.com/in/emerson-neher-184274346" target="_blank">LinkedIn</a> |
         <a href="https://www.instagram.com/emerson.neher/" target="_blank">Instagram</a> |
         <a href="https://discord.com/users/noblejace" target="_blank">Discord</a>
       </p>
       <p class="bio">
-        Passionate about technology, finance, and systems design. I’m a writer, game designer, and storyteller who finds inspiration in the rhythm of poetry, the mechanics of RPGs, and the art of photography. Whether crafting immersive worlds, capturing fleeting moments through a lens, or experimenting with new game systems, I love exploring the intersection of creativity and experience. I believe in the power of stories—whether told in verse, through tabletop adventures, or in the mechanics of a well-designed game—to bring people together and spark imagination. Always chasing the next idea, I’m constantly writing, designing, and playing with the possibilities of what stories can be.
+        Passionate about technology, finance, and systems design. 
+        I’m a writer, game designer, and storyteller who finds inspiration in the rhythm of poetry, 
+        the mechanics of RPGs, and the art of photography. Whether crafting immersive worlds, capturing fleeting moments, 
+        or experimenting with new game systems, I love exploring the intersection of creativity and experience.
       </p>
     </div>
+
+    <!-- Spotify 'Currently Listening' Iframe -->
+    <div class="spotify-container">
+      <h3 style="margin-bottom: 8px;">Currently Listening</h3>
+      <iframe 
+        style="border-radius:12px; max-width:100%;"
+        src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator" 
+        width="100%" 
+        height="352" 
+        frameborder="0" 
+        allowfullscreen 
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+        loading="lazy">
+      </iframe>
+    </div>
+
   </div>
 
-  <!-- Tiles Container for the collage -->
+  <!-- Tiles Container (background collage) -->
   <div class="tiles-container"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      /** 
+
+      /***************************************************************
        * 1) Center the card on load/resize
-       */
+       ***************************************************************/
       const centerCard = document.getElementById('centerCard');
       function centerTheCard() {
         const rect = centerCard.getBoundingClientRect();
-        const vw   = window.innerWidth, vh = window.innerHeight;
+        const vw = window.innerWidth, vh = window.innerHeight;
         centerCard.style.left = (vw - rect.width)/2 + 'px';
         centerCard.style.top  = (vh - rect.height)/2 + 'px';
       }
       window.addEventListener('resize', centerTheCard);
       centerTheCard();
 
-      /**
-       * 2) Set up a collage of images that can overlap.
-       *    We'll just place them randomly, ignoring collisions,
-       *    making them fairly large, and fade them in/out at random intervals.
-       */
-
-      // Gather images from image folder (4..37 + any others you want)
+      /***************************************************************
+       * 2) Collage images that remain visible longer,
+       *    with less random repositioning
+       ***************************************************************/
       const tilePaths = [];
+      // e.g. images 4..37 plus personal ones
       for (let i = 4; i <= 37; i++){
         tilePaths.push(`image/${i}.jpg`);
       }
-      // Add personal images if you want them in the collage:
-      // tilePaths.push('image/graffitibackdrop.jpg', 'image/headshotlandscape.png', ...);
-
-      // Load them all
+      // Additional images if you'd like:
+      // tilePaths.push('image/graffitibackdrop.jpg', 'image/headshotlandscape.png');
       let loadedCount = 0;
       const tileData = [];
+
       tilePaths.forEach(src => {
         const img = new Image();
         img.src = src;
         img.onload = () => {
           tileData.push({ src, aspect: img.width / img.height || 1 });
           loadedCount++;
-          if (loadedCount === tilePaths.length) createTiles();
+          if (loadedCount === tilePaths.length) createCollage();
         };
         img.onerror = () => {
           loadedCount++;
-          if (loadedCount === tilePaths.length) createTiles();
+          if (loadedCount === tilePaths.length) createCollage();
         };
       });
 
       const tilesContainer = document.querySelector('.tiles-container');
       const tiles = [];
 
-      function createTiles() {
-        // We'll create a tile for each image
+      function createCollage() {
         tileData.forEach(td => {
           const div = document.createElement('div');
           div.classList.add('tile');
-          // set background
-          div.style.backgroundImage = `url('${td.src}')`;
-          // store aspect ratio in dataset
           div.dataset.aspect = td.aspect;
+          div.style.backgroundImage = `url('${td.src}')`;
+          div.style.opacity = '0'; // fade in later
           tiles.push(div);
           tilesContainer.appendChild(div);
         });
-
-        // Place them initially
-        placeAll();
-        // Start random fade cycles
+        // place them all
+        placeAllTiles();
+        // fade them in
+        tiles.forEach(tile => { tile.style.opacity = '1'; });
+        // start random fade cycle with a longer interval
         tiles.forEach(tile => scheduleFadeCycle(tile));
       }
 
-      // place all tiles (allow overlap)
-      function placeAll() {
+      function placeAllTiles() {
         tiles.forEach(tile => {
-          placeOne(tile);
-          tile.style.opacity = '1'; // show them initially
+          placeTile(tile);
         });
       }
 
-      function placeOne(tile) {
+      // placeTile: random position & moderately large scale
+      function placeTile(tile) {
         const vw = window.innerWidth, vh = window.innerHeight;
-        // random scale bigger
-        // e.g. width from 30%..70% of viewport
-        const scale = 0.3 + Math.random()*0.4; 
+        // narrower scale range so images are smaller = less overlap
+        const scale = 0.25 + Math.random()*0.35; // 25%..60% of width
         let w = vw * scale;
         const aspect = parseFloat(tile.dataset.aspect) || 1;
         let h = w / aspect;
-
-        // If the tile is too tall for viewport, scale down
+        // ensure fits vertically
         if (h > 0.8*vh) {
           h = 0.8*vh;
           w = h * aspect;
         }
-
-        const left = Math.random()*(vw - w);
-        const top  = Math.random()*(vh - h);
-
+        const left = Math.random() * (vw - w);
+        const top  = Math.random() * (vh - h);
         tile.style.width  = w + 'px';
         tile.style.height = h + 'px';
         tile.style.transform = `translate(${left}px, ${top}px)`;
       }
 
-      // fade out/in each tile after random intervals
+      // let them remain visible longer: random interval 10..20s
       function scheduleFadeCycle(tile) {
-        // random interval from 3..8 seconds
-        const delay = 3000 + Math.random()*5000; 
+        const delay = 10000 + Math.random()*10000; // 10..20 seconds
         setTimeout(() => fadeOutIn(tile), delay);
       }
 
       function fadeOutIn(tile) {
-        // fade out
         tile.style.opacity = '0';
-
-        // after fade out completes
+        // after fade out
         setTimeout(() => {
-          // reposition
-          placeOne(tile);
-          // fade back in
+          placeTile(tile);
           tile.style.opacity = '1';
-          // schedule again
           scheduleFadeCycle(tile);
-        }, 1200); // enough time for fade-out transition
+        }, 1200);
       }
+
     });
   </script>
 
