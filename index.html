@@ -162,7 +162,7 @@
 
     function scheduleNextCycle(tile) {
       // random between 1..10s (adjust as needed)
-      const interval = 1000 + Math.floor(Math.random()*9000);
+      const interval = 10000 + Math.floor(Math.random()*90000);
       setTimeout(() => { fadeOutAndSwitch(tile); }, interval);
     }
 
