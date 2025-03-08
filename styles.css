@@ -11,6 +11,34 @@ body {
   line-height: 1.5;
 }
 
+nav {
+  position: relative;
+}
+
+.nav-left {
+  display: inline-block;
+}
+
+.nav-right {
+  position: absolute;
+  right: 20px; /* Adjust as needed */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.distinct-button {
+  background-color: #FF9900;  /* Visually distinct color */
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.distinct-button:hover {
+  background-color: #e68a00;
+}
+
 
 h1, h2, h3 {
   margin: 0.5em 0;
