@@ -8,56 +8,23 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: Arial, sans-serif;
-  overflow: hidden; /* Prevents scrollbars if you want a "fullscreen" effect */
-}
-
-/* Background Tiles */
-.background-tiles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -2;
-  pointer-events: none;
-}
-.tile {
-  position: absolute;
-  /* Use viewport-based sizing to handle different image dimensions gracefully */
-  width: 12vmin;
-  height: 12vmin;
-  min-width: 80px;
-  min-height: 80px;
-  border-radius: 6px;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  animation: tileFade 20s infinite ease-in-out;
-}
-/* Keyframes so each tile fades in for ~1/3 of the cycle, then fades out */
-@keyframes tileFade {
-  0%   { opacity: 0; }
-  30%  { opacity: 0; }
-  40%  { opacity: 1; }
-  60%  { opacity: 1; }
-  70%  { opacity: 0; }
-  100% { opacity: 0; }
+  overflow: hidden; /* Removes scrollbars for a "fullscreen" effect */
 }
 
 /* Sleeker Center Card */
 .center-card {
-  position: relative;
+  position: absolute; /* We'll center it with JS */
   margin: 10vh auto;
   padding: 30px 50px;
-  max-width: 700px;
+  width: 700px;
+  max-width: 90%;
   background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(230,230,230,0.9));
   border-radius: 15px;
   box-shadow: 0 0 30px rgba(0,0,0,0.2);
-  z-index: 10;
   text-align: center;
+  z-index: 1000;
 }
 
-/* Projects Button (top left on card) */
 .projects-button {
   position: absolute;
   top: 15px;
@@ -77,7 +44,7 @@ html, body {
 
 /* Contact Card Styling */
 .contact-card h1 {
-  font-size: 2.8em;
+  font-size: 2.5em;
   margin-bottom: 8px;
   color: #222;
 }
@@ -103,92 +70,64 @@ html, body {
   margin: 0 5px;
 }
 
-/* Orbiting Photos Container */
-.orbit-container {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  margin: 30px auto 0;
-  border: 2px dashed rgba(0,0,0,0.1);
-  border-radius: 50%;
-  box-sizing: border-box;
+/* Tiles Container & Tiles */
+.tiles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Tiles not clickable */
+  z-index: 1;
+}
+.tile {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: transform 2s ease, opacity 2s ease;
+  opacity: 1;
+  pointer-events: none;
 }
 
-/* Each orbit-photo has a different orbit path for a "cooler" effect */
-.orbit-photo {
+/* Orbs Container & Orbs */
+.orbs-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 900; /* behind card, above tiles */
+}
+.orb {
   position: absolute;
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  overflow: hidden;
-}
-.orbit-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Photo1: elliptical orbit, 12s */
-@keyframes orbit1 {
-  0%   { transform: rotate(0deg)   translateX(100px) rotate(0deg); }
-  25%  { transform: rotate(90deg)  translateX(120px) rotate(-90deg) scale(1.1); }
-  50%  { transform: rotate(180deg) translateX(100px) rotate(-180deg); }
-  75%  { transform: rotate(270deg) translateX(140px) rotate(-270deg) scale(0.9); }
-  100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
-}
-.photo1 {
-  top: 0; left: 50%;
-  transform: translate(-50%, -50%);
-  animation: orbit1 12s linear infinite;
-}
-
-/* Photo2: different ellipse, 15s */
-@keyframes orbit2 {
-  0%   { transform: rotate(0deg)   translateX(130px) rotate(0deg); }
-  33%  { transform: rotate(120deg) translateX(110px) rotate(-120deg) scale(1.2); }
-  66%  { transform: rotate(240deg) translateX(140px) rotate(-240deg) scale(0.8); }
-  100% { transform: rotate(360deg) translateX(130px) rotate(-360deg); }
-}
-.photo2 {
-  top: 50%; left: 100%;
-  transform: translate(-50%, -50%);
-  animation: orbit2 15s ease-in-out infinite;
-}
-
-/* Photo3: 10s, more scale changes */
-@keyframes orbit3 {
-  0%   { transform: rotate(0deg) translateX(90px) rotate(0deg)   scale(1); }
-  25%  { transform: rotate(90deg) translateX(130px) rotate(-90deg) scale(1.1); }
-  50%  { transform: rotate(180deg) translateX(90px) rotate(-180deg) scale(1.3); }
-  75%  { transform: rotate(270deg) translateX(110px) rotate(-270deg) scale(0.8); }
-  100% { transform: rotate(360deg) translateX(90px) rotate(-360deg) scale(1); }
-}
-.photo3 {
-  top: 100%; left: 50%;
-  transform: translate(-50%, -50%);
-  animation: orbit3 10s cubic-bezier(0.65,0.05,0.36,1) infinite;
+  background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+  opacity: 0.7;
+  transition: transform 3s ease;
+  pointer-events: none;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 600px) {
-  html, body { overflow-y: auto; } /* allow vertical scroll on smaller screens if needed */
+  /* Allow scrolling if needed on small screens */
+  html, body {
+    overflow-y: auto;
+  }
   .center-card {
-    margin: 5vh auto;
+    width: 90%;
     padding: 20px 30px;
-    max-width: 90%;
   }
   .contact-card h1 {
     font-size: 2em;
   }
   .contact-card p {
-    font-size: 0.95em;
+    font-size: 1em;
   }
-  .orbit-container {
-    width: 200px;
-    height: 200px;
-  }
-  .orbit-photo {
-    width: 60px;
-    height: 60px;
+  .orb {
+    width: 60px; height: 60px;
   }
 }
