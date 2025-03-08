@@ -86,6 +86,9 @@
       <button id="addShipBtn">Add Ship</button>
     </div>
 
+    <!-- Hidden output element to satisfy systemgen.js -->
+    <div id="output" style="display:none"></div>
+
     <!-- 1) Load your nav via fetch -->
     <script>
       // Attempt to load nav.html
@@ -105,7 +108,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         console.log("DOM fully loaded. Starting galaxy generator...");
 
-        // Quick check for systemgen.js functions:
+        // Quick check to see if systemgen.js functions exist:
         console.log("generateSystemName exists?", typeof generateSystemName);
         console.log("generateSystem exists?", typeof generateSystem);
         console.log("generateSystemText exists?", typeof generateSystemText);
@@ -122,7 +125,7 @@
         let nodes = [];
         let connections = [];
         let clusters = [];
-        let selectedNode = null; // Declare once here
+        let selectedNode = null;
 
         const worldWidth = 5000;
         const worldHeight = 5000;
@@ -283,7 +286,7 @@
         function animate() {
           nodes.forEach(node => {
             node.ships.forEach(ship => {
-              ship.angle += 0.01;
+              ship.angle += 0.01; 
             });
           });
           render();
