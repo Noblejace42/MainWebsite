@@ -1,0 +1,81 @@
+/* Reset and basic styling */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; font-family: Arial, sans-serif; overflow: hidden; }
+
+/* Background Slideshow */
+.slideshow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+}
+.slide {
+  position: absolute;
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  animation: slideAnimation 15s infinite;
+}
+.slide1 { background-image: url("images/bg1.jpg"); animation-delay: 0s; }
+.slide2 { background-image: url("images/bg2.jpg"); animation-delay: 5s; }
+.slide3 { background-image: url("images/bg3.jpg"); animation-delay: 10s; }
+@keyframes slideAnimation {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  30% { opacity: 1; }
+  40% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Center Card Styling */
+.center-card {
+  position: relative;
+  margin: 50px auto;
+  padding: 20px;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+.contact-card { text-align: center; padding: 20px; }
+.contact-card h1 { font-size: 2.5em; margin-bottom: 10px; }
+.contact-card p { font-size: 1.1em; margin: 5px 0; }
+
+/* Orbiting Photos Container */
+.orbit-container {
+  position: relative;
+  width: 300px; height: 300px;
+  margin: 20px auto;
+}
+.orbit-photo {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.orbit-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Initial positions for orbit photos */
+.photo1 { top: 0; left: 50%; transform: translate(-50%, -50%); }
+.photo2 { top: 50%; left: 100%; transform: translate(-50%, -50%); }
+.photo3 { top: 100%; left: 50%; transform: translate(-50%, -50%); }
+
+/* Orbit Animation */
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+.orbit-container .orbit-photo {
+  animation: orbit 10s linear infinite;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .center-card { margin: 20px; padding: 15px; }
+  .contact-card h1 { font-size: 2em; }
+  .contact-card p { font-size: 1em; }
+  .orbit-container { width: 200px; height: 200px; }
+  .orbit-photo { width: 60px; height: 60px; }
+}
