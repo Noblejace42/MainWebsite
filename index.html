@@ -7,7 +7,7 @@
 
   <!-- Font (Atkinson Hyperlegible from Google Fonts) -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap">
-  <!-- Stylesheet -->
+  <!-- Your styles -->
   <link rel="stylesheet" href="home.css" />
 </head>
 <body>
@@ -38,7 +38,7 @@
   <!-- Tiles Container -->
   <div class="tiles-container"></div>
 
-  <!-- Orbs Container (3 orbs) -->
+  <!-- Orbs Container -->
   <div class="orbs-container">
     <div class="orb" id="orb1"></div>
     <div class="orb" id="orb2"></div>
@@ -46,253 +46,275 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function() {
 
-      /***************************************************************
-       * 1) Center the card
-       ***************************************************************/
-      const centerCard = document.getElementById('centerCard');
-      function centerTheCard() {
-        const rect = centerCard.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        centerCard.style.left = (vw - rect.width)/2 + 'px';
-        centerCard.style.top  = (vh - rect.height)/2 + 'px';
-      }
-      window.addEventListener('resize', centerTheCard);
-      centerTheCard();
+    /***************************************************************
+     * 1) Center the card
+     ***************************************************************/
+    const centerCard = document.getElementById('centerCard');
+    function centerTheCard() {
+      const rect = centerCard.getBoundingClientRect();
+      const vw = window.innerWidth, vh = window.innerHeight;
+      centerCard.style.left = (vw - rect.width)/2 + 'px';
+      centerCard.style.top  = (vh - rect.height)/2 + 'px';
+    }
+    window.addEventListener('resize', centerTheCard);
+    centerTheCard();
 
-      /***************************************************************
-       * 2) Tile image logic
-       ***************************************************************/
-      const tilesContainer = document.querySelector('.tiles-container');
-      const tiles = [];
-      const tileCount = 34;  // images 4..37
-      const tilePaths = [];
-      for (let i=4; i<=37; i++){
-        tilePaths.push(`image/${i}.jpg`);
-      }
+    /***************************************************************
+     * 2) Tile image logic
+     ***************************************************************/
+    const tilesContainer = document.querySelector('.tiles-container');
+    const tiles = [];
 
-      // We'll store an object { src, aspect } for each image,
-      // plus a function to pick a random new image from tileData.
-      const tileData = [];
-      let loadedCount = 0;
+    /* 
+      Put *all* images in the array below, including your personal 
+      photos. For example, if your personal images are named:
+      'graffitibackdrop.jpg', 'sittingimage.jpg', 'headshotlandscape.png',
+      add them here along with 4..37:
+    */
+    const tilePaths = [];
+    // Standard numbered images:
+    for (let i=4; i<=37; i++){
+      tilePaths.push(`image/${i}.jpg`);
+    }
+    // Personal photos (example file names):
+    tilePaths.push(
+      'image/graffitibackdrop.jpg',
+      'image/sittingimage.jpg',
+      'image/headshotlandscape.png'
+      // add more if you have more personal photos in /image
+    );
 
-      tilePaths.forEach(path => {
-        const img = new Image();
-        img.src = path;
-        img.onload = () => {
-          tileData.push({ 
-            src: path, 
-            aspect: img.width / img.height || 1 
-          });
-          loadedCount++;
-          if (loadedCount === tileCount) createTiles();
-        };
-        img.onerror = () => {
-          loadedCount++;
-          if (loadedCount === tileCount) createTiles();
-        };
-      });
+    let loadedCount = 0;
+    const tileData = []; // will store objects { src, aspect }
 
-      // keep track of placed rects to avoid overlap
-      const placedRects = [];
-
-      function createTiles() {
-        tileData.forEach(td => {
-          const div = document.createElement('div');
-          div.classList.add('tile');
-          div.dataset.src = td.src;       // track which image is used
-          div.dataset.aspect = td.aspect; // track the aspect ratio
-          // initially invisible
-          div.style.opacity = '0';
-          // set background to the tile's default
-          div.style.backgroundImage = `url('${td.src}')`;
-
-          tiles.push(div);
-          tilesContainer.appendChild(div);
+    tilePaths.forEach(path => {
+      const img = new Image();
+      img.src = path;
+      img.onload = () => {
+        tileData.push({
+          src: path,
+          aspect: img.width / img.height || 1
         });
-
-        // place each tile initially
-        placeAllTiles();
-        fadeInAllTiles();
-
-        // once the initial fade-in is done, schedule the first random fade
-        // we do it after a short delay so the user sees the initial layout
-        setTimeout(scheduleNextChange, 4000);
-      }
-
-      // pick a new random tile to fade out -> switch image -> reposition -> fade in
-      function scheduleNextChange() {
-        // 0..4000 ms (random) => can be 0 or 4000
-        const delay = Math.floor(Math.random() * 4001);
-        setTimeout(randomTileChange, delay);
-      }
-
-      function randomTileChange() {
-        if (!tiles.length) return;
-        const tile = tiles[Math.floor(Math.random() * tiles.length)];
-
-        // fade out
-        tile.style.opacity = '0';
-
-        setTimeout(() => {
-          removeRect(tile);
-          // pick a new random image that's NOT the same as current
-          const oldSrc = tile.dataset.src;
-          let newIndex = -1;
-          for (let tries=0; tries<50; tries++){
-            const idx = Math.floor(Math.random() * tileData.length);
-            if (tileData[idx].src !== oldSrc) {
-              newIndex = idx;
-              break;
-            }
-          }
-          if (newIndex < 0) {
-            // fallback if we can't find a new image for some reason
-            newIndex = Math.floor(Math.random() * tileData.length);
-          }
-          const newImg = tileData[newIndex];
-          tile.dataset.src = newImg.src;
-          tile.dataset.aspect = newImg.aspect;
-          tile.style.backgroundImage = `url('${newImg.src}')`;
-
-          // place the tile in a new location
-          placeOneTile(tile);
-
-          // fade in
-          tile.style.opacity = '1';
-
-          // schedule the next random fade
-          scheduleNextChange();
-        }, 1000); // allow time to fully fade out
-      }
-
-      // place each tile so they won't overlap the center card or each other
-      function placeAllTiles() {
-        placedRects.length = 0;
-        const vw = window.innerWidth, vh = window.innerHeight;
-        const cardR = getCardRect();
-
-        tiles.forEach(tile => {
-          if (!attemptPlacement(tile, vw, vh, cardR)) {
-            tile.style.opacity = '0'; 
-          }
-        });
-      }
-
-      // place a single tile
-      function placeOneTile(tile) {
-        const vw = window.innerWidth, vh = window.innerHeight;
-        const cardR = getCardRect();
-        attemptPlacement(tile, vw, vh, cardR);
-      }
-
-      // attempts up to N times to position tile w/o overlap
-      function attemptPlacement(tile, vw, vh, cardRect) {
-        const aspect = parseFloat(tile.dataset.aspect) || 1;
-        // random scale
-        const scale = 0.6 + Math.random()*0.6; 
-        const baseW = vw * 0.12; 
-        let w = baseW * scale;
-        let h = w / aspect;
-        // clamp
-        if (w > 0.25*vw) w = 0.25*vw;
-        if (h > 0.25*vh) h = 0.25*vh;
-
-        for (let tries=0; tries<50; tries++){
-          const left = Math.random()*(vw - w);
-          const top  = Math.random()*(vh - h);
-          const r = { left, top, right:left+w, bottom:top+h };
-          // skip overlap with card
-          if (overlap(r, cardRect)) continue;
-          // skip overlap with placed tiles
-          let conflict = false;
-          for (const p of placedRects){
-            if (overlap(r, p)) { conflict=true; break; }
-          }
-          if (!conflict) {
-            tile.style.width  = w + 'px';
-            tile.style.height = h + 'px';
-            tile.style.transform = `translate(${left}px, ${top}px)`;
-            placedRects.push(r);
-            return true; 
-          }
+        loadedCount++;
+        if (loadedCount === tilePaths.length) {
+          createTiles();
         }
-        return false;
-      }
+      };
+      img.onerror = () => {
+        loadedCount++;
+        if (loadedCount === tilePaths.length) {
+          createTiles();
+        }
+      };
+    });
 
-      // remove tile's rect from placedRects
-      function removeRect(tile){
-        // figure out tile's bounding rect from transform & width/height
-        const style = getComputedStyle(tile);
-        const matrix = new WebKitCSSMatrix(style.transform);
-        const left = matrix.m41, top=matrix.m42;
-        const w = parseFloat(style.width), h = parseFloat(style.height);
-        // find matching rect in placedRects
-        for (let i=0; i<placedRects.length; i++){
-          const r = placedRects[i];
-          if (Math.abs(r.left-left)<0.5 && Math.abs(r.top-top)<0.5 &&
-              Math.abs((r.right-r.left)-w)<1 && Math.abs((r.bottom-r.top)-h)<1) {
-            placedRects.splice(i,1);
+    // We'll track bounding boxes of placed tiles in placedRects
+    const placedRects = [];
+
+    function createTiles() {
+      // Let’s create the same # of tiles as the # of images
+      // Or you could do fewer/more if desired
+      for (let i=0; i<tileData.length; i++){
+        const td = tileData[i];
+        const div = document.createElement('div');
+        div.classList.add('tile');
+
+        // store the current image in dataset
+        div.dataset.src = td.src;
+        div.dataset.aspect = td.aspect;
+
+        // initially invisible
+        div.style.opacity = '0';
+
+        // set background to the tile's default
+        div.style.backgroundImage = `url('${td.src}')`;
+
+        tiles.push(div);
+        tilesContainer.appendChild(div);
+      }
+      // place them all, fade them in
+      placeAllTiles();
+      fadeInAllTiles();
+
+      // once all are initially shown, each tile will start its own random cycle
+      setTimeout(() => {
+        tiles.forEach(tile => {
+          scheduleTileCycle(tile); 
+        });
+      }, 3000);
+    }
+
+    // Each tile has its own random cycle between 1–10 seconds
+    function scheduleTileCycle(tile) {
+      const delay = 1000 + Math.floor(Math.random() * 9000); 
+      // delay is random from 1s (1000ms) to 10s (10000ms)
+      setTimeout(() => {
+        tileFadeOutIn(tile);
+      }, delay);
+    }
+
+    // fade out -> pick new image -> new location -> fade in -> schedule again
+    function tileFadeOutIn(tile) {
+      tile.style.opacity = '0';
+      setTimeout(() => {
+        removeRect(tile);
+
+        // pick a new random image that's not the same
+        const oldSrc = tile.dataset.src;
+        let newIdx = -1;
+        for (let tries=0; tries<50; tries++){
+          const idx = Math.floor(Math.random()*tileData.length);
+          if (tileData[idx].src !== oldSrc) {
+            newIdx = idx; 
             break;
           }
         }
-      }
+        if (newIdx < 0) {
+          // fallback if for some reason we can't find a different one
+          newIdx = Math.floor(Math.random() * tileData.length);
+        }
+        const newImg = tileData[newIdx];
+        tile.dataset.src = newImg.src;
+        tile.dataset.aspect = newImg.aspect;
+        tile.style.backgroundImage = `url('${newImg.src}')`;
 
-      // fade all tiles in (staggered)
-      function fadeInAllTiles() {
-        let delay = 0;
-        tiles.forEach(t => {
-          setTimeout(() => {
-            t.style.opacity = '1';
-          }, delay);
-          delay += 100; // small staggering
-        });
-      }
+        // place again
+        placeOneTile(tile);
 
-      // overlap check
-      function overlap(r1, r2){
-        return !( r1.right<r2.left ||
-                  r1.left>r2.right  ||
-                  r1.bottom<r2.top ||
-                  r1.top>r2.bottom );
-      }
-      function getCardRect() {
-        const c = centerCard.getBoundingClientRect();
-        return { left:c.left, top:c.top, right:c.right, bottom:c.bottom };
-      }
+        // fade in
+        tile.style.opacity = '1';
 
-      /***************************************************************
-       * 3) Orbs that drift around smoothly (3 orbs)
-       ***************************************************************/
-      const orb1 = document.getElementById('orb1');
-      const orb2 = document.getElementById('orb2');
-      const orb3 = document.getElementById('orb3');
-      const orbs = [orb1, orb2, orb3];
+        // schedule next cycle
+        scheduleTileCycle(tile);
+      }, 800); // let the tile fade out for 0.8s 
+    }
 
-      function driftOrbs() {
-        const vw = window.innerWidth, vh = window.innerHeight;
-        const cardR = getCardRect();
-        orbs.forEach(o => {
-          const ow = o.offsetWidth, oh = o.offsetHeight;
-          for (let tries=0; tries<20; tries++){
-            const left = Math.random()*(vw - ow);
-            const top  = Math.random()*(vh - oh);
-            const r = { left, top, right:left+ow, bottom:top+oh };
-            if (!overlap(r, cardR)) {
-              o.style.transform = `translate(${left}px, ${top}px)`;
-              break;
-            }
+    // place all tiles initially
+    function placeAllTiles() {
+      placedRects.length = 0;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const cardR = getCardRect();
+
+      tiles.forEach(tile => {
+        if (!attemptPlacement(tile, vw, vh, cardR)) {
+          // if we can't place it, hide
+          tile.style.opacity='0';
+        }
+      });
+    }
+
+    // place a single tile
+    function placeOneTile(tile) {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const cardR = getCardRect();
+      // Attempt placement up to 50 tries
+      const success = attemptPlacement(tile, vw, vh, cardR);
+      if (!success) {
+        tile.style.opacity='0'; 
+      }
+    }
+
+    function attemptPlacement(tile, vw, vh, cardRect) {
+      const aspect = parseFloat(tile.dataset.aspect) || 1;
+      // random scale
+      const scale = 0.6 + Math.random()*0.6; 
+      const baseW = vw*0.12; 
+      let w = baseW * scale;
+      let h = w / aspect;
+      // clamp
+      if (w > 0.25*vw) w = 0.25*vw;
+      if (h > 0.25*vh) h = 0.25*vh;
+
+      for (let tries=0; tries<50; tries++){
+        const left = Math.random()*(vw - w);
+        const top  = Math.random()*(vh - h);
+        const r = { left, top, right:left+w, bottom:top+h };
+
+        if (overlap(r, cardRect)) continue;
+        let conflict=false;
+        for (const p of placedRects){
+          if (overlap(r, p)) { conflict=true; break; }
+        }
+        if (!conflict) {
+          tile.style.width  = w + 'px';
+          tile.style.height = h + 'px';
+          tile.style.transform = `translate(${left}px, ${top}px)`;
+          placedRects.push(r);
+          return true; 
+        }
+      }
+      return false;
+    }
+
+    // remove tile's rect from placedRects
+    function removeRect(tile){
+      const style = getComputedStyle(tile);
+      const matrix = new WebKitCSSMatrix(style.transform);
+      const left = matrix.m41, top=matrix.m42;
+      const w = parseFloat(style.width), h = parseFloat(style.height);
+
+      for (let i=0; i<placedRects.length; i++){
+        const r = placedRects[i];
+        if ( Math.abs(r.left-left)<0.5 && Math.abs(r.top-top)<0.5 &&
+             Math.abs((r.right-r.left)-w)<1 && Math.abs((r.bottom-r.top)-h)<1 ) {
+          placedRects.splice(i,1);
+          break;
+        }
+      }
+    }
+
+    // fade all in once at the beginning
+    function fadeInAllTiles() {
+      let delay = 0;
+      tiles.forEach(t => {
+        setTimeout(() => {
+          t.style.opacity = '1';
+        }, delay);
+        delay += 80; // small staggering
+      });
+    }
+
+    // overlap check
+    function overlap(r1, r2){
+      return !(r1.right<r2.left || r1.left>r2.right ||
+               r1.bottom<r2.top || r1.top>r2.bottom);
+    }
+    function getCardRect() {
+      const c = centerCard.getBoundingClientRect();
+      return { left:c.left, top:c.top, right:c.right, bottom:c.bottom };
+    }
+
+    /***************************************************************
+     * 3) Orbs that drift around smoothly (3 orbs)
+     ***************************************************************/
+    const orb1 = document.getElementById('orb1');
+    const orb2 = document.getElementById('orb2');
+    const orb3 = document.getElementById('orb3');
+    const orbs = [orb1, orb2, orb3];
+
+    function driftOrbs() {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const cardR = getCardRect();
+      orbs.forEach(o => {
+        const ow = o.offsetWidth, oh = o.offsetHeight;
+        for (let tries=0; tries<20; tries++){
+          const left = Math.random()*(vw - ow);
+          const top  = Math.random()*(vh - oh);
+          const r = { left, top, right:left+ow, bottom:top+oh };
+          if (!overlap(r, cardR)) {
+            o.style.transform = `translate(${left}px, ${top}px)`;
+            break;
           }
-        });
-      }
+        }
+      });
+    }
+    // Move orbs, then keep moving them every 8s
+    driftOrbs();
+    setInterval(driftOrbs, 8000);
 
-      // Move orbs, then keep moving them every 8s
-      driftOrbs();
-      setInterval(driftOrbs, 8000);
-
-    });
+  });
   </script>
 </body>
 </html>
