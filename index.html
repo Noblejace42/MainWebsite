@@ -2,262 +2,144 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Fixed Center Card & Tiles Example</title>
-  <style>
-    /* Some simple styling so things are visible and positioned properly */
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden; /* Hide scrollbars while elements move around */
-      background: #f0f0f0;
-    }
-    #centerCard {
-      position: absolute;
-      width: 300px;
-      height: 200px;
-      background: #eee;
-      text-align: center;
-      line-height: 200px; /* Just to visually center text */
-      box-shadow: 0 0 10px #ccc;
-      transition: left 0.4s, top 0.4s;
-    }
-    .tiles-container {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    .tile {
-      position: absolute;
-      background-size: cover;
-      background-position: center;
-      transition: opacity 0.8s, transform 0.8s;
-    }
-    .orb {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: #f33; /* Placeholder color */
-      transition: transform 10s ease;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home - Emerson Neher</title>
+  <!-- Font (Atkinson Hyperlegible from Google Fonts) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap">
+  <!-- Your updated stylesheet -->
+  <link rel="stylesheet" href="home.css" />
 </head>
 <body>
-  <!-- The "centerCard" element your script references -->
-  <div id="centerCard">Center Card</div>
 
-  <!-- Container for tiles -->
+  <!-- Center Card -->
+  <div class="center-card" id="centerCard">
+    <a href="systemgen.html" class="projects-button">Projects</a>
+    <div class="contact-card">
+      <h1>Emerson Neher</h1>
+      <h3>they/them/theirs</h3>
+      <p>Email: <a href="mailto:emersonneher@gmail.com">emersonneher@gmail.com</a></p>
+      <p>Worcester, MA &amp; Evergreen, CO</p>
+      <p>
+        Worcester Polytechnic Institute | Class of 2028<br />
+        Financial Technology Major | Information Systems Major
+      </p>
+      <p class="links">
+        <a href="https://emersonneher.substack.com/" target="_blank">Blog/Newsletter</a> |
+        <a href="https://www.linkedin.com/in/emerson-neher-184274346" target="_blank">LinkedIn</a> |
+        <a href="https://www.instagram.com/emerson.neher/" target="_blank">@emerson.neher on Instagram</a> |
+        <a href="https://discord.com/users/noblejace" target="_blank">noblejace on Discord</a>
+      </p>
+      <p class="bio">
+        Passionate about technology, finance, and systems design. Always exploring new frontiers and connecting ideas.
+      </p>
+    </div>
+  </div>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+  <!-- Tiles Container -->
   <div class="tiles-container"></div>
 
-  <!-- Orb elements -->
-  <div id="orb1" class="orb"></div>
-  <div id="orb2" class="orb"></div>
-  <div id="orb3" class="orb"></div>
-  <div id="orb4" class="orb"></div>
+  <!-- Orbs Container -->
+  <div class="orbs-container">
+    <div class="orb" id="orb1"></div>
+    <div class="orb" id="orb2"></div>
+    <div class="orb" id="orb3"></div>
+    <div class="orb" id="orb4"></div>
+  </div>
 
-  <!-- Place your script at the end of the body, so DOM elements exist first -->
   <script>
-  "use strict";
+    document.addEventListener("DOMContentLoaded", function() {
+      const centerCard = document.getElementById('centerCard');
+      const tilesContainer = document.querySelector('.tiles-container');
+      const orbElements = [
+        document.getElementById('orb1'),
+        document.getElementById('orb2'),
+        document.getElementById('orb3'),
+        document.getElementById('orb4')
+      ];
 
-  /***************************************************************
-   * 1) Position the center card in the viewport, recalc on resize
-   ***************************************************************/
-  const centerCard = document.getElementById('centerCard');
-  function centerTheCard() {
-    const cardRect = centerCard.getBoundingClientRect();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    centerCard.style.left = (vw - cardRect.width)/2 + 'px';
-    centerCard.style.top  = (vh - cardRect.height)/2 + 'px';
-  }
-  window.addEventListener('resize', centerTheCard);
-  window.addEventListener('load', centerTheCard);
-
-  /***************************************************************
-   * 2) Preload tile images (4..37), storing aspect ratios
-   ***************************************************************/
-  const tileCount = 34; // images 4..37
-  const tileImages = [];
-  for (let i = 4; i <= 37; i++) {
-    tileImages.push(`image/${i}.jpg`); // Adjust path if needed
-  }
-  const tileData = [];
-  let loadedCount = 0;
-
-  tileImages.forEach(src => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      const aspect = img.width / img.height || 1;
-      tileData.push({ src, aspect });
-      loadedCount++;
-      if (loadedCount === tileCount) {
-        createTiles();
+      function centerTheCard() {
+        const cardRect = centerCard.getBoundingClientRect();
+        centerCard.style.left = (window.innerWidth - cardRect.width)/2 + 'px';
+        centerCard.style.top  = (window.innerHeight - cardRect.height)/2 + 'px';
       }
-    };
-    img.onerror = () => {
-      console.warn("Could not load image:", src);
-      loadedCount++;
-      if (loadedCount === tileCount) {
-        createTiles();
-      }
-    };
-  });
+      window.addEventListener('resize', centerTheCard);
+      centerTheCard();
 
-  /***************************************************************
-   * 3) Create tile elements & place them initially
-   ***************************************************************/
-  const tilesContainer = document.querySelector('.tiles-container');
-  const tiles = [];
+      const tileCount = 34; // images 4..37
+      const tileImages = Array.from({length: tileCount}, (_,i)=>`image/${i+4}.jpg`);
+      const tileData = [];
+      let loadedCount = 0;
 
-  function createTiles() {
-    tileData.forEach(td => {
-      const div = document.createElement('div');
-      div.classList.add('tile');
-      div.dataset.aspect = td.aspect;
-      div.style.backgroundImage = `url('${td.src}')`;
-      // Start hidden (opacity=0) so we can fade in on first shuffle
-      div.style.opacity = '0';
-      tiles.push(div);
-      tilesContainer.appendChild(div);
-    });
-    shuffleTiles(); // initial placement
-    setInterval(shuffleTiles, 20000); // re-shuffle every 20s
-  }
-
-  // bounding box for card
-  function getCardRect() {
-    const c = centerCard.getBoundingClientRect();
-    return { left: c.left, top: c.top, right: c.right, bottom: c.bottom };
-  }
-
-  // basic overlap check
-  function overlap(r1, r2){
-    return !(
-      r1.right  < r2.left ||
-      r1.left   > r2.right ||
-      r1.bottom < r2.top  ||
-      r1.top    > r2.bottom
-    );
-  }
-
-  // Place tiles so they don’t overlap each other or the center card
-  function shuffleTiles() {
-    console.log("Shuffling tiles...");
-    // First, fade out any currently visible tiles
-    tiles.forEach(tile => tile.style.opacity = '0');
-
-    // After a short delay, reposition them, then fade in
-    setTimeout(() => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const cardR = getCardRect();
-      const placedRects = [];
-      let hiddenCount = 0;
-
-      tiles.forEach(tile => {
-        const aspect = parseFloat(tile.dataset.aspect) || 1;
-        // random scale from 0.6..1.2 to allow bigger sizes
-        const scale = 0.6 + Math.random() * 0.6;
-        const baseW = 0.12 * vw; // ~12% of viewport
-        let w = baseW * scale;
-        let h = w / aspect;
-
-        // clamp tile dimension to 25% of viewport
-        if (w > 0.25 * vw) w = 0.25 * vw;
-        if (h > 0.25 * vh) h = 0.25 * vh;
-
-        // Attempt random positions
-        let placed = false;
-        for (let tries = 0; tries < 40; tries++) {
-          const left = Math.random() * (vw - w);
-          const top  = Math.random() * (vh - h);
-
-          const tileRect = { left, top, right: left + w, bottom: top + h };
-
-          // avoid overlap with center card
-          if (overlap(tileRect, cardR)) {
-            continue;
-          }
-          // avoid overlap with already placed tiles
-          let conflict = false;
-          for (const r of placedRects){
-            if (overlap(tileRect, r)) {
-              conflict = true;
-              break;
-            }
-          }
-          if (conflict) continue;
-
-          // success: place tile
-          placedRects.push(tileRect);
-          tile.style.width = w + 'px';
-          tile.style.height = h + 'px';
-          // jump to new position
-          tile.style.transform = `translate(${left}px, ${top}px)`;
-          // fade in
-          tile.style.opacity = '1';
-          placed = true;
-          break;
-        }
-
-        if (!placed) {
-          // If we never found a valid spot, hide this tile
-          tile.style.opacity = '0';
-          hiddenCount++;
-        }
+      tileImages.forEach(src => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          tileData.push({ src, aspect: img.width/img.height });
+          loadedCount++;
+          if (loadedCount === tileCount) createTiles();
+        };
+        img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === tileCount) createTiles();
+        };
       });
 
-      if (hiddenCount > 0) {
-        console.log(`Could not place ${hiddenCount} tile(s) without overlap.`);
+      const tiles = [];
+
+      function createTiles() {
+        tileData.forEach(td => {
+          const div = document.createElement('div');
+          div.classList.add('tile');
+          div.style.backgroundImage = `url('${td.src}')`;
+          div.style.opacity = '0';
+          tiles.push(div);
+          tilesContainer.appendChild(div);
+        });
+        shuffleTiles();
+        setInterval(shuffleTiles, 20000);
       }
-    }, 800); // Wait ~0.8s to let them fade out before reposition
-  }
 
-  /***************************************************************
-   * 4) Orbs that drift around smoothly
-   ***************************************************************/
-  const orbs = [
-    document.getElementById('orb1'),
-    document.getElementById('orb2'),
-    document.getElementById('orb3'),
-    document.getElementById('orb4')
-  ];
-
-  function driftOrbs() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const cardR = getCardRect();
-
-    orbs.forEach(orb => {
-      const orbW = orb.offsetWidth;
-      const orbH = orb.offsetHeight;
-
-      // pick a random new location, try up to 20 times if it overlaps the card
-      for (let tries=0; tries<20; tries++){
-        const left = Math.random() * (vw - orbW);
-        const top  = Math.random() * (vh - orbH);
-        const orbRect = { left, top, right: left+orbW, bottom: top+orbH };
-
-        if (!overlap(orbRect, cardR)) {
-          // Let the 10s transition handle smooth movement
-          orb.style.transform = `translate(${left}px, ${top}px)`;
-          break;
-        }
+      function getCardRect() {
+        const c = centerCard.getBoundingClientRect();
+        return {left:c.left,top:c.top,right:c.right,bottom:c.bottom};
       }
+      
+      function overlap(r1, r2) {
+        return !(r1.right<r2.left||r1.left>r2.right||r1.bottom<r2.top||r1.top>r2.bottom);
+      }
+
+      function shuffleTiles() {
+        tiles.forEach(t => t.style.opacity='0');
+        setTimeout(()=>{
+          const vw=window.innerWidth, vh=window.innerHeight, cardR=getCardRect(),placedRects=[];
+          tiles.forEach(tile=>{
+            let placed=false,w=vw*(0.15+0.1*Math.random()),h=w/parseFloat(tile.dataset.aspect);
+            for(let i=0;i<40;i++){
+              const l=Math.random()*(vw-w),t=Math.random()*(vh-h);
+              const r={left:l=left,top:top,right:left+w,bottom:top+h};
+              if(overlap(r,cardR)||placedRects.some(p=>overlap(r,p))) continue;
+              Object.assign(tile.style,{width:w+'px',height:h+'px',transform:`translate(${left}px,${top}px)`,opacity:'1'});
+              placedRects.push(r); placed=true; break;
+            });
+            if(!placed) tile.style.opacity='0';
+          });
+        },800);
+      }
+
+      const orbs=[orb1,orb2,orb3,orb4];
+      function driftOrbs(){
+        orbs.forEach(o=>{
+          for(let tries=0;tries<20;tries++){
+            const l=Math.random()*(window.innerWidth-150), t=Math.random()*(window.innerHeight-150), r={left:l,top:t,right:l+150,bottom:t+150};
+            if(!overlap(r,getCardRect())){orb.style.transform=`translate(${l}px,${t}px)`; break;}
+          });
+      }
+      driftOrbs(); setInterval(driftOrbs,10000);
     });
-  }
-
-  // Let orbs pick a new random destination every 10s
-  setInterval(driftOrbs, 10000);
-  // Initialize once
-  driftOrbs();
-
-  // Re-center the card once everything is loaded
-  window.addEventListener('load', () => {
-    centerTheCard();
-  });
   </script>
 </body>
 </html>
