@@ -4,13 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Home - Emerson Neher</title>
-
-  <!-- Link to the external stylesheet -->
-  <!-- Change "home.css" to exactly "home(3).css" if that's your actual file name -->
+  <!-- Link to your stylesheet named home.css -->
   <link rel="stylesheet" href="home.css" />
-</head> 
+</head>
 <body>
-
   <!-- Center Card -->
   <div class="center-card" id="centerCard">
     <a href="systemgen.html" class="projects-button">Projects</a>
@@ -48,11 +45,11 @@
   </div>
 
   <script>
-    /************************************************************
-     *  JS for dynamic tile & orb placement without overlap     *
-     ************************************************************/
+    "use strict";
 
-    // Center the card in the viewport
+    /***************************************************************
+     * 1) Position the center card in the viewport, recalc on resize
+     ***************************************************************/
     const centerCard = document.getElementById('centerCard');
     function centerTheCard() {
       const cardRect = centerCard.getBoundingClientRect();
@@ -62,33 +59,44 @@
       centerCard.style.top  = (vh - cardRect.height)/2 + 'px';
     }
     window.addEventListener('resize', centerTheCard);
+    // 'load' ensures images are loaded, letting us measure
     window.addEventListener('load', centerTheCard);
 
-    // Prepare tile images 4..37
-    const tileCount = 34; // 34 images
+    /***************************************************************
+     * 2) Preload tile images (4..37), storing aspect ratios
+     ***************************************************************/
+    const tileCount = 34; // images 4..37
     const tileImages = [];
     for (let i = 4; i <= 37; i++) {
       tileImages.push(`image/${i}.jpg`);
     }
-
-    // We'll store aspect ratio data after loading
     const tileData = [];
     let loadedCount = 0;
 
-    // Preload images to get aspect ratio
     tileImages.forEach(src => {
       const img = new Image();
       img.src = src;
       img.onload = () => {
-        tileData.push({ src, aspect: img.width / img.height });
+        const aspect = img.width / img.height || 1;
+        tileData.push({ src, aspect });
         loadedCount++;
         if (loadedCount === tileCount) {
-          // all images loaded
+          console.log("All tile images loaded. Creating tiles...");
+          createTiles();
+        }
+      };
+      img.onerror = () => {
+        console.warn("Could not load image:", src);
+        loadedCount++;
+        if (loadedCount === tileCount) {
           createTiles();
         }
       };
     });
 
+    /***************************************************************
+     * 3) Create tile elements & place them without overlapping
+     ***************************************************************/
     const tilesContainer = document.querySelector('.tiles-container');
     const tiles = [];
 
@@ -101,7 +109,7 @@
         tiles.push(div);
         tilesContainer.appendChild(div);
       });
-      shuffleTiles(); // initial placement
+      shuffleTiles(); // initial
       setInterval(shuffleTiles, 20000); // shuffle every 20s
     }
 
@@ -111,8 +119,8 @@
       return { left: c.left, top: c.top, right: c.right, bottom: c.bottom };
     }
 
-    // check overlap
-    function overlap(r1, r2) {
+    // basic overlap check
+    function overlap(r1, r2){
       return !(
         r1.right  < r2.left ||
         r1.left   > r2.right ||
@@ -121,47 +129,58 @@
       );
     }
 
-    // shuffle tile positions
+    // place tiles so they don't overlap each other or the center card
     function shuffleTiles() {
+      console.log("Shuffling tiles...");
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const cardR = getCardRect();
 
-      // store bounding boxes of placed tiles
+      // We'll store the bounding boxes of successfully placed tiles
       const placedRects = [];
+      let hiddenCount = 0;
 
       tiles.forEach(tile => {
-        const aspect = parseFloat(tile.dataset.aspect);
-        // random scale ~ 0.6..1.2
-        const scale = 0.6 + Math.random() * 0.6;
-        // base width ~ 15% of viewport
-        const baseW = 0.15 * vw;
+        const aspect = parseFloat(tile.dataset.aspect) || 1;
+        // random scale from ~0.4..1.0 to help smaller screens
+        const scale = 0.4 + Math.random() * 0.6;
+        // base width ~ 12% of viewport
+        const baseW = 0.12 * vw;
         let w = baseW * scale;
         let h = w / aspect;
 
-        // clamp to 25% viewport max
-        if (w > 0.25 * vw) w = 0.25 * vw;
-        if (h > 0.25 * vh) h = 0.25 * vh;
+        // clamp to 20% of viewport (less than original 25% for more space)
+        if (w > 0.2 * vw) w = 0.2 * vw;
+        if (h > 0.2 * vh) h = 0.2 * vh;
 
         let placed = false;
-        for (let tries=0; tries<30; tries++) {
+        for (let tries = 0; tries < 40; tries++) {
           const left = Math.random() * (vw - w);
           const top  = Math.random() * (vh - h);
 
-          const testRect = { left, top, right: left+w, bottom: top+h };
-          // check overlap with card
-          if (overlap(testRect, cardR)) {
+          const tileRect = {
+            left, top,
+            right: left + w,
+            bottom: top + h
+          };
+
+          // avoid overlap with card
+          if (overlap(tileRect, cardR)) {
             continue;
           }
-          // check overlap with placed
+
+          // avoid overlap with already placed tiles
           let conflict = false;
-          for (let r of placedRects) {
-            if (overlap(testRect, r)) { conflict = true; break; }
+          for (const r of placedRects){
+            if (overlap(tileRect, r)) {
+              conflict = true;
+              break;
+            }
           }
           if (conflict) continue;
 
           // success
-          placedRects.push(testRect);
+          placedRects.push(tileRect);
           tile.style.width = w + 'px';
           tile.style.height = h + 'px';
           tile.style.transform = `translate(${left}px, ${top}px)`;
@@ -169,21 +188,31 @@
           placed = true;
           break;
         }
+
+        // if we never found a valid spot
         if (!placed) {
-          // no valid spot
           tile.style.opacity = '0';
+          hiddenCount++;
         }
       });
+
+      if (hiddenCount > 0) {
+        console.log(`Could not place ${hiddenCount} tile(s) without overlap.`);
+      }
     }
 
-    // ORBS
-    const orbIds = ['orb1','orb2','orb3','orb4'];
+    /***************************************************************
+     * 4) Orbs that wander around, avoiding the center card
+     ***************************************************************/
+    const orbIds = ['orb1', 'orb2', 'orb3', 'orb4'];
     const orbs = orbIds.map(id => document.getElementById(id));
 
-    function moveOrbs() {
+    function moveOrbs(){
+      console.log("Moving orbs...");
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const cardR = getCardRect();
+
       orbs.forEach(orb => {
         const orbW = orb.offsetWidth;
         const orbH = orb.offsetHeight;
@@ -191,14 +220,10 @@
         for (let tries=0; tries<20; tries++){
           const left = Math.random()*(vw - orbW);
           const top  = Math.random()*(vh - orbH);
-          const testRect = {
-            left, top,
-            right: left+orbW,
-            bottom: top+orbH
-          };
-          // check overlap with card
-          if (!overlap(testRect, cardR)) {
-            // place orb
+          const orbRect = { left, top, right: left+orbW, bottom: top+orbH };
+
+          // if this does NOT overlap the card, place it
+          if (!overlap(orbRect, cardR)) {
             orb.style.transform = `translate(${left}px, ${top}px)`;
             break;
           }
@@ -208,11 +233,13 @@
 
     // initial orb positions
     moveOrbs();
-    // reposition orbs every 10s
-    setInterval(moveOrbs, 10000);
+    // reposition orbs every 12s
+    setInterval(moveOrbs, 12000);
 
     // re-center the card once everything is loaded
-    window.addEventListener('load', centerTheCard);
+    window.addEventListener('load', () => {
+      centerTheCard();
+    });
   </script>
 </body>
 </html>
