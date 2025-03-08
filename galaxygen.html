@@ -4,109 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Astral Axial Galaxy Generator</title>
-    <style>
-      /* Force a black background. */
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        background: #000 !important;
-        font-family: 'Orbitron', sans-serif;
-        color: #ccc;
-      }
-      /* Top bar for controls (not fixed). */
-      #topBar {
-        background: #222;
-        padding: 5px;
-        box-sizing: border-box;
-      }
-      .controls {
-        text-align: center;
-        margin-top: 5px;
-      }
-      /* Main flex container: map left, sidebar right. */
-      #mainContainer {
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        height: calc(100% - 60px); /* topBar approx. 60px tall */
-        box-sizing: border-box;
-      }
-      /* Canvas container flex. */
-      #canvasContainer {
-        flex: 1;
-        position: relative;
-        overflow: hidden;
-      }
-      #galaxyCanvas {
-        width: 100%;
-        height: 100%;
-        background: #000;
-        cursor: grab;
-        display: block;
-      }
-      #galaxyCanvas:active {
-        cursor: grabbing;
-      }
-      /* Sidebar on the right. */
-      #sidebar {
-        width: 400px;
-        background: #262626;
-        border-left: 1px solid #444;
-        overflow-y: auto;
-        padding: 20px;
-        box-sizing: border-box;
-      }
-      textarea {
-        width: 100%;
-        background: #1a1a1a;
-        color: #ddd;
-        border: 1px solid #555;
-        padding: 10px;
-        font-family: monospace;
-        margin-bottom: 10px;
-        box-sizing: border-box;
-      }
-      .sidebar-card {
-        background: #1a1a1a;
-        border: 1px solid #444;
-        padding: 10px;
-        margin-bottom: 10px;
-      }
-      .ship-card {
-        background: #1a1a1a;
-        border: 1px solid #444;
-        padding: 8px;
-        margin-bottom: 8px;
-      }
-      .ship-card h4 {
-        margin: 0 0 5px 0;
-        color: #fff;
-        font-size: 1em;
-      }
-      .ship-card textarea {
-        height: 40px;
-        margin-bottom: 5px;
-      }
-      #systemOutput {
-        display: none;
-      }
-      /* Pinned systems styling */
-      #pinnedSystems .pinned-card {
-        background: #1a1a1a;
-        border: 1px solid #444;
-        padding: 6px;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      #pinnedSystems .pinned-buttons {
-        display: flex;
-        gap: 5px;
-      }
-    </style>
+    <!-- Reference your external CSS instead of inline styles -->
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <!-- Top bar for controls -->
@@ -124,6 +23,7 @@
       </div>
     </div>
 
+    <!-- Main flex container: canvas left, sidebar right -->
     <div id="mainContainer">
       <div id="canvasContainer">
         <canvas id="galaxyCanvas"></canvas>
@@ -145,9 +45,9 @@
     </div>
 
     <!-- Hidden output for systemgen.js rendering -->
-    <div id="systemOutput"></div>
+    <div id="systemOutput" style="display:none;"></div>
 
-    <!-- 1) Load nav.html via fetch (optional) -->
+    <!-- 1) Load nav.html via fetch (remove if you don't use nav.html) -->
     <script>
       fetch('nav.html')
         .then(response => response.text())
@@ -157,7 +57,7 @@
         .catch(err => console.error('Error loading nav:', err));
     </script>
 
-    <!-- 2) Load your systemgen.js (defines generateSystem, etc.) -->
+    <!-- 2) Load your systemgen.js (defines generateSystem, generateSystemName, etc.) -->
     <script src="systemgen.js"></script>
 
     <!-- 3) Main Galaxy Code -->
@@ -165,17 +65,17 @@
     document.addEventListener('DOMContentLoaded', () => {
       console.log("DOM loaded. Starting galaxy generator...");
 
+      // Canvas references
       const canvas = document.getElementById("galaxyCanvas");
       const ctx = canvas.getContext("2d");
 
-      // Dynamically size canvas to container
+      // Dynamically size the canvas to its container
       function resizeCanvas() {
-        const rect = canvas.getBoundingClientRect();
-        // The container's actual size in CSS pixels
-        const container = document.getElementById("canvasContainer").getBoundingClientRect();
-        canvas.width = container.width;
-        canvas.height = container.height;
+        const containerRect = document.getElementById("canvasContainer").getBoundingClientRect();
+        canvas.width = containerRect.width;
+        canvas.height = containerRect.height;
       }
+      // Observe the container for size changes
       new ResizeObserver(resizeCanvas).observe(document.getElementById("canvasContainer"));
       resizeCanvas();
 
@@ -184,8 +84,9 @@
         ta.addEventListener('wheel', e => e.stopPropagation());
       });
 
-      // ARROW KEY PANNING
+      // Arrow key panning
       document.addEventListener('keydown', e => {
+        // If focus is in a text field, ignore arrow keys
         if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
         const panStep = 20;
         switch(e.key) {
@@ -201,8 +102,6 @@
           case 'ArrowRight':
             offsetX -= panStep; e.preventDefault(); render();
             break;
-          default:
-            break;
         }
       });
 
@@ -211,14 +110,16 @@
       let isPanning = false;
       let startPan = { x: 0, y: 0 };
 
-      // Data
+      // Data arrays
       let nodes = [];
       let connections = [];
       let clusters = [];
+
+      // Keep only ONE declaration of selectedNode
       let selectedNode = null;
       let hoverNode = null;
 
-      // Pinned systems array
+      // For pinned systems
       let pinnedSystems = [];
 
       // Galaxy parameters
@@ -232,10 +133,9 @@
       const connectorSystemsCount = 3;
 
       // Intersection logic
-      // linesIntersect returns true if two line segments intersect
       function linesIntersect(ax1,ay1,ax2,ay2,bx1,by1,bx2,by2) {
         const d = (by2 - by1)*(ax2 - ax1) - (bx2 - bx1)*(ay2 - ay1);
-        if (d === 0) return false; // parallel
+        if (d===0) return false; // parallel
         const ua = ((bx2 - bx1)*(ay1 - by1) - (by2 - by1)*(ax1 - bx1)) / d;
         const ub = ((ax2 - ax1)*(ay1 - by1) - (ay2 - ay1)*(ax1 - bx1)) / d;
         return (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1);
@@ -247,6 +147,7 @@
         return Math.sqrt(dx*dx + dy*dy);
       }
 
+      // Convert screen coords to world coords
       function screenToWorld(sx, sy) {
         const rect = canvas.getBoundingClientRect();
         const mx = sx - rect.left;
@@ -255,18 +156,19 @@
         const wy = (my - offsetY) / scale;
         return { x: wx, y: wy };
       }
+      // Convert world coords to screen coords
       function worldToScreen(wx, wy) {
         const sx = wx * scale + offsetX;
         const sy = wy * scale + offsetY;
         return { x: sx, y: sy };
       }
 
-      // -------------- Galaxy Generation --------------
+      // ---- Generate clusters, nodes, connections ----
       function generateClusters() {
         clusters = [];
         const cCount = Math.floor(Math.random()*(clusterCountRange[1]-clusterCountRange[0]+1)) 
                        + clusterCountRange[0];
-        for (let i = 0; i < cCount; i++) {
+        for (let i=0; i<cCount; i++) {
           const center = {
             x: Math.random()*worldWidth,
             y: Math.random()*worldHeight
@@ -275,6 +177,7 @@
                          + clusterRadiusRange[0];
           clusters.push({ center, radius, nodes: [] });
         }
+        console.log("Generated", clusters.length, "clusters.");
       }
 
       function generateNodes() {
@@ -287,26 +190,27 @@
         // Place cluster nodes
         clusters.forEach(cluster => {
           let count = nodesPerCluster;
-          if (extra > 0) { count++; extra--; }
+          if (extra>0) { count++; extra--; }
           count = Math.min(count, maxNodesPerCluster);
 
-          for (let i = 0; i < count; i++) {
+          for (let i=0; i<count; i++) {
             let placed = false;
             let attempts = 0;
-            while(!placed && attempts < 100) {
+            while(!placed && attempts<100) {
               attempts++;
               const angle = Math.random()*Math.PI*2;
               const distance = Math.random()*cluster.radius;
               let x = cluster.center.x + Math.cos(angle)*distance;
               let y = cluster.center.y + Math.sin(angle)*distance;
-              // check min distance
+              // check min dist
               let tooClose = cluster.nodes.some(n => dist(n.x,n.y,x,y)<minSystemDist);
-              if (!tooClose) {
+              if(!tooClose) {
                 // create node
-                let systemName = (typeof generateSystemCode==="function") 
-                                 ? generateSystemCode() : ("Sys"+(nodes.length+1));
+                let systemName = (typeof generateSystemCode==="function")
+                                 ? generateSystemCode()
+                                 : ("Sys"+(nodes.length+1));
                 let systemText = "System details not available.";
-                if (typeof generateSystem==="function" && typeof generateSystemText==="function") {
+                if(typeof generateSystem==="function" && typeof generateSystemText==="function"){
                   generateSystem();
                   systemText = generateSystemText();
                 }
@@ -320,57 +224,55 @@
                 };
                 nodes.push(node);
                 cluster.nodes.push(node);
-                placed = true;
+                placed=true;
               }
             }
           }
         });
 
         // Add connector systems
-        for (let i = 0; i < connectorSystemsCount; i++) {
-          let x = Math.random()*worldWidth;
-          let y = Math.random()*worldHeight;
-          let systemName = (typeof generateSystemCode==="function")
-                           ? generateSystemCode() : ("Bridge"+(i+1));
-          let systemText = "Connector system bridging clusters.";
-          if (typeof generateSystem==="function" && typeof generateSystemText==="function") {
+        for(let i=0; i<connectorSystemsCount; i++){
+          let x=Math.random()*worldWidth;
+          let y=Math.random()*worldHeight;
+          let systemName=(typeof generateSystemCode==="function")
+                         ? generateSystemCode()
+                         : ("Bridge"+(i+1));
+          let systemText="Connector system bridging clusters.";
+          if(typeof generateSystem==="function" && typeof generateSystemText==="function"){
             generateSystem();
-            systemText = generateSystemText();
+            systemText=generateSystemText();
           }
-          const node = {
-            id: nodes.length,
-            x, y,
-            cluster: null,
+          const node={
+            id:nodes.length,
+            x,y,
+            cluster:null,
             systemName,
-            systemDetails: systemText,
-            ships: []
+            systemDetails:systemText,
+            ships:[]
           };
           nodes.push(node);
         }
-        console.log("Generated", nodes.length, "nodes total.");
+
+        console.log("Nodes generated:", nodes.length);
       }
 
-      // Add connection if it doesn't exist and respects intersection rules
-      // - Green can't cross green
-      // - Blue can't cross blue
+      // Connection logic with crossing rules:
+      // - Green can't cross other green
+      // - Blue can't cross other blue
       // - Red can cross anything
       function addConnection(nA, nB, cType) {
-        if (!nA || !nB || nA===nB) return false;
-        // Check duplicates
-        for (let c of connections) {
-          if ((c.source===nA && c.target===nB) ||
-              (c.source===nB && c.target===nA)) {
-            return false;
-          }
+        if(!nA || !nB || nA===nB) return false;
+        // check duplicates
+        for(let c of connections){
+          if((c.source===nA&&c.target===nB)||(c.source===nB&&c.target===nA)) return false;
         }
-        // Intersection check only if cType matches existing line's type
-        if (cType==="A" || cType==="B") {
-          for (let c of connections) {
-            if (c.type===cType) {
-              // check intersection
-              if (linesIntersect(
-                nA.x, nA.y, nB.x, nB.y,
-                c.source.x, c.source.y, c.target.x, c.target.y
+        // intersection check only if cType matches existing line's type
+        if(cType==="A"||cType==="B"){
+          for(let c of connections){
+            if(c.type===cType){
+              if(linesIntersect(
+                nA.x,nA.y, nB.x,nB.y,
+                c.source.x,c.source.y, c.target.x,c.target.y
               )) {
                 return false; // skip
               }
@@ -382,84 +284,84 @@
       }
 
       function generateConnections() {
-        connections = [];
+        connections=[];
         // 1) Each cluster forms a chain of green
-        clusters.forEach(cluster => {
-          if (cluster.nodes.length<=1) return;
-          for (let i=0; i<cluster.nodes.length-1; i++) {
-            addConnection(cluster.nodes[i], cluster.nodes[i+1], "A");
+        clusters.forEach(cluster=>{
+          if(cluster.nodes.length<=1)return;
+          for(let i=0; i<cluster.nodes.length-1; i++){
+            addConnection(cluster.nodes[i], cluster.nodes[i+1],"A");
           }
         });
-        // Then random green
-        clusters.forEach(cluster => {
-          const cNodes = cluster.nodes;
-          for (let i=0; i<cNodes.length; i++) {
-            for (let j=i+1; j<cNodes.length; j++) {
-              if (Math.random()<0.02) {
+        // then random green
+        clusters.forEach(cluster=>{
+          const cNodes=cluster.nodes;
+          for(let i=0; i<cNodes.length; i++){
+            for(let j=i+1; j<cNodes.length; j++){
+              if(Math.random()<0.02){
                 addConnection(cNodes[i], cNodes[j], "A");
               }
             }
           }
         });
         // 2) Connect cluster to connectors with blue
-        const connectorNodes = nodes.filter(n => n.cluster===null);
-        clusters.forEach(cluster => {
-          if (cluster.nodes.length===0) return;
-          const randNode = cluster.nodes[Math.floor(Math.random()*cluster.nodes.length)];
-          connectorNodes.forEach(connNode => {
-            addConnection(randNode, connNode, "B");
+        const connectorNodes=nodes.filter(n=>n.cluster===null);
+        clusters.forEach(cluster=>{
+          if(cluster.nodes.length===0)return;
+          const randNode=cluster.nodes[Math.floor(Math.random()*cluster.nodes.length)];
+          connectorNodes.forEach(connNode=>{
+            addConnection(randNode,connNode,"B");
           });
         });
         // 3) Possibly connect connectors with each other using blue
-        for (let i=0; i<connectorNodes.length; i++) {
-          for (let j=i+1; j<connectorNodes.length; j++) {
-            if (Math.random()<0.6) {
-              addConnection(connectorNodes[i], connectorNodes[j], "B");
+        for(let i=0; i<connectorNodes.length; i++){
+          for(let j=i+1; j<connectorNodes.length; j++){
+            if(Math.random()<0.6){
+              addConnection(connectorNodes[i],connectorNodes[j],"B");
             }
           }
         }
         // 4) Rare red for far pairs
-        for (let i=0; i<50; i++) {
-          let A = nodes[Math.floor(Math.random()*nodes.length)];
-          let B = nodes[Math.floor(Math.random()*nodes.length)];
-          if (A===B) continue;
-          let d = dist(A.x,A.y,B.x,B.y);
-          if (d>0.5*worldWidth && Math.random()<0.05) {
+        for(let i=0; i<50; i++){
+          let A=nodes[Math.floor(Math.random()*nodes.length)];
+          let B=nodes[Math.floor(Math.random()*nodes.length)];
+          if(A===B) continue;
+          let d=dist(A.x,A.y,B.x,B.y);
+          if(d>0.5*worldWidth&&Math.random()<0.05){
             addConnection(A,B,"C");
           }
         }
-        console.log("Generated", connections.length, "connections total.");
+        console.log("Connections generated:", connections.length);
       }
 
-      // Rendering
-      function render() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
+      // Render
+      function render(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
 
         // Draw lines (scaled)
         ctx.save();
-        ctx.translate(offsetX, offsetY);
-        ctx.scale(scale, scale);
+        ctx.translate(offsetX,offsetY);
+        ctx.scale(scale,scale);
 
-        connections.forEach(conn => {
+        connections.forEach(conn=>{
           ctx.beginPath();
-          ctx.moveTo(conn.source.x, conn.source.y);
-          ctx.lineTo(conn.target.x, conn.target.y);
-          if (conn.type==="A") ctx.strokeStyle="green";
-          else if (conn.type==="B") ctx.strokeStyle="blue";
+          ctx.moveTo(conn.source.x,conn.source.y);
+          ctx.lineTo(conn.target.x,conn.target.y);
+          if(conn.type==="A") ctx.strokeStyle="green";
+          else if(conn.type==="B") ctx.strokeStyle="blue";
           else ctx.strokeStyle="red";
           ctx.lineWidth=1.5;
           ctx.stroke();
         });
 
         // Draw nodes & ships
-        nodes.forEach(node => {
-          let r = (hoverNode===node) ? 7 : 5;
+        nodes.forEach(node=>{
+          let r=(hoverNode===node)?7:5;
           ctx.beginPath();
           ctx.arc(node.x,node.y,r,0,Math.PI*2);
-          ctx.fillStyle=(hoverNode===node) ? "#ff0" : "#fff";
+          ctx.fillStyle=(hoverNode===node)?"#ff0":"#fff";
           ctx.fill();
 
-          node.ships.forEach(ship => {
+          node.ships.forEach(ship=>{
             const ox=node.x+Math.cos(ship.angle)*ship.orbitRadius;
             const oy=node.y+Math.sin(ship.angle)*ship.orbitRadius;
             ctx.beginPath();
@@ -470,15 +372,15 @@
         });
         ctx.restore();
 
-        // Labels in screen space
-        nodes.forEach(node => {
-          const sc = worldToScreen(node.x,node.y);
+        // Draw labels in screen space
+        nodes.forEach(node=>{
+          const sc=worldToScreen(node.x,node.y);
           let labelX=sc.x+8, labelY=sc.y-8;
           ctx.font="10px Orbitron";
           ctx.fillStyle=(hoverNode===node)?"#ff0":"#ccc";
           ctx.fillText(node.systemName,labelX,labelY);
 
-          node.ships.forEach(ship => {
+          node.ships.forEach(ship=>{
             const ox=node.x+Math.cos(ship.angle)*ship.orbitRadius;
             const oy=node.y+Math.sin(ship.angle)*ship.orbitRadius;
             const sPos=worldToScreen(ox,oy);
@@ -489,10 +391,10 @@
         });
       }
 
-      function animate() {
-        nodes.forEach(node => {
-          node.ships.forEach(ship => {
-            ship.angle += 0.01;
+      function animate(){
+        nodes.forEach(node=>{
+          node.ships.forEach(ship=>{
+            ship.angle+=0.01;
           });
         });
         render();
@@ -500,51 +402,47 @@
       }
 
       // Mouse events
-      canvas.addEventListener("mousedown", e => {
+      canvas.addEventListener("mousedown", e=>{
         isPanning=true;
         const rect=canvas.getBoundingClientRect();
-        // store offset
         startPan={ x:e.clientX-offsetX, y:e.clientY-offsetY };
       });
-      canvas.addEventListener("mousemove", e => {
-        if (isPanning) {
+      canvas.addEventListener("mousemove", e=>{
+        if(isPanning){
           offsetX=e.clientX-startPan.x;
           offsetY=e.clientY-startPan.y;
           render();
         } else {
           const {x:wx,y:wy}=screenToWorld(e.clientX,e.clientY);
           let found=null; let minD=12;
-          for (let node of nodes) {
-            if (dist(wx,wy,node.x,node.y)<minD) {
+          for(let node of nodes){
+            if(dist(wx,wy,node.x,node.y)<minD){
               found=node; break;
             }
           }
-          if (found!==hoverNode) {
-            hoverNode=found;
-            render();
+          if(found!==hoverNode){
+            hoverNode=found; render();
           }
         }
       });
-      canvas.addEventListener("mouseup", ()=>{isPanning=false;});
+      canvas.addEventListener("mouseup",()=>{isPanning=false;});
       canvas.addEventListener("mouseleave",()=>{isPanning=false;});
 
-      // Wheel zoom
-      canvas.addEventListener("wheel", e => {
+      canvas.addEventListener("wheel", e=>{
         e.preventDefault();
         const {x:wx,y:wy}=screenToWorld(e.clientX,e.clientY);
         const zoomFactor=0.05;
         if(e.deltaY<0) scale*=(1+zoomFactor);
         else scale/=(1+zoomFactor);
         const {x:sx,y:sy}=worldToScreen(wx,wy);
-        offsetX+=(e.clientX - sx);
-        offsetY+=(e.clientY - sy);
+        offsetX+=(e.clientX-sx);
+        offsetY+=(e.clientY-sy);
         render();
       });
 
       // Node click => select
-      let selectedNode=null;
-      canvas.addEventListener("click", e => {
-        if(isPanning) return;
+      canvas.addEventListener("click", e=>{
+        if(isPanning)return;
         const {x:wx,y:wy}=screenToWorld(e.clientX,e.clientY);
         for(let node of nodes){
           if(dist(wx,wy,node.x,node.y)<8){
@@ -554,12 +452,12 @@
         }
       });
 
-      // Sidebar
+      // Sidebar references
       const systemDetailsTextarea=document.getElementById("systemDetails");
       const regenerateBtn=document.getElementById("regenerateBtn");
       const addShipBtn=document.getElementById("addShipBtn");
-      const shipContainer=document.getElementById("shipContainer");
       const pinSystemBtn=document.getElementById("pinSystemBtn");
+      const shipContainer=document.getElementById("shipContainer");
       const pinnedSystemsDiv=document.getElementById("pinnedSystems");
 
       function openSidebar(node){
@@ -567,19 +465,21 @@
         systemDetailsTextarea.value=node.systemDetails;
         renderShipList(node);
       }
-      systemDetailsTextarea.addEventListener("input",e=>{
-        if(selectedNode) selectedNode.systemDetails=e.target.value;
+      systemDetailsTextarea.addEventListener("input", e=>{
+        if(selectedNode){
+          selectedNode.systemDetails=e.target.value;
+        }
       });
       regenerateBtn.addEventListener("click",()=>{
-        if(!selectedNode) return;
-        if(typeof generateSystem==="function" && typeof generateSystemText==="function"){
+        if(!selectedNode)return;
+        if(typeof generateSystem==="function"&&typeof generateSystemText==="function"){
           generateSystem();
           selectedNode.systemDetails=generateSystemText();
           systemDetailsTextarea.value=selectedNode.systemDetails;
         }
       });
       addShipBtn.addEventListener("click",()=>{
-        if(!selectedNode) return;
+        if(!selectedNode)return;
         const shipName=prompt("Enter ship name:");
         if(shipName){
           selectedNode.ships.push({
@@ -614,17 +514,18 @@
       function getConnectedSystems(node){
         const connected=[];
         connections.forEach(conn=>{
-          if(conn.source===node && conn.target!==node) connected.push(conn.target);
-          else if(conn.target===node && conn.source!==node) connected.push(conn.source);
+          if(conn.source===node&&conn.target!==node) connected.push(conn.target);
+          else if(conn.target===node&&conn.source!==node) connected.push(conn.source);
         });
         return connected;
       }
+      // Expose ship functions globally
       window.updateShipData=function(idx,val){
-        if(!selectedNode) return;
+        if(!selectedNode)return;
         selectedNode.ships[idx].customData=val;
       };
       window.deleteShip=function(idx){
-        if(!selectedNode) return;
+        if(!selectedNode)return;
         selectedNode.ships.splice(idx,1);
         renderShipList(selectedNode);
       };
@@ -639,10 +540,9 @@
         }
       };
 
-      // Pinned systems
+      // Pin System
       pinSystemBtn.addEventListener("click",()=>{
-        if(!selectedNode) return;
-        // If not already pinned, pin it
+        if(!selectedNode)return;
         if(!pinnedSystems.includes(selectedNode)){
           pinnedSystems.push(selectedNode);
           renderPinnedSystems();
@@ -694,7 +594,7 @@
       };
 
       // Searching
-      document.getElementById("nodeSearch").addEventListener("change",e=>{
+      document.getElementById("nodeSearch").addEventListener("change", e=>{
         const query=e.target.value.toLowerCase();
         const found=nodes.find(n=>n.systemName.toLowerCase().includes(query));
         if(found){
@@ -703,7 +603,7 @@
           render();
         }
       });
-      document.getElementById("shipSearch").addEventListener("change",e=>{
+      document.getElementById("shipSearch").addEventListener("change", e=>{
         const query=e.target.value.toLowerCase();
         for(let node of nodes){
           const ship=node.ships.find(s=>s.name.toLowerCase().includes(query));
@@ -741,7 +641,10 @@
 
       // Jump to random system
       document.getElementById("jumpRandomBtn").addEventListener("click",()=>{
-        if(nodes.length===0)return;
+        if(nodes.length===0){
+          console.warn("No nodes to jump to!");
+          return;
+        }
         const randomNode=nodes[Math.floor(Math.random()*nodes.length)];
         offsetX=canvas.width/2 - randomNode.x*scale;
         offsetY=canvas.height/2 - randomNode.y*scale;
@@ -759,7 +662,7 @@
         dlAnchor.click();
         dlAnchor.remove();
       });
-      document.getElementById("loadMapInput").addEventListener("change",e=>{
+      document.getElementById("loadMapInput").addEventListener("change", e=>{
         const file=e.target.files[0];
         if(!file)return;
         const reader=new FileReader();
@@ -780,6 +683,7 @@
       });
 
       // Generate & Animate
+      console.log("Calling generateNodes() and generateConnections()...");
       generateNodes();
       generateConnections();
       render();
