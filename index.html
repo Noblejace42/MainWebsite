@@ -5,106 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Home - Emerson Neher</title>
 
-  <style>
-    /* BASIC RESET & LAYOUT */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%; height: 100%;
-      font-family: Arial, sans-serif;
-      overflow: hidden; /* remove if you want scrolling on small screens */
-      background: #f0f0f0;
-    }
-
-    /* CENTER CARD */
-    .center-card {
-      position: absolute; 
-      /* We'll center it with JS or you can do a known position */
-      width: 700px; 
-      max-width: 90%;
-      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(245,245,245,0.9));
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.2);
-      text-align: center;
-      z-index: 1000; /* on top of everything */
-      padding: 30px 50px;
-    }
-    .projects-button {
-      position: absolute;
-      top: 15px; left: 15px;
-      background: #ff6600; color: #fff;
-      padding: 6px 12px; border-radius: 4px;
-      text-decoration: none; font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    .projects-button:hover { background: #e65c00; }
-    .contact-card h1 {
-      font-size: 2.5em; margin-bottom: 8px; color: #222;
-    }
-    .contact-card h3 {
-      font-size: 1.3em; margin-bottom: 12px;
-      font-weight: normal; color: #444;
-    }
-    .contact-card p {
-      font-size: 1.1em; margin: 6px 0; color: #333;
-    }
-    .contact-card a { color: #0077cc; text-decoration: none; }
-    .contact-card a:hover { text-decoration: underline; }
-    .contact-card .links a { margin: 0 5px; }
-
-    /* TILES CONTAINER */
-    .tiles-container {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none; /* tiles not clickable */
-    }
-    .tile {
-      position: absolute; 
-      /* We'll set width/height from JS to maintain aspect ratio. */
-      background-repeat: no-repeat;
-      background-position: center center;
-      background-size: contain;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: transform 2s ease, opacity 2s ease;
-      opacity: 1;
-      pointer-events: none;
-    }
-
-    /* RANDOM ORBS (behind the card, above tiles) */
-    .orbs-container {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none; 
-      z-index: 900; /* behind card, above tiles */
-    }
-    .orb {
-      position: absolute;
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #fff, #ddd);
-      opacity: 0.7;
-      transition: transform 3s ease;
-      pointer-events: none;
-    }
-    
-    /* RESPONSIVE TWEAKS */
-    @media (max-width: 600px) {
-      .center-card {
-        width: 90%;
-        padding: 20px 30px;
-      }
-      .contact-card h1 { font-size: 2em; }
-      .contact-card p { font-size: 1em; }
-      .orb { width: 60px; height: 60px; }
-    }
-  </style>
+  <!-- Link to the external stylesheet -->
+  <link rel="stylesheet" href="home(2).css" />
 </head>
 <body>
 
   <!-- Center Card -->
-  <div class="center-card">
+  <div class="center-card" id="centerCard">
     <a href="systemgen.html" class="projects-button">Projects</a>
     <div class="contact-card">
       <h1>Emerson Neher</h1>
@@ -128,10 +35,10 @@
     </div>
   </div>
 
-  <!-- Tiles -->
+  <!-- Tiles Container -->
   <div class="tiles-container"></div>
 
-  <!-- Orbs -->
+  <!-- Orbs Container -->
   <div class="orbs-container">
     <div class="orb" id="orb1"></div>
     <div class="orb" id="orb2"></div>
@@ -140,195 +47,156 @@
   </div>
 
   <script>
-    /********************************************************************
-     * JS for dynamic tile & orb placement without overlapping the card *
-     ********************************************************************/
+    /************************************************************
+     *  JS for dynamic tile & orb placement without overlap     *
+     ************************************************************/
 
-    // 1) Center the card
-    const centerCard = document.querySelector('.center-card');
+    // Center the card in the viewport
+    const centerCard = document.getElementById('centerCard');
     function centerTheCard() {
-      // We'll place it roughly in the center of the viewport
       const cardRect = centerCard.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      // Position so that card is centered
-      centerCard.style.left = (viewportWidth - cardRect.width)/2 + 'px';
-      centerCard.style.top = (viewportHeight - cardRect.height)/2 + 'px';
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      centerCard.style.left = (vw - cardRect.width)/2 + 'px';
+      centerCard.style.top  = (vh - cardRect.height)/2 + 'px';
     }
     window.addEventListener('resize', centerTheCard);
     window.addEventListener('load', centerTheCard);
 
-    // 2) Generate tile data
-    const tileCount = 34; // images 4..37
+    // Prepare tile images 4..37
+    const tileCount = 34; // 34 images
     const tileImages = [];
-    for (let i=4; i<=37; i++){
+    for (let i = 4; i <= 37; i++) {
       tileImages.push(`image/${i}.jpg`);
     }
 
-    // We'll create tile elements
-    const tilesContainer = document.querySelector('.tiles-container');
-    const tiles = [];
-
-    // 3) Preload images to get aspect ratio
-    // We'll store {img, aspect} so we can set tile size accordingly
-    let loadedCount = 0;
+    // We'll store aspect ratio data after loading
     const tileData = [];
+    let loadedCount = 0;
+
+    // Preload images to get aspect ratio
     tileImages.forEach(src => {
       const img = new Image();
       img.src = src;
       img.onload = () => {
-        const aspect = img.width / img.height; 
-        tileData.push({src, aspect});
+        tileData.push({ src, aspect: img.width / img.height });
         loadedCount++;
         if (loadedCount === tileCount) {
-          // All loaded, now create the DOM elements
+          // all images loaded
           createTiles();
         }
       };
     });
 
-    function createTiles(){
-      // Actually create tile divs
+    const tilesContainer = document.querySelector('.tiles-container');
+    const tiles = [];
+
+    function createTiles() {
       tileData.forEach(td => {
         const div = document.createElement('div');
         div.classList.add('tile');
-        div.style.backgroundImage = `url('${td.src}')`;
         div.dataset.aspect = td.aspect;
+        div.style.backgroundImage = `url('${td.src}')`;
         tiles.push(div);
         tilesContainer.appendChild(div);
       });
       shuffleTiles(); // initial placement
-      // Then periodically shuffle them
       setInterval(shuffleTiles, 20000); // shuffle every 20s
     }
 
-    // bounding box for center card
-    function getCardRect(){
-      return centerCard.getBoundingClientRect();
-    }
-
-    // bounding box for a tile
-    function getTileRect(tile){
-      return tile.getBoundingClientRect();
+    // bounding box for card
+    function getCardRect() {
+      const c = centerCard.getBoundingClientRect();
+      return { left: c.left, top: c.top, right: c.right, bottom: c.bottom };
     }
 
     // check overlap
-    function overlap(r1, r2){
+    function overlap(r1, r2) {
       return !(
-        r1.right < r2.left ||
-        r1.left > r2.right ||
+        r1.right  < r2.left ||
+        r1.left   > r2.right ||
         r1.bottom < r2.top ||
-        r1.top > r2.bottom
+        r1.top    > r2.bottom
       );
     }
 
-    // place tiles so they don't overlap the card or each other
-    // naive approach with random tries
-    function shuffleTiles(){
+    // shuffle tile positions
+    function shuffleTiles() {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const cardR = getCardRect();
 
-      // We'll place each tile with random scale, within some range
-      // We'll attempt up to 30 tries to find a non-overlapping position
-      const placedRects = []; // store bounding boxes of placed tiles
+      // store bounding boxes of placed tiles
+      const placedRects = [];
 
       tiles.forEach(tile => {
-        // tile size depends on aspect ratio
         const aspect = parseFloat(tile.dataset.aspect);
-        // random scale from e.g. 0.6..1.2
-        const scale = 0.6 + Math.random()*0.6;
-
-        // We'll define a base "width" of ~15% of viewport
-        const baseW = 0.15 * vw; // e.g. 15% of viewport width
+        // random scale ~ 0.6..1.2
+        const scale = 0.6 + Math.random() * 0.6;
+        // base width ~ 15% of viewport
+        const baseW = 0.15 * vw;
         let w = baseW * scale;
-        // adjust for aspect ratio
         let h = w / aspect;
-        // or if aspect < 1, we can base on height?
-        // We'll just keep it simple here
 
-        // We also clamp so it doesn't exceed some fraction
-        if (w > 0.25*vw) w = 0.25*vw; 
-        if (h > 0.25*vh) h = 0.25*vh; 
+        // clamp to 25% viewport max
+        if (w > 0.25 * vw) w = 0.25 * vw;
+        if (h > 0.25 * vh) h = 0.25 * vh;
 
         let placed = false;
-        for (let tries=0; tries<30; tries++){
-          // pick random top/left
+        for (let tries=0; tries<30; tries++) {
           const left = Math.random() * (vw - w);
-          const top = Math.random() * (vh - h);
+          const top  = Math.random() * (vh - h);
 
-          // define bounding rect
-          const testRect = {
-            left, top,
-            right: left + w,
-            bottom: top + h
-          };
-
+          const testRect = { left, top, right: left+w, bottom: top+h };
           // check overlap with card
-          if (overlap(testRect, {
-            left: cardR.left, top: cardR.top,
-            right: cardR.right, bottom: cardR.bottom
-          })) {
-            continue; // overlaps card, skip
+          if (overlap(testRect, cardR)) {
+            continue;
           }
-
-          // check overlap with placed rects
+          // check overlap with placed
           let conflict = false;
-          for (let r of placedRects){
-            if (overlap(testRect, r)) {
-              conflict = true; 
-              break;
-            }
+          for (let r of placedRects) {
+            if (overlap(testRect, r)) { conflict = true; break; }
           }
           if (conflict) continue;
 
-          // if we get here, we found a valid spot
+          // success
           placedRects.push(testRect);
           tile.style.width = w + 'px';
           tile.style.height = h + 'px';
           tile.style.transform = `translate(${left}px, ${top}px)`;
-          // random scale in transform is optional, but we did it in size
           tile.style.opacity = '1';
           placed = true;
           break;
         }
-
         if (!placed) {
-          // can't place tile without overlap -> hide it
+          // no valid spot
           tile.style.opacity = '0';
         }
       });
     }
 
-    /****************************************
-     * ORBS that move randomly, avoid the card
-     ****************************************/
+    // ORBS
     const orbIds = ['orb1','orb2','orb3','orb4'];
     const orbs = orbIds.map(id => document.getElementById(id));
 
-    function moveOrbs(){
+    function moveOrbs() {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const cardR = getCardRect();
       orbs.forEach(orb => {
-        // We'll pick random position and check overlap with card
         const orbW = orb.offsetWidth;
         const orbH = orb.offsetHeight;
 
         for (let tries=0; tries<20; tries++){
           const left = Math.random()*(vw - orbW);
-          const top = Math.random()*(vh - orbH);
-          // define bounding rect
+          const top  = Math.random()*(vh - orbH);
           const testRect = {
             left, top,
             right: left+orbW,
             bottom: top+orbH
           };
-          // check overlap
-          if (!overlap(testRect, {
-            left: cardR.left, top: cardR.top,
-            right: cardR.right, bottom: cardR.bottom
-          })){
+          // check overlap with card
+          if (!overlap(testRect, cardR)) {
             // place orb
             orb.style.transform = `translate(${left}px, ${top}px)`;
             break;
@@ -337,15 +205,13 @@
       });
     }
 
-    // initial orbs
+    // initial orb positions
     moveOrbs();
     // reposition orbs every 10s
     setInterval(moveOrbs, 10000);
 
-    // final note: we re-center the card once images load
-    window.addEventListener('load', () => {
-      centerTheCard();
-    });
+    // re-center the card once everything is loaded
+    window.addEventListener('load', centerTheCard);
   </script>
 </body>
 </html>
