@@ -100,7 +100,7 @@ html, body {
   font-weight: bold;
 }
 
-/* Container for the images on the left side */
+/* Container for the moving images */
 .tiles-container {
   position: absolute;
   top: 0; 
@@ -111,16 +111,16 @@ html, body {
   pointer-events: none;
 }
 
-/* Each tile (no overlap) */
-.no-overlap-tile {
+/* Style for the spawned images */
+.moving-tile {
   position: absolute;
   background-position: center center;
   background-size: cover;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   border-radius: 8px;
-  opacity: 0;
-  transition: opacity 1s ease;
+  opacity: 1;
   pointer-events: none;
+  transition: opacity 1s ease;
 }
 
 /* Mobile-friendly */
