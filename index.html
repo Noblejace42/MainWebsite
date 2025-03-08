@@ -148,7 +148,7 @@
 
     // Each tile has its own random cycle between 1–10 seconds
     function scheduleTileCycle(tile) {
-      const delay = 1000 + Math.floor(Math.random() * 9000); 
+      const delay = 8000 + Math.floor(Math.random() * 18000); 
       // delay is random from 1s (1000ms) to 10s (10000ms)
       setTimeout(() => {
         tileFadeOutIn(tile);
