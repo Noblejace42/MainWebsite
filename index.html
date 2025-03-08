@@ -49,7 +49,7 @@
       </p>
     </div>
 
-    <!-- Smaller Spotify Embed (attempting theme=1 for a “blue” style) -->
+    <!-- Smaller Spotify Embed (blue style) -->
     <div class="spotify-container">
       <h3 class="spotify-title">Currently Listening</h3>
       <iframe 
@@ -65,21 +65,20 @@
 
   </div>
 
-  <!-- Flow container: images line up horizontally and move left->right -->
-  <div class="flow-wrapper">
-    <div class="flow-row" id="flowRow"></div>
-  </div>
+  <!-- Container for images on the left side -->
+  <div class="tiles-container"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+
       /***************************************************************
-       * 1) Center the card with extra top margin if needed
+       * 1) Center the card 
        ***************************************************************/
       const centerCard = document.getElementById('centerCard');
       function centerTheCard() {
         const rect = centerCard.getBoundingClientRect();
         const vw = window.innerWidth, vh = window.innerHeight;
-        // We clamp so it never goes above ~10px from the top
+        // ensure some breathing room from top
         const topPos = Math.max(10, (vh - rect.height)/2);
         centerCard.style.left = (vw - rect.width)/2 + 'px';
         centerCard.style.top  = topPos + 'px';
@@ -88,91 +87,142 @@
       centerTheCard();
 
       /***************************************************************
-       * 2) Flow Row: images placed side-by-side, random sizes,
-       *    then animate from left to right. "No overlap" horizontally.
+       * 2) Random images on the left, no overlap, varied sizes 
        ***************************************************************/
       const tilePaths = [];
-      // Add your images 4..37, plus any extras
+      // e.g. 4..37
       for (let i = 4; i <= 37; i++) {
         tilePaths.push(`image/${i}.jpg`);
       }
-      // tilePaths.push('image/headshotlandscape.png', 'image/graffitibackdrop.jpg', ...);
+      // you can add personal images if you want:
+      // tilePaths.push('image/graffitibackdrop.jpg', 'image/headshotlandscape.png', ...);
 
-      let loadedCount = 0;
       const tileData = [];
+      let loadedCount = 0;
+
+      // Preload images
       tilePaths.forEach(src => {
         const img = new Image();
         img.src = src;
         img.onload = () => {
-          tileData.push({ src, w: img.width, h: img.height });
+          // store aspect ratio, etc.
+          tileData.push({ src, aspect: (img.width / img.height) || 1 });
           loadedCount++;
-          if (loadedCount === tilePaths.length) buildFlow();
+          if (loadedCount === tilePaths.length) {
+            startSpawning();
+          }
         };
         img.onerror = () => {
           loadedCount++;
-          if (loadedCount === tilePaths.length) buildFlow();
+          if (loadedCount === tilePaths.length) {
+            startSpawning();
+          }
         };
       });
 
-      const flowRow = document.getElementById('flowRow');
-      let currentIndex = 0;
+      const tilesContainer = document.querySelector('.tiles-container');
+      // We'll track bounding boxes of placed tiles so we don't overlap
+      const placedRects = [];
 
-      // We'll keep track of total width so we can animate them across
-      let totalWidth = 0;
-
-      function buildFlow() {
-        // Put each image in the row exactly once (or you can loop them multiple times).
-        // We'll randomize size & vertical offset for each tile.
-        tileData.forEach((td, i) => {
-          addImageTile(td);
-        });
-        // Once all tiles are added, set row width, start the animation
-        flowRow.style.width = totalWidth + 'px';
-        startFlowAnimation();
+      function getCardRect() {
+        const c = centerCard.getBoundingClientRect();
+        return { left:c.left, top:c.top, right:c.right, bottom:c.bottom };
       }
 
-      function addImageTile(td) {
-        // random scaled width from e.g. 150..300px
-        const minW = 150, maxW = 300;
-        const tileW = minW + Math.random()*(maxW-minW);
-        // scale height proportionally
-        const ratio = td.h / td.w;
-        const tileH = tileW * ratio;
+      // basic overlap check
+      function overlap(r1, r2){
+        return !(
+          r1.right < r2.left ||
+          r1.left  > r2.right ||
+          r1.bottom< r2.top  ||
+          r1.top   > r2.bottom
+        );
+      }
 
-        // random top offset (e.g. 0..some range) inside .flow-wrapper’s height
-        // but we want no vertical overlap. We’ll do a random shift, but
-        // for now let's keep everything anchored at top=0 (they won't overlap vertically).
-        // If you truly want random vertical positions with no overlap, you’d need more logic.
-        const topOffset = Math.max(0, 0 + Math.random()*50);
+      // Attempt to place a new tile on the left side at random coordinates
+      function placeTile(tileDiv) {
+        // pick random size in px (not too small)
+        // e.g. between 200..400 px wide
+        const minW=200, maxW=400;
+        const w = minW + Math.random()*(maxW - minW);
+        // scale height by aspect
+        const aspect = parseFloat(tileDiv.dataset.aspect) || 1;
+        const h = w / aspect;
 
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        // We'll place them in left side: left= 0.. (vw*0.45)
+        // so the card on the right is not blocked
+        const maxLeft = vw * 0.45;
+        for (let tries=0; tries<50; tries++){
+          const left = Math.random()*(maxLeft - w);
+          const top  = Math.random()*(vh - h);
+
+          const newRect = {
+            left, top,
+            right: left + w,
+            bottom: top + h
+          };
+
+          // check overlap with center card
+          const cardR = getCardRect();
+          if (overlap(newRect, cardR)) {
+            continue;
+          }
+          // check overlap with existing placed tiles
+          let conflict = false;
+          for (const r of placedRects){
+            if (overlap(newRect, r)) {
+              conflict = true;
+              break;
+            }
+          }
+          if (conflict) continue;
+
+          // success
+          tileDiv.style.width  = w + 'px';
+          tileDiv.style.height = h + 'px';
+          tileDiv.style.left   = left + 'px';
+          tileDiv.style.top    = top + 'px';
+
+          placedRects.push(newRect);
+          return true;
+        }
+        return false; // couldn't place
+      }
+
+      // Spawns a new tile from tileData
+      function spawnTile() {
+        // pick a random image
+        const idx = Math.floor(Math.random()*tileData.length);
+        const td = tileData[idx];
+
+        // create the div
         const div = document.createElement('div');
-        div.classList.add('flow-tile');
+        div.classList.add('no-overlap-tile');
         div.style.backgroundImage = `url('${td.src}')`;
-        div.style.width = tileW + 'px';
-        div.style.height = tileH + 'px';
-        div.style.top = topOffset + 'px';
-        div.style.left = totalWidth + 'px'; // place horizontally after the last tile
-        flowRow.appendChild(div);
+        div.dataset.aspect = td.aspect;
 
-        // Update totalWidth so the next tile is placed after this one
-        totalWidth += tileW + 20; // +20 for some horizontal gap
+        // try placing
+        const placed = placeTile(div);
+        if (placed) {
+          tilesContainer.appendChild(div);
+          // fade it in
+          div.style.opacity = '1';
+        }
       }
 
-      // Animate the .flow-row from left to right
-      function startFlowAnimation() {
-        // The row’s initial position is left= -totalWidth, so it’s offscreen to the left.
-        // We'll animate it to left= window.innerWidth or so, so it flows across.
-        // But we want to see them move from left to right across the screen (like a marquee).
-        // Let’s do a CSS keyframe approach:
-        const rowWidth = totalWidth;
-        const screenW = window.innerWidth;
-        // We want the entire row to move from (left = -rowWidth) to (left = screenW).
-        // Duration can be e.g. 80s or so, or we can base it on rowWidth for a consistent speed.
-        const speedPxPerSec = 30; // e.g. 30px/s
-        const durationSec = (rowWidth + screenW) / speedPxPerSec; 
-
-        flowRow.style.animation = `flowLeftRight ${durationSec}s linear infinite`;
+      // spawn a new tile every ~2 seconds
+      function startSpawning() {
+        // prime 5 tiles at once initially
+        for (let i=0; i<5; i++){
+          spawnTile();
+        }
+        // spawn new tile every 2s
+        setInterval(spawnTile, 2000);
       }
+
     });
   </script>
 
