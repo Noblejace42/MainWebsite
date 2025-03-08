@@ -465,7 +465,7 @@ const systemConditionsList = [
   "Ancient Wreckage Field",
   "Volatile Gas Clouds",
   "Filled With Pirates",
-  "Radio Jamming",
+  "Radio Jamming", 
   "Busy Travel Route",
   "Gravity Distorting Star",
   "Hidden Asteroid Cache",
