@@ -85,7 +85,7 @@ html, body {
   margin: 0 6px;
 }
 
-/* Smaller Spotify container with a "blue" attempt */
+/* Smaller Spotify container with a “blue” attempt */
 .spotify-container {
   margin-top: 20px;
   border-radius: 8px;
@@ -100,44 +100,30 @@ html, body {
   font-weight: bold;
 }
 
-/* The flow wrapper: full screen behind card. The row slides left->right. */
-.flow-wrapper {
+/* Container for the images on the left side */
+.tiles-container {
   position: absolute;
-  top: 0; left: 0; 
-  width: 100%; 
+  top: 0; 
+  left: 0;
+  width: 100%;
   height: 100%;
-  z-index: 1;
-  overflow: hidden; /* hide as images flow out of view */
-}
-.flow-row {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%); /* center row vertically in the wrapper */
-  display: block; /* we’ll place tiles side by side */
-  height: auto;
+  z-index: 1; /* behind center card */
+  pointer-events: none;
 }
 
-/* Individual images in the flow */
-.flow-tile {
+/* Each tile (no overlap) */
+.no-overlap-tile {
   position: absolute;
   background-position: center center;
   background-size: cover;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  border-radius: 6px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 1s ease;
+  pointer-events: none;
 }
 
-/* Keyframes for left->right flow 
-   We'll apply it to .flow-row once everything is loaded. */
-@keyframes flowLeftRight {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Responsive tweaks */
+/* Mobile-friendly */
 @media (max-width: 600px) {
   html, body {
     overflow-y: auto;
@@ -152,7 +138,7 @@ html, body {
     gap: 10px;
   }
   .card-image {
-    width: 150px;
+    width: 150px; 
     height: 150px;
   }
   .spotify-container iframe {
