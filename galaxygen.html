@@ -6,6 +6,13 @@
     <title>Galaxy Generator</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
+      /* Ensure the body has top padding if nav is fixed */
+      body {
+        margin: 0;
+        padding: 0;
+        /* Adjust this if your nav is taller or shorter */
+        padding-top: 60px;
+      }
       /* Additional styles for the galaxy generator */
       #galaxyCanvas {
         border: 1px solid #444;
@@ -16,16 +23,19 @@
       /* Sidebar for node (system) details */
       #sidebar {
         position: fixed;
+        /* Push the sidebar down so it doesn't hide behind a fixed nav. 
+           If your nav is 60px high, we match that here. */
+        top: 60px;
         right: -400px;
-        top: 0;
         width: 400px;
-        height: 100%;
+        /* Subtract the nav height so the sidebar fits the screen. */
+        height: calc(100% - 60px);
         background: #262626;
         color: #ccc;
         overflow-y: auto;
         transition: right 0.3s ease;
         padding: 20px;
-        z-index: 1500;
+        z-index: 2000; /* Ensure the sidebar appears above the nav. */
       }
       #sidebar.open {
         right: 0;
@@ -52,20 +62,14 @@
     </style>
   </head>
   <body>
-    <nav>
-      <div class="nav-left">
-        <a href="systemgen.html">System Generator</a> |
-        <a href="lifepath.html">Lifepath Generator</a> |
-        <a href="weapongenerator.html">Weapon Generator</a> |
-        <a href="combat_tracker.html">Combat Tracker</a> |
-        <a href="abilitytree.html">Abilities</a> |
-        <a href="shiphardpointgenerator.html">Shipyard</a> |
-        <a href="galaxygen.html">Galaxy Generator</a>
-      </div>
-      <div class="nav-right">
-        <a href="index.html" class="distinct-button">Home</a>
-      </div>
-    </nav>
+<script>
+  fetch('nav.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('navContainer').innerHTML = data;
+    })
+    .catch(err => console.error('Error loading nav:', err));
+</script>
 
     <div class="controls">
       <button id="resetViewBtn">Reset View</button>
@@ -91,14 +95,15 @@
 
     <script src="systemgen.js"></script>
     <script>
+    document.addEventListener('DOMContentLoaded', () => {
       /* --- Global Setup and Variables --- */
       const canvas = document.getElementById("galaxyCanvas");
       const ctx = canvas.getContext("2d");
 
       // Panning and zooming variables
       let offsetX = 0,
-        offsetY = 0,
-        scale = 1;
+          offsetY = 0,
+          scale = 1;
       let isPanning = false;
       let startPan = { x: 0, y: 0 };
 
@@ -147,21 +152,23 @@
             const distance = Math.random() * cluster.radius;
             const x = cluster.center.x + Math.cos(angle) * distance;
             const y = cluster.center.y + Math.sin(angle) * distance;
+
             // Generate a system name via systemgen.js; fallback if function not found
             let systemName =
-              typeof generateSystemName === "function"
+              (typeof generateSystemName === "function")
                 ? generateSystemName()
                 : "System " + (nodes.length + 1);
+
             // Generate system details using systemgen.js functions
+            let systemText = "System details not available.";
             if (
               typeof generateSystem === "function" &&
               typeof generateSystemText === "function"
             ) {
               generateSystem();
-              var systemText = generateSystemText();
-            } else {
-              var systemText = "System details not available.";
+              systemText = generateSystemText();
             }
+
             const node = {
               id: nodes.length,
               x,
@@ -408,26 +415,20 @@
       });
 
       /* --- Zoom and Reset Controls --- */
-      document
-        .getElementById("zoomInBtn")
-        .addEventListener("click", () => {
-          scale *= 1.1;
-          render();
-        });
-      document
-        .getElementById("zoomOutBtn")
-        .addEventListener("click", () => {
-          scale /= 1.1;
-          render();
-        });
-      document
-        .getElementById("resetViewBtn")
-        .addEventListener("click", () => {
-          offsetX = 0;
-          offsetY = 0;
-          scale = 1;
-          render();
-        });
+      document.getElementById("zoomInBtn").addEventListener("click", () => {
+        scale *= 1.1;
+        render();
+      });
+      document.getElementById("zoomOutBtn").addEventListener("click", () => {
+        scale /= 1.1;
+        render();
+      });
+      document.getElementById("resetViewBtn").addEventListener("click", () => {
+        offsetX = 0;
+        offsetY = 0;
+        scale = 1;
+        render();
+      });
 
       /* --- Save and Load Map --- */
       document.getElementById("saveMapBtn").addEventListener("click", () => {
@@ -447,29 +448,29 @@
         dlAnchorElem.setAttribute("download", "galaxy_map.json");
         dlAnchorElem.click();
       });
-      document
-        .getElementById("loadMapInput")
-        .addEventListener("change", (e) => {
-          const file = e.target.files[0];
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            const loadedData = JSON.parse(event.target.result);
-            nodes = loadedData.nodes;
-            connections = loadedData.connections;
-            offsetX = loadedData.offsetX;
-            offsetY = loadedData.offsetY;
-            scale = loadedData.scale;
-            clusters = loadedData.clusters;
-            render();
-          };
-          reader.readAsText(file);
-        });
+
+      document.getElementById("loadMapInput").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const loadedData = JSON.parse(event.target.result);
+          nodes = loadedData.nodes;
+          connections = loadedData.connections;
+          offsetX = loadedData.offsetX;
+          offsetY = loadedData.offsetY;
+          scale = loadedData.scale;
+          clusters = loadedData.clusters;
+          render();
+        };
+        reader.readAsText(file);
+      });
 
       /* --- Initial Generation and Animation --- */
       generateNodes();
       generateConnections();
       render();
       animate();
+    });
     </script>
   </body>
 </html>
