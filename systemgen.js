@@ -1,101 +1,509 @@
 // --- Helper Functions ---
+function weightedRandom(choices) {
+  let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+  let randomNum = Math.random() * totalWeight;
+  for (let choice of choices) {
+    if (randomNum < choice.weight) {
+      return choice.value !== undefined ? choice.value : choice.name;
+    }
+    randomNum -= choice.weight;
+  }
+}
+
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function weightedRandom(options) {
-  let totalWeight = options.reduce((acc, option) => acc + (option.weight || 1), 0);
-  let random = Math.random() * totalWeight;
-  for (let option of options) {
-    let weight = option.weight || 1;
-    if (random < weight) return option;
-    random -= weight;
-  }
-  return options[options.length - 1];
-}
-
+// Convert integer 1-6 to roman numeral
 function toRoman(num) {
-  const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
-  let roman = "";
-  for (let i in lookup) {
-    while (num >= lookup[i]) {
-      roman += i;
-      num -= lookup[i];
-    }
-  }
-  return roman;
+  const romans = ["I", "II", "III", "IV", "V", "VI"];
+  return romans[num - 1] || num;
 }
 
-// --- Data Arrays ---
+// Generate a random alphanumeric code (like "AX11B2")
+function generateSystemCode() {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const digits = "0123456789";
+  let code = "";
+  code += letters.charAt(randomInt(0, letters.length - 1));
+  code += letters.charAt(randomInt(0, letters.length - 1));
+  code += digits.charAt(randomInt(0, digits.length - 1));
+  code += digits.charAt(randomInt(0, digits.length - 1));
+  code += letters.charAt(randomInt(0, letters.length - 1));
+  code += digits.charAt(randomInt(0, digits.length - 1));
+  return code;
+}
+
+// --- Data Definitions ---
+// Expanded settlement name parts (grounded, with minimal overly “scifi” letters)
 const settlementPrefix = [
-  { value: "New", weight: 3 },
-  { value: "Old", weight: 1 },
-  { value: "Fort", weight: 2 },
-  { value: "Port", weight: 2 }
+  { name: "Cor", weight: 1 },
+  { name: "Ald", weight: 1 },
+  { name: "Nab", weight: 1 },
+  { name: "Tar", weight: 1 },
+  { name: "Ven", weight: 1 },
+  { name: "Lor", weight: 1 },
+  { name: "Ryl", weight: 1 },
+  { name: "Mar", weight: 1 },
+  { name: "Dorn", weight: 1 },
+  { name: "Kess", weight: 1 },
+  { name: "Vel", weight: 1 },
+  { name: "Kael", weight: 1 },
+  { name: "Ord", weight: 1 },
+  { name: "Mal", weight: 1 },
+  { name: "Jed", weight: 1 },
+  { name: "Beln", weight: 1 },
+  { name: "Cas", weight: 1 },
+  { name: "Din", weight: 1 },
+  { name: "Eld", weight: 1 },
+  { name: "Forn", weight: 1 },
+  { name: "Gald", weight: 1 },
+  { name: "Hal", weight: 1 },
+  { name: "Ish", weight: 1 },
+  { name: "Jor", weight: 1 },
+  { name: "Kelm", weight: 1 },
+  { name: "Lorn", weight: 1 },
+  { name: "Merr", weight: 1 },
+  { name: "Nol", weight: 1 },
+  { name: "Ost", weight: 1 },
+  { name: "Per", weight: 1 },
+  { name: "Quin", weight: 1 },
+  { name: "Rhon", weight: 1 },
+  { name: "Sarn", weight: 1 },
+  { name: "Thal", weight: 1 },
+  { name: "Uld", weight: 1 },
+  { name: "Vern", weight: 1 },
+  { name: "Wes", weight: 1 },
+  { name: "Yor", weight: 1 }
 ];
 
 const settlementCore = [
-  { value: "Hope", weight: 3 },
-  { value: "Unity", weight: 2 },
-  { value: "Liberty", weight: 1 },
-  { value: "Valor", weight: 1 }
+  { name: "anta", weight: 1 },
+  { name: "osis", weight: 1 },
+  { name: "ar", weight: 1 },
+  { name: "osa", weight: 1 },
+  { name: "ion", weight: 1 },
+  { name: "oran", weight: 1 },
+  { name: "is", weight: 1 },
+  { name: "endra", weight: 1 },
+  { name: "era", weight: 1 },
+  { name: "elis", weight: 1 },
+  { name: "eta", weight: 1 },
+  { name: "ora", weight: 1 },
+  { name: "ander", weight: 1 },
+  { name: "ulia", weight: 1 },
+  { name: "onis", weight: 1 },
+  { name: "on", weight: 1 },
+  { name: "ionis", weight: 1 },
+  { name: "arith", weight: 1 },
+  { name: "evar", weight: 1 },
+  { name: "irum", weight: 1 },
+  { name: "enor", weight: 1 },
+  { name: "alus", weight: 1 },
+  { name: "enus", weight: 1 }
 ];
 
 const settlementSuffix = [
-  { value: "Base", weight: 2 },
-  { value: "Station", weight: 3 },
-  { value: "Outpost", weight: 2 },
-  { value: "Haven", weight: 1 }
+  { name: "Prime", weight: 1 },
+  { name: "Major", weight: 1 },
+  { name: "Minor", weight: 1 },
+  { name: "Outpost", weight: 1 },
+  { name: "Spire", weight: 1 },
+  { name: "Haven", weight: 1 },
+  { name: "Hold", weight: 1 },
+  { name: "Reach", weight: 1 },
+  { name: "Gate", weight: 1 },
+  { name: "Basin", weight: 1 },
+  { name: "Stronghold", weight: 1 },
+  { name: "Station", weight: 1 },
+  { name: "Anchorage", weight: 1 },
+  { name: "Post", weight: 1 },
+  { name: "Verge", weight: 1 },
+  { name: "Citadel", weight: 1 },
+  { name: "Retreat", weight: 1 },
+  { name: "Landing", weight: 1 },
+  { name: "", weight: 10 },
+  { name: "I", weight: 1 },
+  { name: "II", weight: 1 },
+  { name: "III", weight: 1 },
+  { name: "IV", weight: 1 }
 ];
 
-const developmentLevels = [
-  { value: 1, weight: 3 },
-  { value: 2, weight: 3 },
-  { value: 3, weight: 2 },
-  { value: 4, weight: 1 },
-  { value: 5, weight: 1 }
+// Expanded first and last name parts
+const firstNamePrefixes = [
+  { name: "Xan", weight: 1 },
+  { name: "Tal", weight: 1 },
+  { name: "Ver", weight: 1 },
+  { name: "Mar", weight: 1 },
+  { name: "Sel", weight: 1 },
+  { name: "Ste", weight: 1 },
+  { name: "Kal", weight: 1 },
+  { name: "Dal", weight: 1 },
+  { name: "Ada", weight: 1 },
+  { name: "Hon", weight: 1 },
+  { name: "Kag", weight: 1 },
+  { name: "Rem", weight: 1 },
+  { name: "Em", weight: 1 },
+  { name: "Vin", weight: 1 },
+  { name: "Wan", weight: 1 },
+  { name: "Kry", weight: 1 },
+  { name: "Zan", weight: 1 },
+  { name: "Mor", weight: 1 },
+  { name: "Rex", weight: 1 },
+  { name: "Fen", weight: 1 },
+  { name: "Tyr", weight: 1 },
+  { name: "Zel", weight: 1 },
+  { name: "Lor", weight: 1 },
+  { name: "Gar", weight: 1 },
+  { name: "Vex", weight: 1 },
+  { name: "Tor", weight: 1 },
+  { name: "Sar", weight: 1 },
+  { name: "Jas", weight: 1 },
+  { name: "Ren", weight: 1 },
+  { name: "Cas", weight: 1 },
+  { name: "Ery", weight: 1 },
+  { name: "Mal", weight: 1 },
+  { name: "Jor", weight: 1 },
+  { name: "Vor", weight: 1 },
+  { name: "Hal", weight: 1 },
+  { name: "Nor", weight: 1 },
+  { name: "Syl", weight: 1 },
+  { name: "Bex", weight: 1 },
+  { name: "Kai", weight: 1 },
+  { name: "Dren", weight: 1 },
+  { name: "Ard", weight: 1 },
+  { name: "Bram", weight: 1 },
+  { name: "Ced", weight: 1 },
+  { name: "Dac", weight: 1 },
+  { name: "Eld", weight: 1 },
+  { name: "Fenn", weight: 1 },
+  { name: "Gor", weight: 1 },
+  { name: "Hend", weight: 1 },
+  { name: "Isen", weight: 1 },
+  { name: "Jor", weight: 1 },
+  { name: "Kell", weight: 1 },
+  { name: "Lom", weight: 1 },
+  { name: "Merr", weight: 1 },
+  { name: "Ner", weight: 1 },
+  { name: "Odin", weight: 1 },
+  { name: "Perr", weight: 1 },
+  { name: "Quen", weight: 1 },
+  { name: "Rald", weight: 1 },
+  { name: "Sven", weight: 1 },
+  { name: "Tren", weight: 1 },
+  { name: "Ulric", weight: 1 },
+  { name: "Varn", weight: 1 }
 ];
 
+const firstNameSuffixes = [
+  { name: "dor", weight: 1 },
+  { name: "en", weight: 1 },
+  { name: "ix", weight: 1 },
+  { name: "ar", weight: 1 },
+  { name: "os", weight: 1 },
+  { name: "son", weight: 1 },
+  { name: "sen", weight: 1 },
+  { name: "dar", weight: 1 },
+  { name: "ne", weight: 1 },
+  { name: "ily", weight: 1 },
+  { name: "ud", weight: 1 },
+  { name: "acka", weight: 1 },
+  { name: "moran", weight: 1 },
+  { name: "endros", weight: 1 },
+  { name: "torus", weight: 1 },
+  { name: "ton", weight: 1 },
+  { name: "dell", weight: 1 },
+  { name: "", weight: 5 },
+  { name: "ward", weight: 1 },
+  { name: "bert", weight: 1 },
+  { name: "rick", weight: 1 },
+  { name: "ford", weight: 1 },
+  { name: "man", weight: 1 },
+  { name: "ley", weight: 1 },
+  { name: "field", weight: 1 }
+];
+
+const lastNamePrefixes = [
+  { name: "Xan", weight: 1 },
+  { name: "Tal", weight: 1 },
+  { name: "Ver", weight: 1 },
+  { name: "Mar", weight: 1 },
+  { name: "Sel", weight: 1 },
+  { name: "Ste", weight: 1 },
+  { name: "Kal", weight: 1 },
+  { name: "Dal", weight: 1 },
+  { name: "Ada", weight: 1 },
+  { name: "Hon", weight: 1 },
+  { name: "Kag", weight: 1 },
+  { name: "Rem", weight: 1 },
+  { name: "Em", weight: 1 },
+  { name: "Vin", weight: 1 },
+  { name: "Wan", weight: 1 },
+  { name: "Kry", weight: 1 },
+  { name: "Zan", weight: 1 },
+  { name: "Mor", weight: 1 },
+  { name: "Rex", weight: 1 },
+  { name: "Fen", weight: 1 },
+  { name: "Tyr", weight: 1 },
+  { name: "Zel", weight: 1 },
+  { name: "Lor", weight: 1 },
+  { name: "Gar", weight: 1 },
+  { name: "Vex", weight: 1 },
+  { name: "Tor", weight: 1 },
+  { name: "Sar", weight: 1 },
+  { name: "Jas", weight: 1 },
+  { name: "Ren", weight: 1 },
+  { name: "Cas", weight: 1 },
+  { name: "Ery", weight: 1 },
+  { name: "Mal", weight: 1 },
+  { name: "Jor", weight: 1 },
+  { name: "Vor", weight: 1 },
+  { name: "Hal", weight: 1 },
+  { name: "Nor", weight: 1 },
+  { name: "Syl", weight: 1 },
+  { name: "Bex", weight: 1 },
+  { name: "Kai", weight: 1 },
+  { name: "Dren", weight: 1 },
+  { name: "Bram", weight: 1 },
+  { name: "Ced", weight: 1 },
+  { name: "Dorn", weight: 1 },
+  { name: "Evan", weight: 1 },
+  { name: "Falk", weight: 1 },
+  { name: "Garr", weight: 1 },
+  { name: "Holt", weight: 1 },
+  { name: "Ivor", weight: 1 },
+  { name: "Joss", weight: 1 }
+];
+
+const lastNameSuffixes = [
+  { name: "dor", weight: 1 },
+  { name: "en", weight: 1 },
+  { name: "ix", weight: 1 },
+  { name: "ar", weight: 1 },
+  { name: "os", weight: 1 },
+  { name: "son", weight: 1 },
+  { name: "sen", weight: 1 },
+  { name: "dar", weight: 1 },
+  { name: "ne", weight: 1 },
+  { name: "ily", weight: 1 },
+  { name: "ud", weight: 1 },
+  { name: "acka", weight: 1 },
+  { name: "moran", weight: 1 },
+  { name: "endros", weight: 1 },
+  { name: "torus", weight: 1 },
+  { name: "ton", weight: 1 },
+  { name: "dell", weight: 1 },
+  { name: "", weight: 5 },
+  { name: "ward", weight: 1 },
+  { name: "berg", weight: 1 },
+  { name: "stein", weight: 1 },
+  { name: "field", weight: 1 },
+  { name: "wood", weight: 1 },
+  { name: "man", weight: 1 }
+];
+
+// Development levels 1–10 (lower numbers are more common)
+const developmentLevels = [];
+for (let i = 1; i <= 10; i++) {
+  developmentLevels.push({ value: i, weight: 11 - i });
+}
+
+// Government types
 const governments = [
-  { value: "Democracy", weight: 3 },
-  { value: "Republic", weight: 2 },
-  { value: "Autocracy", weight: 1 },
-  { value: "Collective", weight: 1 }
+  { name: "Elected Governor", weight: 10 },
+  { name: "Corporate Oligarchy", weight: 5 },
+  { name: "Military Junta", weight: 5 },
+  { name: "Ruling Council", weight: 5 },
+  { name: "Feudal Dominion", weight: 3 },
+  { name: "Theocracy", weight: 3 },
+  { name: "Pirate Den", weight: 5 },
+  { name: "Monarchy", weight: 5 },
+  { name: "Shadow Government", weight: 1 },
+  { name: "Anarchic Gathering", weight: 1 },
+  { name: "Puppet Settlement", weight: 1 },
+  { name: "Merchant Republic", weight: 5 },
+  { name: "Parliamentary Republic", weight: 3 },
+  { name: "People's Ruler", weight: 3 }
 ];
 
+// Important figure name parts
 const jobTitles = [
-  { value: "Mayor", weight: 3 },
-  { value: "Governor", weight: 2 },
-  { value: "Prefect", weight: 1 },
-  { value: "Administrator", weight: 1 }
+  { name: "Governor", weight: 12 },
+  { name: "Commander", weight: 5 },
+  { name: "Overseer", weight: 3 },
+  { name: "Chancellor", weight: 8 },
+  { name: "Director", weight: 8 },
+  { name: "Custodian", weight: 5 },
+  { name: "Ruler", weight: 5 },
+  { name: "Leader", weight: 8 },
+  { name: "Sir", weight: 8 },
+  { name: "Prime", weight: 5 },
+  { name: "Lord", weight: 5 },
+  { name: "General", weight: 2 },
+  { name: "Trader", weight: 2 },
+  { name: "Captain", weight: 3 },
+  { name: "Admiral", weight: 3 }
 ];
 
-const firstNamePrefixes = ["Al", "Be", "Cor", "Dan", "El"];
-const firstNameSuffixes = ["ton", "rick", "fred", "drew", "son"];
-const lastNamePrefixes = ["Mc", "Van", "De", "O'"];
-const lastNameSuffixes = ["Smith", "Jones", "Brown", "Taylor"];
-
+// Settlement conditions – made rarer and appended with 10 additional low-impact, grounded conditions
 const settlementConditions = [
-  "Radiation",
-  "Severe Weather",
-  "Resource Shortage",
-  "Trade Disruptions"
+  "Occupied by a hostile military operation",
+  "Cut off from astral trade by means of a blockade",
+  "In an exceptionally dangerous environment.",
+  "Unusually busy with traders",
+  "Undergoing a large construction project",
+  "Mobilizing an army for a special military operation",
+  "Under siege by a hostile faction",
+  "Critically low on an important resource",
+  "Holding a massive surplus of an export",
+  "Harboring a reputation as a haven for known criminals",
+  "Filled with crime and social chaos",
+  "Raided by bandits",
+  "Suffering from crippling power failures",
+  "Constructing new defenses",
+  "Hiring mercenaries for jobs",
+  "Minor traffic congestion",
+  "Occasional supply delays",
+  "Subtle energy fluctuations",
+  "Outdated infrastructure in need of repair",
+  "Aging public facilities",
+  "Limited local entertainment options",
+  "Small maintenance backlogs",
+  "Low-level bureaucratic inefficiencies",
+  "Minor cultural disputes",
+  "Seasonal weather disruptions"
 ];
 
+// Points of interest (for settlements)
 const poiSettlement = [
-  "Ancient Ruins",
-  "Secret Bunker",
-  "Hidden Laboratory",
-  "Abandoned Factory",
-  "Smuggler's Cove"
+  "Orbital Trade Docks",
+  "Shipyard",
+  "Black Market",
+  "Bounty Center",
+  "Research Labs",
+  "University",
+  "Cartography Guild",
+  "Archive",
+  "Astral Telecomm Array",
+  "Cargo Docks",
+  "Military Citadel",
+  "Mineral Refinery",
+  "Advanced Fabricators",
+  "Hydroponic Farms",
+  "Quarries",
+  "Bazaar",
+  "Customs and Trade Bureau",
+  "Central Bank",
+  "Medical Center",
+  "Cybernetics Clinic",
+  "Genomics Lab",
+  "Police Outpost",
+  "Barracks Complex",
+  "Military Training Grounds",
+  "Starship Mechanic",
+  "Vehicle Mechanic",
+  "Private Hangars",
+  "Salvage Yard",
+  "Scrap Processing Facility",
+  "Fueling Station",
+  "Open Land Lots",
+  "Casino",
+  "Saloon",
+  "Trade Guild",
+  "Embassy",
+  "Government Offices",
+  "Legislative Assembly Building",
+  "Slums",
+  "Luxury District",
+  "Holo-Theater",
+  "Robotics Foundry",
+  "Weapons Testing Center",
+  "Museum",
+  "Gladiator Arena",
+  "Anti-Air Turrets",
+  "Observatory",
+  "Sniper Nests",
+  "Intersystem Courier",
+  "Orbital Turrets",
+  "Private Estate",
+  "Noble's Manor",
+  "Corporate Offices",
+  "Mercenary Guild",
+  "Supply Depot",
+  "Outfitter",
+  "Artifact Repository",
+  "Prison",
+  "Temple",
+  "Criminal Syndicate Hideout",
+  "Defensive Bunkers",
+  "Artillery Deployment",
+  "Old Battlefield",
+  "Outer Wall",
+  "Missile Silo",
+  "Raider Outpost",
+  "Military Academy",
+  "Large Generator",
+  "Solar Farms",
+  "Oil Derricks",
+  "Derelict Structure",
+  "Tavern",
+  "Hydroelectric Dam",
+  "River",
+  "Lake",
+  "Open Farmland",
+  "Open Real-Estate"
 ];
 
+// System conditions (for the entire system)
 const systemConditionsList = [
-  "High Solar Activity",
-  "Nebula Interference",
-  "Space Pirates",
-  "Temporal Anomalies",
-  "Cosmic Radiation"
+  "Derelict Station",
+  "Distress Beacon",
+  "Unstable Skip Difraction",
+  "Drifting Cargo Pods",
+  "Old Navigation Beacon",
+  "Inactive Defense Satellite",
+  "Ancient Wreckage Field",
+  "Volatile Gas Clouds",
+  "Filled With Pirates",
+  "Radio Jamming",
+  "Busy Travel Route",
+  "Gravity Distorting Star",
+  "Hidden Asteroid Cache",
+  "Long-Dead Ship Graveyard",
+  "Fluctuating Power Signature",
+  "Unmapped Gravity Well",
+  "Neutron Star",
+  "Black Hole",
+  "Orbital Fueling Station",
+  "Orbital Debris Cluster",
+  "Residual Weapon Signatures",
+  "Rogue Sentinels",
+  "Comet Storm",
+  "Destroyed Planet",
+  "Binary Star",
+  "EMP Storms",
+  "Many Skip Routes",
+  "Strange Asteroids",
+  "Frozen Fuel Reserves",
+  "Strange Radio Signals",
+  "Failed Terraforming Attempt",
+  "Ancient Navigation Markers",
+  "Long-Inactive Mining Rig",
+  "Deep-Space Listening Post",
+  "Abandoned Space Station",
+  "Fossilized Space Organism",
+  "Persistent EMP Interference",
+  "Trinary Star",
+  "Ancient Battlefield",
+  "Invading Fleet",
+  "Starship Mercenary Platoon",
+  "Under-construction Station",
+  "Migrating Deep Space Lifeforms",
+  "Mining Guild",
+  "Unstable Skip Route",
+  "Anomalous Debris",
+  "Partially Intact Megastructure",
+  "Violent Solar Flares"
 ];
 
 // Expanded and more granular planet biomes (more grounded, hard scifi)
@@ -259,21 +667,21 @@ const highDevExports = [
 // --- Settlement Generation Function ---
 // forcedStation: if true, override suffix to "Station"
 function generateSettlementData(forcedStation = false) {
-  const prefix = weightedRandom(settlementPrefix).value;
-  const core = weightedRandom(settlementCore).value;
+  const prefix = weightedRandom(settlementPrefix);
+  const core = weightedRandom(settlementCore);
   let suffix;
   if (forcedStation) {
     suffix = "Station";
   } else {
-    suffix = weightedRandom(settlementSuffix).value;
+    suffix = weightedRandom(settlementSuffix);
   }
-  const name = prefix + " " + core + " " + suffix;
-  const development = weightedRandom(developmentLevels).value;
+  const name = prefix + core + " " + suffix;
+  const development = weightedRandom(developmentLevels);
   const isStation = suffix === "Station";
   const maxPop = isStation ? 100 : Math.min(1000 * development, 10000);
   const population = randomInt(20, maxPop);
-  const government = weightedRandom(governments).value;
-  const jobTitle = weightedRandom(jobTitles).value;
+  const government = weightedRandom(governments);
+  const jobTitle = weightedRandom(jobTitles);
   const firstName =
     weightedRandom(firstNamePrefixes) + weightedRandom(firstNameSuffixes);
   const lastName =
@@ -352,14 +760,14 @@ function generateMilitaryData(population, forcedStation) {
 
   // Distribute totalShips among types.
   const shipTypes = [
-    { value: "Fighter", weight: 5 },
-    { value: "Gunship", weight: 3 },
-    { value: "Frigate", weight: 1 },
-    { value: "Cruiser", weight: 0.2 }
+    { name: "Fighter", weight: 5 },
+    { name: "Gunship", weight: 3 },
+    { name: "Frigate", weight: 1 },
+    { name: "Cruiser", weight: 0.2 }
   ];
   let ships = { Fighter: 0, Gunship: 0, Frigate: 0, Cruiser: 0 };
   for (let i = 0; i < totalShips; i++) {
-    let type = weightedRandom(shipTypes).value;
+    let type = weightedRandom(shipTypes);
     ships[type] += 1;
   }
   return { soldiers, armoredVehicles, ships };
@@ -368,19 +776,10 @@ function generateMilitaryData(population, forcedStation) {
 // --- Global System Data ---
 let systemData = null;
 
-// --- Generate a Six-Digit System Code ---
-function generateSystemCode() {
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += randomInt(0, 9);
-  }
-  return code;
-}
-
 // --- Generate the entire system ---
 function generateSystem() {
   const code = generateSystemCode();
-  const sysDesignation = weightedRandom(settlementPrefix).value + " " + weightedRandom(settlementCore).value;
+  const sysDesignation = weightedRandom(settlementPrefix) + weightedRandom(settlementCore);
   const systemName = code + " " + sysDesignation;
 
   // --- Generate Asteroid Belt Information ---
@@ -389,24 +788,24 @@ function generateSystem() {
   let asteroidBeltInfo = { type: chosenAsteroidBelt };
   if (chosenAsteroidBelt === "Asteroid Belt") {
     const oresList = [
-      { value: "iron ore", weight: 10 },
-      { value: "high purity crystals", weight: 3 },
-      { value: "aluminum ore", weight: 8 },
-      { value: "copper ore", weight: 8 },
-      { value: "lead ore", weight: 7 },
-      { value: "zinc ore", weight: 7 },
-      { value: "silver ore", weight: 4 },
-      { value: "axial fuel deposits", weight: 2 },
-      { value: "rare earth metals", weight: 2 },
-      { value: "titanium ore", weight: 5 },
-      { value: "gold ore", weight: 2 },
-      { value: "cobalt ore", weight: 3 },
-      { value: "hydrocarbons", weight: 9 }
+      { name: "iron ore", weight: 10 },
+      { name: "high purity crystals", weight: 3 },
+      { name: "aluminum ore", weight: 8 },
+      { name: "copper ore", weight: 8 },
+      { name: "lead ore", weight: 7 },
+      { name: "zinc ore", weight: 7 },
+      { name: "silver ore", weight: 4 },
+      { name: "axial fuel deposits", weight: 2 },
+      { name: "rare earth metals", weight: 2 },
+      { name: "titanium ore", weight: 5 },
+      { name: "gold ore", weight: 2 },
+      { name: "cobalt ore", weight: 3 },
+      { name: "hydrocarbons", weight: 9 }
     ];
     const numOres = randomInt(1, 3);
     let ores = [];
     for (let i = 0; i < numOres; i++) {
-      ores.push(weightedRandom(oresList).value);
+      ores.push(weightedRandom(oresList));
     }
     asteroidBeltInfo.ores = ores;
   }
@@ -428,7 +827,7 @@ function generateSystem() {
   for (let i = 0; i <= 10; i++) {
     settlementOptions.push({ value: i, weight: i <= 3 ? 3 : 1 });
   }
-  let numSettlements = weightedRandom(settlementOptions).value;
+  let numSettlements = weightedRandom(settlementOptions);
   let forcedStation = false;
   if (numPlanets === 0) {
     numSettlements = 1;
@@ -458,7 +857,7 @@ function generateSystem() {
     settlements: numPlanets === 0 ? settlements : null,
     sysConditions,
     asteroidBelt: asteroidBeltInfo,
-    systemCode: code // store the six-digit system code
+    systemCode: code // store the system code for use in the filename
   };
 
   renderSystem();
@@ -468,42 +867,42 @@ function generateSystem() {
 function renderSystem() {
   const outputDiv = document.getElementById("systemOutput");
   let html = `
-      <div class="section">
-        <h2>System: ${systemData.systemName}</h2>
-        <p>
-          <strong>System Conditions:</strong>
-          ${systemData.sysConditions.join(", ") || "None"}
-        </p>
-        <p>
-          <strong>Asteroid Belt:</strong>
-          ${systemData.asteroidBelt.type}${
-    systemData.asteroidBelt.ores
-      ? " (Ores: " + systemData.asteroidBelt.ores.join(", ") + ")"
-      : ""
-  }
-        </p>
-        <p>
-          <strong>Number of Planets:</strong> ${systemData.planets.length}
-        </p>
-        <p>
-          <strong>Number of Settlements:</strong>
-          ${
-            systemData.planets.length > 0
-              ? systemData.planets.reduce(
-                  (sum, p) => sum + p.settlements.length,
-                  0
-                )
-              : systemData.settlements.length
-          }
-        </p>
-      </div>`;
+          <div class="section">
+            <h2>System: ${systemData.systemName}</h2>
+            <p>
+              <strong>System Conditions:</strong>
+              ${systemData.sysConditions.join(", ") || "None"}
+            </p>
+            <p>
+              <strong>Asteroid Belt:</strong>
+              ${systemData.asteroidBelt.type}${
+        systemData.asteroidBelt.ores
+          ? " (Ores: " + systemData.asteroidBelt.ores.join(", ") + ")"
+          : ""
+      }
+            </p>
+            <p>
+              <strong>Number of Planets:</strong> ${systemData.planets.length}
+            </p>
+            <p>
+              <strong>Number of Settlements:</strong>
+              ${
+                systemData.planets.length > 0
+                  ? systemData.planets.reduce(
+                      (sum, p) => sum + p.settlements.length,
+                      0
+                    )
+                  : systemData.settlements.length
+              }
+            </p>
+          </div>`;
 
   systemData.planets.forEach((planet, pIndex) => {
     html += `
-          <div class="section planet">
-            <h3>Planet: ${planet.name}</h3>
-            <p><strong>Biome:</strong> ${planet.biome}</p>
-            <button onclick="regeneratePlanet(${pIndex})">Regenerate Planet</button>`;
+              <div class="section planet">
+                <h3>Planet: ${planet.name}</h3>
+                <p><strong>Biome:</strong> ${planet.biome}</p>
+                <button onclick="regeneratePlanet(${pIndex})">Regenerate Planet</button>`;
     if (planet.settlements.length > 0) {
       planet.settlements.forEach((settlement, sIndex) => {
         html += renderSettlement(settlement, pIndex, sIndex);
@@ -528,27 +927,27 @@ function renderSettlement(settlement, planetIndex, settlementIndex) {
   if (shipStr === "") shipStr = "None";
 
   return `
-      <div class="settlement" id="settlement-${planetIndex}-${settlementIndex}">
-        <div class="settlement-output">
-          [Name] ${settlement.name}<br />
-          Development: ${settlement.development}<br />
-          Population: ${settlement.population}<br />
-          Government: ${settlement.government}<br />
-          Important Figure: ${settlement.importantFigure}<br />
-          Exports: ${settlement.exports.join(", ") || "None"}<br />
-          Conditions: ${settlement.conditions.join(", ") || "None"}<br />
-          Points of Interest: ${
-            settlement.pointsOfInterest.join(", ") || "None"
-          }<br />
-          Military:<br />
-          &nbsp;&nbsp;Soldiers: ${settlement.military.soldiers}<br />
-          &nbsp;&nbsp;Armored Vehicles: ${settlement.military.armoredVehicles}<br />
-          &nbsp;&nbsp;Ships: ${shipStr}
-        </div>
-        <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})">
-          Regenerate Settlement
-        </button>
-      </div>`;
+          <div class="settlement" id="settlement-${planetIndex}-${settlementIndex}">
+            <div class="settlement-output">
+              [Name] ${settlement.name}<br />
+              Development: ${settlement.development}<br />
+              Population: ${settlement.population}<br />
+              Government: ${settlement.government}<br />
+              Important Figure: ${settlement.importantFigure}<br />
+              Exports: ${settlement.exports.join(", ") || "None"}<br />
+              Conditions: ${settlement.conditions.join(", ") || "None"}<br />
+              Points of Interest: ${
+                settlement.pointsOfInterest.join(", ") || "None"
+              }<br />
+              Military:<br />
+              &nbsp;&nbsp;Soldiers: ${settlement.military.soldiers}<br />
+              &nbsp;&nbsp;Armored Vehicles: ${settlement.military.armoredVehicles}<br />
+              &nbsp;&nbsp;Ships: ${shipStr}
+            </div>
+            <button onclick="regenerateSettlement(${planetIndex}, ${settlementIndex})">
+              Regenerate Settlement
+            </button>
+          </div>`;
 }
 
 // Regenerate an individual settlement.
@@ -623,7 +1022,7 @@ function downloadSystemInfo() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  // Use the six-digit system code as the file name
+  // Use the generated system code for the filename.
   a.download = systemData.systemCode + ".txt";
   document.body.appendChild(a);
   a.click();
