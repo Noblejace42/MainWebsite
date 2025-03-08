@@ -1,4 +1,4 @@
-/* Reset and basic styling */
+/* Reset & Basic Styling */
 * {
   margin: 0;
   padding: 0;
@@ -8,12 +8,12 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: Arial, sans-serif;
-  overflow: hidden; /* Removes scrollbars for a "fullscreen" effect */
+  overflow: hidden; /* "Fullscreen" effect, no scrollbars */
 }
 
-/* Sleeker Center Card */
+/* Center Card */
 .center-card {
-  position: absolute; /* We'll center it with JS */
+  position: absolute;
   margin: 10vh auto;
   padding: 30px 50px;
   width: 700px;
@@ -25,6 +25,7 @@ html, body {
   z-index: 1000;
 }
 
+/* "Projects" Button */
 .projects-button {
   position: absolute;
   top: 15px;
@@ -42,7 +43,7 @@ html, body {
   background: #e65c00;
 }
 
-/* Contact Card Styling */
+/* Contact Card info */
 .contact-card h1 {
   font-size: 2.5em;
   margin-bottom: 8px;
@@ -70,14 +71,12 @@ html, body {
   margin: 0 5px;
 }
 
-/* Tiles Container & Tiles */
+/* Tiles Container */
 .tiles-container {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Tiles not clickable */
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; /* not clickable */
   z-index: 1;
 }
 .tile {
@@ -92,18 +91,17 @@ html, body {
   pointer-events: none;
 }
 
-/* Orbs Container & Orbs */
+/* Orbs Container */
 .orbs-container {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 900; /* behind card, above tiles */
+  z-index: 900; /* behind the card, above the tiles */
 }
 .orb {
   position: absolute;
-  width: 80px;
-  height: 80px;
+  width: 80px; height: 80px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #fff, #ddd);
   opacity: 0.7;
@@ -113,7 +111,7 @@ html, body {
 
 /* Responsive Adjustments */
 @media (max-width: 600px) {
-  /* Allow scrolling if needed on small screens */
+  /* Let the user scroll on small screens if needed */
   html, body {
     overflow-y: auto;
   }
