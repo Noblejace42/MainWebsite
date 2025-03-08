@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Emerson Neher</title> 
+  <title>Emerson Neher</title>
 
-  <!-- Atkinson Hyperlegible Font -->
+  <!-- Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap">
-  <!-- Main stylesheet -->
+  <!-- Main Styles -->
   <link rel="stylesheet" href="home.css" />
 </head>
 <body>
@@ -21,7 +21,7 @@
       <a href="#" class="card-btn">Miscellaneous</a>
     </div>
 
-    <!-- Round Personal Image -->
+    <!-- Personal Image -->
     <div class="card-image">
       <img src="image/sittingimage.jpg" alt="Emerson Neher" />
     </div>
@@ -42,23 +42,22 @@
         <a href="https://discord.com/users/noblejace" target="_blank">Discord</a>
       </p>
       <p class="bio">
-        Passionate about technology, finance, and systems design. 
-        I’m a writer, game designer, and storyteller who finds inspiration in the rhythm of poetry, 
-        the mechanics of RPGs, and the art of photography. Whether crafting immersive worlds, capturing fleeting moments, 
-        or experimenting with new game systems, I love exploring the intersection of creativity and experience.
+        Passionate about technology, finance, and systems design. I’m a writer, game designer, and storyteller 
+        who finds inspiration in the rhythm of poetry, the mechanics of RPGs, and the art of photography. 
+        Whether crafting immersive worlds, capturing fleeting moments, or experimenting with new game systems, 
+        I love exploring the intersection of creativity and experience.
       </p>
     </div>
 
-    <!-- Spotify 'Currently Listening' Iframe -->
+    <!-- Smaller Spotify Embed (attempting theme=1 for a “blue” style) -->
     <div class="spotify-container">
-      <h3 style="margin-bottom: 8px;">Currently Listening</h3>
+      <h3 class="spotify-title">Currently Listening</h3>
       <iframe 
-        style="border-radius:12px; max-width:100%;"
-        src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator" 
+        style="border-radius:12px; width:100%;"
+        src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator&theme=1" 
         width="100%" 
-        height="352" 
+        height="180" 
         frameborder="0" 
-        allowfullscreen 
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
         loading="lazy">
       </iframe>
@@ -66,116 +65,114 @@
 
   </div>
 
-  <!-- Tiles Container (background collage) -->
-  <div class="tiles-container"></div>
+  <!-- Flow container: images line up horizontally and move left->right -->
+  <div class="flow-wrapper">
+    <div class="flow-row" id="flowRow"></div>
+  </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-
+    document.addEventListener('DOMContentLoaded', function() {
       /***************************************************************
-       * 1) Center the card on load/resize
+       * 1) Center the card with extra top margin if needed
        ***************************************************************/
       const centerCard = document.getElementById('centerCard');
       function centerTheCard() {
         const rect = centerCard.getBoundingClientRect();
         const vw = window.innerWidth, vh = window.innerHeight;
+        // We clamp so it never goes above ~10px from the top
+        const topPos = Math.max(10, (vh - rect.height)/2);
         centerCard.style.left = (vw - rect.width)/2 + 'px';
-        centerCard.style.top  = (vh - rect.height)/2 + 'px';
+        centerCard.style.top  = topPos + 'px';
       }
       window.addEventListener('resize', centerTheCard);
       centerTheCard();
 
       /***************************************************************
-       * 2) Collage images that remain visible longer,
-       *    with less random repositioning
+       * 2) Flow Row: images placed side-by-side, random sizes,
+       *    then animate from left to right. "No overlap" horizontally.
        ***************************************************************/
       const tilePaths = [];
-      // e.g. images 4..37 plus personal ones
-      for (let i = 4; i <= 37; i++){
+      // Add your images 4..37, plus any extras
+      for (let i = 4; i <= 37; i++) {
         tilePaths.push(`image/${i}.jpg`);
       }
-      // Additional images if you'd like:
-      // tilePaths.push('image/graffitibackdrop.jpg', 'image/headshotlandscape.png');
+      // tilePaths.push('image/headshotlandscape.png', 'image/graffitibackdrop.jpg', ...);
+
       let loadedCount = 0;
       const tileData = [];
-
       tilePaths.forEach(src => {
         const img = new Image();
         img.src = src;
         img.onload = () => {
-          tileData.push({ src, aspect: img.width / img.height || 1 });
+          tileData.push({ src, w: img.width, h: img.height });
           loadedCount++;
-          if (loadedCount === tilePaths.length) createCollage();
+          if (loadedCount === tilePaths.length) buildFlow();
         };
         img.onerror = () => {
           loadedCount++;
-          if (loadedCount === tilePaths.length) createCollage();
+          if (loadedCount === tilePaths.length) buildFlow();
         };
       });
 
-      const tilesContainer = document.querySelector('.tiles-container');
-      const tiles = [];
+      const flowRow = document.getElementById('flowRow');
+      let currentIndex = 0;
 
-      function createCollage() {
-        tileData.forEach(td => {
-          const div = document.createElement('div');
-          div.classList.add('tile');
-          div.dataset.aspect = td.aspect;
-          div.style.backgroundImage = `url('${td.src}')`;
-          div.style.opacity = '0'; // fade in later
-          tiles.push(div);
-          tilesContainer.appendChild(div);
+      // We'll keep track of total width so we can animate them across
+      let totalWidth = 0;
+
+      function buildFlow() {
+        // Put each image in the row exactly once (or you can loop them multiple times).
+        // We'll randomize size & vertical offset for each tile.
+        tileData.forEach((td, i) => {
+          addImageTile(td);
         });
-        // place them all
-        placeAllTiles();
-        // fade them in
-        tiles.forEach(tile => { tile.style.opacity = '1'; });
-        // start random fade cycle with a longer interval
-        tiles.forEach(tile => scheduleFadeCycle(tile));
+        // Once all tiles are added, set row width, start the animation
+        flowRow.style.width = totalWidth + 'px';
+        startFlowAnimation();
       }
 
-      function placeAllTiles() {
-        tiles.forEach(tile => {
-          placeTile(tile);
-        });
+      function addImageTile(td) {
+        // random scaled width from e.g. 150..300px
+        const minW = 150, maxW = 300;
+        const tileW = minW + Math.random()*(maxW-minW);
+        // scale height proportionally
+        const ratio = td.h / td.w;
+        const tileH = tileW * ratio;
+
+        // random top offset (e.g. 0..some range) inside .flow-wrapper’s height
+        // but we want no vertical overlap. We’ll do a random shift, but
+        // for now let's keep everything anchored at top=0 (they won't overlap vertically).
+        // If you truly want random vertical positions with no overlap, you’d need more logic.
+        const topOffset = Math.max(0, 0 + Math.random()*50);
+
+        const div = document.createElement('div');
+        div.classList.add('flow-tile');
+        div.style.backgroundImage = `url('${td.src}')`;
+        div.style.width = tileW + 'px';
+        div.style.height = tileH + 'px';
+        div.style.top = topOffset + 'px';
+        div.style.left = totalWidth + 'px'; // place horizontally after the last tile
+        flowRow.appendChild(div);
+
+        // Update totalWidth so the next tile is placed after this one
+        totalWidth += tileW + 20; // +20 for some horizontal gap
       }
 
-      // placeTile: random position & moderately large scale
-      function placeTile(tile) {
-        const vw = window.innerWidth, vh = window.innerHeight;
-        // narrower scale range so images are smaller = less overlap
-        const scale = 0.25 + Math.random()*0.35; // 25%..60% of width
-        let w = vw * scale;
-        const aspect = parseFloat(tile.dataset.aspect) || 1;
-        let h = w / aspect;
-        // ensure fits vertically
-        if (h > 0.8*vh) {
-          h = 0.8*vh;
-          w = h * aspect;
-        }
-        const left = Math.random() * (vw - w);
-        const top  = Math.random() * (vh - h);
-        tile.style.width  = w + 'px';
-        tile.style.height = h + 'px';
-        tile.style.transform = `translate(${left}px, ${top}px)`;
-      }
+      // Animate the .flow-row from left to right
+      function startFlowAnimation() {
+        // The row’s initial position is left= -totalWidth, so it’s offscreen to the left.
+        // We'll animate it to left= window.innerWidth or so, so it flows across.
+        // But we want to see them move from left to right across the screen (like a marquee).
+        // Let’s do a CSS keyframe approach:
+        const rowWidth = totalWidth;
+        const screenW = window.innerWidth;
+        // We want the entire row to move from (left = -rowWidth) to (left = screenW).
+        // Duration can be e.g. 80s or so, or we can base it on rowWidth for a consistent speed.
+        const speedPxPerSec = 30; // e.g. 30px/s
+        const durationSec = (rowWidth + screenW) / speedPxPerSec; 
 
-      // let them remain visible longer: random interval 10..20s
-      function scheduleFadeCycle(tile) {
-        const delay = 10000 + Math.random()*10000; // 10..20 seconds
-        setTimeout(() => fadeOutIn(tile), delay);
+        flowRow.style.animation = `flowLeftRight ${durationSec}s linear infinite`;
       }
-
-      function fadeOutIn(tile) {
-        tile.style.opacity = '0';
-        // after fade out
-        setTimeout(() => {
-          placeTile(tile);
-          tile.style.opacity = '1';
-          scheduleFadeCycle(tile);
-        }, 1200);
-      }
-
     });
   </script>
 
