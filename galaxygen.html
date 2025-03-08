@@ -88,13 +88,13 @@
 
     <!-- 1) Load your nav via fetch -->
     <script>
-    // Attempt to load nav.html
-    fetch('nav.html')
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById('navContainer').innerHTML = data;
-      })
-      .catch(err => console.error('Error loading nav:', err));
+      // Attempt to load nav.html
+      fetch('nav.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('navContainer').innerHTML = data;
+        })
+        .catch(err => console.error('Error loading nav:', err));
     </script>
 
     <!-- 2) Load systemgen.js - Make sure this file defines generateSystem(), generateSystemName(), etc. -->
@@ -102,354 +102,351 @@
 
     <!-- 3) Main Galaxy Code -->
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log("DOM fully loaded. Starting galaxy generator...");
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log("DOM fully loaded. Starting galaxy generator...");
 
-      // Quick check to see if systemgen.js functions exist:
-      console.log("generateSystemName exists?", typeof generateSystemName);
-      console.log("generateSystem exists?", typeof generateSystem);
-      console.log("generateSystemText exists?", typeof generateSystemText);
+        // Quick check for systemgen.js functions:
+        console.log("generateSystemName exists?", typeof generateSystemName);
+        console.log("generateSystem exists?", typeof generateSystem);
+        console.log("generateSystemText exists?", typeof generateSystemText);
 
-      const canvas = document.getElementById("galaxyCanvas");
-      const ctx = canvas.getContext("2d");
+        const canvas = document.getElementById("galaxyCanvas");
+        const ctx = canvas.getContext("2d");
 
-      // Panning/zooming
-      let offsetX = 0, offsetY = 0, scale = 1;
-      let isPanning = false;
-      let startPan = { x: 0, y: 0 };
+        // Panning/zooming
+        let offsetX = 0, offsetY = 0, scale = 1;
+        let isPanning = false;
+        let startPan = { x: 0, y: 0 };
 
-      // Data
-      let nodes = [];
-      let connections = [];
-      let clusters = [];
-      let selectedNode = null;
+        // Data arrays
+        let nodes = [];
+        let connections = [];
+        let clusters = [];
+        let selectedNode = null; // Declare once here
 
-      const worldWidth = 5000;
-      const worldHeight = 5000;
+        const worldWidth = 5000;
+        const worldHeight = 5000;
 
-      // --------------- Generate Clusters and Nodes ---------------
-      function generateClusters() {
-        clusters = [];
-        const clusterCount = Math.floor(Math.random() * 6) + 5;
-        for (let i = 0; i < clusterCount; i++) {
-          const center = {
-            x: Math.random() * worldWidth,
-            y: Math.random() * worldHeight,
-          };
-          const radius = Math.random() * 200 + 100; // 100-300
-          clusters.push({ center, radius, nodes: [] });
-        }
-      }
-
-      function generateNodes() {
-        nodes = [];
-        generateClusters();
-        const totalNodes = 500;
-        let nodesPerCluster = Math.floor(totalNodes / clusters.length);
-        let extraNodes = totalNodes % clusters.length;
-
-        clusters.forEach(cluster => {
-          let count = nodesPerCluster;
-          if (extraNodes > 0) {
-            count++;
-            extraNodes--;
-          }
-          for (let i = 0; i < count; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * cluster.radius;
-            const x = cluster.center.x + Math.cos(angle) * distance;
-            const y = cluster.center.y + Math.sin(angle) * distance;
-
-            let systemName = "System " + (nodes.length + 1);
-            if (typeof generateSystemName === "function") {
-              systemName = generateSystemName();
-            }
-
-            let systemText = "System details not available.";
-            if (typeof generateSystem === "function" &&
-                typeof generateSystemText === "function") {
-              generateSystem();
-              systemText = generateSystemText();
-            }
-
-            const node = {
-              id: nodes.length,
-              x,
-              y,
-              cluster,
-              systemName,
-              systemDetails: systemText,
-              ships: [],
+        // --------------- Generate Clusters and Nodes ---------------
+        function generateClusters() {
+          clusters = [];
+          const clusterCount = Math.floor(Math.random() * 6) + 5;
+          for (let i = 0; i < clusterCount; i++) {
+            const center = {
+              x: Math.random() * worldWidth,
+              y: Math.random() * worldHeight,
             };
-            nodes.push(node);
-            cluster.nodes.push(node);
+            const radius = Math.random() * 200 + 100; // 100-300
+            clusters.push({ center, radius, nodes: [] });
           }
-        });
-        console.log("Generated", nodes.length, "nodes in", clusters.length, "clusters.");
-      }
+        }
 
-      // --------------- Generate Connections ---------------
-      function generateConnections() {
-        connections = [];
-        // Type A: same cluster
-        clusters.forEach(cluster => {
-          const cNodes = cluster.nodes;
-          for (let i = 0; i < cNodes.length; i++) {
-            for (let j = i + 1; j < cNodes.length; j++) {
-              if (Math.random() < 0.05) {
+        function generateNodes() {
+          nodes = [];
+          generateClusters();
+          const totalNodes = 500;
+          let nodesPerCluster = Math.floor(totalNodes / clusters.length);
+          let extraNodes = totalNodes % clusters.length;
+
+          clusters.forEach(cluster => {
+            let count = nodesPerCluster;
+            if (extraNodes > 0) {
+              count++;
+              extraNodes--;
+            }
+            for (let i = 0; i < count; i++) {
+              const angle = Math.random() * Math.PI * 2;
+              const distance = Math.random() * cluster.radius;
+              const x = cluster.center.x + Math.cos(angle) * distance;
+              const y = cluster.center.y + Math.sin(angle) * distance;
+
+              let systemName = "System " + (nodes.length + 1);
+              if (typeof generateSystemName === "function") {
+                systemName = generateSystemName();
+              }
+
+              let systemText = "System details not available.";
+              if (typeof generateSystem === "function" &&
+                  typeof generateSystemText === "function") {
+                generateSystem();
+                systemText = generateSystemText();
+              }
+
+              const node = {
+                id: nodes.length,
+                x,
+                y,
+                cluster,
+                systemName,
+                systemDetails: systemText,
+                ships: [],
+              };
+              nodes.push(node);
+              cluster.nodes.push(node);
+            }
+          });
+          console.log("Generated", nodes.length, "nodes in", clusters.length, "clusters.");
+        }
+
+        // --------------- Generate Connections ---------------
+        function generateConnections() {
+          connections = [];
+          // Type A: connections within the same cluster
+          clusters.forEach(cluster => {
+            const cNodes = cluster.nodes;
+            for (let i = 0; i < cNodes.length; i++) {
+              for (let j = i + 1; j < cNodes.length; j++) {
+                if (Math.random() < 0.05) {
+                  connections.push({
+                    source: cNodes[i],
+                    target: cNodes[j],
+                    type: "A",
+                  });
+                }
+              }
+            }
+          });
+
+          // Inter-cluster connections
+          for (let i = 0; i < clusters.length; i++) {
+            for (let j = i + 1; j < clusters.length; j++) {
+              const cA = clusters[i];
+              const cB = clusters[j];
+              const dx = cA.center.x - cB.center.x;
+              const dy = cA.center.y - cB.center.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              let connectionType = (dist > worldWidth / 3) ? "C" : "B";
+              // Create 1-3 random connections between clusters
+              const connCount = Math.floor(Math.random() * 3) + 1;
+              for (let k = 0; k < connCount; k++) {
+                const nodeA = cA.nodes[Math.floor(Math.random() * cA.nodes.length)];
+                const nodeB = cB.nodes[Math.floor(Math.random() * cB.nodes.length)];
                 connections.push({
-                  source: cNodes[i],
-                  target: cNodes[j],
-                  type: "A",
+                  source: nodeA,
+                  target: nodeB,
+                  type: connectionType,
                 });
               }
             }
           }
+          console.log("Generated", connections.length, "connections.");
+        }
+
+        // --------------- Rendering ---------------
+        function render() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.save();
+          ctx.translate(offsetX, offsetY);
+          ctx.scale(scale, scale);
+
+          // Draw connections
+          connections.forEach(conn => {
+            ctx.beginPath();
+            ctx.moveTo(conn.source.x, conn.source.y);
+            ctx.lineTo(conn.target.x, conn.target.y);
+            if (conn.type === "A") ctx.strokeStyle = "green";
+            else if (conn.type === "B") ctx.strokeStyle = "blue";
+            else if (conn.type === "C") ctx.strokeStyle = "red";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          });
+
+          // Draw nodes and system names
+          nodes.forEach(node => {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = "#fff";
+            ctx.fill();
+
+            ctx.font = "12px Orbitron";
+            ctx.fillStyle = "#ccc";
+            ctx.fillText(node.systemName, node.x + 8, node.y - 8);
+
+            // Draw ships orbiting the node
+            node.ships.forEach(ship => {
+              const orbitX = node.x + Math.cos(ship.angle) * ship.orbitRadius;
+              const orbitY = node.y + Math.sin(ship.angle) * ship.orbitRadius;
+              ctx.beginPath();
+              ctx.arc(orbitX, orbitY, 3, 0, Math.PI * 2);
+              ctx.fillStyle = "yellow";
+              ctx.fill();
+              ctx.font = "10px Orbitron";
+              ctx.fillStyle = "#fff";
+              ctx.fillText(ship.name, orbitX + 5, orbitY);
+            });
+          });
+
+          ctx.restore();
+        }
+
+        // --------------- Animate (Ship Orbits) ---------------
+        function animate() {
+          nodes.forEach(node => {
+            node.ships.forEach(ship => {
+              ship.angle += 0.01;
+            });
+          });
+          render();
+          requestAnimationFrame(animate);
+        }
+
+        // --------------- Panning & Zoom ---------------
+        canvas.addEventListener("mousedown", e => {
+          isPanning = true;
+          startPan = { x: e.clientX - offsetX, y: e.clientY - offsetY };
+        });
+        canvas.addEventListener("mousemove", e => {
+          if (isPanning) {
+            offsetX = e.clientX - startPan.x;
+            offsetY = e.clientY - startPan.y;
+            render();
+          }
+        });
+        canvas.addEventListener("mouseup", () => {
+          isPanning = false;
+        });
+        canvas.addEventListener("mouseleave", () => {
+          isPanning = false;
+        });
+        canvas.addEventListener("wheel", e => {
+          e.preventDefault();
+          const zoomFactor = 1.1;
+          if (e.deltaY < 0) scale *= zoomFactor;
+          else scale /= zoomFactor;
+          render();
         });
 
-        // Inter-cluster
-        for (let i = 0; i < clusters.length; i++) {
-          for (let j = i + 1; j < clusters.length; j++) {
-            const cA = clusters[i];
-            const cB = clusters[j];
-            const dx = cA.center.x - cB.center.x;
-            const dy = cA.center.y - cB.center.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            let connectionType = (dist > worldWidth / 3) ? "C" : "B";
-            // Create 1-3 random connections
-            const connCount = Math.floor(Math.random() * 3) + 1;
-            for (let k = 0; k < connCount; k++) {
-              const nodeA = cA.nodes[Math.floor(Math.random() * cA.nodes.length)];
-              const nodeB = cB.nodes[Math.floor(Math.random() * cB.nodes.length)];
-              connections.push({
-                source: nodeA,
-                target: nodeB,
-                type: connectionType,
+        // --------------- Node Click & Sidebar ---------------
+        const sidebar = document.getElementById("sidebar");
+        const systemDetailsTextarea = document.getElementById("systemDetails");
+        const regenerateBtn = document.getElementById("regenerateBtn");
+        const closeSidebarBtn = document.getElementById("closeSidebarBtn");
+        const addShipBtn = document.getElementById("addShipBtn");
+
+        canvas.addEventListener("click", e => {
+          const rect = canvas.getBoundingClientRect();
+          const x = (e.clientX - rect.left - offsetX) / scale;
+          const y = (e.clientY - rect.top - offsetY) / scale;
+          for (let node of nodes) {
+            const dx = node.x - x;
+            const dy = node.y - y;
+            if (Math.sqrt(dx * dx + dy * dy) < 8) {
+              selectedNode = node;
+              openSidebar(node);
+              return;
+            }
+          }
+        });
+
+        function openSidebar(node) {
+          systemDetailsTextarea.value = node.systemDetails;
+          sidebar.classList.add("open");
+        }
+        closeSidebarBtn.addEventListener("click", () => {
+          sidebar.classList.remove("open");
+        });
+
+        regenerateBtn.addEventListener("click", () => {
+          if (selectedNode && typeof generateSystem === "function" && typeof generateSystemText === "function") {
+            generateSystem();
+            selectedNode.systemDetails = generateSystemText();
+            systemDetailsTextarea.value = selectedNode.systemDetails;
+          }
+        });
+
+        addShipBtn.addEventListener("click", () => {
+          if (selectedNode) {
+            const shipName = prompt("Enter ship name:");
+            if (shipName) {
+              selectedNode.ships.push({
+                name: shipName,
+                orbitRadius: 20 + Math.random() * 10,
+                angle: Math.random() * Math.PI * 2
               });
             }
           }
-        }
-        console.log("Generated", connections.length, "connections.");
-      }
-
-      // --------------- Rendering ---------------
-      function render() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.translate(offsetX, offsetY);
-        ctx.scale(scale, scale);
-
-        // Draw connections
-        connections.forEach(conn => {
-          ctx.beginPath();
-          ctx.moveTo(conn.source.x, conn.source.y);
-          ctx.lineTo(conn.target.x, conn.target.y);
-          if (conn.type === "A") ctx.strokeStyle = "green";
-          else if (conn.type === "B") ctx.strokeStyle = "blue";
-          else if (conn.type === "C") ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-          ctx.stroke();
         });
 
-        // Draw nodes
-        nodes.forEach(node => {
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, 5, 0, Math.PI * 2);
-          ctx.fillStyle = "#fff";
-          ctx.fill();
-
-          ctx.font = "12px Orbitron";
-          ctx.fillStyle = "#ccc";
-          ctx.fillText(node.systemName, node.x + 8, node.y - 8);
-
-          // Draw ships orbiting
-          node.ships.forEach(ship => {
-            const orbitX = node.x + Math.cos(ship.angle) * ship.orbitRadius;
-            const orbitY = node.y + Math.sin(ship.angle) * ship.orbitRadius;
-            ctx.beginPath();
-            ctx.arc(orbitX, orbitY, 3, 0, Math.PI * 2);
-            ctx.fillStyle = "yellow";
-            ctx.fill();
-            ctx.font = "10px Orbitron";
-            ctx.fillStyle = "#fff";
-            ctx.fillText(ship.name, orbitX + 5, orbitY);
-          });
-        });
-
-        ctx.restore();
-      }
-
-      // --------------- Animate (Ship Orbits) ---------------
-      function animate() {
-        nodes.forEach(node => {
-          node.ships.forEach(ship => {
-            ship.angle += 0.01; 
-          });
-        });
-        render();
-        requestAnimationFrame(animate);
-      }
-
-      // --------------- Panning & Zoom ---------------
-      canvas.addEventListener("mousedown", e => {
-        isPanning = true;
-        startPan = { x: e.clientX - offsetX, y: e.clientY - offsetY };
-      });
-      canvas.addEventListener("mousemove", e => {
-        if (isPanning) {
-          offsetX = e.clientX - startPan.x;
-          offsetY = e.clientY - startPan.y;
-          render();
-        }
-      });
-      canvas.addEventListener("mouseup", () => {
-        isPanning = false;
-      });
-      canvas.addEventListener("mouseleave", () => {
-        isPanning = false;
-      });
-      canvas.addEventListener("wheel", e => {
-        e.preventDefault();
-        const zoomFactor = 1.1;
-        if (e.deltaY < 0) scale *= zoomFactor;
-        else scale /= zoomFactor;
-        render();
-      });
-
-      // --------------- Node Click & Sidebar ---------------
-      const sidebar = document.getElementById("sidebar");
-      const systemDetailsTextarea = document.getElementById("systemDetails");
-      const regenerateBtn = document.getElementById("regenerateBtn");
-      const closeSidebarBtn = document.getElementById("closeSidebarBtn");
-      const addShipBtn = document.getElementById("addShipBtn");
-
-      let selectedNode = null;
-
-      canvas.addEventListener("click", e => {
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left - offsetX) / scale;
-        const y = (e.clientY - rect.top - offsetY) / scale;
-        for (let node of nodes) {
-          const dx = node.x - x;
-          const dy = node.y - y;
-          if (Math.sqrt(dx*dx + dy*dy) < 8) {
-            selectedNode = node;
-            openSidebar(node);
-            return;
-          }
-        }
-      });
-
-      function openSidebar(node) {
-        systemDetailsTextarea.value = node.systemDetails;
-        sidebar.classList.add("open");
-      }
-      closeSidebarBtn.addEventListener("click", () => {
-        sidebar.classList.remove("open");
-      });
-
-      regenerateBtn.addEventListener("click", () => {
-        if (selectedNode && typeof generateSystem === "function" && typeof generateSystemText === "function") {
-          generateSystem();
-          selectedNode.systemDetails = generateSystemText();
-          systemDetailsTextarea.value = selectedNode.systemDetails;
-        }
-      });
-
-      addShipBtn.addEventListener("click", () => {
-        if (selectedNode) {
-          const shipName = prompt("Enter ship name:");
-          if (shipName) {
-            selectedNode.ships.push({
-              name: shipName,
-              orbitRadius: 20 + Math.random()*10,
-              angle: Math.random()*Math.PI*2
-            });
-          }
-        }
-      });
-
-      // --------------- Searching ---------------
-      document.getElementById("nodeSearch").addEventListener("change", e => {
-        const query = e.target.value.toLowerCase();
-        const found = nodes.find(n => n.systemName.toLowerCase().includes(query));
-        if (found) {
-          offsetX = canvas.width/2 - found.x * scale;
-          offsetY = canvas.height/2 - found.y * scale;
-          render();
-        }
-      });
-
-      document.getElementById("shipSearch").addEventListener("change", e => {
-        const query = e.target.value.toLowerCase();
-        for (let node of nodes) {
-          const ship = node.ships.find(s => s.name.toLowerCase().includes(query));
-          if (ship) {
-            offsetX = canvas.width/2 - node.x * scale;
-            offsetY = canvas.height/2 - node.y * scale;
+        // --------------- Searching ---------------
+        document.getElementById("nodeSearch").addEventListener("change", e => {
+          const query = e.target.value.toLowerCase();
+          const found = nodes.find(n => n.systemName.toLowerCase().includes(query));
+          if (found) {
+            offsetX = canvas.width / 2 - found.x * scale;
+            offsetY = canvas.height / 2 - found.y * scale;
             render();
-            break;
           }
-        }
-      });
+        });
+        document.getElementById("shipSearch").addEventListener("change", e => {
+          const query = e.target.value.toLowerCase();
+          for (let node of nodes) {
+            const ship = node.ships.find(s => s.name.toLowerCase().includes(query));
+            if (ship) {
+              offsetX = canvas.width / 2 - node.x * scale;
+              offsetY = canvas.height / 2 - node.y * scale;
+              render();
+              break;
+            }
+          }
+        });
 
-      // --------------- Zoom & Reset ---------------
-      document.getElementById("zoomInBtn").addEventListener("click", () => {
-        scale *= 1.1;
-        render();
-      });
-      document.getElementById("zoomOutBtn").addEventListener("click", () => {
-        scale /= 1.1;
-        render();
-      });
-      document.getElementById("resetViewBtn").addEventListener("click", () => {
-        offsetX = 0;
-        offsetY = 0;
-        scale = 1;
-        render();
-      });
-
-      // --------------- Save & Load ---------------
-      document.getElementById("saveMapBtn").addEventListener("click", () => {
-        const mapData = {
-          nodes,
-          connections,
-          offsetX,
-          offsetY,
-          scale,
-          clusters
-        };
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mapData));
-        const dlAnchorElem = document.createElement("a");
-        dlAnchorElem.setAttribute("href", dataStr);
-        dlAnchorElem.setAttribute("download", "galaxy_map.json");
-        dlAnchorElem.click();
-      });
-
-      document.getElementById("loadMapInput").addEventListener("change", e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const loadedData = JSON.parse(evt.target.result);
-          nodes = loadedData.nodes || [];
-          connections = loadedData.connections || [];
-          offsetX = loadedData.offsetX || 0;
-          offsetY = loadedData.offsetY || 0;
-          scale = loadedData.scale || 1;
-          clusters = loadedData.clusters || [];
-          console.log("Loaded map. Node count:", nodes.length, "Connection count:", connections.length);
+        // --------------- Zoom & Reset ---------------
+        document.getElementById("zoomInBtn").addEventListener("click", () => {
+          scale *= 1.1;
           render();
-        };
-        reader.readAsText(file);
-      });
+        });
+        document.getElementById("zoomOutBtn").addEventListener("click", () => {
+          scale /= 1.1;
+          render();
+        });
+        document.getElementById("resetViewBtn").addEventListener("click", () => {
+          offsetX = 0;
+          offsetY = 0;
+          scale = 1;
+          render();
+        });
 
-      // --------------- Initial Generation ---------------
-      generateNodes();
-      generateConnections();
-      render();
-      animate();
-    });
+        // --------------- Save & Load ---------------
+        document.getElementById("saveMapBtn").addEventListener("click", () => {
+          const mapData = {
+            nodes,
+            connections,
+            offsetX,
+            offsetY,
+            scale,
+            clusters
+          };
+          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mapData));
+          const dlAnchorElem = document.createElement("a");
+          dlAnchorElem.setAttribute("href", dataStr);
+          dlAnchorElem.setAttribute("download", "galaxy_map.json");
+          dlAnchorElem.click();
+        });
+
+        document.getElementById("loadMapInput").addEventListener("change", e => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            const loadedData = JSON.parse(evt.target.result);
+            nodes = loadedData.nodes || [];
+            connections = loadedData.connections || [];
+            offsetX = loadedData.offsetX || 0;
+            offsetY = loadedData.offsetY || 0;
+            scale = loadedData.scale || 1;
+            clusters = loadedData.clusters || [];
+            console.log("Loaded map. Node count:", nodes.length, "Connection count:", connections.length);
+            render();
+          };
+          reader.readAsText(file);
+        });
+
+        // --------------- Initial Generation ---------------
+        generateNodes();
+        generateConnections();
+        render();
+        animate();
+      });
     </script>
   </body>
 </html>
