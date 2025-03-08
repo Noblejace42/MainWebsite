@@ -420,7 +420,7 @@
         "id": "laborevent3",
         "description": "Take a job at a dangerous factory working with a volatile substance.",
         "rewards": {
-          "item": "Old Tool Kit I1d4 (aid|Precision), Bandages I1d8 (Special, Consumable1)",
+          "item": "Old Tool Kit I1d4 (aid|Precision), Bandages I1d8 (Special, Consumable 1)",
           "credits": 100,
           "bond": "The accident at the factory in _____ changed me forever."
         },
@@ -428,7 +428,7 @@
           "scarChance": 0.5,
           "deathChance": 0.15,
           "extraItem": {
-            "item": "Bandages I1d8 (Special, Consumable1)",
+            "item": "Bandages I1d8 (Special, Consumable 1)",
             "chance": 0.75
           }
         }
@@ -897,7 +897,7 @@
         "id": "crimeevent18",
         "description": "Attempt to intimidate my rival with an aggressive attack.",
         "rewards": {
-          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
+          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3, Accurate 3)",
           "credits": 50,
           "bond": "I tried to intimidate my rival _____ and it backfired in the worst possible way."
         },
@@ -2203,7 +2203,7 @@
         "id": "warfareevent3",
         "description": "Sabotage an enemy installation deep behind their lines.",
         "rewards": {
-          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
+          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3, Accurate 3)",
           "credits": 50,
           "bond": "I struck at the heart of the enemy’s war machine on _____."
         },
@@ -2285,7 +2285,7 @@
         "id": "warfareevent11",
         "description": "Form an unbreakable bond with a fellow soldier after saving their life in combat.",
         "rewards": {
-          "item": "Ripsaw Machete W1d10 (Charging 2, Unruly, Technical, Melee, Brutal, Violent 2)",
+          "item": "Ripsaw Machete W1d8 (Charging 1, Unruly, Technical, Melee, Brutal, Violent 2)",
           "credits": 10,
           "bond": "I saved ______, and our loyalty to each other will never waver."
         },
@@ -2324,7 +2324,7 @@
         "id": "warfareevent14",
         "description": "Fight in swift, guerrilla strikes that leave your enemy guessing.",
         "rewards": {
-          "item": "R30 Scout Repeater (Quick, Scoped, Long-range, Cycling, Ammo), Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3)",
+          "item": "R30 Scout Repeater (Quick, Scoped, Long-range, Cycling, Ammo), Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3, Accurate 3)",
           "credits": 30,
           "bond": "I led the resistance on _____ when all hope seemed lost."
         },
