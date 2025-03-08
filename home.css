@@ -1,155 +1,61 @@
-/* Reset & Basic Styling */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap');
+
 html, body {
-  width: 100%;
-  height: 100%;
-  font-family: Arial, sans-serif;
-  overflow: hidden; /* “Fullscreen” effect, no scrollbars */
+  width: 100%; height: 100%;
+  margin: 0; padding: 0;
+  overflow: hidden;
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  background-color: #1e2d3a;
 }
 
-/* Center Card */
 .center-card {
   position: absolute;
-  margin: 10vh auto;
   padding: 30px 50px;
-  width: 700px;
-  max-width: 90%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(230,230,230,0.9));
-  border-radius: 15px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.2);
-  text-align: center;
-  z-index: 1000;
+  width: 700px; max-width: 90%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,245,250,0.95));
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  text-align: center; z-index: 1000;
+  transition: transform 0.5s ease;
 }
 
-/* "Projects" Button */
 .projects-button {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: #ff6600;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: bold;
-  font-family: 'Roboto', sans-serif;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  position: absolute; top:15px;left:15px;
+  background: #3388aa; color: #fff; padding: 8px 14px;
+  border-radius: 4px; text-decoration: none;
+  font-weight: bold; transition: background-color 0.3s ease;
 }
-.projects-button:hover {
-  background: #e65c00;
-}
+.projects-button:hover { background-color: #227799; }
 
-/* Contact Card info */
-.contact-card h1 {
-  font-size: 2.5em;
-  margin-bottom: 8px;
-  color: #222;
-}
-.contact-card h3 {
-  font-size: 1.3em;
-  margin-bottom: 12px;
-  font-weight: normal;
-  color: #444;
-}
-.contact-card p {
-  font-size: 1.1em;
-  margin: 6px 0;
-  color: #333;
-}
-.contact-card a {
-  color: #0077cc;
-  text-decoration: none;
-}
-.contact-card a:hover {
-  text-decoration: underline;
-}
-.contact-card .links a {
-  margin: 0 5px;
-}
+.contact-card h1 { color: #223344; font-size: 2.5em; }
+.contact-card h3 { color: #335566; font-weight: normal; }
+.contact-card p, .contact-card a { color: #446688; }
+.contact-card a:hover { text-decoration: underline; }
 
-/* Tiles Container */
 .tiles-container {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none; /* not clickable */
-  z-index: 1;
+  position:absolute; top:0; left:0;width:100%; height:100%; pointer-events:none; z-index:1;
 }
 .tile {
-  position: absolute;
-  /* Fill tile fully with the image, removing white bars */
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  /* Remove rounded corners so the image edges show */
-  border-radius: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-
-  /* Fade in/out instead of sliding */
-  transition: opacity 1.5s ease;
-  opacity: 0;          /* Start hidden; we’ll fade them in after positioning */
-  pointer-events: none;
+  position:absolute; background-size:cover;
+  background-position:center; border-radius:6px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  transition:opacity 1.5s ease; opacity:0;
+  pointer-events:none;
 }
 
-/* Orbs Container */
-.orbs-container {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 900; /* behind the card, above the tiles */
-}
-
-/* Make orbs bigger and use actual images:
-   (the 4 file names: graffitibackdrop, sittingimage, headshotvignette, headshotlandscape) */
+.orbs-container { position:absolute; top:0; left:0; width:100%; height:100%; z-index:900; }
 .orb {
-  position: absolute;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background-position: center center;
-  background-size: cover;
-  /* Let them drift smoothly:
-     We’ll update transform via JS on a continuous or timed basis */
-  transition: transform 10s ease-in-out;
-  pointer-events: none;
-  opacity: 0.85;
+  position:absolute; width:150px; height:150px; border-radius:50%;
+  background-size:cover; opacity:0.85;
+  transition:transform 10s ease-in-out;
 }
-#orb1 {
-  background-image: url("graffitibackdrop.jpg");
-}
-#orb2 {
-  background-image: url("sittingimage.jpg");
-}
-#orb3 {
-  background-image: url("headshotvignette.png");
-}
-#orb4 {
-  background-image: url("headshotlandscape.png");
-}
+#orb1 {background-image:url("graffitibackdrop.jpg");}
+#orb2 {background-image:url("sittingimage.jpg");}
+#orb3 {background-image:url("headshotvignette.png");}
+#orb4 {background-image:url("headshotlandscape.png");}
 
-/* Responsive Adjustments */
-@media (max-width: 600px) {
-  /* Let the user scroll on small screens if needed */
-  html, body {
-    overflow-y: auto;
-  }
-  .center-card {
-    width: 90%;
-    padding: 20px 30px;
-  }
-  .contact-card h1 {
-    font-size: 2em;
-  }
-  .contact-card p {
-    font-size: 1em;
-  }
-  .orb {
-    width: 100px;
-    height: 100px;
-  }
+@media(max-width:600px){
+  html,body{overflow-y:auto;}
+  .center-card{width:90%;padding:15px;}
+  .orb {width:100px;height:100px;}
 }
