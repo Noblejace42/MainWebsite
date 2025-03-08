@@ -92,13 +92,13 @@ html, body {
 }
 /* Use your 3 images for the orbs */
 #orb1 {
-  background-image: url("headshotlandscape.png");
+  background-image: url("image/headshotlandscape.png");
 }
 #orb2 {
-  background-image: url("sittingimage.jpg");
+  background-image: url("image/sittingimage.jpg");
 }
 #orb3 {
-  background-image: url("graffitibackdrop.jpg");
+  background-image: url("image/graffitibackdrop.jpg");
 }
 
 /* Responsive */
