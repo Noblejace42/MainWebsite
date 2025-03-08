@@ -69,155 +69,160 @@
   <div class="tiles-container"></div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    /***************************************************************
-     * 1) Center the card 
-     ***************************************************************/
-    const centerCard = document.getElementById('centerCard');
-    function centerTheCard() {
-      const rect = centerCard.getBoundingClientRect();
-      const vw = window.innerWidth, vh = window.innerHeight;
-      // ensure some breathing room from top
-      const topPos = Math.max(10, (vh - rect.height)/2);
-      centerCard.style.left = (vw - rect.width)/2 + 'px';
-      centerCard.style.top  = topPos + 'px';
-    }
-    window.addEventListener('resize', centerTheCard);
-    centerTheCard();
-
-    /***************************************************************
-     * 2) Load images 
-     ***************************************************************/
-    const tilePaths = [];
-    for (let i=4; i<=37; i++){
-      tilePaths.push(`image/${i}.jpg`);
-    }
-    // Add personal images if desired
-    // tilePaths.push('image/graffitibackdrop.jpg','image/headshotlandscape.png',...);
-
-    let loadedCount=0;
-    const tileData=[];
-
-    tilePaths.forEach(src=>{
-      const img = new Image();
-      img.src=src;
-      img.onload=()=>{
-        tileData.push({
-          src, aspect: (img.width/img.height)||1
-        });
-        loadedCount++;
-        if(loadedCount===tilePaths.length) startSpawning();
-      };
-      img.onerror=()=>{
-        loadedCount++;
-        if(loadedCount===tilePaths.length) startSpawning();
-      };
-    });
-
-    const tilesContainer = document.querySelector('.tiles-container');
-    // store bounding rects to prevent overlap
-    const placedRects=[];
-
-    function getCardRect() {
-      const c = centerCard.getBoundingClientRect();
-      return { left:c.left, top:c.top, right:c.right, bottom:c.bottom };
-    }
-    function overlap(r1, r2) {
-      return !(
-        r1.right<r2.left ||
-        r1.left>r2.right  ||
-        r1.bottom<r2.top  ||
-        r1.top>r2.bottom
-      );
-    }
-
-    // spawn images from left to right, moving at a certain speed
-    // with random vertical position, random size, no overlap
-    let spawnInterval;
-    function startSpawning() {
-      // spawn an initial set
-      for (let i=0; i<5; i++){
-        spawnImage();
+      /***************************************************************
+       * 1) Center the card 
+       ***************************************************************/
+      const centerCard = document.getElementById('centerCard');
+      function centerTheCard() {
+        const rect = centerCard.getBoundingClientRect();
+        const vw = window.innerWidth, vh = window.innerHeight;
+        // Ensure some breathing room from the top
+        const topPos = Math.max(10, (vh - rect.height) / 2);
+        centerCard.style.left = (vw - rect.width) / 2 + 'px';
+        centerCard.style.top  = topPos + 'px';
       }
-      spawnInterval = setInterval(spawnImage, 3000); // new image every 3s
-    }
+      window.addEventListener('resize', centerTheCard);
+      centerTheCard();
 
-    function spawnImage() {
-      if(!tileData.length) return;
-      // pick a random image
-      const td = tileData[Math.floor(Math.random()*tileData.length)];
+      /***************************************************************
+       * 2) Preload images and store their aspect ratios 
+       ***************************************************************/
+      const tilePaths = [];
+      for (let i = 4; i <= 37; i++) {
+        tilePaths.push(`image/${i}.jpg`);
+      }
+      // Additional image paths can be added here if needed
 
-      const div = document.createElement('div');
-      div.classList.add('moving-tile');
-      div.dataset.aspect = td.aspect;
-      div.style.backgroundImage = `url('${td.src}')`;
+      let loadedCount = 0;
+      const tileData = [];
 
-      // pick random width from 150..350
-      const minW=150, maxW=350;
-      const w = minW + Math.random()*(maxW-minW);
-      const h = w / td.aspect;
+      tilePaths.forEach(src => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          tileData.push({
+            src,
+            aspect: (img.width / img.height) || 1
+          });
+          loadedCount++;
+          if (loadedCount === tilePaths.length) startSpawning();
+        };
+        img.onerror = () => {
+          console.error("Error loading image:", src);
+          loadedCount++;
+          if (loadedCount === tilePaths.length) startSpawning();
+        };
+      });
 
-      // find non-overlapping top if possible
-      const vh = window.innerHeight, vw=window.innerWidth;
-      // initial left is negative (offscreen to the left)
-      const initialLeft = - (w + 50);
-      for(let tries=0; tries<50; tries++){
-        const top = Math.random()*(vh - h);
+      const tilesContainer = document.querySelector('.tiles-container');
+      // Array to hold the bounding rectangles of spawned tiles (to prevent overlap)
+      const placedRects = [];
 
-        // construct newRect
-        const newRect = { left: initialLeft, top, right: initialLeft+w, bottom: top+h };
+      function getCardRect() {
+        const c = centerCard.getBoundingClientRect();
+        return { left: c.left, top: c.top, right: c.right, bottom: c.bottom };
+      }
 
-        // check overlap with card
-        if(overlap(newRect, getCardRect())) continue;
-        // check overlap with existing tiles
-        let conflict=false;
-        for(const r of placedRects){
-          if(overlap(newRect,r)){ conflict=true; break; }
+      function overlap(r1, r2) {
+        return !(
+          r1.right < r2.left ||
+          r1.left > r2.right  ||
+          r1.bottom < r2.top  ||
+          r1.top > r2.bottom
+        );
+      }
+
+      /***************************************************************
+       * 3) Spawn images with random vertical positions & sizes
+       *    starting from the left edge (left: 0) and animate them rightward
+       ***************************************************************/
+      // Spawn several images immediately then continue at a faster interval
+      function startSpawning() {
+        for (let i = 0; i < 8; i++) {
+          spawnImage();
         }
-        if(conflict) continue;
-
-        // success
-        div.style.width  = w+'px';
-        div.style.height = h+'px';
-        div.style.left   = initialLeft+'px';
-        div.style.top    = top+'px';
-        tilesContainer.appendChild(div);
-        placedRects.push(newRect);
-
-        // animate it across using a requestAnimationFrame loop
-        moveTile(div, newRect);
-        return; 
+        // Spawn a new image every 1000ms
+        setInterval(spawnImage, 1000);
       }
-      // if can't place, skip
-    }
 
-    function moveTile(div, rect) {
-      // each tile moves at e.g. 30 px/s
-      const speed=30; 
-      const frameTime=16; // ~60fps
-      function animate() {
-        // update rect
-        rect.left += (speed*(frameTime/1000));
-        rect.right= rect.left + parseFloat(div.style.width);
-        // apply transform
-        div.style.left= rect.left+'px';
+      function spawnImage() {
+        if (!tileData.length) return;
+        // Pick a random image from the loaded data
+        const td = tileData[Math.floor(Math.random() * tileData.length)];
 
-        // if it's off the right edge
-        if(rect.left> window.innerWidth+30) {
-          // remove from DOM, remove from placedRects
-          tilesContainer.removeChild(div);
-          const idx=placedRects.indexOf(rect);
-          if(idx>=0) placedRects.splice(idx,1);
+        const div = document.createElement('div');
+        div.classList.add('moving-tile');
+        div.dataset.aspect = td.aspect;
+        div.style.backgroundImage = `url('${td.src}')`;
+
+        // Choose a random width between 150 and 350 pixels (ensuring not too small)
+        const minW = 150, maxW = 350;
+        const w = minW + Math.random() * (maxW - minW);
+        const h = w / td.aspect;
+
+        const vh = window.innerHeight;
+        // Starting from the left edge (0px)
+        const initialLeft = 0;
+
+        // Try to find a non-overlapping vertical position
+        for (let tries = 0; tries < 50; tries++) {
+          const top = Math.random() * (vh - h);
+          // Construct a potential rectangle for the new image
+          const newRect = { left: initialLeft, top, right: initialLeft + w, bottom: top + h };
+
+          // Ensure no overlap with the center card
+          if (overlap(newRect, getCardRect())) continue;
+
+          // Ensure no overlap with already placed tiles
+          let conflict = false;
+          for (const r of placedRects) {
+            if (overlap(newRect, r)) {
+              conflict = true;
+              break;
+            }
+          }
+          if (conflict) continue;
+
+          // Place the image and record its rectangle
+          div.style.width = w + 'px';
+          div.style.height = h + 'px';
+          div.style.left = initialLeft + 'px';
+          div.style.top = top + 'px';
+          tilesContainer.appendChild(div);
+          placedRects.push(newRect);
+
+          // Begin animation for this tile
+          moveTile(div, newRect);
           return;
         }
-        // otherwise, keep animating
+        // If no valid position is found after 50 tries, skip spawning this tile
+      }
+
+      // Animate the tile moving rightward at a constant speed
+      function moveTile(div, rect) {
+        const speed = 30; // pixels per second
+        const frameTime = 16; // roughly 60fps
+        function animate() {
+          // Update the rectangle's horizontal position
+          rect.left += speed * (frameTime / 1000);
+          rect.right = rect.left + parseFloat(div.style.width);
+          div.style.left = rect.left + 'px';
+
+          // Remove the tile if it has moved off the right edge
+          if (rect.left > window.innerWidth + 30) {
+            tilesContainer.removeChild(div);
+            const idx = placedRects.indexOf(rect);
+            if (idx >= 0) placedRects.splice(idx, 1);
+            return;
+          }
+          requestAnimationFrame(animate);
+        }
         requestAnimationFrame(animate);
       }
-      requestAnimationFrame(animate);
-    }
 
-  });
+    });
   </script>
 
 </body>
