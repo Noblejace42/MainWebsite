@@ -8,7 +8,7 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: Arial, sans-serif;
-  overflow: hidden; /* "Fullscreen" effect, no scrollbars */
+  overflow: hidden; /* “Fullscreen” effect, no scrollbars */
 }
 
 /* Center Card */
@@ -81,13 +81,17 @@ html, body {
 }
 .tile {
   position: absolute;
+  /* Fill tile fully with the image, removing white bars */
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: contain;
-  border-radius: 6px;
+  background-size: cover;
+  /* Remove rounded corners so the image edges show */
+  border-radius: 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  transition: transform 2s ease, opacity 2s ease;
-  opacity: 1;
+
+  /* Fade in/out instead of sliding */
+  transition: opacity 1.5s ease;
+  opacity: 0;          /* Start hidden; we’ll fade them in after positioning */
   pointer-events: none;
 }
 
@@ -99,14 +103,33 @@ html, body {
   pointer-events: none;
   z-index: 900; /* behind the card, above the tiles */
 }
+
+/* Make orbs bigger and use actual images:
+   (the 4 file names: graffitibackdrop, sittingimage, headshotvignette, headshotlandscape) */
 .orb {
   position: absolute;
-  width: 80px; height: 80px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fff, #ddd);
-  opacity: 0.7;
-  transition: transform 3s ease;
+  background-position: center center;
+  background-size: cover;
+  /* Let them drift smoothly:
+     We’ll update transform via JS on a continuous or timed basis */
+  transition: transform 10s ease-in-out;
   pointer-events: none;
+  opacity: 0.85;
+}
+#orb1 {
+  background-image: url("graffitibackdrop.jpg");
+}
+#orb2 {
+  background-image: url("sittingimage.jpg");
+}
+#orb3 {
+  background-image: url("headshotvignette.png");
+}
+#orb4 {
+  background-image: url("headshotlandscape.png");
 }
 
 /* Responsive Adjustments */
@@ -126,6 +149,7 @@ html, body {
     font-size: 1em;
   }
   .orb {
-    width: 60px; height: 60px;
+    width: 100px;
+    height: 100px;
   }
 }
