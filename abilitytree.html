@@ -78,15 +78,14 @@
   </script>
 </head>
 <body>
-  <!-- Navbar (as in your index.html) -->
-  <nav>
-    <a href="index.html">System Generator</a> |
-    <a href="lifepath.html">Lifepath Generator</a> |
-    <a href="weapongenerator.html">Weapon Generator</a> |
-    <a href="combat_tracker.html">Combat Tracker</a> |
-    <a href="abilitytree.html">Abilities</a> |
-    <a href="shiphardpointgenerator.html">Shipyard</a>
-  </nav>
+    <script>
+      fetch('nav.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('navContainer').innerHTML = data;
+        })
+        .catch(err => console.error('Error loading nav:', err));
+    </script>
   
   <div class="container">
     <h1>Classless RPG Abilities</h1>
