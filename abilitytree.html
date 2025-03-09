@@ -36,6 +36,14 @@
       background-color: #2a2a2a;
     }
   </style>
+<script>
+  fetch('nav.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('navContainer').innerHTML = data;
+    })
+    .catch(err => console.error('Error loading nav:', err));
+</script>
   <script>
     // Simple table sorting function – click a header to sort that column
     function sortTable(n) {
@@ -78,14 +86,7 @@
   </script>
 </head>
 <body>
-    <script>
-      fetch('nav.html')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('navContainer').innerHTML = data;
-        })
-        .catch(err => console.error('Error loading nav:', err));
-    </script>
+
   
   <div class="container">
     <h1>Classless RPG Abilities</h1>
