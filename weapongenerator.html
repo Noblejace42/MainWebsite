@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral Axial Weapon Generator</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -174,10 +174,10 @@
       ];
 
       const baseTypeCores = {
-        "Rifle": ["Carbine", "Longshot", "Marksman", "Rifle", "Assault", "Sniper", "Sharpshooter"],
-        "Handgun": ["Sidearm", "Striker", "Revolver", "Hand Cannon", "Pistol", "Derringer"],
-        "Shotgun": ["Scatter", "Boomer", "Shotgun", "Spread", "Pump", "Slugger"],
-        "Blade": ["Edge", "Razor", "Viblade", "Monoblade", "Shortblade", "Longblade", "Katana"],
+        "Rifle": ["Carbine", "Longshot", "Marksman", "Assault", "Sniper", "Sharpshooter"],
+        "Handgun": ["Sidearm", "Striker", "Revolver", "Hand Cannon", "Derringer"],
+        "Shotgun": ["Scatter", "Boomer", "Spread", "Pump", "Slugger"],
+        "Blade": ["Edge", "Razor", "Viblade", "Mono", "Short", "Long", "Katana"],
         "Bludgeon": ["Crusher", "Hammer", "Club", "Staff", "Maul", "Mallet"],
         "Tesla": ["Coil", "Charger", "Shocklance", "Lasher", "Jolt Whip", "Thunderstrike", "Cannon"],
         "Repeater": ["Plasmagun", "Tracer", "Boltloader", "Blaster", "Gauss", "Firestorm"]
@@ -214,28 +214,42 @@
       switch(pattern) {
         case 1:
           // Pattern 1: "<Prefix> <OptionalTagFragment> <BaseCore> <Suffix>"
-          let prefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
-          let suffix = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
-          name = prefix + " " + (tagFragment ? tagFragment + " " : "") + baseCore + " " + suffix;
+          {
+            let prefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
+            let suffix = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
+            name = prefix + " " + (tagFragment ? tagFragment + " " : "") + baseCore + " " + suffix;
+          }
           break;
+
         case 2:
           // Pattern 2: "<TagFragment> <SciFiCore> <RomanNumeral>"
-          let core = sciFiCores[randomInt(0, sciFiCores.length - 1)];
-          let numeral = romanNumerals[randomInt(0, romanNumerals.length - 1)];
-          name = (tagFragment ? tagFragment + " " : "") + core + " " + numeral;
+          {
+            let core = sciFiCores[randomInt(0, sciFiCores.length - 1)];
+            let numeral = romanNumerals[randomInt(0, romanNumerals.length - 1)];
+            name = (tagFragment ? tagFragment + " " : "") + core + " " + numeral;
+          }
           break;
+
         case 3:
-          // Pattern 3: "<SciFiPrefix> <BaseType> <BaseCore> - <Random Code>"
-          let sciFiPrefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
-          let randomCode = randomInt(100, 999) + "-" + randomInt(10, 99);
-          name = sciFiPrefix + " " + weapon.baseType + " " + baseCore + " " + randomCode;
+          // Pattern 3 (FIXED): "<SciFiPrefix> <BaseCore> <BaseType> <RandomCode>"
+          {
+            let sciFiPrefix = sciFiPrefixes[randomInt(0, sciFiPrefixes.length - 1)];
+            let randomCode = randomInt(100, 999) + "-" + randomInt(10, 99);
+            // REORDER so "Striker Handgun" rather than "Handgun Striker"
+            name = sciFiPrefix + " " + baseCore + " " + weapon.baseType + " " + randomCode;
+          }
           break;
+
         case 4:
-          // Pattern 4: "<BaseCore> of the <SciFiCore> <Suffix>"
-          let coreWord = sciFiCores[randomInt(0, sciFiCores.length - 1)];
-          let suffixWord = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
-          name = baseCore + " of the " + coreWord + " " + suffixWord;
+          // Pattern 4 (FIXED): "<BaseCore> of the <SuffixWord> <CoreWord>"
+          {
+            let coreWord = sciFiCores[randomInt(0, sciFiCores.length - 1)];
+            let suffixWord = sciFiSuffixes[randomInt(0, sciFiSuffixes.length - 1)];
+            // SWAP the positions of suffixWord & coreWord so we get "of the Alpha Nemesis"
+            name = baseCore + " of the " + suffixWord + " " + coreWord;
+          }
           break;
+
         default:
           name = baseCore;
       }
