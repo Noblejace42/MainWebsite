@@ -134,11 +134,11 @@
 
     /* Adjusted so you actually get 500 nodes if possible. */
     const totalNodes = 500;
-    const clusterCountRange = [4, 6];
+    const clusterCountRange = [10, 60];
     // Removed maxNodesPerCluster to let you approach 500
-    const minSystemDist = 40;
-    const worldWidth = 3000, worldHeight = 3000;
-    const connectorSystemsCount = 3;
+    const minSystemDist = 50;
+    const worldWidth = 5000, worldHeight = 5000;
+    const connectorSystemsCount = 8;
 
     const canvas = document.getElementById("galaxyCanvas");
     const ctx = canvas.getContext("2d");
