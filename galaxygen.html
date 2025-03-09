@@ -170,69 +170,71 @@
     function screenToWorld(sx, sy) {
       const rect = canvas.getBoundingClientRect();
       const mx = sx - rect.left, my = sy - rect.top;
-      return { x: (mx - offsetX)/scale, y: (my - offsetY)/scale };
+      return { x: (mx - offsetX) / scale, y: (my - offsetY) / scale };
     }
     function worldToScreen(wx, wy) {
-      return { x: wx*scale + offsetX, y: wy*scale + offsetY };
+      return { x: wx * scale + offsetX, y: wy * scale + offsetY };
     }
-    function dist(x1,y1,x2,y2) {
-      const dx = x2-x1, dy = y2-y1;
-      return Math.sqrt(dx*dx + dy*dy);
+    function dist(x1, y1, x2, y2) {
+      const dx = x2 - x1, dy = y2 - y1;
+      return Math.sqrt(dx * dx + dy * dy);
     }
-    function linesIntersect(ax1,ay1,ax2,ay2,bx1,by1,bx2,by2) {
-      const d = (by2 - by1)*(ax2 - ax1) - (bx2 - bx1)*(ay2 - ay1);
-      if(d===0) return false;
-      const ua = ((bx2 - bx1)*(ay1 - by1) - (by2 - by1)*(ax1 - bx1))/d;
-      const ub = ((ax2 - ax1)*(ay1 - by1) - (ay2 - ay1)*(ax1 - bx1))/d;
-      return (ua>=0 && ua<=1 && ub>=0 && ub<=1);
+    function linesIntersect(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2) {
+      const d = (by2 - by1) * (ax2 - ax1) - (bx2 - bx1) * (ay2 - ay1);
+      if (d === 0) return false;
+      const ua = ((bx2 - bx1) * (ay1 - by1) - (by2 - by1) * (ax1 - bx1)) / d;
+      const ub = ((ax2 - ax1) * (ay1 - by1) - (ay2 - ay1) * (ax1 - bx1)) / d;
+      return (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1);
     }
 
     /*--- Galaxy Generation ---*/
     function generateClusters() {
       clusters = [];
-      const cCount = Math.floor(Math.random()*(clusterCountRange[1]-clusterCountRange[0]+1))+clusterCountRange[0];
-      for(let i=0; i<cCount; i++){
-        const center = { x: Math.random()*worldWidth, y: Math.random()*worldHeight };
-        const radius = 50 + Math.random()*50; // smaller or bigger
+      const cCount = Math.floor(Math.random() * (clusterCountRange[1] - clusterCountRange[0] + 1)) + clusterCountRange[0];
+      for (let i = 0; i < cCount; i++) {
+        const center = { x: Math.random() * worldWidth, y: Math.random() * worldHeight };
+        const radius = 50 + Math.random() * 50; // smaller or bigger
         clusters.push({ center, radius, nodes: [] });
       }
     }
 
     function generateNodes() {
-      nodes=[];
+      nodes = [];
       generateClusters();
       // Distribute 500 among the clusters
-      let nodesPerCluster = Math.floor(totalNodes/clusters.length);
+      let nodesPerCluster = Math.floor(totalNodes / clusters.length);
       let extra = totalNodes % clusters.length;
 
       clusters.forEach(cluster => {
         let count = nodesPerCluster;
-        if(extra > 0){ count++; extra--; }
-        for(let i=0; i<count; i++){
+        if (extra > 0) { count++; extra--; }
+        for (let i = 0; i < count; i++) {
           let placed = false; let attempts = 0;
-          while(!placed && attempts < 500){ // up attempts
+          while (!placed && attempts < 500) { // up attempts
             attempts++;
-            const angle = Math.random()*Math.PI*2;
-            const distance = Math.random()*cluster.radius;
-            const x = cluster.center.x + Math.cos(angle)*distance;
-            const y = cluster.center.y + Math.sin(angle)*distance;
-            let tooClose = cluster.nodes.some(n => dist(n.x,n.y,x,y) < minSystemDist);
-            if(!tooClose){
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * cluster.radius;
+            const x = cluster.center.x + Math.cos(angle) * distance;
+            const y = cluster.center.y + Math.sin(angle) * distance;
+            let tooClose = cluster.nodes.some(n => dist(n.x, n.y, x, y) < minSystemDist);
+            if (!tooClose) {
               // generate system name & text so labels match plaintext
-              if(typeof generateSystem === "function") generateSystem();
+              if (typeof generateSystem === "function") generateSystem();
               let name = "Sys" + (nodes.length + 1);
-              if(typeof getCurrentSystemName === "function"){
+              if (typeof getCurrentSystemName === "function") {
                 name = getCurrentSystemName();
-              }
-              else if(typeof generateSystemCode === "function"){
+              } else if (typeof generateSystemCode === "function") {
                 name = generateSystemCode();
               }
               let details = "System details not available.";
-              if(typeof generateSystemText === "function"){
+              if (typeof generateSystemText === "function") {
                 details = generateSystemText();
               }
               const node = {
-                id: nodes.length, x, y, cluster,
+                id: nodes.length,
+                x,
+                y,
+                cluster,
                 systemName: name,
                 systemDetails: details,
                 ships: []
@@ -246,39 +248,43 @@
       });
 
       // Add connector systems
-      for(let i = 0; i < connectorSystemsCount; i++){
-        if(typeof generateSystem === "function") generateSystem();
+      for (let i = 0; i < connectorSystemsCount; i++) {
+        if (typeof generateSystem === "function") generateSystem();
         let name = "Bridge" + (i + 1);
-        if(typeof getCurrentSystemName === "function"){
+        if (typeof getCurrentSystemName === "function") {
           name = getCurrentSystemName();
-        }
-        else if(typeof generateSystemCode === "function"){
+        } else if (typeof generateSystemCode === "function") {
           name = generateSystemCode();
         }
         let details = "Connector bridging clusters.";
-        if(typeof generateSystemText === "function"){
+        if (typeof generateSystemText === "function") {
           details = generateSystemText();
         }
-        const x = Math.random()*worldWidth, y = Math.random()*worldHeight;
+        const x = Math.random() * worldWidth, y = Math.random() * worldHeight;
         nodes.push({
-          id: nodes.length, x, y, cluster: null,
-          systemName: name, systemDetails: details, ships: []
+          id: nodes.length,
+          x,
+          y,
+          cluster: null,
+          systemName: name,
+          systemDetails: details,
+          ships: []
         });
       }
       console.log("Nodes total:", nodes.length);
     }
 
-    function addConnection(nA, nB, cType){
-      if(!nA || !nB || nA === nB) return false;
+    function addConnection(nA, nB, cType) {
+      if (!nA || !nB || nA === nB) return false;
       // check duplicates
-      for(let c of connections){
-        if((c.source === nA && c.target === nB) || (c.source === nB && c.target === nA)) return false;
+      for (let c of connections) {
+        if ((c.source === nA && c.target === nB) || (c.source === nB && c.target === nA)) return false;
       }
       // intersection check if same line type
-      if(cType === "A" || cType === "B"){
-        for(let c of connections){
-          if(c.type === cType){
-            if(linesIntersect(nA.x, nA.y, nB.x, nB.y, c.source.x, c.source.y, c.target.x, c.target.y)){
+      if (cType === "A" || cType === "B") {
+        for (let c of connections) {
+          if (c.type === cType) {
+            if (linesIntersect(nA.x, nA.y, nB.x, nB.y, c.source.x, c.source.y, c.target.x, c.target.y)) {
               return false;
             }
           }
@@ -288,21 +294,35 @@
       return true;
     }
 
-    function generateConnections(){
+    function generateConnections() {
       connections = [];
       // 1) Green connections within clusters:
-      // For each node in a cluster (non-connector), generate 1-3 connections to its closest stars.
+      // For each node in a cluster (non-connector), try to generate 1-3 connections to its closest stars,
+      // ensuring the lines do not overlap.
       clusters.forEach(cluster => {
         cluster.nodes.forEach(node => {
-          // Get all other nodes in the same cluster.
           let otherNodes = cluster.nodes.filter(n => n !== node);
-          if(otherNodes.length === 0) return;
-          // Sort by distance.
+          if (otherNodes.length === 0) return;
+          // Sort neighbors by distance.
           otherNodes.sort((a, b) => dist(node.x, node.y, a.x, a.y) - dist(node.x, node.y, b.x, b.y));
-          // Choose a random number between 1 and min(3, number of available nodes).
-          let connectionCount = Math.floor(Math.random() * Math.min(3, otherNodes.length)) + 1;
-          for(let i = 0; i < connectionCount; i++){
-            addConnection(node, otherNodes[i], "A");
+          // Decide on a random target between 1 and up to 3 (or available count).
+          let desiredConnections = Math.floor(Math.random() * Math.min(3, otherNodes.length)) + 1;
+          let connectionsMade = 0;
+          let index = 0;
+          // Try each neighbor until you hit the desired count.
+          while (connectionsMade < desiredConnections && index < otherNodes.length) {
+            if (addConnection(node, otherNodes[index], "A")) {
+              connectionsMade++;
+            }
+            index++;
+          }
+          // If no connection was made, force at least one connection.
+          if (connectionsMade === 0 && otherNodes.length > 0) {
+            for (let i = 0; i < otherNodes.length; i++) {
+              if (addConnection(node, otherNodes[i], "A")) {
+                break;
+              }
+            }
           }
         });
       });
@@ -310,34 +330,34 @@
       // 2) Connect clusters to connectors with blue
       const connectorNodes = nodes.filter(n => n.cluster === null);
       clusters.forEach(cluster => {
-        if(cluster.nodes.length === 0) return;
+        if (cluster.nodes.length === 0) return;
         const randNode = cluster.nodes[Math.floor(Math.random() * cluster.nodes.length)];
         connectorNodes.forEach(connNode => {
           addConnection(randNode, connNode, "B");
         });
       });
       // 3) Connect connectors with each other
-      for(let i = 0; i < connectorNodes.length; i++){
-        for(let j = i + 1; j < connectorNodes.length; j++){
-          if(Math.random() < 0.6){
+      for (let i = 0; i < connectorNodes.length; i++) {
+        for (let j = i + 1; j < connectorNodes.length; j++) {
+          if (Math.random() < 0.6) {
             addConnection(connectorNodes[i], connectorNodes[j], "B");
           }
         }
       }
       // 4) Rare red connections
-      for(let i = 0; i < 50; i++){
+      for (let i = 0; i < 50; i++) {
         let A = nodes[Math.floor(Math.random() * nodes.length)];
         let B = nodes[Math.floor(Math.random() * nodes.length)];
-        if(A === B) continue;
+        if (A === B) continue;
         let d = dist(A.x, A.y, B.x, B.y);
-        if(d > 0.5 * worldWidth && Math.random() < 0.05){
+        if (d > 0.5 * worldWidth && Math.random() < 0.05) {
           addConnection(A, B, "C");
         }
       }
       console.log("Connections:", connections.length);
     }
 
-    function render(){
+    function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       ctx.translate(offsetX, offsetY);
@@ -348,8 +368,8 @@
         ctx.beginPath();
         ctx.moveTo(conn.source.x, conn.source.y);
         ctx.lineTo(conn.target.x, conn.target.y);
-        if(conn.type === "A") ctx.strokeStyle = "green";
-        else if(conn.type === "B") ctx.strokeStyle = "blue";
+        if (conn.type === "A") ctx.strokeStyle = "green";
+        else if (conn.type === "B") ctx.strokeStyle = "blue";
         else ctx.strokeStyle = "red";
         ctx.lineWidth = 1.5;
         ctx.stroke();
@@ -385,7 +405,7 @@
       });
     }
 
-    function animate(){
+    function animate() {
       // Animate ship orbits
       nodes.forEach(node => {
         node.ships.forEach(ship => {
@@ -402,17 +422,17 @@
       startPan = { x: e.clientX - offsetX, y: e.clientY - offsetY };
     });
     canvas.addEventListener("mousemove", e => {
-      if(isPanning){
+      if (isPanning) {
         offsetX = e.clientX - startPan.x;
         offsetY = e.clientY - startPan.y;
         render();
       } else {
-        const {x: wx, y: wy} = screenToWorld(e.clientX, e.clientY);
+        const { x: wx, y: wy } = screenToWorld(e.clientX, e.clientY);
         let found = null; let minD = 12;
-        for(let node of nodes){
-          if(dist(wx, wy, node.x, node.y) < minD){ found = node; break; }
+        for (let node of nodes) {
+          if (dist(wx, wy, node.x, node.y) < minD) { found = node; break; }
         }
-        if(found !== hoverNode){
+        if (found !== hoverNode) {
           hoverNode = found;
           render();
         }
@@ -422,11 +442,11 @@
     canvas.addEventListener("mouseleave", () => { isPanning = false; });
     canvas.addEventListener("wheel", e => {
       e.preventDefault();
-      const {x: wx, y: wy} = screenToWorld(e.clientX, e.clientY);
+      const { x: wx, y: wy } = screenToWorld(e.clientX, e.clientY);
       const zoomFactor = 0.05;
-      if(e.deltaY < 0) scale *= (1 + zoomFactor);
+      if (e.deltaY < 0) scale *= (1 + zoomFactor);
       else scale /= (1 + zoomFactor);
-      const {x: sx, y: sy} = worldToScreen(wx, wy);
+      const { x: sx, y: sy } = worldToScreen(wx, wy);
       offsetX += (e.clientX - sx);
       offsetY += (e.clientY - sy);
       render();
@@ -434,10 +454,10 @@
 
     // Node click => open sidebar
     canvas.addEventListener("click", e => {
-      if(isPanning) return;
-      const {x: wx, y: wy} = screenToWorld(e.clientX, e.clientY);
-      for(let node of nodes){
-        if(dist(wx, wy, node.x, node.y) < 8){
+      if (isPanning) return;
+      const { x: wx, y: wy } = screenToWorld(e.clientX, e.clientY);
+      for (let node of nodes) {
+        if (dist(wx, wy, node.x, node.y) < 8) {
           openSidebar(node);
           return;
         }
@@ -452,32 +472,35 @@
     const shipContainer = document.getElementById("shipContainer");
     const pinnedSystemsDiv = document.getElementById("pinnedSystems");
 
-    function openSidebar(node){
+    function openSidebar(node) {
       selectedNode = node;
       systemDetailsTextarea.value = node.systemDetails;
       renderShipList(node);
     }
+    // When the modal is edited, update both systemDetails and systemName so that they stay in sync.
     systemDetailsTextarea.addEventListener("input", e => {
-      if(selectedNode){
+      if (selectedNode) {
         selectedNode.systemDetails = e.target.value;
+        selectedNode.systemName = e.target.value;
+        render();
       }
     });
+    // Regenerate button: generate new text and update both systemName and systemDetails.
     regenerateBtn.addEventListener("click", () => {
-      if(!selectedNode) return;
-      if(typeof generateSystem === "function" && typeof generateSystemText === "function"){
+      if (!selectedNode) return;
+      if (typeof generateSystem === "function" && typeof generateSystemText === "function") {
         generateSystem();
-        let newName = (typeof getCurrentSystemName === "function") ? getCurrentSystemName() : ("SysRegen" + selectedNode.id);
         let newText = generateSystemText();
-        selectedNode.systemName = newName;
+        selectedNode.systemName = newText;
         selectedNode.systemDetails = newText;
         systemDetailsTextarea.value = newText;
         render();
       }
     });
     addShipBtn.addEventListener("click", () => {
-      if(!selectedNode) return;
+      if (!selectedNode) return;
       const shipName = prompt("Enter ship name:");
-      if(shipName){
+      if (shipName) {
         selectedNode.ships.push({
           name: shipName,
           orbitRadius: 10 + Math.random() * 5,
@@ -487,7 +510,7 @@
         renderShipList(selectedNode);
       }
     });
-    function renderShipList(node){
+    function renderShipList(node) {
       let html = "";
       node.ships.forEach((ship, idx) => {
         html += `
@@ -505,28 +528,28 @@
       });
       shipContainer.innerHTML = html;
     }
-    function getConnectedSystems(node){
+    function getConnectedSystems(node) {
       const connected = [];
       connections.forEach(conn => {
-        if(conn.source === node && conn.target !== node) connected.push(conn.target);
-        else if(conn.target === node && conn.source !== node) connected.push(conn.source);
+        if (conn.source === node && conn.target !== node) connected.push(conn.target);
+        else if (conn.target === node && conn.source !== node) connected.push(conn.source);
       });
       return connected;
     }
-    window.updateShipData = function(idx, val){
-      if(!selectedNode) return;
+    window.updateShipData = function(idx, val) {
+      if (!selectedNode) return;
       selectedNode.ships[idx].customData = val;
     };
-    window.deleteShip = function(idx){
-      if(!selectedNode) return;
+    window.deleteShip = function(idx) {
+      if (!selectedNode) return;
       selectedNode.ships.splice(idx, 1);
       renderShipList(selectedNode);
     };
-    window.moveShip = function(idx, targetId){
-      if(!selectedNode || !targetId) return;
+    window.moveShip = function(idx, targetId) {
+      if (!selectedNode || !targetId) return;
       const ship = selectedNode.ships[idx];
       const targetNode = nodes.find(n => n.id == targetId);
-      if(targetNode && targetNode !== selectedNode){
+      if (targetNode && targetNode !== selectedNode) {
         selectedNode.ships.splice(idx, 1);
         targetNode.ships.push(ship);
         renderShipList(selectedNode);
@@ -535,13 +558,13 @@
 
     // Pin system functionality
     pinSystemBtn.addEventListener("click", () => {
-      if(!selectedNode) return;
-      if(!pinnedSystems.includes(selectedNode)){
+      if (!selectedNode) return;
+      if (!pinnedSystems.includes(selectedNode)) {
         pinnedSystems.push(selectedNode);
         renderPinnedSystems();
       }
     });
-    function renderPinnedSystems(){
+    function renderPinnedSystems() {
       let html = "";
       pinnedSystems.forEach((node, idx) => {
         html += `
@@ -558,27 +581,27 @@
       });
       pinnedSystemsDiv.innerHTML = html;
     }
-    window.jumpToPinned = function(idx){
+    window.jumpToPinned = function(idx) {
       const node = pinnedSystems[idx];
-      if(!node) return;
-      offsetX = canvas.width/2 - node.x * scale;
-      offsetY = canvas.height/2 - node.y * scale;
+      if (!node) return;
+      offsetX = canvas.width / 2 - node.x * scale;
+      offsetY = canvas.height / 2 - node.y * scale;
       render();
     };
-    window.removePinned = function(idx){
+    window.removePinned = function(idx) {
       pinnedSystems.splice(idx, 1);
       renderPinnedSystems();
     };
-    window.movePinnedUp = function(idx){
-      if(idx > 0){
+    window.movePinnedUp = function(idx) {
+      if (idx > 0) {
         const tmp = pinnedSystems[idx];
         pinnedSystems[idx] = pinnedSystems[idx - 1];
         pinnedSystems[idx - 1] = tmp;
         renderPinnedSystems();
       }
     };
-    window.movePinnedDown = function(idx){
-      if(idx < pinnedSystems.length - 1){
+    window.movePinnedDown = function(idx) {
+      if (idx < pinnedSystems.length - 1) {
         const tmp = pinnedSystems[idx];
         pinnedSystems[idx] = pinnedSystems[idx + 1];
         pinnedSystems[idx + 1] = tmp;
@@ -590,19 +613,19 @@
     document.getElementById("nodeSearch").addEventListener("change", e => {
       const query = e.target.value.toLowerCase();
       const found = nodes.find(n => n.systemName.toLowerCase().includes(query));
-      if(found){
-        offsetX = canvas.width/2 - found.x * scale;
-        offsetY = canvas.height/2 - found.y * scale;
+      if (found) {
+        offsetX = canvas.width / 2 - found.x * scale;
+        offsetY = canvas.height / 2 - found.y * scale;
         render();
       }
     });
     document.getElementById("shipSearch").addEventListener("change", e => {
       const query = e.target.value.toLowerCase();
-      for(let node of nodes){
+      for (let node of nodes) {
         const ship = node.ships.find(s => s.name.toLowerCase().includes(query));
-        if(ship){
-          offsetX = canvas.width/2 - node.x * scale;
-          offsetY = canvas.height/2 - node.y * scale;
+        if (ship) {
+          offsetX = canvas.width / 2 - node.x * scale;
+          offsetY = canvas.height / 2 - node.y * scale;
           render();
           break;
         }
@@ -611,19 +634,19 @@
 
     // Zoom & Reset Controls
     document.getElementById("zoomInBtn").addEventListener("click", () => {
-      const cx = canvas.width/2, cy = canvas.height/2;
-      const {x: wx, y: wy} = screenToWorld(cx, cy);
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      const { x: wx, y: wy } = screenToWorld(cx, cy);
       scale *= 1.05;
-      const {x: sx, y: sy} = worldToScreen(wx, wy);
+      const { x: sx, y: sy } = worldToScreen(wx, wy);
       offsetX += (cx - sx);
       offsetY += (cy - sy);
       render();
     });
     document.getElementById("zoomOutBtn").addEventListener("click", () => {
-      const cx = canvas.width/2, cy = canvas.height/2;
-      const {x: wx, y: wy} = screenToWorld(cx, cy);
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      const { x: wx, y: wy } = screenToWorld(cx, cy);
       scale /= 1.05;
-      const {x: sx, y: sy} = worldToScreen(wx, wy);
+      const { x: sx, y: sy } = worldToScreen(wx, wy);
       offsetX += (cx - sx);
       offsetY += (cy - sy);
       render();
@@ -634,13 +657,13 @@
 
     // Jump to random system
     document.getElementById("jumpRandomBtn").addEventListener("click", () => {
-      if(nodes.length === 0){
+      if (nodes.length === 0) {
         console.warn("No nodes to jump to!");
         return;
       }
       const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
-      offsetX = canvas.width/2 - randomNode.x * scale;
-      offsetY = canvas.height/2 - randomNode.y * scale;
+      offsetX = canvas.width / 2 - randomNode.x * scale;
+      offsetY = canvas.height / 2 - randomNode.y * scale;
       render();
     });
 
@@ -657,7 +680,7 @@
     });
     document.getElementById("loadMapInput").addEventListener("change", e => {
       const file = e.target.files[0];
-      if(!file) return;
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = ev => {
         const loaded = JSON.parse(ev.target.result);
