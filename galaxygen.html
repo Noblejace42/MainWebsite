@@ -29,7 +29,7 @@
       text-align: center;
       margin-top: 5px;
     }
-    /* Main container fills the remaining space */
+    /* Main container: flex row with canvas on left and sidebar on right */
     #mainContainer {
       display: flex;
       flex-direction: row;
@@ -37,14 +37,14 @@
       height: calc(100vh - 50px);
       box-sizing: border-box;
     }
-    /* Canvas container on the left */
+    /* Canvas container fills the remaining space */
     #canvasContainer {
       flex: 1;
       position: relative;
       background: #000 !important;
       overflow: hidden;
     }
-    /* Canvas fills its container */
+    /* The canvas fills its container */
     #galaxyCanvas {
       width: 100%;
       height: 100%;
@@ -103,10 +103,8 @@
       <button id="regenerateBtn">Regenerate</button>
       <button id="addShipBtn">Add Ship</button>
       <button id="pinSystemBtn">Pin System</button>
-
       <h3>Ships</h3>
       <div id="shipContainer"></div>
-
       <h3>Pinned Systems</h3>
       <div id="pinnedSystems"></div>
     </div>
@@ -125,7 +123,7 @@
       .catch(err => console.error('Error loading nav:', err));
   </script>
 
-  <!-- Load systemgen.js (defines generateSystem, generateSystemText, etc.) -->
+  <!-- Load systemgen.js (defines generateSystem, etc.) -->
   <script src="systemgen.js"></script>
 
   <!-- Main Galaxy Code -->
@@ -133,59 +131,17 @@
   document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM loaded. Starting galaxy generator...");
 
-    const canvas = document.getElementById("galaxyCanvas");
-    const ctx = canvas.getContext("2d");
-
-    // Resize canvas to fill its container
-    function resizeCanvas() {
-      const containerRect = document.getElementById("canvasContainer").getBoundingClientRect();
-      canvas.width = containerRect.width;
-      canvas.height = containerRect.height;
-      render();
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // Prevent wheel events on textareas from affecting the canvas
-    document.querySelectorAll('textarea').forEach(ta => {
-      ta.addEventListener('wheel', e => e.stopPropagation());
-    });
-
-    // Arrow key panning
-    document.addEventListener('keydown', e => {
-      if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
-      const panStep = 20;
-      switch(e.key) {
-        case 'ArrowUp':
-          offsetY += panStep; e.preventDefault(); render();
-          break;
-        case 'ArrowDown':
-          offsetY -= panStep; e.preventDefault(); render();
-          break;
-        case 'ArrowLeft':
-          offsetX += panStep; e.preventDefault(); render();
-          break;
-        case 'ArrowRight':
-          offsetX -= panStep; e.preventDefault(); render();
-          break;
-      }
-    });
-
-    // Basic panning & zoom
+    // Declare panning/zooming variables BEFORE any functions that use them:
     let offsetX = 0, offsetY = 0, scale = 1;
     let isPanning = false;
     let startPan = { x: 0, y: 0 };
 
-    // Data arrays
+    // Data arrays and globals
     let nodes = [];
     let connections = [];
     let clusters = [];
-
-    // Single declaration for selectedNode & hoverNode
     let selectedNode = null;
     let hoverNode = null;
-
-    // Pinned systems
     let pinnedSystems = [];
 
     // Galaxy parameters
@@ -198,19 +154,36 @@
     const maxNodesPerCluster = 15;
     const connectorSystemsCount = 3;
 
-    // Intersection logic for lines
-    function linesIntersect(ax1,ay1,ax2,ay2,bx1,by1,bx2,by2) {
-      const d = (by2 - by1)*(ax2 - ax1) - (bx2 - bx1)*(ay2 - ay1);
-      if (d === 0) return false;
-      const ua = ((bx2 - bx1)*(ay1 - by1) - (by2 - by1)*(ax1 - bx1)) / d;
-      const ub = ((ax2 - ax1)*(ay1 - by1) - (ay2 - ay1)*(ax1 - bx1)) / d;
-      return (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1);
+    // Canvas and context
+    const canvas = document.getElementById("galaxyCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Resize canvas to fill container
+    function resizeCanvas() {
+      const containerRect = document.getElementById("canvasContainer").getBoundingClientRect();
+      canvas.width = containerRect.width;
+      canvas.height = containerRect.height;
+      render();
     }
-    function dist(x1, y1, x2, y2) {
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      return Math.sqrt(dx*dx + dy*dy);
-    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Prevent wheel events on textareas from affecting canvas
+    document.querySelectorAll('textarea').forEach(ta => {
+      ta.addEventListener('wheel', e => e.stopPropagation());
+    });
+
+    // Arrow key panning
+    document.addEventListener('keydown', e => {
+      if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+      const panStep = 20;
+      switch(e.key) {
+        case 'ArrowUp': offsetY += panStep; e.preventDefault(); render(); break;
+        case 'ArrowDown': offsetY -= panStep; e.preventDefault(); render(); break;
+        case 'ArrowLeft': offsetX += panStep; e.preventDefault(); render(); break;
+        case 'ArrowRight': offsetX -= panStep; e.preventDefault(); render(); break;
+      }
+    });
 
     // Screen <-> World conversion
     function screenToWorld(sx, sy) {
@@ -223,11 +196,23 @@
       return { x: wx * scale + offsetX, y: wy * scale + offsetY };
     }
 
-    // Generate clusters, nodes, and connections
+    // Intersection logic
+    function linesIntersect(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2) {
+      const d = (by2 - by1) * (ax2 - ax1) - (bx2 - bx1) * (ay2 - ay1);
+      if (d === 0) return false;
+      const ua = ((bx2 - bx1) * (ay1 - by1) - (by2 - by1) * (ax1 - bx1)) / d;
+      const ub = ((ax2 - ax1) * (ay1 - by1) - (ay2 - ay1) * (ax1 - bx1)) / d;
+      return (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1);
+    }
+    function dist(x1, y1, x2, y2) {
+      const dx = x2 - x1, dy = y2 - y1;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
+
+    // Generate clusters
     function generateClusters() {
       clusters = [];
-      const cCount = Math.floor(Math.random()*(clusterCountRange[1]-clusterCountRange[0]+1))
-                     + clusterCountRange[0];
+      const cCount = Math.floor(Math.random()*(clusterCountRange[1]-clusterCountRange[0]+1)) + clusterCountRange[0];
       for (let i = 0; i < cCount; i++) {
         const center = { x: Math.random()*worldWidth, y: Math.random()*worldHeight };
         const radius = Math.random()*(clusterRadiusRange[1]-clusterRadiusRange[0]) + clusterRadiusRange[0];
@@ -236,6 +221,7 @@
       console.log("Generated", clusters.length, "clusters.");
     }
 
+    // Generate nodes (and connector systems)
     function generateNodes() {
       nodes = [];
       generateClusters();
@@ -247,7 +233,6 @@
         let count = nodesPerCluster;
         if (extra > 0) { count++; extra--; }
         count = Math.min(count, maxNodesPerCluster);
-
         for (let i = 0; i < count; i++) {
           let placed = false, attempts = 0;
           while (!placed && attempts < 100) {
@@ -291,6 +276,7 @@
       console.log("Generated", nodes.length, "nodes.");
     }
 
+    // Generate connections with crossing rules
     function addConnection(nA, nB, cType) {
       if (!nA || !nB || nA === nB) return false;
       for (let c of connections) {
@@ -311,15 +297,14 @@
 
     function generateConnections() {
       connections = [];
-
-      // 1) Each cluster forms a chain of green
+      // 1) Each cluster forms a chain of green skips
       clusters.forEach(cluster => {
         if (cluster.nodes.length <= 1) return;
         for (let i = 0; i < cluster.nodes.length - 1; i++) {
           addConnection(cluster.nodes[i], cluster.nodes[i+1], "A");
         }
       });
-      // Additional random green connections
+      // Random additional green connections
       clusters.forEach(cluster => {
         const cNodes = cluster.nodes;
         for (let i = 0; i < cNodes.length; i++) {
@@ -330,7 +315,7 @@
           }
         }
       });
-      // 2) Connect each cluster to connector systems with blue
+      // 2) Connect clusters to connector systems with blue skips
       const connectorNodes = nodes.filter(n => n.cluster === null);
       clusters.forEach(cluster => {
         if (cluster.nodes.length === 0) return;
@@ -363,11 +348,11 @@
     // Render function
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       ctx.save();
       ctx.translate(offsetX, offsetY);
       ctx.scale(scale, scale);
 
+      // Draw connections
       connections.forEach(conn => {
         ctx.beginPath();
         ctx.moveTo(conn.source.x, conn.source.y);
@@ -379,6 +364,7 @@
         ctx.stroke();
       });
 
+      // Draw nodes and ships
       nodes.forEach(node => {
         let r = (hoverNode === node) ? 7 : 5;
         ctx.beginPath();
@@ -397,7 +383,7 @@
       });
       ctx.restore();
 
-      // Draw labels in screen space so they remain fixed size
+      // Draw labels (fixed size)
       nodes.forEach(node => {
         const sc = worldToScreen(node.x, node.y);
         let labelX = sc.x + 8, labelY = sc.y - 8;
@@ -479,8 +465,7 @@
       }
     });
 
-    // Sidebar and pinned systems
-    // Remove duplicate declaration: use the existing selectedNode variable.
+    // Sidebar & pinned systems
     const systemDetailsTextarea = document.getElementById("systemDetails");
     const regenerateBtn = document.getElementById("regenerateBtn");
     const addShipBtn = document.getElementById("addShipBtn");
@@ -604,16 +589,16 @@
     window.movePinnedUp = function(idx) {
       if (idx > 0) {
         const temp = pinnedSystems[idx];
-        pinnedSystems[idx] = pinnedSystems[idx - 1];
-        pinnedSystems[idx - 1] = temp;
+        pinnedSystems[idx] = pinnedSystems[idx-1];
+        pinnedSystems[idx-1] = temp;
         renderPinnedSystems();
       }
     };
     window.movePinnedDown = function(idx) {
       if (idx < pinnedSystems.length - 1) {
         const temp = pinnedSystems[idx];
-        pinnedSystems[idx] = pinnedSystems[idx + 1];
-        pinnedSystems[idx + 1] = temp;
+        pinnedSystems[idx] = pinnedSystems[idx+1];
+        pinnedSystems[idx+1] = temp;
         renderPinnedSystems();
       }
     };
