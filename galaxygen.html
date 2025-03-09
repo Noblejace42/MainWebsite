@@ -116,9 +116,7 @@
       .catch(err => console.error('nav load error:', err));
   </script>
 
-  <!-- systemgen.js must define generateSystem, generateSystemText, getCurrentSystemName, etc. -->
-  <script src="systemgen.js"></script>
-
+  <!-- Removed dependency on external systemgen functions -->
   <script>
   document.addEventListener('DOMContentLoaded', () => {
     let offsetX = 0, offsetY = 0, scale = 1;
@@ -132,13 +130,14 @@
     let hoverNode = null;
     let pinnedSystems = [];
 
-    /* Adjusted so you actually get 500 nodes if possible. */
+    /* Settings */
     const totalNodes = 500;
     const clusterCountRange = [10, 60];
-    // Removed maxNodesPerCluster to let you approach 500
-    const minSystemDist = 50;
+    const minSystemDist = 20; // reduced to ease placement
     const worldWidth = 5000, worldHeight = 5000;
     const connectorSystemsCount = 8;
+    // Increase cluster radii to allow more nodes
+    const clusterMinRadius = 200, clusterMaxRadius = 400;
 
     const canvas = document.getElementById("galaxyCanvas");
     const ctx = canvas.getContext("2d");
@@ -193,7 +192,8 @@
       const cCount = Math.floor(Math.random() * (clusterCountRange[1] - clusterCountRange[0] + 1)) + clusterCountRange[0];
       for (let i = 0; i < cCount; i++) {
         const center = { x: Math.random() * worldWidth, y: Math.random() * worldHeight };
-        const radius = 50 + Math.random() * 50; // smaller or bigger
+        // Use larger radii for clusters
+        const radius = clusterMinRadius + Math.random() * (clusterMaxRadius - clusterMinRadius);
         clusters.push({ center, radius, nodes: [] });
       }
     }
@@ -201,7 +201,7 @@
     function generateNodes() {
       nodes = [];
       generateClusters();
-      // Distribute 500 among the clusters
+      // Distribute 500 nodes among clusters
       let nodesPerCluster = Math.floor(totalNodes / clusters.length);
       let extra = totalNodes % clusters.length;
 
@@ -209,8 +209,9 @@
         let count = nodesPerCluster;
         if (extra > 0) { count++; extra--; }
         for (let i = 0; i < count; i++) {
-          let placed = false; let attempts = 0;
-          while (!placed && attempts < 500) { // up attempts
+          let placed = false; 
+          let attempts = 0;
+          while (!placed && attempts < 500) {
             attempts++;
             const angle = Math.random() * Math.PI * 2;
             const distance = Math.random() * cluster.radius;
@@ -218,25 +219,15 @@
             const y = cluster.center.y + Math.sin(angle) * distance;
             let tooClose = cluster.nodes.some(n => dist(n.x, n.y, x, y) < minSystemDist);
             if (!tooClose) {
-              // generate system name & text so labels match plaintext
-              if (typeof generateSystem === "function") generateSystem();
-              let name = "Sys" + (nodes.length + 1);
-              if (typeof getCurrentSystemName === "function") {
-                name = getCurrentSystemName();
-              } else if (typeof generateSystemCode === "function") {
-                name = generateSystemCode();
-              }
-              let details = "System details not available.";
-              if (typeof generateSystemText === "function") {
-                details = generateSystemText();
-              }
+              // Create a default system text and use it for both name and details.
+              let defaultText = "System " + (nodes.length + 1) + " - A mysterious star system.";
               const node = {
                 id: nodes.length,
                 x,
                 y,
                 cluster,
-                systemName: name,
-                systemDetails: details,
+                systemName: defaultText,
+                systemDetails: defaultText,
                 ships: []
               };
               cluster.nodes.push(node);
@@ -247,27 +238,16 @@
         }
       });
 
-      // Add connector systems
+      // Add connector systems (outside any cluster)
       for (let i = 0; i < connectorSystemsCount; i++) {
-        if (typeof generateSystem === "function") generateSystem();
-        let name = "Bridge" + (i + 1);
-        if (typeof getCurrentSystemName === "function") {
-          name = getCurrentSystemName();
-        } else if (typeof generateSystemCode === "function") {
-          name = generateSystemCode();
-        }
-        let details = "Connector bridging clusters.";
-        if (typeof generateSystemText === "function") {
-          details = generateSystemText();
-        }
-        const x = Math.random() * worldWidth, y = Math.random() * worldHeight;
+        let defaultText = "Bridge " + (i + 1) + " - Connector system.";
         nodes.push({
           id: nodes.length,
-          x,
-          y,
+          x: Math.random() * worldWidth,
+          y: Math.random() * worldHeight,
           cluster: null,
-          systemName: name,
-          systemDetails: details,
+          systemName: defaultText,
+          systemDetails: defaultText,
           ships: []
         });
       }
@@ -276,11 +256,11 @@
 
     function addConnection(nA, nB, cType) {
       if (!nA || !nB || nA === nB) return false;
-      // check duplicates
+      // Prevent duplicate connections.
       for (let c of connections) {
         if ((c.source === nA && c.target === nB) || (c.source === nB && c.target === nA)) return false;
       }
-      // intersection check if same line type
+      // For green and blue connections, avoid line intersections.
       if (cType === "A" || cType === "B") {
         for (let c of connections) {
           if (c.type === cType) {
@@ -296,27 +276,23 @@
 
     function generateConnections() {
       connections = [];
-      // 1) Green connections within clusters:
-      // For each node in a cluster (non-connector), try to generate 1-3 connections to its closest stars,
-      // ensuring the lines do not overlap.
+      // 1) Green connections within clusters: each node attempts 1–3 connections to its nearest neighbors.
       clusters.forEach(cluster => {
         cluster.nodes.forEach(node => {
           let otherNodes = cluster.nodes.filter(n => n !== node);
           if (otherNodes.length === 0) return;
-          // Sort neighbors by distance.
+          // Sort neighbors by distance
           otherNodes.sort((a, b) => dist(node.x, node.y, a.x, a.y) - dist(node.x, node.y, b.x, b.y));
-          // Decide on a random target between 1 and up to 3 (or available count).
           let desiredConnections = Math.floor(Math.random() * Math.min(3, otherNodes.length)) + 1;
           let connectionsMade = 0;
           let index = 0;
-          // Try each neighbor until you hit the desired count.
           while (connectionsMade < desiredConnections && index < otherNodes.length) {
             if (addConnection(node, otherNodes[index], "A")) {
               connectionsMade++;
             }
             index++;
           }
-          // If no connection was made, force at least one connection.
+          // If none were made, force one connection.
           if (connectionsMade === 0 && otherNodes.length > 0) {
             for (let i = 0; i < otherNodes.length; i++) {
               if (addConnection(node, otherNodes[i], "A")) {
@@ -327,7 +303,7 @@
         });
       });
 
-      // 2) Connect clusters to connectors with blue
+      // 2) Blue connections: connect one random node from each cluster to every connector system.
       const connectorNodes = nodes.filter(n => n.cluster === null);
       clusters.forEach(cluster => {
         if (cluster.nodes.length === 0) return;
@@ -336,7 +312,7 @@
           addConnection(randNode, connNode, "B");
         });
       });
-      // 3) Connect connectors with each other
+      // 3) Blue connections among connector systems.
       for (let i = 0; i < connectorNodes.length; i++) {
         for (let j = i + 1; j < connectorNodes.length; j++) {
           if (Math.random() < 0.6) {
@@ -344,7 +320,7 @@
           }
         }
       }
-      // 4) Rare red connections
+      // 4) Rare red connections between distant nodes.
       for (let i = 0; i < 50; i++) {
         let A = nodes[Math.floor(Math.random() * nodes.length)];
         let B = nodes[Math.floor(Math.random() * nodes.length)];
@@ -375,7 +351,7 @@
         ctx.stroke();
       });
 
-      // Draw nodes + ships
+      // Draw nodes and their ships
       nodes.forEach(node => {
         let r = (hoverNode === node) ? 7 : 5;
         ctx.beginPath();
@@ -383,7 +359,6 @@
         ctx.fillStyle = (hoverNode === node) ? "#ff0" : "#fff";
         ctx.fill();
 
-        // Draw ships orbiting closer
         node.ships.forEach(ship => {
           const ox = node.x + Math.cos(ship.angle) * (10 + Math.random() * 5);
           const oy = node.y + Math.sin(ship.angle) * (10 + Math.random() * 5);
@@ -395,7 +370,7 @@
       });
       ctx.restore();
 
-      // Draw labels in screen coordinates
+      // Draw node labels (using systemName, which is synced with systemDetails)
       ctx.font = "14px Orbitron";
       nodes.forEach(node => {
         const sc = worldToScreen(node.x, node.y);
@@ -406,7 +381,6 @@
     }
 
     function animate() {
-      // Animate ship orbits
       nodes.forEach(node => {
         node.ships.forEach(ship => {
           ship.angle += 0.02;
@@ -416,7 +390,7 @@
       requestAnimationFrame(animate);
     }
 
-    // Panning
+    // Panning and zooming events
     canvas.addEventListener("mousedown", e => {
       isPanning = true;
       startPan = { x: e.clientX - offsetX, y: e.clientY - offsetY };
@@ -428,7 +402,8 @@
         render();
       } else {
         const { x: wx, y: wy } = screenToWorld(e.clientX, e.clientY);
-        let found = null; let minD = 12;
+        let found = null; 
+        let minD = 12;
         for (let node of nodes) {
           if (dist(wx, wy, node.x, node.y) < minD) { found = node; break; }
         }
@@ -452,7 +427,7 @@
       render();
     });
 
-    // Node click => open sidebar
+    // Clicking on a node opens the sidebar with its details.
     canvas.addEventListener("click", e => {
       if (isPanning) return;
       const { x: wx, y: wy } = screenToWorld(e.clientX, e.clientY);
@@ -477,7 +452,7 @@
       systemDetailsTextarea.value = node.systemDetails;
       renderShipList(node);
     }
-    // When the modal is edited, update both systemDetails and systemName so that they stay in sync.
+    // When the details are edited, update both systemDetails and systemName.
     systemDetailsTextarea.addEventListener("input", e => {
       if (selectedNode) {
         selectedNode.systemDetails = e.target.value;
@@ -485,17 +460,14 @@
         render();
       }
     });
-    // Regenerate button: generate new text and update both systemName and systemDetails.
+    // Regenerate button: simply creates a new default text.
     regenerateBtn.addEventListener("click", () => {
       if (!selectedNode) return;
-      if (typeof generateSystem === "function" && typeof generateSystemText === "function") {
-        generateSystem();
-        let newText = generateSystemText();
-        selectedNode.systemName = newText;
-        selectedNode.systemDetails = newText;
-        systemDetailsTextarea.value = newText;
-        render();
-      }
+      let newText = "System " + (selectedNode.id + 1) + " - Regenerated star system.";
+      selectedNode.systemName = newText;
+      selectedNode.systemDetails = newText;
+      systemDetailsTextarea.value = newText;
+      render();
     });
     addShipBtn.addEventListener("click", () => {
       if (!selectedNode) return;
@@ -609,7 +581,7 @@
       }
     };
 
-    // Searching
+    // Searching functionality
     document.getElementById("nodeSearch").addEventListener("change", e => {
       const query = e.target.value.toLowerCase();
       const found = nodes.find(n => n.systemName.toLowerCase().includes(query));
@@ -655,7 +627,7 @@
       offsetX = 0; offsetY = 0; scale = 1; render();
     });
 
-    // Jump to random system
+    // Jump to a random system
     document.getElementById("jumpRandomBtn").addEventListener("click", () => {
       if (nodes.length === 0) {
         console.warn("No nodes to jump to!");
@@ -667,7 +639,7 @@
       render();
     });
 
-    // Save & Load Map
+    // Save & Load Map functionality
     document.getElementById("saveMapBtn").addEventListener("click", () => {
       const mapData = { nodes, connections, offsetX, offsetY, scale, clusters };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mapData, null, 2));
@@ -698,7 +670,7 @@
       reader.readAsText(file);
     });
 
-    // Generate and animate the galaxy
+    // Finally, generate and animate the galaxy.
     console.log("Generating galaxy...");
     generateNodes();
     generateConnections();
