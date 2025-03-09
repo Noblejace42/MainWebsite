@@ -897,7 +897,7 @@
         "id": "crimeevent18",
         "description": "Attempt to intimidate my rival with an aggressive attack.",
         "rewards": {
-          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3, Accurate 3)",
+          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3,  3)",
           "credits": 50,
           "bond": "I tried to intimidate my rival _____ and it backfired in the worst possible way."
         },
@@ -1207,7 +1207,7 @@
         "id": "spaceevent5",
         "description": "Explore a derelict starship you found floating in deep space.",
         "rewards": {
-          "item": "Windlance Rifle W1d8 (Technical, Ergonomic, Energized, Accurate 1)",
+          "item": "Windlance Rifle W1d8 (Technical, Ergonomic, Energized,  1)",
           "credits": 0,
           "bond": "I uncovered a powerful weapon in a destroyed starship lost in the _____ system."
         },
@@ -1534,7 +1534,7 @@
         "id": "espionageevent12",
         "description": "Escape a security ambush during a covert operation, proving your shooting skills.",
         "rewards": {
-          "item": "Precision Carbine W1d8 (Scoped, Ergonomic, Ammo, Long-range, Cycling, Potent 1)",
+          "item": "Precision Carbine W1d8 (Scoped, Ergonomic, Ammo, Long-range, Cycling,  1)",
           "credits": 250,
           "bond": "Security coordinator _____ almost killed me when I escaped from them."
         },
@@ -1724,7 +1724,7 @@
         "id": "educationevent11",
         "description": "Make an innovative research proposal to a grant committee.",
         "rewards": {
-          "item": "Honarary Saber W1d6 (Quick, Unruly, Melee, Ornate, Potent 2)",
+          "item": "Honarary Saber W1d6 (Quick, Unruly, Melee, Ornate, Potent 1)",
           "credits": 600,
           "bond": "I secured vital funding from _____, but I still owe them the fruits of my labor."
         },
@@ -2177,7 +2177,7 @@
         "id": "warfareevent1",
         "description": "Lead a desperate charge against overwhelming enemy forces.",
         "rewards": {
-          "item": "Battle-worn Scattergun (Damaged, Ergonomic, Unruly, Near-range, Ammo, Potent 2, Cycling)",
+          "item": "Battle-worn Scattergun (Damaged, Ergonomic, Unruly, Near-range, Ammo, Potent 1, Cycling)",
           "credits": 10,
           "bond": "I led from the front, defying _____ and their army."
         },
@@ -2203,7 +2203,7 @@
         "id": "warfareevent3",
         "description": "Sabotage an enemy installation deep behind their lines.",
         "rewards": {
-          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3, Accurate 3)",
+          "item": "Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3, Potent 3)",
           "credits": 50,
           "bond": "I struck at the heart of the enemy’s war machine on _____."
         },
@@ -2324,7 +2324,7 @@
         "id": "warfareevent14",
         "description": "Fight in swift, guerrilla strikes that leave your enemy guessing.",
         "rewards": {
-          "item": "R30 Scout Repeater (Quick, Scoped, Long-range, Cycling, Ammo), Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3, Accurate 3)",
+          "item": "R30 Scout Repeater (Quick, Scoped, Long-range, Cycling, Ammo), Grenade W1d10 (Near-range, Consumable 1, Explosive, Violent 3,  3)",
           "credits": 30,
           "bond": "I led the resistance on _____ when all hope seemed lost."
         },
