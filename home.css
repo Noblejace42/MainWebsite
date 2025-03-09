@@ -1,106 +1,110 @@
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  font-family: 'Atkinson Hyperlegible', sans-serif;
-  background: #1e2d3a; 
+  font-family: 'Press Start 2P', monospace;
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
   overflow: hidden;
+  color: #00ffcc;
 }
 
-/* Center Card with some "breathing room" up top */
 .center-card {
   position: absolute;
   max-width: 90%;
   width: 700px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(230,230,230,0.95));
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 4px solid #00ffcc;
+  box-shadow: 0 10px 25px rgba(0,255,204,0.3);
+  border-radius: 0; /* sharp, pixelated corners */
   overflow: hidden;
   text-align: center;
   z-index: 9999;
   padding: 20px 30px 30px;
-  border: 2px solid rgba(255,255,255,0.3);
-  backdrop-filter: blur(4px);
+  image-rendering: pixelated;
 }
 
-/* Buttons row */
 .card-buttons {
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
 }
+
 .card-btn {
-  background: #336699;
-  color: #fff;
+  background: #00ffcc;
+  color: #000;
   text-decoration: none;
   padding: 10px 15px;
-  border-radius: 8px;
+  border: 2px solid #00ffcc;
   font-weight: bold;
   transition: background 0.3s ease;
 }
+
 .card-btn:hover {
-  background: #224466;
+  background: #00cc99;
 }
 
-/* Round personal image */
 .card-image {
   margin: 0 auto 15px;
   width: 200px;
   height: 200px;
-  border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  border: 2px solid #00ffcc;
+  image-rendering: pixelated;
 }
+
 .card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  image-rendering: pixelated;
 }
 
-/* Contact info text */
 .contact-card h1 {
   margin: 8px 0;
   font-size: 2em;
-  color: #223344;
+  color: #00ffcc;
 }
+
 .contact-card h3 {
   margin: 4px 0 15px;
   font-size: 1.2em;
-  color: #445566;
+  color: #00cc99;
 }
+
 .contact-card p,
 .contact-card a {
   margin: 4px 0;
-  color: #333;
+  color: #00ffcc;
   text-decoration: none;
 }
+
 .contact-card a:hover {
   text-decoration: underline;
 }
+
 .contact-card .links a {
-  color: #0066cc;
+  color: #ff00ff;
   margin: 0 6px;
 }
 
-/* Smaller Spotify container with a “blue” attempt */
 .spotify-container {
   margin-top: 20px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.2);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  border: 2px solid #00ffcc;
+  box-shadow: 0 2px 8px rgba(0,255,204,0.3);
   padding: 10px;
+  background: rgba(0,0,0,0.8);
 }
+
 .spotify-title {
   margin: 0 0 8px;
   font-size: 1.1em;
-  color: #224466;
+  color: #00ffcc;
   font-weight: bold;
 }
 
-/* Container for the moving images */
 .tiles-container {
   position: absolute;
   top: 0; 
@@ -111,13 +115,13 @@ html, body {
   pointer-events: none;
 }
 
-/* Style for the spawned images */
 .moving-tile {
   position: absolute;
-  background-position: center center;
+  background-position: center;
   background-size: cover;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,255,204,0.3);
+  border: 2px solid #00ffcc;
+  image-rendering: pixelated;
   opacity: 1;
   pointer-events: none;
   transition: opacity 1s ease;
