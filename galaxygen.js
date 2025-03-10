@@ -5,8 +5,8 @@
 
 // A global store of all relevant data
 let galaxyData = {
-  rows: 10,      // default or update as needed
-  cols: 10,      // default or update as needed
+  rows: 10,      // default row count
+  cols: 10,      // default column count
   hexSize: 40,   // radius in pixels for each hex
   hexes: [],     // array of hex tile objects
   view: {
@@ -91,7 +91,9 @@ function generateHexMap() {
   for (let r = 0; r < galaxyData.rows; r++) {
     for (let c = 0; c < galaxyData.cols; c++) {
       let center = hexToPixel(c, r, galaxyData.hexSize);
-      let systemText = generateSystemText(); // from systemgen.js
+
+      // Use the safe wrapper so we don't break if systemData is null
+      let systemText = safeGenerateSystemText();
       let systemName = parseFirstLine(systemText);
 
       let hexTile = {
@@ -109,6 +111,28 @@ function generateHexMap() {
 
       galaxyData.hexes.push(hexTile);
     }
+  }
+}
+
+//----------------------------------------------
+// SAFE WRAPPER FOR generateSystemText()
+//
+// If systemData is null or the function is missing,
+// return a fallback string instead of throwing an error.
+//
+function safeGenerateSystemText() {
+  // Check if generateSystemText exists and systemData is valid
+  if (typeof generateSystemText === 'function' && window.systemData) {
+    try {
+      return generateSystemText();
+    } catch (err) {
+      console.error("Error in generateSystemText:", err);
+      return "Fallback System\n(No data available.)";
+    }
+  } else {
+    // If systemData is null or generateSystemText isn't available, use fallback
+    console.warn("systemData is null or generateSystemText not found. Using fallback.");
+    return "Fallback System\n(No data available.)";
   }
 }
 
@@ -169,11 +193,10 @@ function handleMouseMove(e) {
 function handleMouseUp(e) {
   isDragging = false;
 
-  // If this was a click (small movement), test for hex
+  // If it was essentially a click (very small drag), check for a hex
   let dx = e.clientX - lastMouseX;
   let dy = e.clientY - lastMouseY;
   if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
-    // Convert from screen coords to map coords
     let canvas = document.getElementById('galaxyCanvas');
     let rect = canvas.getBoundingClientRect();
     let x = (e.clientX - rect.left) - galaxyData.view.offsetX;
@@ -220,7 +243,6 @@ function openSidebar(hexTile) {
 }
 
 function closeSidebar() {
-  // If user edited text, update
   if (currentHex) {
     let newText = document.getElementById('systemTextArea').value;
     currentHex.systemText = newText;
@@ -232,7 +254,7 @@ function closeSidebar() {
 
 function handleRegenerateSystem() {
   if (!currentHex) return;
-  let newText = generateSystemText(); // from systemgen.js
+  let newText = safeGenerateSystemText();
   currentHex.systemText = newText;
   currentHex.systemName = parseFirstLine(newText);
   document.getElementById('systemTextArea').value = newText;
@@ -268,19 +290,17 @@ function handleNodeSearch() {
 function handleShipSearch() {
   let query = document.getElementById('shipSearchInput').value.trim().toLowerCase();
   if (!query) return;
-  let found = null;
   let foundHex = null;
   for (let hex of galaxyData.hexes) {
     for (let s of hex.ships) {
       if (s.name.toLowerCase().includes(query)) {
-        found = s;
         foundHex = hex;
         break;
       }
     }
-    if (found) break;
+    if (foundHex) break;
   }
-  if (found && foundHex) {
+  if (foundHex) {
     centerViewOn(foundHex.center.x, foundHex.center.y);
     openSidebar(foundHex);
   }
@@ -405,6 +425,7 @@ function drawHexTile(ctx, hex) {
 
 // Convert hex row, col to pixel center (simple "odd-r" horizontal layout)
 function hexToPixel(col, row, size) {
+  // For an "odd-r" layout:
   let offsetX = (row % 2 === 1) ? size : 0;
   let x = col * (size * 2) + offsetX + size;
   let y = row * (size * 1.5) + size;
@@ -414,7 +435,7 @@ function hexToPixel(col, row, size) {
 // Return the corner for a given hex center, size, and corner index [0..5]
 function hexCorner(center, size, i) {
   // Each corner is 60 degrees apart
-  let angleDeg = 60 * i - 30; // offset so flat top is horizontal
+  let angleDeg = 60 * i - 30; // offset so the flat top is horizontal
   let angleRad = Math.PI / 180 * angleDeg;
   let x = center.x + size * Math.cos(angleRad);
   let y = center.y + size * Math.sin(angleRad);
@@ -423,8 +444,7 @@ function hexCorner(center, size, i) {
 
 // Find the neighbor for a given hex (row, col) + edgeIndex
 function findNeighborHex(row, col, edgeIndex) {
-  // For "odd-r" horizontal layout:
-  // edgeIndex goes 0..5 around
+  // For "odd-r" horizontal layout. You may need to refine these offsets.
   let offsetsOdd = [
     [ 0, +1],  // E
     [+1, +1],  // SE
@@ -439,32 +459,25 @@ function findNeighborHex(row, col, edgeIndex) {
     [ 0, -1],  // SW
     [ 0, -1],  // W
     [-1, -1],  // NW
-    [ 0,  0]   // NE  (this might need refining)
+    [ 0,  0]   // NE  (this might need refinement)
   ];
-  // This is a simplified example. The offsets differ for even vs odd rows.
-  // You can refine for your chosen coordinate system.
-  
   let rowIsOdd = (row % 2 === 1);
   let offsets = rowIsOdd ? offsetsOdd : offsetsEven;
   let nr = row + offsets[edgeIndex][0];
   let nc = col + offsets[edgeIndex][1];
 
-  // Check bounds
   if (nr < 0 || nr >= galaxyData.rows || nc < 0 || nc >= galaxyData.cols) {
     return null;
   }
-  // Find that hex from galaxyData.hexes
   return galaxyData.hexes.find(h => h.row === nr && h.col === nc);
 }
 
 // Find which hex was clicked
 function findHexAtPosition(px, py) {
   // Simple approach: loop all hexes, check distance from center.
-  // For bigger grids, you'd optimize with a hash or transform approach.
   for (let hex of galaxyData.hexes) {
     let dist = distance(px, py, hex.center.x, hex.center.y);
     if (dist < galaxyData.hexSize * 0.9) {
-      // Found a likely hex
       return hex;
     }
   }
@@ -480,8 +493,8 @@ function distance(x1, y1, x2, y2) {
 // Center the view on a given coordinate
 function centerViewOn(x, y) {
   let canvas = document.getElementById('galaxyCanvas');
-  galaxyData.view.offsetX = (canvas.width/2) - x*galaxyData.view.scale;
-  galaxyData.view.offsetY = (canvas.height/2) - y*galaxyData.view.scale;
+  galaxyData.view.offsetX = (canvas.width / 2) - x * galaxyData.view.scale;
+  galaxyData.view.offsetY = (canvas.height / 2) - y * galaxyData.view.scale;
 }
 
 // Reset the view
