@@ -4,110 +4,23 @@
   <meta charset="UTF-8">
   <title>Galaxy Generator (Hex Map)</title>
 
-  <!-- Link your main styles (unchanged) -->
+  <!-- Link your main styles -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Inline style overrides: only for this page, so we do not affect other pages -->
-  <style>
-    /* Force a dark background for the body (only for this page) */
-    <body class="galaxygen">
- {
-      background-color: #000 !important;
-      background-image: none !important;
-    }
-
-    /* Provide a container for the nav.html object */
-    #nav-container {
-      width: 100%;
-      /* You can adjust height to match your nav's size */
-      height: 60px;
-      overflow: hidden;
-    }
-
-    /* Optional: ensure the nav object is displayed properly */
-    #nav-container object {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* The main container for the galaxy canvas + sidebar */
-    #galaxy-container {
-      margin-top: 60px; /* ensure it sits below the nav area */
-      position: relative;
-      overflow: hidden;
-      /* You can tweak the size/padding here if needed */
-    }
-
-    /* A fixed-size canvas or you can make it flexible */
-    #galaxyCanvas {
-      border: 1px solid #444;
-      display: block;
-      margin: 0 auto; /* center it horizontally if desired */
-      margin-bottom: 10px;
-      background-color: #000;
-    }
-
-    /* Sidebar for system details */
-    #systemDetailsSidebar {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 300px;
-      height: 100%;
-      background: #262626;
-      border-left: 2px solid #444;
-      padding: 10px;
-      box-sizing: border-box;
-      overflow-y: auto;
-      z-index: 2000; /* above the canvas */
-    }
-
-    #systemTextArea {
-      width: 100%;
-      height: 200px;
-      background: #1a1a1a;
-      color: #ddd;
-      border: 1px solid #555;
-      border-radius: 4px;
-      margin-bottom: 10px;
-      font-family: monospace;
-      padding: 5px;
-    }
-
-    /* Keep your existing .distinct-button, etc., from styles.css as is. */
-
-    /* We can add minimal button styling overrides if needed */
-    #resetViewBtn {
-      margin: 10px;
-    }
-
-    /* Search and save/load sections, just for layout clarity */
-    #search-section, #saveLoadSection {
-      margin: 10px;
-      text-align: center;
-    }
-  </style>
-
-  <!-- Reference your system generator functions -->
+  <!-- Reference system generator (defines generateSystemText(), etc.) -->
   <script src="systemgen.js"></script>
 
-  <!-- The main script for the hex-based galaxy generator -->
+  <!-- Reference the Galaxy Generator script (below) -->
   <script src="galaxygen.js"></script>
 </head>
-<body>
+
+<!-- Use class="galaxygen" so only this page is overridden to black -->
+<body class="galaxygen">
 
   <!-- Dynamically fetch your nav.html to avoid duplication -->
-<div id="navContainer"></div>
-<script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
-</script>
+  <div id="nav-container">
+    <object data="nav.html" width="100%" height="60px"></object>
+  </div>
 
   <!-- Main container: holds the canvas & the sidebar -->
   <div id="galaxy-container">
