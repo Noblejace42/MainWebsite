@@ -98,9 +98,15 @@
 <body>
 
   <!-- Dynamically fetch your nav.html to avoid duplication -->
-  <div id="nav-container">
-    <object data="nav.html"></object>
-  </div>
+<div id="navContainer"></div>
+<script>
+  fetch('nav.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('navContainer').innerHTML = data;
+    })
+    .catch(err => console.error('Error loading nav:', err));
+</script>
 
   <!-- Main container: holds the canvas & the sidebar -->
   <div id="galaxy-container">
