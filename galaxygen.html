@@ -2,125 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Galaxy Generator</title>
+  <title>Galaxy Generator (Hex Map)</title>
 
-  <!-- Link to the main styles (with background override) -->
+  <!-- Link your main styles (unchanged) -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Reference existing system generator logic if needed -->
-  <script src="systemgen.js"></script><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Galaxy Generator</title>
+  <!-- Inline style overrides: only for this page, so we do not affect other pages -->
+  <style>
+    /* Force a dark background for the body (only for this page) */
+    body {
+      background-color: #000 !important;
+      background-image: none !important;
+    }
 
-  <!-- Link to the main styles -->
-  <link rel="stylesheet" href="styles.css">
+    /* Provide a container for the nav.html object */
+    #nav-container {
+      width: 100%;
+      /* You can adjust height to match your nav's size */
+      height: 60px;
+      overflow: hidden;
+    }
 
-  <!-- Reference systemgen.js if needed -->
+    /* Optional: ensure the nav object is displayed properly */
+    #nav-container object {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* The main container for the galaxy canvas + sidebar */
+    #galaxy-container {
+      margin-top: 60px; /* ensure it sits below the nav area */
+      position: relative;
+      overflow: hidden;
+      /* You can tweak the size/padding here if needed */
+    }
+
+    /* A fixed-size canvas or you can make it flexible */
+    #galaxyCanvas {
+      border: 1px solid #444;
+      display: block;
+      margin: 0 auto; /* center it horizontally if desired */
+      margin-bottom: 10px;
+      background-color: #000;
+    }
+
+    /* Sidebar for system details */
+    #systemDetailsSidebar {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 300px;
+      height: 100%;
+      background: #262626;
+      border-left: 2px solid #444;
+      padding: 10px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      z-index: 2000; /* above the canvas */
+    }
+
+    #systemTextArea {
+      width: 100%;
+      height: 200px;
+      background: #1a1a1a;
+      color: #ddd;
+      border: 1px solid #555;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-family: monospace;
+      padding: 5px;
+    }
+
+    /* Keep your existing .distinct-button, etc., from styles.css as is. */
+
+    /* We can add minimal button styling overrides if needed */
+    #resetViewBtn {
+      margin: 10px;
+    }
+
+    /* Search and save/load sections, just for layout clarity */
+    #search-section, #saveLoadSection {
+      margin: 10px;
+      text-align: center;
+    }
+  </style>
+
+  <!-- Reference your system generator functions -->
   <script src="systemgen.js"></script>
 
-  <!-- Reference the Galaxy Generator script -->
-  <script src="galaxygen.js"></script>
-</head>
-<body class="galaxygen">
-  <!-- Navigation bar -->
-  <nav>
-    <div class="nav-left">
-      <a href="systemgen.html">System Generator</a> |
-      <a href="lifepath.html">Lifepath Generator</a> |
-      <a href="weapongenerator.html">Weapon Generator</a> |
-      <a href="combat_tracker.html">Combat Tracker</a> |
-      <a href="abilitytree.html">Abilities</a> |
-      <a href="shiphardpointgenerator.html">Shipyard</a> |
-      <a href="galaxygen.html">Galaxy Generator</a>
-    </div>
-    <div class="nav-right">
-      <a href="index.html" class="distinct-button">Home</a>
-    </div>
-  </nav>
-
-  <!-- Main container for the galaxy map -->
-  <div id="galaxy-container">
-    <!-- Canvas for rendering galaxy -->
-    <canvas id="galaxyCanvas" width="1200" height="800"></canvas>
-    <!-- Reset view button -->
-    <button id="resetViewBtn">Reset View</button>
-
-    <!-- Sidebar for node/system details -->
-    <div id="systemDetailsSidebar">
-      <button id="closeSidebarBtn">Close</button>
-      <textarea id="systemTextArea"></textarea>
-      <button id="regenerateSystemBtn">Regenerate</button>
-      <button id="addShipBtn">Add Ship</button>
-      <div id="shipDetailsContainer">
-        <!-- Container for ship details -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Search section for nodes and ships -->
-  <div id="search-section">
-    <input type="text" id="nodeSearchInput" placeholder="Search by system name">
-    <button id="nodeSearchBtn">Search Systems</button>
-    <input type="text" id="shipSearchInput" placeholder="Search by ship name">
-    <button id="shipSearchBtn">Search Ships</button>
-  </div>
-
-  <!-- Save/Load section -->
-  <div id="saveLoadSection">
-    <button id="saveMapBtn">Save Map</button>
-    <input type="file" id="loadMapInput">
-  </div>
-</body>
-</html>
-
-
-  <!-- Reference the Galaxy Generator script -->
+  <!-- The main script for the hex-based galaxy generator -->
   <script src="galaxygen.js"></script>
 </head>
 <body>
-<div id="navContainer"></div>
-<script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
-</script>
 
-  <!-- Main container for the galaxy map -->
+  <!-- Dynamically fetch your nav.html to avoid duplication -->
+  <div id="nav-container">
+    <object data="nav.html"></object>
+  </div>
+
+  <!-- Main container: holds the canvas & the sidebar -->
   <div id="galaxy-container">
-    <!-- Canvas for rendering galaxy -->
+    <!-- The hex map canvas -->
     <canvas id="galaxyCanvas" width="1200" height="800"></canvas>
-    <!-- Reset view button -->
+
+    <!-- "Reset View" button for panning/zooming -->
     <button id="resetViewBtn">Reset View</button>
 
-    <!-- Sidebar for node/system details -->
+    <!-- Sidebar for system details -->
     <div id="systemDetailsSidebar">
       <button id="closeSidebarBtn">Close</button>
       <textarea id="systemTextArea"></textarea>
       <button id="regenerateSystemBtn">Regenerate</button>
       <button id="addShipBtn">Add Ship</button>
       <div id="shipDetailsContainer">
-        <!-- Ship listing or separate modals for editing ship data can go here -->
+        <!-- Could list ships or provide additional editing here -->
       </div>
     </div>
   </div>
 
-  <!-- Section for searching node or ship names -->
+  <!-- Search for nodes or ships -->
   <div id="search-section">
     <input type="text" id="nodeSearchInput" placeholder="Search by system name">
     <button id="nodeSearchBtn">Search Systems</button>
+
     <input type="text" id="shipSearchInput" placeholder="Search by ship name">
     <button id="shipSearchBtn">Search Ships</button>
   </div>
 
-  <!-- Section for saving/loading map data -->
+  <!-- Save/Load map data -->
   <div id="saveLoadSection">
     <button id="saveMapBtn">Save Map</button>
     <input type="file" id="loadMapInput">
   </div>
+
 </body>
 </html>
