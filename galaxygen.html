@@ -1,671 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Galaxy Generator (Hex Map)</title>
-  
-  <!-- Reference your global stylesheet -->
-  <link rel="stylesheet" href="styles.css">
-  
-  <!-- Inline CSS overrides to make the entire page the map and disable scrolling -->
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden; /* Disable scrollbars */
-      background-color: #000 !important;
-      background-image: none !important;
-      color: #ccc;
-      font-family: 'Orbitron', sans-serif;
-    }
-    
-    /* Top navigation container */
-    #navContainer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px; /* adjust as needed */
-      overflow: hidden;
-      border-bottom: 1px solid #444;
-    }
-    
-    /* Bottom card for controls */
-    #bottomCard {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 80px;
-      background: #222;
-      padding: 10px;
-      box-sizing: border-box;
-      text-align: center;
-      border-top: 1px solid #444;
-    }
-    
-    /* Middle container for the hex map */
-    #galaxyContainer {
-      position: absolute;
-      top: 60px;     /* below nav */
-      bottom: 80px;  /* above bottom card */
-      left: 0;
-      right: 0;
-      overflow: hidden;
-      background: #000;
-    }
-    
-    /* The canvas fills the middle container */
-    #galaxyCanvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background-color: #000;
-      border: 1px solid #444;
-    }
-    
-    /* Sidebar for system details */
-    #systemDetailsSidebar {
-      display: none;
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 300px;
-      height: 100%;
-      background: #262626;
-      border-left: 2px solid #444;
-      padding: 10px;
-      box-sizing: border-box;
-      overflow-y: auto;
-      z-index: 2000;
-    }
-    
-    #systemTextArea {
-      width: 100%;
-      height: 200px;
-      background: #1a1a1a;
-      color: #ddd;
-      border: 1px solid #555;
-      border-radius: 4px;
-      margin-bottom: 10px;
-      font-family: monospace;
-      padding: 5px;
-    }
-    
-    /* Styling for controls in the bottom card */
-    #bottomCard input[type="text"] {
-      width: 150px;
-      margin: 0 5px;
-    }
-    #bottomCard button {
-      margin: 0 5px;
-    }
-  </style>
-</head>
-<body>
-  <!-- Top nav container -->
-  <div id="navContainer"></div>
-  <script>
-    // Fetch nav.html and inject its contents into the navContainer
-    fetch('nav.html')
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById('navContainer').innerHTML = data;
-        console.log("[DEBUG] nav.html loaded successfully.");
-      })
-      .catch(err => console.error("[DEBUG] Error loading nav:", err));
-  </script>
-  
-  <!-- Middle container for the map -->
-  <div id="galaxyContainer">
-    <canvas id="galaxyCanvas"></canvas>
-    <!-- Sidebar for system details -->
-    <div id="systemDetailsSidebar">
-      <button id="closeSidebarBtn">Close</button>
-      <textarea id="systemTextArea"></textarea>
-      <button id="regenerateSystemBtn">Regenerate</button>
-      <button id="addShipBtn">Add Ship</button>
-      <div id="shipDetailsContainer"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxy Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Override default background and ensure full-page canvas */
+      body {
+        background: #000;
+        margin: 0;
+        overflow: hidden;
+      }
+      /* The hex map occupies the full screen beneath the nav bar */
+      #hexMapContainer {
+        position: absolute;
+        top: 60px;
+        bottom: 80px;
+        left: 0;
+        right: 0;
+      }
+      #hexMapCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      /* Bottom control panel card */
+      #controlPanel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(20, 20, 20, 0.9);
+        padding: 10px;
+        text-align: center;
+        z-index: 1001;
+      }
+      /* Sidebar for system details */
+      #sidebar {
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 300px;
+        height: calc(100% - 60px);
+        background: rgba(30, 30, 30, 0.95);
+        color: #ccc;
+        padding: 10px;
+        overflow-y: auto;
+        z-index: 1002;
+        display: none;
+      }
+      #sidebar textarea {
+        width: 100%;
+        height: 80%;
+        background: #1a1a1a;
+        color: #ddd;
+        border: 1px solid #444;
+        padding: 5px;
+        resize: none;
+      }
+    </style>
+  </head>
+  <body class="galaxygen">
+    <!-- Navigation Bar (fetched from nav.html) -->
+    <div id="navContainer"></div>
+    <script>
+      fetch('nav.html')
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById('navContainer').innerHTML = data;
+        })
+        .catch((err) => console.error('Error loading nav:', err));
+    </script>
+
+    <!-- Canvas container for the hex map -->
+    <div id="hexMapContainer">
+      <canvas id="hexMapCanvas"></canvas>
     </div>
-  </div>
-  
-  <!-- Bottom card for controls -->
-  <div id="bottomCard">
-    <input type="text" id="nodeSearchInput" placeholder="Search by system name">
-    <button id="nodeSearchBtn">Search Systems</button>
-    
-    <input type="text" id="shipSearchInput" placeholder="Search by ship name">
-    <button id="shipSearchBtn">Search Ships</button>
-    
-    <button id="saveMapBtn">Save Map</button>
-    <input type="file" id="loadMapInput">
-    
-    <button id="resetViewBtn">Reset View</button>
-  </div>
-  
-  <!-- Load systemgen.js (must define window.systemData & generateSystemText) -->
-  <script src="systemgen.js"></script>
-  
-  <!-- Galaxy generator code -->
-  <script>
-    console.log("[DEBUG] Galaxy generator script loaded.");
-    
-    // Wait for the DOM and systemData before initializing the galaxy generator.
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log("[DEBUG] DOMContentLoaded event fired.");
-      waitForSystemData(5000).then(() => {
-        console.log("[DEBUG] systemData found or timed out. Initializing galaxy generator...");
-        initializeGalaxyGenerator();
-      });
-    });
-    
-    /**
-     * Wait for up to maxWaitMs for window.systemData to be defined.
-     * If not found after that, proceed with fallback.
-     */
-    function waitForSystemData(maxWaitMs) {
-      return new Promise(resolve => {
-        if (window.systemData) {
-          console.log("[DEBUG] systemData is immediately available.");
-          resolve();
-          return;
-        }
-        let elapsed = 0;
-        const intervalMs = 200;
-        const checkInterval = setInterval(() => {
-          elapsed += intervalMs;
-          if (window.systemData) {
-            clearInterval(checkInterval);
-            console.log("[DEBUG] systemData loaded after", elapsed, "ms.");
-            resolve();
-          } else if (elapsed >= maxWaitMs) {
-            clearInterval(checkInterval);
-            console.warn("[DEBUG] systemData not found after", maxWaitMs, "ms. Proceeding with fallback.");
-            resolve();
-          }
-        }, intervalMs);
-      });
-    }
-    
-    /***********************************************
-     * Global Galaxy Data
-     ***********************************************/
-    let galaxyData = {
-      rows: 10,
-      cols: 10,
-      hexSize: 40,
-      hexes: [],
-      view: {
-        offsetX: 0,
-        offsetY: 0,
-        scale: 1.0
-      }
-    };
-    
-    let currentHex = null;
-    let isDragging = false;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-    
-    /***********************************************
-     * Initialization
-     ***********************************************/
-    function initializeGalaxyGenerator() {
-      const canvas = document.getElementById('galaxyCanvas');
-      if (!canvas) {
-        console.error("[DEBUG] Canvas element not found.");
-        return;
-      }
-      console.log("[DEBUG] Found canvas element:", canvas);
-      
-      // Ensure the canvas fills the middle container.
-      resizeCanvasToContainer();
-      window.addEventListener('resize', resizeCanvasToContainer);
-      
-      // Mouse events
-      canvas.addEventListener('mousedown', handleMouseDown);
-      canvas.addEventListener('mousemove', handleMouseMove);
-      canvas.addEventListener('mouseup', handleMouseUp);
-      canvas.addEventListener('wheel', handleMouseWheel, { passive: false });
-      
-      // UI events
-      document.getElementById('resetViewBtn').onclick = handleResetView;
-      document.getElementById('nodeSearchBtn').onclick = handleNodeSearch;
-      document.getElementById('shipSearchBtn').onclick = handleShipSearch;
-      document.getElementById('saveMapBtn').onclick = handleSaveMap;
-      document.getElementById('loadMapInput').onchange = handleLoadMap;
-      
-      document.getElementById('closeSidebarBtn').onclick = closeSidebar;
-      document.getElementById('regenerateSystemBtn').onclick = handleRegenerateSystem;
-      document.getElementById('addShipBtn').onclick = handleAddShip;
-      
-      generateHexMap();
-      requestAnimationFrame(animationLoop);
-      
-      console.log("[DEBUG] Galaxy generator initialization complete.");
-    }
-    
-    // Resize canvas to fill the galaxy container.
-    function resizeCanvasToContainer() {
-      const container = document.getElementById('galaxyContainer');
-      const canvas = document.getElementById('galaxyCanvas');
-      if (container && canvas) {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        console.log("[DEBUG] Canvas resized to", canvas.width, "x", canvas.height);
-      }
-    }
-    
-    /***********************************************
-     * Safe system text generation (fallback)
-     ***********************************************/
-    function safeGenerateSystemText() {
-      if (typeof generateSystemText === 'function' && window.systemData) {
-        try {
-          let text = generateSystemText();
-          if (!text || text.trim().length === 0) {
-            console.warn("[DEBUG] generateSystemText() returned empty text. Using fallback...");
-            return "Fallback System\n(No data returned by generateSystemText).";
-          }
-          return text;
-        } catch (err) {
-          console.error("[DEBUG] Error in generateSystemText:", err);
-          return "Fallback System\n(Error calling generateSystemText).";
-        }
-      } else {
-        console.warn("[DEBUG] generateSystemText is not available or systemData is null. Using fallback...");
-        return "Fallback System\n(No data available.)";
-      }
-    }
-    
-    /***********************************************
-     * Hex Map Generation
-     ***********************************************/
-    function generateHexMap() {
-      console.log("[DEBUG] Generating hex map...");
-      galaxyData.hexes = [];
-      for (let r = 0; r < galaxyData.rows; r++) {
-        for (let c = 0; c < galaxyData.cols; c++) {
-          let center = hexToPixel(c, r, galaxyData.hexSize);
-          let sysText = safeGenerateSystemText();
-          let sysName = parseFirstLine(sysText);
-          let hexTile = {
-            row: r,
-            col: c,
-            center: center,
-            systemName: sysName,
-            systemText: sysText,
-            edges: ["none", "none", "none", "none", "none", "none"],
-            ships: []
-          };
-          assignEdges(hexTile);
-          galaxyData.hexes.push(hexTile);
-        }
-      }
-      console.log("[DEBUG] Hex map generated with", galaxyData.hexes.length, "tiles.");
-    }
-    
-    // Assign edges so adjacent hexes share the same edge jump type.
-    function assignEdges(hexTile) {
-      for (let edgeIndex = 0; edgeIndex < 6; edgeIndex++) {
-        const neighbor = findNeighborHex(hexTile.row, hexTile.col, edgeIndex);
-        const oppEdge = (edgeIndex + 3) % 6;
-        if (!neighbor) {
-          hexTile.edges[edgeIndex] = randomEdgeJumpType();
-        } else {
-          if (neighbor.edges[oppEdge] && neighbor.edges[oppEdge] !== "none") {
-            hexTile.edges[edgeIndex] = neighbor.edges[oppEdge];
-          } else {
-            let eType = randomEdgeJumpType();
-            hexTile.edges[edgeIndex] = eType;
-            neighbor.edges[oppEdge] = eType;
-          }
-        }
-      }
-    }
-    
-    function randomEdgeJumpType() {
-      let r = Math.random();
-      if (r < 0.60) return "none";
-      else if (r < 0.85) return "green";
-      else if (r < 0.95) return "blue";
-      else return "red";
-    }
-    
-    /***********************************************
-     * Animation Loop
-     ***********************************************/
-    function animationLoop() {
-      const canvas = document.getElementById('galaxyCanvas');
-      if (!canvas) {
-        console.error("[DEBUG] Canvas missing in animationLoop.");
-        return;
-      }
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        console.error("[DEBUG] Canvas context is null.");
-        return;
-      }
-    
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-      ctx.save();
-      ctx.translate(galaxyData.view.offsetX, galaxyData.view.offsetY);
-      ctx.scale(galaxyData.view.scale, galaxyData.view.scale);
-    
-      updateShipOrbits();
-      galaxyData.hexes.forEach(hex => {
-        drawHexTile(ctx, hex);
-      });
-    
-      ctx.restore();
-    
-      requestAnimationFrame(animationLoop);
-    }
-    
-    function drawHexTile(ctx, hex) {
-      // Draw a semi-transparent fill for visual feedback
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        let corner = hexCorner(hex.center, galaxyData.hexSize, i);
-        if (i === 0) ctx.moveTo(corner.x, corner.y);
-        else ctx.lineTo(corner.x, corner.y);
-      }
-      ctx.closePath();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-      ctx.fill();
-    
-      // Draw boundary
-      ctx.strokeStyle = "#888";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    
-      // Draw edge jump lines
-      for (let i = 0; i < 6; i++) {
-        if (hex.edges[i] !== "none") {
-          let c1 = hexCorner(hex.center, galaxyData.hexSize, i);
-          let c2 = hexCorner(hex.center, galaxyData.hexSize, (i + 1) % 6);
-          ctx.beginPath();
-          ctx.moveTo(c1.x, c1.y);
-          ctx.lineTo(c2.x, c2.y);
-          if (hex.edges[i] === "green") ctx.strokeStyle = "green";
-          else if (hex.edges[i] === "blue") ctx.strokeStyle = "blue";
-          else ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        }
-      }
-    
-      // Draw system name
-      ctx.fillStyle = "#FFF";
-      ctx.font = "12px Arial";
-      ctx.fillText(hex.systemName, hex.center.x - 20, hex.center.y + 4);
-    
-      // Draw ships
-      hex.ships.forEach(ship => {
-        ctx.beginPath();
-        ctx.arc(ship.x, ship.y, 3, 0, 2 * Math.PI);
-        ctx.fillStyle = "#FF9900";
-        ctx.fill();
-        ctx.fillText(ship.name, ship.x + 5, ship.y - 5);
-      });
-    }
-    
-    function updateShipOrbits() {
-      galaxyData.hexes.forEach(hex => {
-        hex.ships.forEach(ship => {
-          ship.angle += ship.speed;
-          ship.x = hex.center.x + Math.cos(ship.angle) * ship.orbitRadius;
-          ship.y = hex.center.y + Math.sin(ship.angle) * ship.orbitRadius;
-        });
-      });
-    }
-    
-    /***********************************************
-     * Hex Geometry
-     ***********************************************/
-    function hexToPixel(col, row, size) {
-      let offsetX = (row % 2 === 1) ? size : 0;
-      let x = col * (size * 2) + offsetX + size;
-      let y = row * (size * 1.5) + size;
-      return { x, y };
-    }
-    
-    function hexCorner(center, size, i) {
-      let angleDeg = 60 * i - 30;
-      let angleRad = Math.PI / 180 * angleDeg;
-      return {
-        x: center.x + size * Math.cos(angleRad),
-        y: center.y + size * Math.sin(angleRad)
-      };
-    }
-    
-    function findNeighborHex(row, col, edgeIndex) {
-      const offsetsOdd = [
-        [0, +1],   // E
-        [+1, +1],  // SE
-        [+1, 0],   // SW
-        [0, -1],   // W
-        [-1, 0],   // NW
-        [-1, +1]   // NE
-      ];
-      const offsetsEven = [
-        [0, +1],
-        [+1, 0],
-        [0, -1],
-        [0, -1],
-        [-1, -1],
-        [0, 0]
-      ];
-      let rowIsOdd = (row % 2 === 1);
-      let offsets = rowIsOdd ? offsetsOdd : offsetsEven;
-      let nr = row + offsets[edgeIndex][0];
-      let nc = col + offsets[edgeIndex][1];
-      if (nr < 0 || nr >= galaxyData.rows || nc < 0 || nc >= galaxyData.cols) return null;
-      return galaxyData.hexes.find(h => h.row === nr && h.col === nc);
-    }
-    
-    /***********************************************
-     * Mouse Event Handlers
-     ***********************************************/
-    function handleMouseDown(e) {
-      isDragging = true;
-      lastMouseX = e.clientX;
-      lastMouseY = e.clientY;
-    }
-    
-    function handleMouseMove(e) {
-      if (!isDragging) return;
-      let dx = e.clientX - lastMouseX;
-      let dy = e.clientY - lastMouseY;
-      galaxyData.view.offsetX += dx;
-      galaxyData.view.offsetY += dy;
-      lastMouseX = e.clientX;
-      lastMouseY = e.clientY;
-    }
-    
-    function handleMouseUp(e) {
-      isDragging = false;
-      let dx = e.clientX - lastMouseX;
-      let dy = e.clientY - lastMouseY;
-      if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
-        const canvas = document.getElementById('galaxyCanvas');
-        const rect = canvas.getBoundingClientRect();
-        let x = (e.clientX - rect.left) - galaxyData.view.offsetX;
-        let y = (e.clientY - rect.top) - galaxyData.view.offsetY;
-        x /= galaxyData.view.scale;
-        y /= galaxyData.view.scale;
-        let clickedHex = findHexAtPosition(x, y);
-        if (clickedHex) openSidebar(clickedHex);
-      }
-    }
-    
-    function findHexAtPosition(px, py) {
-      for (let hex of galaxyData.hexes) {
-        let d = distance(px, py, hex.center.x, hex.center.y);
-        if (d < galaxyData.hexSize * 0.9) return hex;
-      }
-      return null;
-    }
-    
-    function distance(x1, y1, x2, y2) {
-      let dx = x2 - x1;
-      let dy = y2 - y1;
-      return Math.sqrt(dx*dx + dy*dy);
-    }
-    
-    /***********************************************
-     * Sidebar Handlers
-     ***********************************************/
-    function openSidebar(hexTile) {
-      currentHex = hexTile;
-      document.getElementById('systemTextArea').value = hexTile.systemText;
-      document.getElementById('systemDetailsSidebar').style.display = "block";
-    }
-    
-    function closeSidebar() {
-      if (currentHex) {
-        let newText = document.getElementById('systemTextArea').value;
-        currentHex.systemText = newText;
-        currentHex.systemName = parseFirstLine(newText);
-      }
-      document.getElementById('systemDetailsSidebar').style.display = "none";
-      currentHex = null;
-    }
-    
-    function handleRegenerateSystem() {
-      if (!currentHex) return;
-      let newText = safeGenerateSystemText();
-      currentHex.systemText = newText;
-      currentHex.systemName = parseFirstLine(newText);
-      document.getElementById('systemTextArea').value = newText;
-    }
-    
-    function handleAddShip() {
-      if (!currentHex) return;
-      let name = prompt("Enter ship name:") || ("Ship-" + Math.floor(Math.random()*1000));
-      let newShip = {
-        name,
-        orbitRadius: 15 + Math.random()*15,
-        angle: 0,
-        speed: 0.01 + Math.random()*0.02,
-        x: currentHex.center.x,
-        y: currentHex.center.y
-      };
-      currentHex.ships.push(newShip);
-    }
-    
-    /***********************************************
-     * Search Handlers
-     ***********************************************/
-    function handleNodeSearch() {
-      let query = document.getElementById('nodeSearchInput').value.trim().toLowerCase();
-      if (!query) return;
-      let h = galaxyData.hexes.find(x => x.systemName.toLowerCase().includes(query));
-      if (h) {
-        centerViewOn(h.center.x, h.center.y);
-        openSidebar(h);
-      } else {
-        console.warn("[DEBUG] No system found matching:", query);
-      }
-    }
-    
-    function handleShipSearch() {
-      let query = document.getElementById('shipSearchInput').value.trim().toLowerCase();
-      if (!query) return;
-      let foundHex = null;
-      for (let hex of galaxyData.hexes) {
-        for (let s of hex.ships) {
-          if (s.name.toLowerCase().includes(query)) {
-            foundHex = hex;
-            break;
-          }
-        }
-        if (foundHex) break;
-      }
-      if (foundHex) {
-        centerViewOn(foundHex.center.x, foundHex.center.y);
-        openSidebar(foundHex);
-      } else {
-        console.warn("[DEBUG] No ship found matching:", query);
-      }
-    }
-    
-    function centerViewOn(x, y) {
-      const canvas = document.getElementById('galaxyCanvas');
-      galaxyData.view.offsetX = (canvas.width / 2) - x * galaxyData.view.scale;
-      galaxyData.view.offsetY = (canvas.height / 2) - y * galaxyData.view.scale;
-    }
-    
-    /***********************************************
-     * Reset View
-     ***********************************************/
-    function handleResetView() {
-      galaxyData.view.offsetX = 0;
-      galaxyData.view.offsetY = 0;
-      galaxyData.view.scale = 1.0;
-      console.log("[DEBUG] View reset to default.");
-    }
-    
-    /***********************************************
-     * Save/Load Handlers
-     ***********************************************/
-    function handleSaveMap() {
-      let dataStr = JSON.stringify(galaxyData, null, 2);
-      let blob = new Blob([dataStr], { type: "application/json" });
-      let url = URL.createObjectURL(blob);
-      let a = document.createElement('a');
-      a.href = url;
-      a.download = "hexMap.json";
-      a.click();
-      URL.revokeObjectURL(url);
-      console.log("[DEBUG] Map saved.");
-    }
-    
-    function handleLoadMap(e) {
-      let file = e.target.files[0];
-      if (!file) {
-        console.warn("[DEBUG] No file selected for load.");
-        return;
-      }
-      let reader = new FileReader();
-      reader.onload = function(evt) {
-        let content = evt.target.result;
-        let parsed = JSON.parse(content);
-        galaxyData = parsed;
-        console.log("[DEBUG] Map loaded from file, hex count:", galaxyData.hexes?.length);
-      };
-      reader.readAsText(file);
-    }
-    
-    /***********************************************
-     * Utility
-     ***********************************************/
-    function parseFirstLine(text) {
-      return text.split('\n')[0] || "";
-    }
-    
-    /***********************************************
-     * Handle Mouse Wheel for Zooming
-     ***********************************************/
-    function handleMouseWheel(e) {
-      e.preventDefault();
-      const oldScale = galaxyData.view.scale;
-      const zoomFactor = 1.1;
-      if (e.deltaY < 0) {
-        galaxyData.view.scale *= zoomFactor;
-      } else {
-        galaxyData.view.scale /= zoomFactor;
-      }
-      const canvas = document.getElementById('galaxyCanvas');
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const newScale = galaxyData.view.scale;
-      galaxyData.view.offsetX = mouseX - ((mouseX - galaxyData.view.offsetX) * (newScale / oldScale));
-      galaxyData.view.offsetY = mouseY - ((mouseY - galaxyData.view.offsetY) * (newScale / oldScale));
-    }
-  </script>
-</body>
+
+    <!-- Sidebar for system details -->
+    <div id="sidebar">
+      <h2>System Details</h2>
+      <textarea id="systemEditor"></textarea>
+      <br />
+      <button id="regenerateSystem">Regenerate System</button>
+    </div>
+
+    <!-- Bottom control panel -->
+    <div id="controlPanel">
+      <button id="saveMap">Save Map</button>
+      <button id="loadMap">Load Map</button>
+      <input type="file" id="loadInput" style="display:none" />
+    </div>
+
+    <!-- Include systemgen.js and galaxygen.js -->
+    <script src="systemgen.js"></script>
+    <script src="galaxygen.js"></script>
+  </body>
 </html>
