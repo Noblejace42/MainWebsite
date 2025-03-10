@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
+/* For pages that need a solid black background (e.g., galaxygen.html),
+   add the 'galaxygen' class to the body element. */
+body.galaxygen {
+  background-color: #000 !important;
+  background-image: none !important;
+}
+
+/* The rest of your original styles remain unchanged */
 body {
   font-family: 'Orbitron', sans-serif;
   background: #1a1a1a url("spacebackground.png") repeat-y center top;
@@ -38,7 +47,6 @@ nav {
 .distinct-button:hover {
   background-color: #e68a00;
 }
-
 
 h1, h2, h3 {
   margin: 0.5em 0;
@@ -205,8 +213,6 @@ nav a:hover {
   text-align: center;
   z-index: 2000;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 .bond-card, .item-card {
   font-family: 'Roboto', sans-serif;
