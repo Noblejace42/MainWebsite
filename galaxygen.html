@@ -3,59 +3,557 @@
 <head>
   <meta charset="UTF-8">
   <title>Galaxy Generator (Hex Map)</title>
-
-  <!-- Link your main styles -->
-  <link rel="stylesheet" href="styles.css">
-
-  <!-- Reference system generator (defines generateSystemText(), etc.) -->
-  <script src="systemgen.js"></script>
-
-  <!-- Reference the Galaxy Generator script (below) -->
-  <script src="galaxygen.js"></script>
-</head>
-
-<!-- Use class="galaxygen" so only this page is overridden to black -->
-<body class="galaxygen">
-
-  <!-- Dynamically fetch your nav.html to avoid duplication -->
-  <div id="nav-container">
-    <object data="nav.html" width="100%" height="60px"></object>
-  </div>
-
-  <!-- Main container: holds the canvas & the sidebar -->
-  <div id="galaxy-container">
-    <!-- The hex map canvas -->
-    <canvas id="galaxyCanvas" width="1200" height="800"></canvas>
-
-    <!-- "Reset View" button for panning/zooming -->
-    <button id="resetViewBtn">Reset View</button>
-
-    <!-- Sidebar for system details -->
-    <div id="systemDetailsSidebar">
-      <button id="closeSidebarBtn">Close</button>
-      <textarea id="systemTextArea"></textarea>
-      <button id="regenerateSystemBtn">Regenerate</button>
-      <button id="addShipBtn">Add Ship</button>
-      <div id="shipDetailsContainer">
-        <!-- Could list ships or provide additional editing here -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Search for nodes or ships -->
-  <div id="search-section">
-    <input type="text" id="nodeSearchInput" placeholder="Search by system name">
-    <button id="nodeSearchBtn">Search Systems</button>
-
-    <input type="text" id="shipSearchInput" placeholder="Search by ship name">
-    <button id="shipSearchBtn">Search Ships</button>
-  </div>
-
-  <!-- Save/Load map data -->
-  <div id="saveLoadSection">
-    <button id="saveMapBtn">Save Map</button>
-    <input type="file" id="loadMapInput">
-  </div>
-
+  
+  <!-- Inline CSS overrides & global styles for this page -->
+  <style>
+    /* Global font & override for black background on this page only */
+    body {
+      background-color: #000 !important;
+      background-image: none !important;
+      margin: 0;
+      color: #ccc;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    /* Nav container styling */
+    #nav-container {
+      width: 100%;
+      height: 60px;
+      overflow: hidden;
+    }
+    #nav-container object {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    /* Main galaxy container */
+    #galaxy-container {
+      margin-top: 60px; /* Leaves space for nav */
+      position: relative;
+    }
+    
+    /* Canvas styling */
+    #galaxyCanvas {
+      display: block;
+      margin: 0 auto;
+      border: 1px solid #444;
+      background-color: #000;
+    }
+    
+    /* Sidebar styling */
+    #systemDetailsSidebar {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 300px;
+      height: 100%;
+      background: #262626;
+      border-left: 2px solid #444;
+      padding: 10px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      z-index: 2000;
+    }
+    #systemTextArea {
+      width: 100%;
+      height: 200px;
+      background: #1a1a1a;
+      color: #ddd;
+      border: 1px solid #555;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-family: monospace;
+      padding: 5px;
+    }
+    
+    /* Button styling */
+    button {
+      background-color: #444;
+      color: #ccc;
+      border: 1px solid #555;
+      padding: 6px 12px;
+      font-size: 0.9em;
+      cursor: pointer;
+      border-radius: 3px;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    
+    /* Control sections */
+    #search-section, #saveLoadSection {
+      margin: 10px;
+      text-align: center;
+    }
+  </style>
+  
+  <!-- Inline stub for systemgen.js -->
+  <script>
+    /***********************************************
+     * systemgen.js (Stub Version)
+     * Replace this stub with your actual systemgen.js code.
+     ***********************************************/
+    // For demonstration, we define window.systemData and generateSystemText().
+    window.systemData = { loaded: true }; // Stub systemData object
+    
+    function generateSystemText() {
+      // Return a dummy system text. Your real function will generate more detailed info.
+      return "System: " + (Math.random().toString(36).substring(2, 8)).toUpperCase() + "\nDetail: Lorem ipsum dolor sit amet.";
+    }
+  </script>
+  
+  <!-- Inline galaxy generator code -->
+  <script>
+    /***********************************************
+     * galaxygen.js (Inline Version)
+     ***********************************************/
+    
+    // Wait until DOM is loaded and systemData is available
+    document.addEventListener('DOMContentLoaded', () => {
+      waitForSystemData().then(() => {
+        initializeGalaxyGenerator();
+      });
+    });
+    
+    function waitForSystemData() {
+      return new Promise((resolve) => {
+        if (window.systemData) {
+          resolve();
+          return;
+        }
+        const checkInterval = setInterval(() => {
+          if (window.systemData) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 200);
+      });
+    }
+    
+    /***********************************************
+     * GLOBAL DATA
+     ***********************************************/
+    let galaxyData = {
+      rows: 10,    // number of rows in the hex grid
+      cols: 10,    // number of columns in the hex grid
+      hexSize: 40, // radius (in pixels) for each hexagon
+      hexes: [],
+      view: {
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1.0
+      }
+    };
+    
+    let currentHex = null;
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    
+    /***********************************************
+     * INITIALIZE GALAXY GENERATOR
+     ***********************************************/
+    function initializeGalaxyGenerator() {
+      const canvas = document.getElementById('galaxyCanvas');
+    
+      // Mouse & wheel events for panning/zooming
+      canvas.addEventListener('mousedown', handleMouseDown);
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('mouseup', handleMouseUp);
+      canvas.addEventListener('wheel', handleMouseWheel, { passive: false });
+    
+      // UI event listeners
+      document.getElementById('resetViewBtn').onclick = handleResetView;
+      document.getElementById('nodeSearchBtn').onclick = handleNodeSearch;
+      document.getElementById('shipSearchBtn').onclick = handleShipSearch;
+      document.getElementById('saveMapBtn').onclick = handleSaveMap;
+      document.getElementById('loadMapInput').onchange = handleLoadMap;
+    
+      document.getElementById('closeSidebarBtn').onclick = closeSidebar;
+      document.getElementById('regenerateSystemBtn').onclick = handleRegenerateSystem;
+      document.getElementById('addShipBtn').onclick = handleAddShip;
+    
+      // Generate the hex map
+      generateHexMap();
+    
+      // Start the animation loop
+      requestAnimationFrame(animationLoop);
+    }
+    
+    /***********************************************
+     * SAFE GENERATION OF SYSTEM TEXT
+     ***********************************************/
+    function safeGenerateSystemText() {
+      if (typeof generateSystemText === 'function' && window.systemData) {
+        try {
+          return generateSystemText();
+        } catch (err) {
+          console.error("Error in generateSystemText:", err);
+          return "Fallback System\n(No data available.)";
+        }
+      } else {
+        return "Fallback System\n(No data available.)";
+      }
+    }
+    
+    /***********************************************
+     * GENERATE HEX MAP
+     ***********************************************/
+    function generateHexMap() {
+      galaxyData.hexes = [];
+      for (let r = 0; r < galaxyData.rows; r++) {
+        for (let c = 0; c < galaxyData.cols; c++) {
+          let center = hexToPixel(c, r, galaxyData.hexSize);
+          let sysText = safeGenerateSystemText();
+          let sysName = parseFirstLine(sysText);
+    
+          let hexTile = {
+            row: r,
+            col: c,
+            center: center,
+            systemName: sysName,
+            systemText: sysText,
+            // Initialize 6 edges to "none"
+            edges: [ "none", "none", "none", "none", "none", "none" ],
+            ships: []
+          };
+    
+          assignEdges(hexTile);
+    
+          galaxyData.hexes.push(hexTile);
+        }
+      }
+    }
+    
+    /***********************************************
+     * ASSIGN EDGES WITH SHARED VALUES
+     ***********************************************/
+    function assignEdges(hexTile) {
+      for (let edgeIndex = 0; edgeIndex < 6; edgeIndex++) {
+        const neighbor = findNeighborHex(hexTile.row, hexTile.col, edgeIndex);
+        const oppEdge = (edgeIndex + 3) % 6;
+    
+        if (!neighbor) {
+          // No neighbor; assign random value
+          hexTile.edges[edgeIndex] = randomEdgeJumpType();
+        } else {
+          // If neighbor already has an edge value, use it
+          if (neighbor.edges[oppEdge] && neighbor.edges[oppEdge] !== "none") {
+            hexTile.edges[edgeIndex] = neighbor.edges[oppEdge];
+          } else {
+            // Otherwise, randomize and assign to both
+            let eType = randomEdgeJumpType();
+            hexTile.edges[edgeIndex] = eType;
+            neighbor.edges[oppEdge] = eType;
+          }
+        }
+      }
+    }
+    
+    function randomEdgeJumpType() {
+      let r = Math.random();
+      if (r < 0.60) return "none";
+      else if (r < 0.85) return "green";
+      else if (r < 0.95) return "blue";
+      else return "red";
+    }
+    
+    /***********************************************
+     * DRAWING & ANIMATION
+     ***********************************************/
+    function animationLoop() {
+      const canvas = document.getElementById('galaxyCanvas');
+      const ctx = canvas.getContext('2d');
+    
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+      // Apply pan/zoom transforms
+      ctx.save();
+      ctx.translate(galaxyData.view.offsetX, galaxyData.view.offsetY);
+      ctx.scale(galaxyData.view.scale, galaxyData.view.scale);
+    
+      updateShipOrbits();
+    
+      // Draw each hex tile
+      galaxyData.hexes.forEach(hex => {
+        drawHexTile(ctx, hex);
+      });
+    
+      ctx.restore();
+    
+      requestAnimationFrame(animationLoop);
+    }
+    
+    function drawHexTile(ctx, hex) {
+      // Draw hexagon boundary
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        let corner = hexCorner(hex.center, galaxyData.hexSize, i);
+        if (i === 0) ctx.moveTo(corner.x, corner.y);
+        else ctx.lineTo(corner.x, corner.y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "#888";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    
+      // Draw each edge if not "none"
+      for (let i = 0; i < 6; i++) {
+        if (hex.edges[i] !== "none") {
+          let c1 = hexCorner(hex.center, galaxyData.hexSize, i);
+          let c2 = hexCorner(hex.center, galaxyData.hexSize, (i + 1) % 6);
+          ctx.beginPath();
+          ctx.moveTo(c1.x, c1.y);
+          ctx.lineTo(c2.x, c2.y);
+          if (hex.edges[i] === "green") ctx.strokeStyle = "green";
+          else if (hex.edges[i] === "blue") ctx.strokeStyle = "blue";
+          else ctx.strokeStyle = "red";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+    
+      // Draw system name at center
+      ctx.fillStyle = "#FFF";
+      ctx.font = "12px Arial";
+      ctx.fillText(hex.systemName, hex.center.x - 20, hex.center.y + 4);
+    
+      // Draw ships
+      hex.ships.forEach(ship => {
+        ctx.beginPath();
+        ctx.arc(ship.x, ship.y, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "#FF9900";
+        ctx.fill();
+        ctx.fillText(ship.name, ship.x + 5, ship.y - 5);
+      });
+    }
+    
+    function updateShipOrbits() {
+      galaxyData.hexes.forEach(hex => {
+        hex.ships.forEach(ship => {
+          ship.angle += ship.speed;
+          ship.x = hex.center.x + Math.cos(ship.angle) * ship.orbitRadius;
+          ship.y = hex.center.y + Math.sin(ship.angle) * ship.orbitRadius;
+        });
+      });
+    }
+    
+    /***********************************************
+     * HEX GEOMETRY FUNCTIONS
+     ***********************************************/
+    function hexToPixel(col, row, size) {
+      // "odd-r" horizontal layout
+      let offsetX = (row % 2 === 1) ? size : 0;
+      let x = col * (size * 2) + offsetX + size;
+      let y = row * (size * 1.5) + size;
+      return { x, y };
+    }
+    
+    function hexCorner(center, size, i) {
+      let angleDeg = 60 * i - 30;
+      let angleRad = Math.PI / 180 * angleDeg;
+      return {
+        x: center.x + size * Math.cos(angleRad),
+        y: center.y + size * Math.sin(angleRad)
+      };
+    }
+    
+    function findNeighborHex(row, col, edgeIndex) {
+      // Offsets for an "odd-r" layout (may require refinement)
+      const offsetsOdd = [
+        [0, +1],   // E
+        [+1, +1],  // SE
+        [+1, 0],   // SW
+        [0, -1],   // W
+        [-1, 0],   // NW
+        [-1, +1]   // NE
+      ];
+      const offsetsEven = [
+        [0, +1],   // E
+        [+1, 0],   // SE
+        [0, -1],   // SW
+        [0, -1],   // W
+        [-1, -1],  // NW
+        [0, 0]     // NE (adjust as needed)
+      ];
+      let rowIsOdd = (row % 2 === 1);
+      let offsets = rowIsOdd ? offsetsOdd : offsetsEven;
+      let nr = row + offsets[edgeIndex][0];
+      let nc = col + offsets[edgeIndex][1];
+      if (nr < 0 || nr >= galaxyData.rows || nc < 0 || nc >= galaxyData.cols) return null;
+      return galaxyData.hexes.find(h => h.row === nr && h.col === nc);
+    }
+    
+    /***********************************************
+     * INTERACTIVITY (MOUSE EVENTS)
+     ***********************************************/
+    function handleMouseDown(e) {
+      isDragging = true;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    }
+    
+    function handleMouseMove(e) {
+      if (!isDragging) return;
+      let dx = e.clientX - lastMouseX;
+      let dy = e.clientY - lastMouseY;
+      galaxyData.view.offsetX += dx;
+      galaxyData.view.offsetY += dy;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    }
+    
+    function handleMouseUp(e) {
+      isDragging = false;
+      let dx = e.clientX - lastMouseX;
+      let dy = e.clientY - lastMouseY;
+      if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+        const canvas = document.getElementById('galaxyCanvas');
+        const rect = canvas.getBoundingClientRect();
+        let x = (e.clientX - rect.left) - galaxyData.view.offsetX;
+        let y = (e.clientY - rect.top) - galaxyData.view.offsetY;
+        x /= galaxyData.view.scale;
+        y /= galaxyData.view.scale;
+        let clickedHex = findHexAtPosition(x, y);
+        if (clickedHex) openSidebar(clickedHex);
+      }
+    }
+    
+    function findHexAtPosition(px, py) {
+      for (let hex of galaxyData.hexes) {
+        let d = distance(px, py, hex.center.x, hex.center.y);
+        if (d < galaxyData.hexSize * 0.9) return hex;
+      }
+      return null;
+    }
+    
+    function distance(x1, y1, x2, y2) {
+      let dx = x2 - x1;
+      let dy = y2 - y1;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    /***********************************************
+     * SIDEBAR HANDLERS
+     ***********************************************/
+    function openSidebar(hexTile) {
+      currentHex = hexTile;
+      document.getElementById('systemTextArea').value = hexTile.systemText;
+      document.getElementById('systemDetailsSidebar').style.display = "block";
+    }
+    
+    function closeSidebar() {
+      if (currentHex) {
+        let newText = document.getElementById('systemTextArea').value;
+        currentHex.systemText = newText;
+        currentHex.systemName = parseFirstLine(newText);
+      }
+      document.getElementById('systemDetailsSidebar').style.display = "none";
+      currentHex = null;
+    }
+    
+    function handleRegenerateSystem() {
+      if (!currentHex) return;
+      let newText = safeGenerateSystemText();
+      currentHex.systemText = newText;
+      currentHex.systemName = parseFirstLine(newText);
+      document.getElementById('systemTextArea').value = newText;
+    }
+    
+    function handleAddShip() {
+      if (!currentHex) return;
+      let name = prompt("Enter ship name:") || ("Ship-" + Math.floor(Math.random() * 1000));
+      let newShip = {
+        name: name,
+        orbitRadius: 15 + Math.random() * 15,
+        angle: 0,
+        speed: 0.01 + Math.random() * 0.02,
+        x: currentHex.center.x,
+        y: currentHex.center.y
+      };
+      currentHex.ships.push(newShip);
+    }
+    
+    /***********************************************
+     * SEARCH HANDLERS
+     ***********************************************/
+    function handleNodeSearch() {
+      let query = document.getElementById('nodeSearchInput').value.trim().toLowerCase();
+      if (!query) return;
+      let h = galaxyData.hexes.find(x => x.systemName.toLowerCase().includes(query));
+      if (h) {
+        centerViewOn(h.center.x, h.center.y);
+        openSidebar(h);
+      }
+    }
+    
+    function handleShipSearch() {
+      let query = document.getElementById('shipSearchInput').value.trim().toLowerCase();
+      if (!query) return;
+      let foundHex = null;
+      for (let hex of galaxyData.hexes) {
+        for (let s of hex.ships) {
+          if (s.name.toLowerCase().includes(query)) {
+            foundHex = hex;
+            break;
+          }
+        }
+        if (foundHex) break;
+      }
+      if (foundHex) {
+        centerViewOn(foundHex.center.x, foundHex.center.y);
+        openSidebar(foundHex);
+      }
+    }
+    
+    function centerViewOn(x, y) {
+      const canvas = document.getElementById('galaxyCanvas');
+      galaxyData.view.offsetX = (canvas.width / 2) - x * galaxyData.view.scale;
+      galaxyData.view.offsetY = (canvas.height / 2) - y * galaxyData.view.scale;
+    }
+    
+    function handleResetView() {
+      galaxyData.view.offsetX = 0;
+      galaxyData.view.offsetY = 0;
+      galaxyData.view.scale = 1.0;
+    }
+    
+    /***********************************************
+     * SAVE / LOAD HANDLERS
+     ***********************************************/
+    function handleSaveMap() {
+      let dataStr = JSON.stringify(galaxyData, null, 2);
+      let blob = new Blob([dataStr], { type: "application/json" });
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      a.href = url;
+      a.download = "hexMap.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function handleLoadMap(e) {
+      let file = e.target.files[0];
+      if (!file) return;
+      let reader = new FileReader();
+      reader.onload = function(evt) {
+        let content = evt.target.result;
+        let parsed = JSON.parse(content);
+        galaxyData = parsed;
+      };
+      reader.readAsText(file);
+    }
+    
+    /***********************************************
+     * UTILITY FUNCTIONS
+     ***********************************************/
+    function parseFirstLine(text) {
+      return text.split('\n')[0] || "";
+    }
+  </script>
 </body>
 </html>
