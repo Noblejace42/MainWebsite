@@ -1,46 +1,71 @@
-/********************************************
- * GALAXYGEN.JS
- ********************************************/
+/***********************************************
+ * galaxygen.js
+ * Hex-based Galaxy Generator Implementation
+ ***********************************************/
 
-// Store all data about the galaxy in one object
+// A global store of all relevant data
 let galaxyData = {
-  clusters: [],     // {id, center:{x,y}, radius, nodeIDs:[]}
-  nodes: [],        // {id, x, y, name, systemText, ships:[], clusterId}
-  connections: [],  // {nodeA, nodeB, type: 'A'|'B'|'C'}
-  view: {           // for panning & zooming
+  rows: 10,      // default or update as needed
+  cols: 10,      // default or update as needed
+  hexSize: 40,   // radius in pixels for each hex
+  hexes: [],     // array of hex tile objects
+  view: {
     offsetX: 0,
     offsetY: 0,
     scale: 1.0
   }
 };
 
-// Keep track of UI state
+let currentHex = null;  // reference to the hex currently open in the sidebar
 let isDragging = false;
 let lastMouseX = 0;
 let lastMouseY = 0;
-let currentNode = null; // Reference to the node whose sidebar is open
 
-//-------------------------------------
-// Initialize on page load
-//-------------------------------------
+//----------------------------------------------
+// Data Structures
+//----------------------------------------------
+/*
+  Each hex object:
+  {
+    row: number,
+    col: number,
+    center: {x, y},
+    systemName: string,
+    systemText: string,
+    edges: [ "none"/"green"/"blue"/"red", ... 6 total ],
+    ships: []
+  }
+
+  Each ship object:
+  {
+    name: string,
+    orbitRadius: number,
+    angle: number,
+    speed: number,
+    x: number,
+    y: number
+  }
+*/
+
+// Called once the window is loaded
 window.onload = function() {
   initializeGalaxyGenerator();
-  generateGalaxy();
 };
 
-//-------------------------------------
+//----------------------------------------------
 // MAIN INITIALIZATION
-//-------------------------------------
+//----------------------------------------------
 function initializeGalaxyGenerator() {
   const canvas = document.getElementById('galaxyCanvas');
-  // Store references to important elements
-  canvas.onmousedown = handleMouseDown;
-  canvas.onmousemove = handleMouseMove;
-  canvas.onmouseup   = handleMouseUp;
-  canvas.onwheel     = handleMouseWheel;
 
+  // Mouse and wheel events for panning/zooming
+  canvas.addEventListener('mousedown', handleMouseDown);
+  canvas.addEventListener('mousemove', handleMouseMove);
+  canvas.addEventListener('mouseup', handleMouseUp);
+  canvas.addEventListener('wheel', handleMouseWheel, { passive: false });
+
+  // UI events
   document.getElementById('resetViewBtn').onclick = handleResetView;
-
   document.getElementById('nodeSearchBtn').onclick = handleNodeSearch;
   document.getElementById('shipSearchBtn').onclick = handleShipSearch;
   document.getElementById('saveMapBtn').onclick = handleSaveMap;
@@ -50,360 +75,80 @@ function initializeGalaxyGenerator() {
   document.getElementById('regenerateSystemBtn').onclick = handleRegenerateSystem;
   document.getElementById('addShipBtn').onclick = handleAddShip;
 
-  // Start continuous rendering
+  // Generate the hex grid
+  generateHexMap();
+
+  // Start the animation loop
   requestAnimationFrame(animationLoop);
 }
 
-//-------------------------------------
-// GALAXY GENERATION
-//-------------------------------------
-function generateGalaxy() {
-  clearGalaxyData();
+//----------------------------------------------
+// HEX MAP GENERATION
+//----------------------------------------------
+function generateHexMap() {
+  galaxyData.hexes = [];
 
-  // Randomly decide number of clusters
-  let numberOfClusters = randomIntInRange(5, 10);
+  for (let r = 0; r < galaxyData.rows; r++) {
+    for (let c = 0; c < galaxyData.cols; c++) {
+      let center = hexToPixel(c, r, galaxyData.hexSize);
+      let systemText = generateSystemText(); // from systemgen.js
+      let systemName = parseFirstLine(systemText);
 
-  // Create clusters
-  for (let i = 0; i < numberOfClusters; i++) {
-    createCluster(i);
-  }
+      let hexTile = {
+        row: r,
+        col: c,
+        center: center,
+        systemName: systemName,
+        systemText: systemText,
+        edges: [ "none","none","none","none","none","none" ],
+        ships: []
+      };
 
-  // Place a total of 500 nodes distributed among clusters
-  placeNodesInClusters(500);
+      // Assign random edges (checking neighbor if it exists)
+      assignEdges(hexTile);
 
-  // Optionally place some "outer" stars outside clusters
-  placeOuterStars();
-
-  // Assign system data to each node
-  galaxyData.nodes.forEach((node) => {
-    let sysText = generateSystemText(); // from systemgen.js
-    // let sysObj = generateSystem();    // also possible if you need extra data
-    node.systemText = sysText;
-    node.name = parseFirstLine(sysText);
-    node.ships = [];
-  });
-
-  // Connect nodes
-  connectClustersWithGreen();
-  connectClustersWithBlue();
-  connectClustersWithRedRandomly();
-
-  // Ensure no overlapping green lines (same color overlap check)
-  removeOverlappingConnectionsOfSameColor();
-}
-
-// Wipes out old data
-function clearGalaxyData() {
-  galaxyData.clusters = [];
-  galaxyData.nodes = [];
-  galaxyData.connections = [];
-}
-
-//-------------------------------------
-// CLUSTER & NODE PLACEMENT
-//-------------------------------------
-function createCluster(clusterId) {
-  let clusterCenter = {
-    x: randomIntInRange(200, 1000),
-    y: randomIntInRange(200, 600)
-  };
-  let clusterRadius = randomIntInRange(80, 200);
-
-  galaxyData.clusters.push({
-    id: clusterId,
-    center: clusterCenter,
-    radius: clusterRadius,
-    nodeIDs: []
-  });
-}
-
-// Distribute totalNodes among all clusters
-function placeNodesInClusters(totalNodes) {
-  let clusterCount = galaxyData.clusters.length;
-  
-  // Simple approach: just divide total equally (or add small random offset)
-  let baseNodesPerCluster = Math.floor(totalNodes / clusterCount);
-
-  galaxyData.clusters.forEach((cluster) => {
-    let nodeCount = baseNodesPerCluster + randomIntInRange(-5, 5);
-    if (nodeCount < 1) nodeCount = 1;
-
-    for (let i = 0; i < nodeCount; i++) {
-      // random angle & distance from the cluster center
-      let angle = Math.random() * Math.PI * 2;
-      let dist  = Math.random() * cluster.radius;
-      let xPos  = cluster.center.x + Math.cos(angle) * dist;
-      let yPos  = cluster.center.y + Math.sin(angle) * dist;
-
-      let nodeId = galaxyData.nodes.length;
-      galaxyData.nodes.push({
-        id: nodeId,
-        x: xPos,
-        y: yPos,
-        name: "",
-        systemText: "",
-        ships: [],
-        clusterId: cluster.id
-      });
-
-      cluster.nodeIDs.push(nodeId);
-    }
-  });
-}
-
-// Optional: place extra stars far from clusters
-function placeOuterStars() {
-  for (let i = 0; i < 20; i++) {
-    let nodeId = galaxyData.nodes.length;
-    galaxyData.nodes.push({
-      id: nodeId,
-      x: randomIntInRange(50, 1150),
-      y: randomIntInRange(50, 750),
-      name: "",
-      systemText: "",
-      ships: [],
-      clusterId: null  // indicates it's an "outer" star
-    });
-  }
-}
-
-//-------------------------------------
-// CONNECTIONS
-//-------------------------------------
-
-// Intra-cluster: type A (green)
-function connectClustersWithGreen() {
-  galaxyData.clusters.forEach((cluster) => {
-    let nodeIDs = cluster.nodeIDs;
-
-    nodeIDs.forEach((nodeId) => {
-      // find 1-3 nearest neighbors in the same cluster
-      let nearest = findNearestNeighbors(nodeId, nodeIDs, 3);
-      nearest.forEach((neighborId) => {
-        // create a connection if none already exists
-        if (!connectionExists(nodeId, neighborId)) {
-          galaxyData.connections.push({
-            nodeA: nodeId,
-            nodeB: neighborId,
-            type: 'A'
-          });
-        }
-      });
-    });
-  });
-}
-
-// Between clusters: type B (blue)
-function connectClustersWithBlue() {
-  // For each cluster, link to the 2 nearest cluster centers
-  galaxyData.clusters.forEach((cluster) => {
-    let nearestTwo = findNearestClusters(cluster, 2);
-    nearestTwo.forEach((c2) => {
-      // pick a node near each cluster center to connect
-      let nodeFromThisCluster = findClosestNodeToCenter(cluster);
-      let nodeFromOtherCluster = findClosestNodeToCenter(c2);
-      if (!connectionExists(nodeFromThisCluster.id, nodeFromOtherCluster.id)) {
-        galaxyData.connections.push({
-          nodeA: nodeFromThisCluster.id,
-          nodeB: nodeFromOtherCluster.id,
-          type: 'B'
-        });
-      }
-    });
-  });
-}
-
-// Distant: type C (red) – random far-apart clusters
-function connectClustersWithRedRandomly() {
-  if (galaxyData.clusters.length < 2) return;
-
-  // Just pick a random number of long-distance connections
-  let redConnectionsCount = randomIntInRange(1, 3);
-
-  for (let i = 0; i < redConnectionsCount; i++) {
-    let c1 = galaxyData.clusters[randomIntInRange(0, galaxyData.clusters.length - 1)];
-    let c2 = galaxyData.clusters[randomIntInRange(0, galaxyData.clusters.length - 1)];
-    if (c1.id === c2.id) continue; // pick another if same
-
-    let node1 = findClosestNodeToCenter(c1);
-    let node2 = findClosestNodeToCenter(c2);
-    if (!connectionExists(node1.id, node2.id)) {
-      galaxyData.connections.push({
-        nodeA: node1.id,
-        nodeB: node2.id,
-        type: 'C'
-      });
+      galaxyData.hexes.push(hexTile);
     }
   }
 }
 
-// Ensure no overlapping green lines (same color)
-function removeOverlappingConnectionsOfSameColor() {
-  let removed = [];
-  for (let i = 0; i < galaxyData.connections.length; i++) {
-    let connA = galaxyData.connections[i];
-    for (let j = i+1; j < galaxyData.connections.length; j++) {
-      let connB = galaxyData.connections[j];
-      // only compare if same type
-      if (connA.type === connB.type && connA.type === 'A') {
-        // check if they overlap
-        if (segmentsOverlap(connA, connB)) {
-          removed.push(connB);
-        }
+//----------------------------------------------
+// EDGE ASSIGNMENT
+//----------------------------------------------
+function assignEdges(hexTile) {
+  for (let edgeIndex = 0; edgeIndex < 6; edgeIndex++) {
+    // Check if neighbor has already assigned a matching edge
+    let neighbor = findNeighborHex(hexTile.row, hexTile.col, edgeIndex);
+    if (neighbor) {
+      // Opposite edge index
+      let oppEdge = (edgeIndex + 3) % 6;
+      // If neighbor has something besides "none", copy it
+      if (neighbor.edges[oppEdge] !== "none") {
+        hexTile.edges[edgeIndex] = neighbor.edges[oppEdge];
+        continue;
       }
     }
-  }
-  // filter out the removed
-  galaxyData.connections = galaxyData.connections.filter((c) => !removed.includes(c));
-}
-
-//-------------------------------------
-// NODE SEARCH & NEIGHBOR HELPERS
-//-------------------------------------
-
-function findNearestNeighbors(nodeId, candidateIDs, maxNeighbors) {
-  let origin = galaxyData.nodes[nodeId];
-  // sort candidateIDs by distance
-  let sorted = candidateIDs
-    .filter(id => id !== nodeId)
-    .sort((a, b) => {
-      let distA = distanceBetweenNodes(origin, galaxyData.nodes[a]);
-      let distB = distanceBetweenNodes(origin, galaxyData.nodes[b]);
-      return distA - distB;
-    });
-  return sorted.slice(0, maxNeighbors);
-}
-
-function findNearestClusters(cluster, maxCount) {
-  let centerA = cluster.center;
-  let others = galaxyData.clusters.filter(c => c.id !== cluster.id);
-  others.sort((c1, c2) => {
-    let d1 = dist(centerA.x, centerA.y, c1.center.x, c1.center.y);
-    let d2 = dist(centerA.x, centerA.y, c2.center.x, c2.center.y);
-    return d1 - d2;
-  });
-  return others.slice(0, maxCount);
-}
-
-function findClosestNodeToCenter(cluster) {
-  let closestNode = null;
-  let minDist = Infinity;
-  cluster.nodeIDs.forEach(nodeId => {
-    let node = galaxyData.nodes[nodeId];
-    let d = dist(cluster.center.x, cluster.center.y, node.x, node.y);
-    if (d < minDist) {
-      minDist = d;
-      closestNode = node;
-    }
-  });
-  return closestNode;
-}
-
-function connectionExists(nodeA, nodeB) {
-  return galaxyData.connections.some(conn => {
-    return (conn.nodeA === nodeA && conn.nodeB === nodeB) ||
-           (conn.nodeA === nodeB && conn.nodeB === nodeA);
-  });
-}
-
-//-------------------------------------
-// INTERACTIVITY & SIDEBAR
-//-------------------------------------
-
-function openSidebar(nodeId) {
-  let node = galaxyData.nodes[nodeId];
-  currentNode = node;
-
-  document.getElementById('systemTextArea').value = node.systemText;
-  document.getElementById('systemDetailsSidebar').style.display = "block";
-}
-
-function closeSidebar() {
-  // If user has edited text, update the node name from the first line
-  if (currentNode) {
-    let newText = document.getElementById('systemTextArea').value;
-    currentNode.systemText = newText;
-    currentNode.name = parseFirstLine(newText);
-  }
-  document.getElementById('systemDetailsSidebar').style.display = "none";
-  currentNode = null;
-}
-
-// Regenerate the current node’s system details
-function handleRegenerateSystem() {
-  if (!currentNode) return;
-  let newText = generateSystemText(); // from systemgen.js
-  currentNode.systemText = newText;
-  currentNode.name = parseFirstLine(newText);
-  document.getElementById('systemTextArea').value = newText;
-}
-
-// Add ship to current node
-function handleAddShip() {
-  if (!currentNode) return;
-  let newShipName = prompt("Enter ship name:") || ("Ship-" + Math.floor(Math.random()*1000));
-  let newShip = {
-    name: newShipName,
-    orbitRadius: randomIntInRange(15, 30),
-    angle: 0,
-    speed: Math.random() * 0.02 + 0.01, // small random speed
-    x: currentNode.x,
-    y: currentNode.y
-  };
-  currentNode.ships.push(newShip);
-}
-
-//-------------------------------------
-// SHIP ORBITS
-//-------------------------------------
-function updateShipOrbits() {
-  // Each frame, increment angles and update positions
-  galaxyData.nodes.forEach(node => {
-    node.ships.forEach(ship => {
-      ship.angle += ship.speed;
-      ship.x = node.x + Math.cos(ship.angle) * ship.orbitRadius;
-      ship.y = node.y + Math.sin(ship.angle) * ship.orbitRadius;
-    });
-  });
-}
-
-//-------------------------------------
-// SEARCHING
-//-------------------------------------
-function handleNodeSearch() {
-  let query = document.getElementById('nodeSearchInput').value.trim().toLowerCase();
-  if (!query) return;
-  let foundNode = galaxyData.nodes.find(n => n.name.toLowerCase().includes(query));
-  if (foundNode) {
-    centerViewOn(foundNode.x, foundNode.y);
-    // Open sidebar to highlight or just show the node
-    openSidebar(foundNode.id);
+    // Otherwise random assignment
+    hexTile.edges[edgeIndex] = randomEdgeJumpType();
   }
 }
 
-function handleShipSearch() {
-  let query = document.getElementById('shipSearchInput').value.trim().toLowerCase();
-  if (!query) return;
-
-  let found = null;
-  galaxyData.nodes.forEach(node => {
-    node.ships.forEach(ship => {
-      if (ship.name.toLowerCase().includes(query)) {
-        found = { node, ship };
-      }
-    });
-  });
-
-  if (found) {
-    centerViewOn(found.node.x, found.node.y);
-    // Optionally open sidebar on node
-    openSidebar(found.node.id);
-  }
+function randomEdgeJumpType() {
+  // Example probabilities:
+  // "none": 60%
+  // "green": 25%
+  // "blue": 10%
+  // "red": 5%
+  let r = Math.random();
+  if (r < 0.60) return "none";
+  else if (r < 0.85) return "green";
+  else if (r < 0.95) return "blue";
+  else return "red";
 }
 
-//-------------------------------------
-// PANNING & ZOOMING
-//-------------------------------------
+//----------------------------------------------
+// INTERACTIVITY: CLICK DETECTION
+//----------------------------------------------
 function handleMouseDown(e) {
   isDragging = true;
   lastMouseX = e.clientX;
@@ -412,6 +157,7 @@ function handleMouseDown(e) {
 
 function handleMouseMove(e) {
   if (!isDragging) return;
+
   let deltaX = e.clientX - lastMouseX;
   let deltaY = e.clientY - lastMouseY;
   galaxyData.view.offsetX += deltaX;
@@ -422,14 +168,30 @@ function handleMouseMove(e) {
 
 function handleMouseUp(e) {
   isDragging = false;
+
+  // If this was a click (small movement), test for hex
+  let dx = e.clientX - lastMouseX;
+  let dy = e.clientY - lastMouseY;
+  if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+    // Convert from screen coords to map coords
+    let canvas = document.getElementById('galaxyCanvas');
+    let rect = canvas.getBoundingClientRect();
+    let x = (e.clientX - rect.left) - galaxyData.view.offsetX;
+    let y = (e.clientY - rect.top)  - galaxyData.view.offsetY;
+    x /= galaxyData.view.scale;
+    y /= galaxyData.view.scale;
+
+    let clickedHex = findHexAtPosition(x, y);
+    if (clickedHex) {
+      openSidebar(clickedHex);
+    }
+  }
 }
 
 function handleMouseWheel(e) {
   e.preventDefault();
-  let zoomFactor = 1.1;
   let oldScale = galaxyData.view.scale;
-  let mouseX = e.clientX;
-  let mouseY = e.clientY;
+  let zoomFactor = 1.1;
 
   if (e.deltaY < 0) {
     galaxyData.view.scale *= zoomFactor;
@@ -437,103 +199,96 @@ function handleMouseWheel(e) {
     galaxyData.view.scale /= zoomFactor;
   }
 
-  // Center zoom on the mouse position
+  // Adjust offset so zoom is centered on mouse pointer
+  let canvas = document.getElementById('galaxyCanvas');
+  let rect = canvas.getBoundingClientRect();
+  let mouseX = e.clientX - rect.left;
+  let mouseY = e.clientY - rect.top;
+
   let newScale = galaxyData.view.scale;
-  // adjust offsets so the (mouseX, mouseY) stays in the same place
   galaxyData.view.offsetX = mouseX - ((mouseX - galaxyData.view.offsetX) * (newScale / oldScale));
   galaxyData.view.offsetY = mouseY - ((mouseY - galaxyData.view.offsetY) * (newScale / oldScale));
 }
 
-function handleResetView() {
-  galaxyData.view.offsetX = 0;
-  galaxyData.view.offsetY = 0;
-  galaxyData.view.scale = 1.0;
+//----------------------------------------------
+// SIDEBAR LOGIC
+//----------------------------------------------
+function openSidebar(hexTile) {
+  currentHex = hexTile;
+  document.getElementById('systemTextArea').value = hexTile.systemText;
+  document.getElementById('systemDetailsSidebar').style.display = "block";
 }
 
-//-------------------------------------
-// ANIMATION LOOP
-//-------------------------------------
-function animationLoop() {
-  let canvas = document.getElementById('galaxyCanvas');
-  let ctx = canvas.getContext('2d');
-
-  // clear canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // apply pan/zoom transformations
-  ctx.save();
-  ctx.translate(galaxyData.view.offsetX, galaxyData.view.offsetY);
-  ctx.scale(galaxyData.view.scale, galaxyData.view.scale);
-
-  // draw connections
-  galaxyData.connections.forEach(conn => {
-    drawConnection(ctx, conn);
-  });
-
-  // update ship orbits
-  updateShipOrbits();
-
-  // draw nodes & ships
-  galaxyData.nodes.forEach(node => {
-    drawNode(ctx, node);
-    node.ships.forEach(ship => {
-      drawShip(ctx, ship);
-    });
-  });
-
-  ctx.restore();
-
-  requestAnimationFrame(animationLoop);
+function closeSidebar() {
+  // If user edited text, update
+  if (currentHex) {
+    let newText = document.getElementById('systemTextArea').value;
+    currentHex.systemText = newText;
+    currentHex.systemName = parseFirstLine(newText);
+  }
+  document.getElementById('systemDetailsSidebar').style.display = "none";
+  currentHex = null;
 }
 
-//-------------------------------------
-// DRAWING FUNCTIONS
-//-------------------------------------
-function drawNode(ctx, node) {
-  ctx.beginPath();
-  ctx.arc(node.x, node.y, 4, 0, 2 * Math.PI);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fill();
-
-  // Optionally draw node name
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "12px Arial";
-  ctx.fillText(node.name, node.x + 6, node.y - 6);
+function handleRegenerateSystem() {
+  if (!currentHex) return;
+  let newText = generateSystemText(); // from systemgen.js
+  currentHex.systemText = newText;
+  currentHex.systemName = parseFirstLine(newText);
+  document.getElementById('systemTextArea').value = newText;
 }
 
-function drawConnection(ctx, conn) {
-  let nodeA = galaxyData.nodes[conn.nodeA];
-  let nodeB = galaxyData.nodes[conn.nodeB];
-  if (!nodeA || !nodeB) return;
-
-  let strokeColor;
-  if (conn.type === 'A') strokeColor = "green";
-  else if (conn.type === 'B') strokeColor = "blue";
-  else strokeColor = "red";
-
-  ctx.beginPath();
-  ctx.moveTo(nodeA.x, nodeA.y);
-  ctx.lineTo(nodeB.x, nodeB.y);
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = 1;
-  ctx.stroke();
+function handleAddShip() {
+  if (!currentHex) return;
+  let shipName = prompt("Enter ship name:") || ("Ship-" + Math.floor(Math.random()*1000));
+  let newShip = {
+    name: shipName,
+    orbitRadius: 15 + Math.random()*15,
+    angle: 0,
+    speed: 0.01 + Math.random()*0.02,
+    x: currentHex.center.x,
+    y: currentHex.center.y
+  };
+  currentHex.ships.push(newShip);
 }
 
-function drawShip(ctx, ship) {
-  ctx.beginPath();
-  ctx.arc(ship.x, ship.y, 2, 0, 2 * Math.PI);
-  ctx.fillStyle = "#FF9900";
-  ctx.fill();
-
-  // ship label
-  ctx.fillStyle = "#FF9900";
-  ctx.font = "10px Arial";
-  ctx.fillText(ship.name, ship.x + 3, ship.y - 3);
+//----------------------------------------------
+// SEARCH FUNCTIONALITY
+//----------------------------------------------
+function handleNodeSearch() {
+  let query = document.getElementById('nodeSearchInput').value.trim().toLowerCase();
+  if (!query) return;
+  let foundHex = galaxyData.hexes.find(h => h.systemName.toLowerCase().includes(query));
+  if (foundHex) {
+    centerViewOn(foundHex.center.x, foundHex.center.y);
+    openSidebar(foundHex);
+  }
 }
 
-//-------------------------------------
+function handleShipSearch() {
+  let query = document.getElementById('shipSearchInput').value.trim().toLowerCase();
+  if (!query) return;
+  let found = null;
+  let foundHex = null;
+  for (let hex of galaxyData.hexes) {
+    for (let s of hex.ships) {
+      if (s.name.toLowerCase().includes(query)) {
+        found = s;
+        foundHex = hex;
+        break;
+      }
+    }
+    if (found) break;
+  }
+  if (found && foundHex) {
+    centerViewOn(foundHex.center.x, foundHex.center.y);
+    openSidebar(foundHex);
+  }
+}
+
+//----------------------------------------------
 // SAVE & LOAD
-//-------------------------------------
+//----------------------------------------------
 function handleSaveMap() {
   let dataStr = JSON.stringify(galaxyData, null, 2);
   let blob = new Blob([dataStr], { type: "application/json" });
@@ -541,7 +296,7 @@ function handleSaveMap() {
 
   let a = document.createElement('a');
   a.href = url;
-  a.download = "galaxyMap.json";
+  a.download = "hexMap.json";
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -552,54 +307,191 @@ function handleLoadMap(e) {
   let reader = new FileReader();
   reader.onload = function(evt) {
     let content = evt.target.result;
-    let obj = JSON.parse(content);
-    galaxyData = obj; // Overwrite the global
+    let parsed = JSON.parse(content);
+    galaxyData = parsed;
   };
   reader.readAsText(file);
 }
 
-//-------------------------------------
-// UTILITY
-//-------------------------------------
-function centerViewOn(x, y) {
-  // Attempt to center the view so that (x, y) is in the middle of canvas
+//----------------------------------------------
+// DRAWING & ANIMATION
+//----------------------------------------------
+function animationLoop() {
   let canvas = document.getElementById('galaxyCanvas');
-  galaxyData.view.offsetX = (canvas.width / 2) - x * galaxyData.view.scale;
-  galaxyData.view.offsetY = (canvas.height / 2) - y * galaxyData.view.scale;
-}
+  let ctx = canvas.getContext('2d');
 
-function parseFirstLine(text) {
-  return text.split('\n')[0] || "";
-}
+  // Clear
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-function distanceBetweenNodes(n1, n2) {
-  return dist(n1.x, n1.y, n2.x, n2.y);
-}
+  // Apply transformations
+  ctx.save();
+  ctx.translate(galaxyData.view.offsetX, galaxyData.view.offsetY);
+  ctx.scale(galaxyData.view.scale, galaxyData.view.scale);
 
-function segmentsOverlap(connA, connB) {
-  // Simplistic check: if the endpoints are the same or they cross
-  // This can be made more robust by line intersection formulas
-  let A1 = galaxyData.nodes[connA.nodeA];
-  let A2 = galaxyData.nodes[connA.nodeB];
-  let B1 = galaxyData.nodes[connB.nodeA];
-  let B2 = galaxyData.nodes[connB.nodeB];
+  // Update ship orbits
+  updateShipOrbits();
 
-  // Example: if any share endpoints, consider it "overlap"
-  if (A1 === B1 || A1 === B2 || A2 === B1 || A2 === B2) {
-    return true;
+  // Draw the hex map
+  for (let hex of galaxyData.hexes) {
+    drawHexTile(ctx, hex);
   }
-  // Or do a line intersection test. For brevity, we’ll treat shared endpoints as overlap
-  return false;
+
+  ctx.restore();
+
+  requestAnimationFrame(animationLoop);
 }
 
-// Basic distance function
-function dist(x1, y1, x2, y2) {
+function updateShipOrbits() {
+  for (let hex of galaxyData.hexes) {
+    for (let ship of hex.ships) {
+      ship.angle += ship.speed;
+      ship.x = hex.center.x + Math.cos(ship.angle)*ship.orbitRadius;
+      ship.y = hex.center.y + Math.sin(ship.angle)*ship.orbitRadius;
+    }
+  }
+}
+
+function drawHexTile(ctx, hex) {
+  // Draw the hex boundary
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    let corner = hexCorner(hex.center, galaxyData.hexSize, i);
+    if (i === 0) ctx.moveTo(corner.x, corner.y);
+    else ctx.lineTo(corner.x, corner.y);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = "#888";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Draw edges according to jump color
+  for (let i = 0; i < 6; i++) {
+    if (hex.edges[i] !== "none") {
+      let c1 = hexCorner(hex.center, galaxyData.hexSize, i);
+      let c2 = hexCorner(hex.center, galaxyData.hexSize, (i+1)%6);
+      ctx.beginPath();
+      ctx.moveTo(c1.x, c1.y);
+      ctx.lineTo(c2.x, c2.y);
+
+      if (hex.edges[i] === "green") ctx.strokeStyle = "green";
+      else if (hex.edges[i] === "blue") ctx.strokeStyle = "blue";
+      else ctx.strokeStyle = "red";
+
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  // Draw system name in the center
+  ctx.fillStyle = "#FFF";
+  ctx.font = "12px Arial";
+  ctx.fillText(hex.systemName, hex.center.x - 20, hex.center.y+4);
+
+  // Draw ships
+  for (let ship of hex.ships) {
+    ctx.beginPath();
+    ctx.arc(ship.x, ship.y, 3, 0, 2*Math.PI);
+    ctx.fillStyle = "#FF9900";
+    ctx.fill();
+    // Label
+    ctx.fillStyle = "#FF9900";
+    ctx.fillText(ship.name, ship.x+5, ship.y-5);
+  }
+}
+
+//----------------------------------------------
+// HELPER FUNCTIONS
+//----------------------------------------------
+
+// Convert hex row, col to pixel center (simple "odd-r" horizontal layout)
+function hexToPixel(col, row, size) {
+  let offsetX = (row % 2 === 1) ? size : 0;
+  let x = col * (size * 2) + offsetX + size;
+  let y = row * (size * 1.5) + size;
+  return { x, y };
+}
+
+// Return the corner for a given hex center, size, and corner index [0..5]
+function hexCorner(center, size, i) {
+  // Each corner is 60 degrees apart
+  let angleDeg = 60 * i - 30; // offset so flat top is horizontal
+  let angleRad = Math.PI / 180 * angleDeg;
+  let x = center.x + size * Math.cos(angleRad);
+  let y = center.y + size * Math.sin(angleRad);
+  return { x, y };
+}
+
+// Find the neighbor for a given hex (row, col) + edgeIndex
+function findNeighborHex(row, col, edgeIndex) {
+  // For "odd-r" horizontal layout:
+  // edgeIndex goes 0..5 around
+  let offsetsOdd = [
+    [ 0, +1],  // E
+    [+1, +1],  // SE
+    [+1,  0],  // SW
+    [ 0, -1],  // W
+    [-1,  0],  // NW
+    [-1, +1]   // NE
+  ];
+  let offsetsEven = [
+    [ 0, +1],  // E
+    [+1,  0],  // SE
+    [ 0, -1],  // SW
+    [ 0, -1],  // W
+    [-1, -1],  // NW
+    [ 0,  0]   // NE  (this might need refining)
+  ];
+  // This is a simplified example. The offsets differ for even vs odd rows.
+  // You can refine for your chosen coordinate system.
+  
+  let rowIsOdd = (row % 2 === 1);
+  let offsets = rowIsOdd ? offsetsOdd : offsetsEven;
+  let nr = row + offsets[edgeIndex][0];
+  let nc = col + offsets[edgeIndex][1];
+
+  // Check bounds
+  if (nr < 0 || nr >= galaxyData.rows || nc < 0 || nc >= galaxyData.cols) {
+    return null;
+  }
+  // Find that hex from galaxyData.hexes
+  return galaxyData.hexes.find(h => h.row === nr && h.col === nc);
+}
+
+// Find which hex was clicked
+function findHexAtPosition(px, py) {
+  // Simple approach: loop all hexes, check distance from center.
+  // For bigger grids, you'd optimize with a hash or transform approach.
+  for (let hex of galaxyData.hexes) {
+    let dist = distance(px, py, hex.center.x, hex.center.y);
+    if (dist < galaxyData.hexSize * 0.9) {
+      // Found a likely hex
+      return hex;
+    }
+  }
+  return null;
+}
+
+function distance(x1, y1, x2, y2) {
   let dx = x2 - x1;
   let dy = y2 - y1;
   return Math.sqrt(dx*dx + dy*dy);
 }
 
-// Return an integer in [min, max]
-function randomIntInRange(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+// Center the view on a given coordinate
+function centerViewOn(x, y) {
+  let canvas = document.getElementById('galaxyCanvas');
+  galaxyData.view.offsetX = (canvas.width/2) - x*galaxyData.view.scale;
+  galaxyData.view.offsetY = (canvas.height/2) - y*galaxyData.view.scale;
+}
+
+// Reset the view
+function handleResetView() {
+  galaxyData.view.offsetX = 0;
+  galaxyData.view.offsetY = 0;
+  galaxyData.view.scale = 1.0;
+}
+
+// Utility to parse the first line as the system name
+function parseFirstLine(text) {
+  return text.split('\n')[0] || "";
 }
