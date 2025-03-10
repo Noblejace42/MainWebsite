@@ -8,7 +8,73 @@
   <link rel="stylesheet" href="styles.css">
 
   <!-- Reference existing system generator logic if needed -->
+  <script src="systemgen.js"></script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Galaxy Generator</title>
+
+  <!-- Link to the main styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Reference systemgen.js if needed -->
   <script src="systemgen.js"></script>
+
+  <!-- Reference the Galaxy Generator script -->
+  <script src="galaxygen.js"></script>
+</head>
+<body class="galaxygen">
+  <!-- Navigation bar -->
+  <nav>
+    <div class="nav-left">
+      <a href="systemgen.html">System Generator</a> |
+      <a href="lifepath.html">Lifepath Generator</a> |
+      <a href="weapongenerator.html">Weapon Generator</a> |
+      <a href="combat_tracker.html">Combat Tracker</a> |
+      <a href="abilitytree.html">Abilities</a> |
+      <a href="shiphardpointgenerator.html">Shipyard</a> |
+      <a href="galaxygen.html">Galaxy Generator</a>
+    </div>
+    <div class="nav-right">
+      <a href="index.html" class="distinct-button">Home</a>
+    </div>
+  </nav>
+
+  <!-- Main container for the galaxy map -->
+  <div id="galaxy-container">
+    <!-- Canvas for rendering galaxy -->
+    <canvas id="galaxyCanvas" width="1200" height="800"></canvas>
+    <!-- Reset view button -->
+    <button id="resetViewBtn">Reset View</button>
+
+    <!-- Sidebar for node/system details -->
+    <div id="systemDetailsSidebar">
+      <button id="closeSidebarBtn">Close</button>
+      <textarea id="systemTextArea"></textarea>
+      <button id="regenerateSystemBtn">Regenerate</button>
+      <button id="addShipBtn">Add Ship</button>
+      <div id="shipDetailsContainer">
+        <!-- Container for ship details -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Search section for nodes and ships -->
+  <div id="search-section">
+    <input type="text" id="nodeSearchInput" placeholder="Search by system name">
+    <button id="nodeSearchBtn">Search Systems</button>
+    <input type="text" id="shipSearchInput" placeholder="Search by ship name">
+    <button id="shipSearchBtn">Search Ships</button>
+  </div>
+
+  <!-- Save/Load section -->
+  <div id="saveLoadSection">
+    <button id="saveMapBtn">Save Map</button>
+    <input type="file" id="loadMapInput">
+  </div>
+</body>
+</html>
+
 
   <!-- Reference the Galaxy Generator script -->
   <script src="galaxygen.js"></script>
