@@ -1,5 +1,5 @@
 /* galaxygen.js */
- 
+
 // CONFIGURATION VARIABLES
 const NUM_HEXES = 500;
 const EDGE_COLOR_PROBS = { green: 0.4, blue: 0.4, red: 0.2 }; // adjustable probabilities
@@ -141,8 +141,8 @@ function generateHexGrid() {
       } else {
         hex.systemData = { info: "Full system data for " + hex.systemName };
       }
-      // Use plaintext generator from systemgen.js if available
-      if (typeof generateSystemText === "function") {
+      // Use plaintext generator from systemgen.js if available and systemData is valid
+      if (typeof generateSystemText === "function" && hex.systemData != null) {
         hex.systemText = generateSystemText(hex.systemData);
       } else {
         hex.systemText = "System: " + hex.systemName + "\n" + JSON.stringify(hex.systemData, null, 2);
@@ -169,7 +169,7 @@ function drawGrid() {
     drawHex(hex);
   });
 
-  // Draw bisecting lines between neighboring hex centers (using a thicker line for visibility)
+  // Draw bisecting lines between neighboring hex centers (thicker for visibility)
   ctx.lineWidth = 2;
   for (let i = 0; i < hexGrid.length; i++) {
     let hex = hexGrid[i];
@@ -226,10 +226,7 @@ function drawStarship(hex, ship) {
   const orbitRadius = HEX_EDGE_LENGTH * 0.8;
   const posX = hex.centerX + orbitRadius * Math.cos(ship.orbitAngle);
   const posY = hex.centerY + orbitRadius * Math.sin(ship.orbitAngle);
-
-  // Draw a triangle centered at (posX, posY)
-  const size = 8; // size of the starship
-  // Triangle vertices (pointing outward from the star)
+  const size = 8; // starship size
   let angle = ship.orbitAngle;
   let vertices = [
     { x: posX + size * Math.cos(angle), y: posY + size * Math.sin(angle) },
@@ -352,7 +349,6 @@ function getClickedStarship(clickPoint) {
     for (let ship of hex.starships) {
       const posX = hex.centerX + orbitRadius * Math.cos(ship.orbitAngle);
       const posY = hex.centerY + orbitRadius * Math.sin(ship.orbitAngle);
-      // Define triangle for starship (similar to drawStarship)
       const size = 8;
       let angle = ship.orbitAngle;
       let v0 = { x: posX + size * Math.cos(angle), y: posY + size * Math.sin(angle) };
@@ -404,151 +400,8 @@ function onCanvasClick(e) {
       if (idx !== -1) {
         activeStarship.hex.starships.splice(idx, 1);
       }
-      // Add to new hex and update reference
       clickedHex.starships.push(activeStarship.starship);
       activeStarship.hex = clickedHex;
       updateShipSidebar();
       drawGrid();
-      activeStarship = null;
-      return;
-    }
-  }
-
-  // Otherwise, select the hex and update the system sidebar and ship sidebar
-  activeHex = clickedHex;
-  activeStarship = null;
-  updateSystemSidebar();
-  updateShipSidebar();
-}
-
-// RIGHT SIDEBAR: System details
-function updateSystemSidebar() {
-  const sidebar = document.getElementById("sidebar");
-  if (activeHex) {
-    sidebar.style.display = "block";
-    document.getElementById("systemEditor").value = activeHex.systemText;
-  } else {
-    sidebar.style.display = "none";
-  }
-}
-
-// When system editor loses focus, update system name and text
-function onSystemEditorBlur() {
-  if (activeHex) {
-    let text = document.getElementById("systemEditor").value;
-    activeHex.systemText = text;
-    // Parse first line to update systemName if it starts with "System: "
-    let lines = text.split("\n");
-    if (lines[0].startsWith("System: ")) {
-      activeHex.systemName = lines[0].substring(8).trim();
-    }
-    drawGrid();
-  }
-}
-
-// Regenerate system for active hex
-function regenerateSystemForActiveHex() {
-  if (activeHex) {
-    if (typeof generateSystemName === "function") {
-      activeHex.systemName = generateSystemName();
-    } else {
-      activeHex.systemName = "System" + (hexGrid.indexOf(activeHex) + 1);
-    }
-    if (typeof generateFullSystem === "function") {
-      activeHex.systemData = generateFullSystem();
-    } else {
-      activeHex.systemData = { info: "Updated system data for " + activeHex.systemName };
-    }
-    if (typeof generateSystemText === "function") {
-      activeHex.systemText = generateSystemText(activeHex.systemData);
-    } else {
-      activeHex.systemText = "System: " + activeHex.systemName + "\n" + JSON.stringify(activeHex.systemData, null, 2);
-    }
-    document.getElementById("systemEditor").value = activeHex.systemText;
-    drawGrid();
-  }
-}
-
-// LEFT SIDEBAR: Update ship sidebar with starships from active hex
-function updateShipSidebar() {
-  const shipSidebar = document.getElementById("shipSidebar");
-  if (activeHex) {
-    shipSidebar.style.display = "block";
-    const list = document.getElementById("starshipList");
-    list.innerHTML = "";
-    activeHex.starships.forEach((ship) => {
-      let div = document.createElement("div");
-      div.className = "starship";
-      // Name input
-      let nameInput = document.createElement("input");
-      nameInput.type = "text";
-      nameInput.value = ship.name;
-      nameInput.addEventListener("change", (e) => {
-        ship.name = e.target.value;
-        drawGrid();
-      });
-      // Notes textarea
-      let notesArea = document.createElement("textarea");
-      notesArea.value = ship.notes;
-      notesArea.addEventListener("change", (e) => {
-        ship.notes = e.target.value;
-      });
-      // Button to select this starship
-      let selectBtn = document.createElement("button");
-      selectBtn.textContent = "Select";
-      selectBtn.addEventListener("click", () => {
-        activeStarship = { starship: ship, hex: activeHex };
-        updateShipSidebar();
-        drawGrid();
-      });
-      div.appendChild(document.createTextNode("Name:"));
-      div.appendChild(nameInput);
-      div.appendChild(document.createElement("br"));
-      div.appendChild(document.createTextNode("Notes:"));
-      div.appendChild(notesArea);
-      div.appendChild(document.createElement("br"));
-      div.appendChild(selectBtn);
-      list.appendChild(div);
-    });
-  } else {
-    shipSidebar.style.display = "none";
-  }
-}
-
-// Add a new starship to the active hex
-function addStarshipToActiveHex() {
-  if (activeHex) {
-    let ship = new Starship();
-    activeHex.starships.push(ship);
-    updateShipSidebar();
-    drawGrid();
-  }
-}
-
-// SAVE MAP STATE (all hex data)
-function saveMap() {
-  const data = { hexGrid };
-  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  let a = document.createElement("a");
-  a.href = url;
-  a.download = "galaxyMap.json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// LOAD MAP STATE
-function loadMap(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    let data = JSON.parse(event.target.result);
-    hexGrid = data.hexGrid;
-    // (Note: starship objects and other fields should be restored correctly)
-    drawGrid();
-  };
-  reader.readAsText(file);
-}
+      activeStarshi
