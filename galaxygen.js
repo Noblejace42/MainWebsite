@@ -47,63 +47,84 @@ class Starship {
   }
 }
 
+// --------------------------------------------------
+// FIX START: Create a helper function that calls systemgen.js's generateSystem()
+//            to populate the global systemData, then returns a copy of it.
+//            This ensures each Hex can store its own "version" of systemData.
+// --------------------------------------------------
+function generateFullSystemLocal() {
+  if (typeof generateSystem === "function") {
+    generateSystem(); // This populates the global "systemData"
+    // Return a deep copy to store in the hex
+    return JSON.parse(JSON.stringify(window.systemData));
+  } else {
+    // Fallback if systemgen.js not loaded
+    return { sysConditions: [], systemName: "Fallback System" };
+  }
+}
+// --------------------------------------------------
+// FIX END
+// --------------------------------------------------
+
 // INITIALIZATION
 window.addEventListener("load", init);
 window.addEventListener("resize", resizeCanvas);
 
 function init() {
-    canvas = document.getElementById("hexMapCanvas");
-    if (!canvas) {
-        console.error("Canvas element not found!");
-        return;
-    }
+  canvas = document.getElementById("hexMapCanvas");
+  if (!canvas) {
+    console.error("Canvas element not found!");
+    return;
+  }
 
-    ctx = canvas.getContext("2d");
-    if (!ctx) {
-        console.error("Failed to get 2D context for canvas.");
-        return;
-    }
+  ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.error("Failed to get 2D context for canvas.");
+    return;
+  }
 
-    resizeCanvas();
+  resizeCanvas();
 
-    // Wait for systemData before generating the grid
-    waitForSystemData(() => {
-        generateHexGrid();
-        drawGrid();
-    });
+  // Generate the grid right away
+  generateHexGrid();
+  drawGrid();
 }
 
+// Event listeners for panning, zooming, clicking
+canvas.addEventListener("mousedown", onMouseDown);
+canvas.addEventListener("mousemove", onMouseMove);
+canvas.addEventListener("mouseup", onMouseUp);
+canvas.addEventListener("mouseleave", onMouseUp);
+canvas.addEventListener("wheel", onWheel);
+window.addEventListener("keydown", onKeyDown);
+canvas.addEventListener("click", onCanvasClick);
 
-  // Event listeners for panning, zooming, clicking
-  canvas.addEventListener("mousedown", onMouseDown);
-  canvas.addEventListener("mousemove", onMouseMove);
-  canvas.addEventListener("mouseup", onMouseUp);
-  canvas.addEventListener("mouseleave", onMouseUp);
-  canvas.addEventListener("wheel", onWheel);
-  window.addEventListener("keydown", onKeyDown);
-  canvas.addEventListener("click", onCanvasClick);
+// Control panel: save/load map, regenerate entire map, display plaintext system
+document.getElementById("saveMap").addEventListener("click", saveMap);
+document.getElementById("loadMap").addEventListener("click", () => {
+  document.getElementById("loadInput").click();
+});
+document.getElementById("loadInput").addEventListener("change", loadMap);
+document.getElementById("regenerateMap").addEventListener("click", regenerateEntireMap);
+document
+  .getElementById("displayPlaintextSystemBtn")
+  .addEventListener("click", displayPlaintextSystem);
 
-  // Control panel: save/load map, regenerate entire map, display plaintext system
-  document.getElementById("saveMap").addEventListener("click", saveMap);
-  document.getElementById("loadMap").addEventListener("click", () => {
-    document.getElementById("loadInput").click();
-  });
-  document.getElementById("loadInput").addEventListener("change", loadMap);
-  document.getElementById("regenerateMap").addEventListener("click", regenerateEntireMap);
-  document.getElementById("displayPlaintextSystemBtn").addEventListener("click", displayPlaintextSystem);
+// Right sidebar: system details editing
+document
+  .getElementById("systemEditor")
+  .addEventListener("blur", onSystemEditorBlur);
+document
+  .getElementById("regenerateSystem")
+  .addEventListener("click", regenerateSystemForActiveHex);
 
-  // Right sidebar: system details editing
-  document.getElementById("systemEditor").addEventListener("blur", onSystemEditorBlur);
-  document.getElementById("regenerateSystem").addEventListener("click", regenerateSystemForActiveHex);
+// Left sidebar: starships editing
+document.getElementById("addStarship").addEventListener("click", addStarshipToActiveHex);
 
-  // Left sidebar: starships editing
-  document.getElementById("addStarship").addEventListener("click", addStarshipToActiveHex);
-
-  // Close button for the plaintext output popup
-  document.getElementById("closePlaintext").addEventListener("click", () => {
-    document.getElementById("output").style.display = "none";
-  });
-}
+// Close button for the plaintext output popup
+document.getElementById("closePlaintext").addEventListener("click", () => {
+  document.getElementById("output").style.display = "none";
+});
 
 // RESIZE CANVAS
 function resizeCanvas() {
@@ -122,10 +143,10 @@ function regenerateEntireMap() {
 
 // DISPLAY A SINGLE SYSTEM (FROM systemgen.js) AS PLAIN TEXT
 function displayPlaintextSystem() {
-  // This function assumes that generateSystem() and generateSystemText() are defined in systemgen.js
+  // This function calls systemgen.js's generateSystem() & generateSystemText() at the global level
   if (typeof generateSystem === "function" && typeof generateSystemText === "function") {
-    generateSystem(); // generate the system data internally (systemgen.js might store it in a global)
-    const text = generateSystemText(); // get the plaintext result
+    generateSystem(); // sets the global systemData
+    const text = generateSystemText(); // uses global systemData
     const outputDiv = document.getElementById("output");
     const preEl = document.getElementById("plaintextContent");
 
@@ -140,10 +161,10 @@ function displayPlaintextSystem() {
 function computeVertices(hex) {
   let vertices = [];
   for (let i = 0; i < 6; i++) {
-    let angleRad = Math.PI / 180 * (60 * i);
+    let angleRad = (Math.PI / 180) * (60 * i);
     vertices.push({
       x: hex.centerX + HEX_EDGE_LENGTH * Math.cos(angleRad),
-      y: hex.centerY + HEX_EDGE_LENGTH * Math.sin(angleRad)
+      y: hex.centerY + HEX_EDGE_LENGTH * Math.sin(angleRad),
     });
   }
   return vertices;
@@ -174,22 +195,32 @@ function generateHexGrid() {
         }
       }
 
-      // If you want to incorporate systemgen.js for each hex:
+      // Example: generate a system name if systemgen.js is loaded
       if (typeof generateSystemName === "function") {
         hex.systemName = generateSystemName();
       } else {
         hex.systemName = "System" + (hexGrid.length + 1);
       }
-      if (typeof generateFullSystem === "function") {
-        hex.systemData = generateFullSystem();
+
+      // --------------------------------------------------
+      // FIX START: use our local helper so each hex gets its own unique systemData
+      // --------------------------------------------------
+      hex.systemData = generateFullSystemLocal(); // returns a new object each time
+
+      // Now, we want a textual representation. systemgen.js's generateSystemText() *always* looks at global systemData,
+      // so we temporarily replace it, then restore it.
+      if (typeof generateSystemText === "function" && hex.systemData) {
+        const originalSystemData = window.systemData;
+        window.systemData = hex.systemData; // Make systemgen.js point to the hex's data
+        hex.systemText = generateSystemText();
+        window.systemData = originalSystemData; // Restore the original global
       } else {
-        hex.systemData = { info: "Full system data for " + hex.systemName };
-      }
-      if (typeof generateSystemText === "function" && hex.systemData != null) {
-        hex.systemText = generateSystemText(hex.systemData);
-      } else {
+        // fallback
         hex.systemText = "System: " + hex.systemName + "\n" + JSON.stringify(hex.systemData, null, 2);
       }
+      // --------------------------------------------------
+      // FIX END
+      // --------------------------------------------------
 
       hexGrid.push(hex);
       if (hexGrid.length >= NUM_HEXES) break;
@@ -200,22 +231,30 @@ function generateHexGrid() {
 
 // DRAW THE GRID
 function drawGrid() {
+  if (!ctx) return;
+
   ctx.save();
   ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
-  ctx.clearRect(-offsetX / scale, -offsetY / scale, canvas.width / scale, canvas.height / scale);
+  ctx.clearRect(
+    -offsetX / scale,
+    -offsetY / scale,
+    canvas.width / scale,
+    canvas.height / scale
+  );
 
   // Draw hexes and their content
   hexGrid.forEach((hex) => {
     drawHex(hex);
   });
 
-  // Draw bisecting lines between neighboring hex centers (thicker for visibility)
+  // Draw bisecting lines between neighboring hex centers
   ctx.lineWidth = 2;
   for (let i = 0; i < hexGrid.length; i++) {
     let hex = hexGrid[i];
     for (let edge = 0; edge < 6; edge++) {
       let neighbor = getNeighbor(hex, edge);
-      if (neighbor && hexGrid.indexOf(hex) < hexGrid.indexOf(neighbor)) {
+      // Only draw once for each pair
+      if (neighbor && i < hexGrid.indexOf(neighbor)) {
         ctx.beginPath();
         ctx.strokeStyle = hex.edges[edge];
         ctx.moveTo(hex.centerX, hex.centerY);
@@ -274,7 +313,8 @@ function drawStarship(hex, ship) {
     { x: posX + size * Math.cos(angle - 2.5), y: posY + size * Math.sin(angle - 2.5) }
   ];
   ctx.beginPath();
-  ctx.fillStyle = (activeStarship && activeStarship.starship.id === ship.id) ? "#FF0000" : "#00FFFF";
+  ctx.fillStyle =
+    activeStarship && activeStarship.starship.id === ship.id ? "#FF0000" : "#00FFFF";
   ctx.moveTo(vertices[0].x, vertices[0].y);
   ctx.lineTo(vertices[1].x, vertices[1].y);
   ctx.lineTo(vertices[2].x, vertices[2].y);
@@ -282,7 +322,7 @@ function drawStarship(hex, ship) {
   ctx.fill();
 }
 
-// UTILITY: Get neighbor hex for a given edge (using midpoint search)
+// UTILITY: Get neighbor hex for a given edge
 function getNeighbor(hex, edgeIndex) {
   let vertices = computeVertices(hex);
   let v1 = vertices[edgeIndex];
@@ -360,7 +400,7 @@ function onKeyDown(e) {
   drawGrid();
 }
 
-// POINT-IN-POLYGON (ray-casting algorithm)
+// POINT-IN-POLYGON
 function pointInPolygon(point, vertices) {
   let inside = false;
   for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
@@ -370,7 +410,8 @@ function pointInPolygon(point, vertices) {
       yj = vertices[j].y;
     let intersect =
       (yi > point.y) !== (yj > point.y) &&
-      point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
+      point.x <
+        ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
   return inside;
@@ -395,7 +436,7 @@ function pointInTriangle(p, p0, p1, p2) {
   return s >= 0 && t >= 0 && s + t <= 2 * A * sign;
 }
 
-// GET CLICKED STARSHIP (if any)
+// GET CLICKED STARSHIP
 function getClickedStarship(clickPoint) {
   for (let hex of hexGrid) {
     const orbitRadius = HEX_EDGE_LENGTH * 0.8;
@@ -405,8 +446,14 @@ function getClickedStarship(clickPoint) {
       const size = 8;
       let angle = ship.orbitAngle;
       let v0 = { x: posX + size * Math.cos(angle), y: posY + size * Math.sin(angle) };
-      let v1 = { x: posX + size * Math.cos(angle + 2.5), y: posY + size * Math.sin(angle + 2.5) };
-      let v2 = { x: posX + size * Math.cos(angle - 2.5), y: posY + size * Math.sin(angle - 2.5) };
+      let v1 = {
+        x: posX + size * Math.cos(angle + 2.5),
+        y: posY + size * Math.sin(angle + 2.5),
+      };
+      let v2 = {
+        x: posX + size * Math.cos(angle - 2.5),
+        y: posY + size * Math.sin(angle - 2.5),
+      };
       if (pointInTriangle(clickPoint, v0, v1, v2)) {
         return { starship: ship, hex: hex };
       }
@@ -431,7 +478,7 @@ function onCanvasClick(e) {
     return;
   }
 
-  // If a starship is active and the clicked hex is adjacent to its current hex, move the starship there.
+  // If a starship is active and the clicked hex is adjacent to its current hex, move it
   let clickedHex = null;
   for (let hex of hexGrid) {
     let vertices = computeVertices(hex);
@@ -449,7 +496,9 @@ function onCanvasClick(e) {
     }
     if (neighbors.includes(clickedHex)) {
       // Move starship to the clicked hex
-      let idx = activeStarship.hex.starships.findIndex((s) => s.id === activeStarship.starship.id);
+      let idx = activeStarship.hex.starships.findIndex(
+        (s) => s.id === activeStarship.starship.id
+      );
       if (idx !== -1) {
         activeStarship.hex.starships.splice(idx, 1);
       }
@@ -462,7 +511,7 @@ function onCanvasClick(e) {
     }
   }
 
-  // Otherwise, select the hex and update the sidebars
+  // Otherwise, select the hex
   activeHex = clickedHex;
   activeStarship = null;
   updateSystemSidebar();
@@ -502,17 +551,21 @@ function regenerateSystemForActiveHex() {
     } else {
       activeHex.systemName = "System" + (hexGrid.indexOf(activeHex) + 1);
     }
-    if (typeof generateFullSystem === "function") {
-      activeHex.systemData = generateFullSystem();
-    } else {
-      activeHex.systemData = { info: "Updated system data for " + activeHex.systemName };
-    }
-    if (typeof generateSystemText === "function" && activeHex.systemData != null) {
-      activeHex.systemText = generateSystemText(activeHex.systemData);
+
+    // Rebuild the systemData
+    activeHex.systemData = generateFullSystemLocal();
+
+    // Generate textual output, using the same global swap fix
+    if (typeof generateSystemText === "function" && activeHex.systemData) {
+      const originalSystemData = window.systemData;
+      window.systemData = activeHex.systemData;
+      activeHex.systemText = generateSystemText();
+      window.systemData = originalSystemData;
     } else {
       activeHex.systemText =
         "System: " + activeHex.systemName + "\n" + JSON.stringify(activeHex.systemData, null, 2);
     }
+
     document.getElementById("systemEditor").value = activeHex.systemText;
     drawGrid();
   }
