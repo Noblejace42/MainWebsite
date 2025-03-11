@@ -13,11 +13,11 @@ const hexHeight = Math.sqrt(3) * HEX_EDGE_LENGTH;
 // GLOBAL VARIABLES
 let canvas, ctx;
 let offsetX = 0,
-    offsetY = 0,
-    scale = 1;
+  offsetY = 0,
+  scale = 1;
 let isDragging = false,
-    dragStartX = 0,
-    dragStartY = 0;
+  dragStartX = 0,
+  dragStartY = 0;
 let hexGrid = []; // array of Hex objects
 let activeHex = null; // currently selected hex (system)
 let activeStarship = null; // { starship, hex } currently selected
@@ -69,12 +69,14 @@ function init() {
   window.addEventListener("keydown", onKeyDown);
   canvas.addEventListener("click", onCanvasClick);
 
-  // Control panel: save/load map state
+  // Control panel: save/load map, regenerate entire map, display plaintext system
   document.getElementById("saveMap").addEventListener("click", saveMap);
   document.getElementById("loadMap").addEventListener("click", () => {
     document.getElementById("loadInput").click();
   });
   document.getElementById("loadInput").addEventListener("change", loadMap);
+  document.getElementById("regenerateMap").addEventListener("click", regenerateEntireMap);
+  document.getElementById("displayPlaintextSystemBtn").addEventListener("click", displayPlaintextSystem);
 
   // Right sidebar: system details editing
   document.getElementById("systemEditor").addEventListener("blur", onSystemEditorBlur);
@@ -82,6 +84,11 @@ function init() {
 
   // Left sidebar: starships editing
   document.getElementById("addStarship").addEventListener("click", addStarshipToActiveHex);
+
+  // Close button for the plaintext output popup
+  document.getElementById("closePlaintext").addEventListener("click", () => {
+    document.getElementById("output").style.display = "none";
+  });
 }
 
 // RESIZE CANVAS
@@ -90,6 +97,29 @@ function resizeCanvas() {
   canvas.width = container.clientWidth;
   canvas.height = container.clientHeight;
   drawGrid();
+}
+
+// REGENERATE THE ENTIRE MAP
+function regenerateEntireMap() {
+  hexGrid = [];
+  generateHexGrid();
+  drawGrid();
+}
+
+// DISPLAY A SINGLE SYSTEM (FROM systemgen.js) AS PLAIN TEXT
+function displayPlaintextSystem() {
+  // This function assumes that generateSystem() and generateSystemText() are defined in systemgen.js
+  if (typeof generateSystem === "function" && typeof generateSystemText === "function") {
+    generateSystem(); // generate the system data internally (systemgen.js might store it in a global)
+    const text = generateSystemText(); // get the plaintext result
+    const outputDiv = document.getElementById("output");
+    const preEl = document.getElementById("plaintextContent");
+
+    outputDiv.style.display = "block";
+    preEl.textContent = text;
+  } else {
+    console.warn("systemgen.js not loaded or generateSystem/generateSystemText not found.");
+  }
 }
 
 // Compute vertices for a flat-topped hexagon
@@ -130,7 +160,7 @@ function generateHexGrid() {
         }
       }
 
-      // Generate system data (using functions from systemgen.js if available)
+      // If you want to incorporate systemgen.js for each hex:
       if (typeof generateSystemName === "function") {
         hex.systemName = generateSystemName();
       } else {
@@ -141,15 +171,11 @@ function generateHexGrid() {
       } else {
         hex.systemData = { info: "Full system data for " + hex.systemName };
       }
-      // Use plaintext generator from systemgen.js if available and systemData is valid
       if (typeof generateSystemText === "function" && hex.systemData != null) {
         hex.systemText = generateSystemText(hex.systemData);
       } else {
         hex.systemText = "System: " + hex.systemName + "\n" + JSON.stringify(hex.systemData, null, 2);
       }
-
-      // Initialize starships array as empty
-      hex.starships = [];
 
       hexGrid.push(hex);
       if (hexGrid.length >= NUM_HEXES) break;
@@ -324,10 +350,13 @@ function onKeyDown(e) {
 function pointInPolygon(point, vertices) {
   let inside = false;
   for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-    let xi = vertices[i].x, yi = vertices[i].y;
-    let xj = vertices[j].x, yj = vertices[j].y;
-    let intersect = ((yi > point.y) !== (yj > point.y)) &&
-      (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
+    let xi = vertices[i].x,
+      yi = vertices[i].y;
+    let xj = vertices[j].x,
+      yj = vertices[j].y;
+    let intersect =
+      (yi > point.y) !== (yj > point.y) &&
+      point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
   return inside;
@@ -337,9 +366,19 @@ function pointInPolygon(point, vertices) {
 function pointInTriangle(p, p0, p1, p2) {
   let A = 0.5 * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
   let sign = A < 0 ? -1 : 1;
-  let s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y) * sign;
-  let t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y) * sign;
-  return s >= 0 && t >= 0 && (s + t) <= 2 * A * sign;
+  let s =
+    (p0.y * p2.x -
+      p0.x * p2.y +
+      (p2.y - p0.y) * p.x +
+      (p0.x - p2.x) * p.y) *
+    sign;
+  let t =
+    (p0.x * p1.y -
+      p0.y * p1.x +
+      (p0.y - p1.y) * p.x +
+      (p1.x - p0.x) * p.y) *
+    sign;
+  return s >= 0 && t >= 0 && s + t <= 2 * A * sign;
 }
 
 // GET CLICKED STARSHIP (if any)
@@ -396,7 +435,7 @@ function onCanvasClick(e) {
     }
     if (neighbors.includes(clickedHex)) {
       // Move starship to the clicked hex
-      let idx = activeStarship.hex.starships.findIndex(s => s.id === activeStarship.starship.id);
+      let idx = activeStarship.hex.starships.findIndex((s) => s.id === activeStarship.starship.id);
       if (idx !== -1) {
         activeStarship.hex.starships.splice(idx, 1);
       }
@@ -457,7 +496,8 @@ function regenerateSystemForActiveHex() {
     if (typeof generateSystemText === "function" && activeHex.systemData != null) {
       activeHex.systemText = generateSystemText(activeHex.systemData);
     } else {
-      activeHex.systemText = "System: " + activeHex.systemName + "\n" + JSON.stringify(activeHex.systemData, null, 2);
+      activeHex.systemText =
+        "System: " + activeHex.systemName + "\n" + JSON.stringify(activeHex.systemData, null, 2);
     }
     document.getElementById("systemEditor").value = activeHex.systemText;
     drawGrid();
@@ -474,6 +514,7 @@ function updateShipSidebar() {
     activeHex.starships.forEach((ship) => {
       let div = document.createElement("div");
       div.className = "starship";
+
       let nameInput = document.createElement("input");
       nameInput.type = "text";
       nameInput.value = ship.name;
@@ -481,11 +522,13 @@ function updateShipSidebar() {
         ship.name = e.target.value;
         drawGrid();
       });
+
       let notesArea = document.createElement("textarea");
       notesArea.value = ship.notes;
       notesArea.addEventListener("change", (e) => {
         ship.notes = e.target.value;
       });
+
       let selectBtn = document.createElement("button");
       selectBtn.textContent = "Select";
       selectBtn.addEventListener("click", () => {
@@ -493,6 +536,19 @@ function updateShipSidebar() {
         updateShipSidebar();
         drawGrid();
       });
+
+      // Delete button
+      let deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", () => {
+        const idx = activeHex.starships.indexOf(ship);
+        if (idx >= 0) {
+          activeHex.starships.splice(idx, 1);
+          updateShipSidebar();
+          drawGrid();
+        }
+      });
+
       div.appendChild(document.createTextNode("Name:"));
       div.appendChild(nameInput);
       div.appendChild(document.createElement("br"));
@@ -500,6 +556,7 @@ function updateShipSidebar() {
       div.appendChild(notesArea);
       div.appendChild(document.createElement("br"));
       div.appendChild(selectBtn);
+      div.appendChild(deleteBtn);
       list.appendChild(div);
     });
   } else {
