@@ -52,21 +52,27 @@ window.addEventListener("load", init);
 window.addEventListener("resize", resizeCanvas);
 
 function init() {
-  canvas = document.getElementById("hexMapCanvas");
-  ctx = canvas.getContext("2d");
-  resizeCanvas();
-
-  // Generate honeycomb grid
- function init() {
-    if (!systemData) {
-        console.warn("Waiting for systemData to load...");
-        setTimeout(init, 500);  // Try again in 500ms
+    canvas = document.getElementById("hexMapCanvas");
+    if (!canvas) {
+        console.error("Canvas element not found!");
         return;
     }
-    generateHexGrid();  // Proceed only when systemData is available
+
+    ctx = canvas.getContext("2d");
+    if (!ctx) {
+        console.error("Failed to get 2D context for canvas.");
+        return;
+    }
+
+    resizeCanvas();
+
+    // Wait for systemData before generating the grid
+    waitForSystemData(() => {
+        generateHexGrid();
+        drawGrid();
+    });
 }
-  init();
-  drawGrid();
+
 
   // Event listeners for panning, zooming, clicking
   canvas.addEventListener("mousedown", onMouseDown);
