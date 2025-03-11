@@ -6,48 +6,53 @@
     <title>Galaxy Generator</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      /* Override default background and ensure full-page canvas */
+      /* Full viewport, black background, no scrolling */
       body {
         background: #000;
         margin: 0;
         overflow: hidden;
       }
-      /* The hex map occupies the full screen beneath the nav bar */
-      #hexMapContainer {
-        position: absolute;
-        top: 60px;
-        bottom: 80px;
+      /* Fixed nav bar at the top */
+      #navContainer {
+        position: fixed;
+        top: 0;
         left: 0;
         right: 0;
+        z-index: 1000;
       }
-      #hexMapCanvas {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-      /* Bottom control panel card */
-      #controlPanel {
+      /* Main container fills the viewport below the nav bar */
+      .container {
         position: absolute;
+        top: 60px; /* space for nav bar */
+        left: 0;
+        right: 0;
         bottom: 0;
+      }
+      /* Left sidebar for starships */
+      #shipSidebar {
+        position: absolute;
+        top: 0;
+        bottom: 80px; /* leave room for control panel */
         left: 0;
-        right: 0;
-        background: rgba(20, 20, 20, 0.9);
+        width: 300px;
+        background: rgba(30, 30, 30, 0.95);
+        color: #ccc;
         padding: 10px;
-        text-align: center;
+        overflow-y: auto;
         z-index: 1001;
       }
       /* Right sidebar for system details */
       #sidebar {
         position: absolute;
-        top: 60px;
+        top: 0;
+        bottom: 80px; /* leave room for control panel */
         right: 0;
         width: 300px;
-        height: calc(100% - 60px);
         background: rgba(30, 30, 30, 0.95);
         color: #ccc;
         padding: 10px;
         overflow-y: auto;
-        z-index: 1002;
+        z-index: 1001;
         display: none;
       }
       #sidebar textarea {
@@ -59,75 +64,84 @@
         padding: 5px;
         resize: none;
       }
-      /* Left sidebar for starships */
-      #shipSidebar {
+      /* Central canvas container for the hex map */
+      #hexMapContainer {
         position: absolute;
-        top: 60px;
-        left: 0;
-        width: 300px;
-        height: calc(100% - 60px);
-        background: rgba(30, 30, 30, 0.95);
-        color: #ccc;
-        padding: 10px;
-        overflow-y: auto;
-        z-index: 1002;
+        top: 0;
+        bottom: 80px; /* leave room for control panel */
+        left: 300px;  /* leave space for left sidebar */
+        right: 300px; /* leave space for right sidebar */
+        background: #000;
+      }
+      #hexMapCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      /* Hidden container required by systemgen.js */
+      #systemOutput {
         display: none;
       }
-      #shipSidebar .starship {
-        border-bottom: 1px solid #444;
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-      }
-      #shipSidebar input, #shipSidebar textarea {
-        width: 100%;
-        margin-top: 5px;
-      }
-      #shipSidebar button {
-        margin-top: 5px;
+      /* Bottom control panel */
+      #controlPanel {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 80px;
+        background: rgba(20, 20, 20, 0.9);
+        text-align: center;
+        padding: 10px;
+        z-index: 1002;
       }
     </style>
   </head>
   <body class="galaxygen">
-    <!-- Navigation Bar (fetched from nav.html) -->
+    <!-- Navigation Bar -->
     <div id="navContainer"></div>
     <script>
       fetch('nav.html')
-        .then((response) => response.text())
-        .then((data) => {
+        .then(response => response.text())
+        .then(data => {
           document.getElementById('navContainer').innerHTML = data;
         })
-        .catch((err) => console.error('Error loading nav:', err));
+        .catch(err => console.error('Error loading nav:', err));
     </script>
 
-    <!-- Canvas container for the hex map -->
-    <div id="hexMapContainer">
-      <canvas id="hexMapCanvas"></canvas>
-    </div>
-<div id="systemOutput" style="display:none;"></div>
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Hidden system output required by systemgen.js -->
+      <div id="systemOutput"></div>
 
-    <!-- Right Sidebar: System details -->
-    <div id="sidebar">
-      <h2>System Details</h2>
-      <textarea id="systemEditor"></textarea>
-      <br />
-      <button id="regenerateSystem">Regenerate System</button>
+      <!-- Left Sidebar: Starships -->
+      <div id="shipSidebar">
+        <h2>Starships</h2>
+        <div id="starshipList"></div>
+        <button id="addStarship">Add Starship</button>
+      </div>
+
+      <!-- Center: Hex Map Canvas -->
+      <div id="hexMapContainer">
+        <canvas id="hexMapCanvas"></canvas>
+      </div>
+
+      <!-- Right Sidebar: System Details -->
+      <div id="sidebar">
+        <h2>System Details</h2>
+        <textarea id="systemEditor"></textarea>
+        <br />
+        <button id="regenerateSystem">Regenerate System</button>
+      </div>
+
+      <!-- Bottom Control Panel -->
+      <div id="controlPanel">
+        <button id="saveMap">Save Map</button>
+        <button id="loadMap">Load Map</button>
+        <input type="file" id="loadInput" style="display:none" />
+      </div>
     </div>
 
-    <!-- Left Sidebar: Starships -->
-    <div id="shipSidebar">
-      <h2>Starships</h2>
-      <div id="starshipList"></div>
-      <button id="addStarship">Add Starship</button>
-    </div>
-
-    <!-- Bottom control panel -->
-    <div id="controlPanel">
-      <button id="saveMap">Save Map</button>
-      <button id="loadMap">Load Map</button>
-      <input type="file" id="loadInput" style="display:none" />
-    </div>
-
-    <!-- Include systemgen.js and galaxygen.js -->
+    <!-- Include required scripts -->
     <script src="systemgen.js"></script>
     <script src="galaxygen.js"></script>
   </body>
