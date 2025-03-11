@@ -57,7 +57,15 @@ function init() {
   resizeCanvas();
 
   // Generate honeycomb grid
-  generateHexGrid();
+ function init() {
+    if (!systemData) {
+        console.warn("Waiting for systemData to load...");
+        setTimeout(init, 500);  // Try again in 500ms
+        return;
+    }
+    generateHexGrid();  // Proceed only when systemData is available
+}
+  init();
   drawGrid();
 
   // Event listeners for panning, zooming, clicking
