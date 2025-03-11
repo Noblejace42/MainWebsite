@@ -1,5 +1,5 @@
 /* galaxygen.js */
-
+ 
 // CONFIGURATION VARIABLES
 const NUM_HEXES = 500;
 const EDGE_COLOR_PROBS = { green: 0.4, blue: 0.4, red: 0.2 }; // adjustable probabilities
