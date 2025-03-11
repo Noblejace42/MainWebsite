@@ -811,7 +811,7 @@ function generateSystem() {
   }
 
   // Number of planets: now at least 1 and up to 8
-  const numPlanets = randomInt(1, 8);
+  const numPlanets = randomInt(0, 8);
   let planets = [];
   for (let i = 1; i <= numPlanets; i++) {
     const biome = planetBiomes[randomInt(0, planetBiomes.length - 1)];
