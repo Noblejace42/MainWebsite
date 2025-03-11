@@ -13,11 +13,11 @@ const hexHeight = Math.sqrt(3) * HEX_EDGE_LENGTH;
 // GLOBAL VARIABLES
 let canvas, ctx;
 let offsetX = 0,
-  offsetY = 0,
-  scale = 1;
+    offsetY = 0,
+    scale = 1;
 let isDragging = false,
-  dragStartX = 0,
-  dragStartY = 0;
+    dragStartX = 0,
+    dragStartY = 0;
 let hexGrid = []; // array of Hex objects
 let activeHex = null; // currently selected hex (system)
 let activeStarship = null; // { starship, hex } currently selected
@@ -404,4 +404,142 @@ function onCanvasClick(e) {
       activeStarship.hex = clickedHex;
       updateShipSidebar();
       drawGrid();
-      activeStarshi
+      activeStarship = null;
+      return;
+    }
+  }
+
+  // Otherwise, select the hex and update the sidebars
+  activeHex = clickedHex;
+  activeStarship = null;
+  updateSystemSidebar();
+  updateShipSidebar();
+}
+
+// RIGHT SIDEBAR: System details
+function updateSystemSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  if (activeHex) {
+    sidebar.style.display = "block";
+    document.getElementById("systemEditor").value = activeHex.systemText;
+  } else {
+    sidebar.style.display = "none";
+  }
+}
+
+// When system editor loses focus, update system name and text
+function onSystemEditorBlur() {
+  if (activeHex) {
+    let text = document.getElementById("systemEditor").value;
+    activeHex.systemText = text;
+    // Update systemName from the first line if it starts with "System: "
+    let lines = text.split("\n");
+    if (lines[0].startsWith("System: ")) {
+      activeHex.systemName = lines[0].substring(8).trim();
+    }
+    drawGrid();
+  }
+}
+
+// Regenerate system for active hex
+function regenerateSystemForActiveHex() {
+  if (activeHex) {
+    if (typeof generateSystemName === "function") {
+      activeHex.systemName = generateSystemName();
+    } else {
+      activeHex.systemName = "System" + (hexGrid.indexOf(activeHex) + 1);
+    }
+    if (typeof generateFullSystem === "function") {
+      activeHex.systemData = generateFullSystem();
+    } else {
+      activeHex.systemData = { info: "Updated system data for " + activeHex.systemName };
+    }
+    if (typeof generateSystemText === "function" && activeHex.systemData != null) {
+      activeHex.systemText = generateSystemText(activeHex.systemData);
+    } else {
+      activeHex.systemText = "System: " + activeHex.systemName + "\n" + JSON.stringify(activeHex.systemData, null, 2);
+    }
+    document.getElementById("systemEditor").value = activeHex.systemText;
+    drawGrid();
+  }
+}
+
+// LEFT SIDEBAR: Update ship sidebar with starships from active hex
+function updateShipSidebar() {
+  const shipSidebar = document.getElementById("shipSidebar");
+  if (activeHex) {
+    shipSidebar.style.display = "block";
+    const list = document.getElementById("starshipList");
+    list.innerHTML = "";
+    activeHex.starships.forEach((ship) => {
+      let div = document.createElement("div");
+      div.className = "starship";
+      let nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.value = ship.name;
+      nameInput.addEventListener("change", (e) => {
+        ship.name = e.target.value;
+        drawGrid();
+      });
+      let notesArea = document.createElement("textarea");
+      notesArea.value = ship.notes;
+      notesArea.addEventListener("change", (e) => {
+        ship.notes = e.target.value;
+      });
+      let selectBtn = document.createElement("button");
+      selectBtn.textContent = "Select";
+      selectBtn.addEventListener("click", () => {
+        activeStarship = { starship: ship, hex: activeHex };
+        updateShipSidebar();
+        drawGrid();
+      });
+      div.appendChild(document.createTextNode("Name:"));
+      div.appendChild(nameInput);
+      div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode("Notes:"));
+      div.appendChild(notesArea);
+      div.appendChild(document.createElement("br"));
+      div.appendChild(selectBtn);
+      list.appendChild(div);
+    });
+  } else {
+    shipSidebar.style.display = "none";
+  }
+}
+
+// Add a new starship to the active hex
+function addStarshipToActiveHex() {
+  if (activeHex) {
+    let ship = new Starship();
+    activeHex.starships.push(ship);
+    updateShipSidebar();
+    drawGrid();
+  }
+}
+
+// SAVE MAP STATE (all hex data)
+function saveMap() {
+  const data = { hexGrid };
+  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "galaxyMap.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// LOAD MAP STATE
+function loadMap(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    let data = JSON.parse(event.target.result);
+    hexGrid = data.hexGrid;
+    drawGrid();
+  };
+  reader.readAsText(file);
+}
