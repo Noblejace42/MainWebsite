@@ -3,171 +3,133 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Galaxy Generator</title>
+    <title>Galaxy Generator (No Systemgen)</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      /* Override default background and ensure full-page canvas */
+      /* Basic full-viewport layout, black background */
       body {
         background: #000;
         margin: 0;
         overflow: hidden;
       }
-      /* The hex map occupies the full screen beneath the nav bar */
+      /* Fixed nav bar at the top (optional) */
+      #navContainer {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 60px;
+        background: #222;
+        z-index: 1000;
+      }
+      /* Main container for everything below the nav bar */
+      .container {
+        position: absolute;
+        top: 60px; left: 0; right: 0; bottom: 0;
+      }
+      /* Left sidebar: starships */
+      #shipSidebar {
+        position: absolute;
+        top: 0; left: 0; bottom: 80px; width: 300px;
+        background: rgba(30, 30, 30, 0.95);
+        color: #ccc;
+        padding: 10px;
+        overflow-y: auto;
+        z-index: 1001;
+        display: none;
+      }
+      /* Center: canvas container */
       #hexMapContainer {
         position: absolute;
-        top: 60px;
-        bottom: 80px;
-        left: 0;
-        right: 0;
+        top: 0; bottom: 80px;
+        left: 300px; right: 300px;
+        background: #000;
       }
       #hexMapCanvas {
         width: 100%;
         height: 100%;
         display: block;
       }
-      /* Bottom control panel card */
-      #controlPanel {
+      /* Right sidebar: notes for the selected hex */
+      #notesSidebar {
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(20, 20, 20, 0.9);
-        padding: 10px;
-        text-align: center;
-        z-index: 1001;
-      }
-      /* Right sidebar for system details */
-      #sidebar {
-        position: absolute;
-        top: 60px;
-        right: 0;
-        width: 300px;
-        height: calc(100% - 60px);
+        top: 0; right: 0; bottom: 80px; width: 300px;
         background: rgba(30, 30, 30, 0.95);
         color: #ccc;
         padding: 10px;
         overflow-y: auto;
-        z-index: 1002;
+        z-index: 1001;
         display: none;
       }
-      #sidebar textarea {
+      #notesEditor {
         width: 100%;
-        height: 80%;
+        height: 70%;
         background: #1a1a1a;
         color: #ddd;
         border: 1px solid #444;
         padding: 5px;
         resize: none;
       }
-      /* Left sidebar for starships */
-      #shipSidebar {
+      /* Bottom control panel */
+      #controlPanel {
         position: absolute;
-        top: 60px;
-        left: 0;
-        width: 300px;
-        height: calc(100% - 60px);
-        background: rgba(30, 30, 30, 0.95);
-        color: #ccc;
+        left: 0; right: 0; bottom: 0; height: 80px;
+        background: rgba(20, 20, 20, 0.9);
+        text-align: center;
         padding: 10px;
-        overflow-y: auto;
         z-index: 1002;
-        display: none;
       }
-      #shipSidebar .starship {
+      /* Starship items in left sidebar */
+      .starship {
         border-bottom: 1px solid #444;
         margin-bottom: 10px;
         padding-bottom: 10px;
       }
-      #shipSidebar input,
-      #shipSidebar textarea {
+      .starship input,
+      .starship textarea {
         width: 100%;
         margin-top: 5px;
       }
-      #shipSidebar button {
-        margin-top: 5px;
-      }
-      /* Hidden system output container (some versions of systemgen.js rely on it) */
-      #systemOutput {
-        display: none;
-      }
-      /* Popup to display plaintext system data */
-      #output {
-        display: none;
-        position: absolute;
-        top: 100px;
-        left: 50%;
-        width: 400px;
-        height: 300px;
-        background: #222;
-        color: #ccc;
-        overflow-y: auto;
-        transform: translateX(-50%);
-        padding: 10px;
-        z-index: 2000;
-      }
-      #closePlaintext {
-        display: block;
-        margin-bottom: 10px;
-        background: #444;
-        color: #fff;
-        border: none;
-        padding: 5px 10px;
-        cursor: pointer;
-      }
     </style>
   </head>
-  <body class="galaxygen">
-    <!-- Navigation Bar (fetched from nav.html) -->
+  <body>
+    <!-- Navigation bar (optional) -->
     <div id="navContainer"></div>
     <script>
+      // If you have a nav.html file, fetch it here:
       fetch('nav.html')
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById('navContainer').innerHTML = data;
-        })
-        .catch((err) => console.error('Error loading nav:', err));
+        .then(resp => resp.text())
+        .then(html => { document.getElementById('navContainer').innerHTML = html; })
+        .catch(err => console.error('Nav load error:', err));
     </script>
 
-    <!-- Canvas container for the hex map -->
-    <div id="hexMapContainer">
-      <canvas id="hexMapCanvas"></canvas>
+    <div class="container">
+      <!-- Left Sidebar: Starships -->
+      <div id="shipSidebar">
+        <h2>Starships</h2>
+        <div id="starshipList"></div>
+        <button id="addStarship">Add Starship</button>
+      </div>
+
+      <!-- Center Canvas -->
+      <div id="hexMapContainer">
+        <canvas id="hexMapCanvas"></canvas>
+      </div>
+
+      <!-- Right Sidebar: Notes for the selected hex -->
+      <div id="notesSidebar">
+        <h2>Hex Notes</h2>
+        <textarea id="notesEditor"></textarea>
+      </div>
+
+      <!-- Bottom Control Panel -->
+      <div id="controlPanel">
+        <button id="saveMap">Save Map</button>
+        <button id="loadMap">Load Map</button>
+        <button id="regenerateMap">Regenerate Map</button>
+        <input type="file" id="loadInput" style="display:none" />
+      </div>
     </div>
 
-    <!-- Hidden system output (if systemgen.js references it) -->
-    <div id="systemOutput"></div>
-
-    <!-- Right Sidebar: System details -->
-    <div id="sidebar">
-      <h2>System Details</h2>
-      <textarea id="systemEditor"></textarea>
-      <br />
-      <button id="regenerateSystem">Regenerate System</button>
-    </div>
-
-    <!-- Left Sidebar: Starships -->
-    <div id="shipSidebar">
-      <h2>Starships</h2>
-      <div id="starshipList"></div>
-      <button id="addStarship">Add Starship</button>
-    </div>
-
-    <!-- Popup for plaintext system output -->
-    <div id="output">
-      <button id="closePlaintext">Close</button>
-      <pre id="plaintextContent" style="white-space: pre-wrap;"></pre>
-    </div>
-
-    <!-- Bottom control panel -->
-    <div id="controlPanel">
-      <button id="saveMap">Save Map</button>
-      <button id="loadMap">Load Map</button>
-      <button id="regenerateMap">Regenerate Entire Map</button>
-      <input type="file" id="loadInput" style="display:none" />
-      <button id="displayPlaintextSystemBtn">Display Plaintext System</button>
-    </div>
-
-    <!-- Include systemgen.js and galaxygen.js -->
-    <script src="systemgen.js"></script>
+    <!-- Load the JavaScript -->
     <script src="galaxygen.js"></script>
   </body>
 </html>
