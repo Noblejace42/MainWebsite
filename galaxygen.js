@@ -1,7 +1,11 @@
 /********************************************************
  * galaxygen.js - A simplified honeycomb hex generator
  * with starships, bisecting lines, renameable hex, notes,
- * and a bottom control panel. No system generator needed.
+ * a bottom control panel, and new features:
+ *  1) Ships are draggable to move them between hexes
+ *  2) Lines are thicker and clearly drawn
+ *  3) Zooming is centered on the mouse
+ *  4) 1/6 chance a hex is "empty" (no edges, no star)
  ********************************************************/
 
 /* CONFIG */
@@ -18,6 +22,7 @@ let isDragging = false, dragStartX = 0, dragStartY = 0;
 let hexGrid = []; // array of hex objects
 let activeHex = null; // currently selected hex
 let activeStarship = null; // { starship, hex }
+let draggingStarship = null; // { starship, fromHex, offsetAngle, originalAngle }
 
 /* CLASS: Hex */
 class Hex {
@@ -26,7 +31,8 @@ class Hex {
     this.col = col;
     this.centerX = centerX;
     this.centerY = centerY;
-    this.edges = new Array(6); // each edge color
+    this.edges = new Array(6); // each edge color or null
+    this.isEmpty = false;      // if true, no edges, no star, no name
     this.hexName = `Hex ${row},${col}`;
     this.notes = ""; // user editable
     this.starships = [];
@@ -62,9 +68,15 @@ function init() {
   canvas.addEventListener("mousemove", onMouseMove);
   canvas.addEventListener("mouseup", onMouseUp);
   canvas.addEventListener("mouseleave", onMouseUp);
-  canvas.addEventListener("wheel", onWheel);
-  canvas.addEventListener("click", onCanvasClick);
+
+  // Wheel for zoom (centered on mouse)
+  canvas.addEventListener("wheel", onWheel, { passive: false });
+
+  // Keyboard panning
   window.addEventListener("keydown", onKeyDown);
+
+  // Click to select hex or starship
+  canvas.addEventListener("click", onCanvasClick);
 
   // Bottom control panel
   document.getElementById("saveMapBtn").addEventListener("click", saveMap);
@@ -106,15 +118,25 @@ function generateHexGrid() {
 
       const hex = new Hex(r, c, centerX, centerY);
 
-      // Edges (shared if neighbor already has it)
-      for (let edge = 0; edge < 6; edge++) {
-        let neighbor = getNeighbor(hex, edge);
-        if (neighbor && neighbor.edges[oppositeEdge(edge)] !== undefined) {
-          hex.edges[edge] = neighbor.edges[oppositeEdge(edge)];
-        } else {
-          hex.edges[edge] = weightedEdgeColor();
+      // 1/6 chance to be empty
+      if (Math.random() < 1/6) {
+        hex.isEmpty = true;
+        // no edges, skip neighbor logic
+        for (let e = 0; e < 6; e++) {
+          hex.edges[e] = null;
+        }
+      } else {
+        // normal edges
+        for (let edge = 0; edge < 6; edge++) {
+          let neighbor = getNeighbor(hex, edge);
+          if (neighbor && !neighbor.isEmpty && neighbor.edges[oppositeEdge(edge)] !== undefined) {
+            hex.edges[edge] = neighbor.edges[oppositeEdge(edge)];
+          } else {
+            hex.edges[edge] = weightedEdgeColor();
+          }
         }
       }
+
       hexGrid.push(hex);
 
       count++;
@@ -132,12 +154,14 @@ function drawGrid() {
   // Draw each hex
   hexGrid.forEach(hex => drawHex(hex));
 
-  // Bisecting lines
-  ctx.lineWidth = 2;
+  // Bisecting lines - thicker for clarity
+  ctx.lineWidth = 3;
   for (let i = 0; i < hexGrid.length; i++) {
     const hex = hexGrid[i];
+    if (hex.isEmpty) continue; // skip empty hex
     for (let edge = 0; edge < 6; edge++) {
       const neighbor = getNeighbor(hex, edge);
+      if (!hex.edges[edge]) continue; // no edge color
       if (neighbor && i < hexGrid.indexOf(neighbor)) {
         ctx.beginPath();
         ctx.strokeStyle = hex.edges[edge];
@@ -153,6 +177,24 @@ function drawGrid() {
 }
 
 function drawHex(hex) {
+  if (hex.isEmpty) {
+    // draw a pure black hex (or skip edges)
+    // fill with black so it stands out
+    ctx.save();
+    ctx.beginPath();
+    const vertices = computeHexVertices(hex);
+    ctx.moveTo(vertices[0].x, vertices[0].y);
+    for (let i = 1; i < 6; i++) {
+      ctx.lineTo(vertices[i].x, vertices[i].y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = "#000";
+    ctx.fill();
+    ctx.restore();
+    // no star, no name, no starships
+    return;
+  }
+
   const vertices = computeHexVertices(hex);
 
   // Fill the hex with a subtle color
@@ -169,8 +211,10 @@ function drawHex(hex) {
   for (let i = 0; i < 6; i++) {
     const start = vertices[i];
     const end = vertices[(i + 1) % 6];
+    const color = hex.edges[i];
+    if (!color) continue;
     ctx.shadowBlur = 0;
-    ctx.strokeStyle = hex.edges[i];
+    ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
@@ -221,7 +265,12 @@ function drawStarship(hex, ship) {
   const v2 = { x: posX + size * Math.cos(angle-2.5), y: posY + size * Math.sin(angle-2.5) };
 
   ctx.beginPath();
-  ctx.fillStyle = (activeStarship && activeStarship.starship.id === ship.id) ? "#FF0000" : "#00FFFF";
+  // If currently dragging this ship, color it red
+  let fillColor = (activeStarship && activeStarship.starship.id === ship.id) ? "#FF0000" : "#00FFFF";
+  if (draggingStarship && draggingStarship.starship.id === ship.id) {
+    fillColor = "#FF0000";
+  }
+  ctx.fillStyle = fillColor;
   ctx.moveTo(v0.x, v0.y);
   ctx.lineTo(v1.x, v1.y);
   ctx.lineTo(v2.x, v2.y);
@@ -242,12 +291,13 @@ function oppositeEdge(edge) {
   return (edge + 3) % 6;
 }
 function getNeighbor(hex, edgeIndex) {
+  if (hex.isEmpty) return null; // empty hex doesn't link
   const verts = computeHexVertices(hex);
   const v1 = verts[edgeIndex];
   const v2 = verts[(edgeIndex + 1) % 6];
   const mid = { x: (v1.x + v2.x)/2, y: (v1.y + v2.y)/2 };
   for (let other of hexGrid) {
-    if (other === hex) continue;
+    if (other === hex || other.isEmpty) continue;
     const dx = other.centerX - mid.x;
     const dy = other.centerY - mid.y;
     if (Math.hypot(dx, dy) < HEX_EDGE_LENGTH * 0.5) {
@@ -261,12 +311,42 @@ function getNeighbor(hex, edgeIndex) {
  * Panning & Zooming
  ***************************/
 function onMouseDown(e) {
-  isDragging = true;
-  dragStartX = e.clientX;
-  dragStartY = e.clientY;
+  // Check if user clicked a starship for drag
+  const rect = canvas.getBoundingClientRect();
+  const worldX = (e.clientX - rect.left - offsetX) / scale;
+  const worldY = (e.clientY - rect.top - offsetY) / scale;
+  const starshipHit = findClickedStarship({ x: worldX, y: worldY });
+
+  if (starshipHit) {
+    // Begin starship dragging
+    draggingStarship = {
+      starship: starshipHit.starship,
+      fromHex: starshipHit.hex,
+      originalAngle: starshipHit.starship.orbitAngle
+    };
+    isDragging = false; // don't pan if we're dragging a starship
+  } else {
+    // Begin panning
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+  }
 }
+
 function onMouseMove(e) {
-  if (isDragging) {
+  if (draggingStarship) {
+    // Update starship orbitAngle to follow mouse
+    const rect = canvas.getBoundingClientRect();
+    const worldX = (e.clientX - rect.left - offsetX) / scale;
+    const worldY = (e.clientY - rect.top - offsetY) / scale;
+    const hex = draggingStarship.fromHex;
+    // angle from hex.center to mouse
+    const dx = worldX - hex.centerX;
+    const dy = worldY - hex.centerY;
+    draggingStarship.starship.orbitAngle = Math.atan2(dy, dx);
+    drawGrid();
+  } else if (isDragging) {
+    // Pan
     offsetX += e.clientX - dragStartX;
     offsetY += e.clientY - dragStartY;
     dragStartX = e.clientX;
@@ -274,15 +354,58 @@ function onMouseMove(e) {
     drawGrid();
   }
 }
+
 function onMouseUp(e) {
+  if (draggingStarship) {
+    // Check if we can drop starship in a new hex
+    const rect = canvas.getBoundingClientRect();
+    const worldX = (e.clientX - rect.left - offsetX) / scale;
+    const worldY = (e.clientY - rect.top - offsetY) / scale;
+    let dropHex = null;
+    for (let h of hexGrid) {
+      if (!h.isEmpty && pointInHex({ x: worldX, y: worldY }, h)) {
+        dropHex = h;
+        break;
+      }
+    }
+    if (dropHex && dropHex !== draggingStarship.fromHex) {
+      // Move starship to dropHex
+      const oldHex = draggingStarship.fromHex;
+      const idx = oldHex.starships.indexOf(draggingStarship.starship);
+      if (idx >= 0) oldHex.starships.splice(idx, 1);
+      dropHex.starships.push(draggingStarship.starship);
+      // Clear references
+    } else {
+      // Revert angle
+      draggingStarship.starship.orbitAngle = draggingStarship.originalAngle;
+    }
+    draggingStarship = null;
+    drawGrid();
+  }
   isDragging = false;
 }
+
 function onWheel(e) {
   e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  // current mouse world coords
+  const mouseWorldX = (e.clientX - rect.left - offsetX) / scale;
+  const mouseWorldY = (e.clientY - rect.top - offsetY) / scale;
+
   let factor = (e.deltaY < 0) ? 1.1 : 0.9;
   scale *= factor;
+
+  // new screen coords of the same world point
+  const newScreenX = mouseWorldX * scale + offsetX;
+  const newScreenY = mouseWorldY * scale + offsetY;
+
+  // adjust offset so mouse stays in place
+  offsetX += (e.clientX - rect.left) - newScreenX;
+  offsetY += (e.clientY - rect.top) - newScreenY;
+
   drawGrid();
 }
+
 function onKeyDown(e) {
   const step = 20;
   switch(e.key) {
@@ -298,12 +421,13 @@ function onKeyDown(e) {
  * Clicking & Selection
  ***************************/
 function onCanvasClick(e) {
-  if (isDragging) return; // ignore clicks while dragging
+  if (isDragging || draggingStarship) return; // ignore if dragging
   const rect = canvas.getBoundingClientRect();
   const clickX = (e.clientX - rect.left - offsetX) / scale;
   const clickY = (e.clientY - rect.top - offsetY) / scale;
 
-  // Check starships
+  // Check starships first (already done in onMouseDown for dragging)
+  // but we do a "select" approach if not dragging?
   const starshipHit = findClickedStarship({ x: clickX, y: clickY });
   if (starshipHit) {
     activeStarship = starshipHit;
@@ -315,88 +439,17 @@ function onCanvasClick(e) {
   // Otherwise find which hex was clicked
   let clickedHex = null;
   for (let h of hexGrid) {
-    if (pointInHex({ x: clickX, y: clickY }, h)) {
+    if (!h.isEmpty && pointInHex({ x: clickX, y: clickY }, h)) {
       clickedHex = h;
       break;
     }
   }
 
-  // If a starship is active and user clicked an adjacent hex, move it
-  if (activeStarship && clickedHex && clickedHex !== activeStarship.hex) {
-    const neighbors = getNeighborsOfHex(activeStarship.hex);
-    if (neighbors.includes(clickedHex)) {
-      // move starship
-      const idx = activeStarship.hex.starships.indexOf(activeStarship.starship);
-      if (idx >= 0) activeStarship.hex.starships.splice(idx, 1);
-      clickedHex.starships.push(activeStarship.starship);
-      activeStarship.hex = clickedHex;
-      activeStarship = null;
-      updateLeftSidebar();
-      drawGrid();
-      return;
-    }
-  }
-
-  // Otherwise just select the clicked hex
+  // Select the hex
   activeHex = clickedHex;
   activeStarship = null;
   updateRightSidebar();
   updateLeftSidebar();
-}
-
-function findClickedStarship(pt) {
-  for (let hex of hexGrid) {
-    const orbitR = HEX_EDGE_LENGTH*0.8;
-    for (let ship of hex.starships) {
-      const sx = hex.centerX + orbitR*Math.cos(ship.orbitAngle);
-      const sy = hex.centerY + orbitR*Math.sin(ship.orbitAngle);
-      // quick bounding check
-      if (Math.hypot(sx - pt.x, sy - pt.y) < 12) {
-        // more precise check with triangle?
-        if (pointInTriangle(pt, sx, sy, ship.orbitAngle)) {
-          return { starship: ship, hex };
-        }
-      }
-    }
-  }
-  return null;
-}
-function pointInTriangle(pt, cx, cy, angle) {
-  const size = 8;
-  const v0 = { x: cx + size*Math.cos(angle),     y: cy + size*Math.sin(angle) };
-  const v1 = { x: cx + size*Math.cos(angle+2.5), y: cy + size*Math.sin(angle+2.5) };
-  const v2 = { x: cx + size*Math.cos(angle-2.5), y: cy + size*Math.sin(angle-2.5) };
-  const area = triArea(v0, v1, v2);
-  const area1 = triArea(pt, v1, v2);
-  const area2 = triArea(v0, pt, v2);
-  const area3 = triArea(v0, v1, pt);
-  return Math.abs(area - (area1+area2+area3)) < 0.5;
-}
-function triArea(a,b,c) {
-  return Math.abs(a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y))/2;
-}
-function pointInHex(pt, hex) {
-  const verts = computeHexVertices(hex);
-  return pointInPolygon(pt, verts);
-}
-function pointInPolygon(pt, verts) {
-  let inside = false;
-  for (let i=0, j=verts.length-1; i<verts.length; j=i++) {
-    const xi = verts[i].x, yi = verts[i].y;
-    const xj = verts[j].x, yj = verts[j].y;
-    const intersect = ((yi > pt.y) !== (yj > pt.y)) &&
-                      (pt.x < (xj - xi)*(pt.y - yi)/(yj - yi) + xi);
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
-function getNeighborsOfHex(hex) {
-  const arr = [];
-  for (let i=0; i<6; i++) {
-    const n = getNeighbor(hex, i);
-    if (n) arr.push(n);
-  }
-  return arr;
 }
 
 /***************************
@@ -404,7 +457,7 @@ function getNeighborsOfHex(hex) {
  ***************************/
 function updateLeftSidebar() {
   const leftBar = document.getElementById("leftSidebar");
-  if (!activeHex) {
+  if (!activeHex || activeHex.isEmpty) {
     leftBar.style.display = "none";
     return;
   }
@@ -461,7 +514,7 @@ function updateLeftSidebar() {
   });
 }
 function addStarshipToActiveHex() {
-  if (!activeHex) return;
+  if (!activeHex || activeHex.isEmpty) return;
   const ship = new Starship();
   ship.name = "Starship " + (activeHex.starships.length + 1);
   activeHex.starships.push(ship);
@@ -474,7 +527,7 @@ function addStarshipToActiveHex() {
  ***************************/
 function updateRightSidebar() {
   const rightBar = document.getElementById("rightSidebar");
-  if (!activeHex) {
+  if (!activeHex || activeHex.isEmpty) {
     rightBar.style.display = "none";
     return;
   }
@@ -503,6 +556,7 @@ function regenerateMap() {
   drawGrid();
   activeHex = null;
   activeStarship = null;
+  draggingStarship = null;
   updateLeftSidebar();
   updateRightSidebar();
 }
@@ -532,6 +586,7 @@ function loadMap(e) {
     drawGrid();
     activeHex = null;
     activeStarship = null;
+    draggingStarship = null;
     updateLeftSidebar();
     updateRightSidebar();
   };
