@@ -2,82 +2,87 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Galaxy Generator (No Systemgen)</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Galaxy Generator - Full Page Canvas</title>
     <style>
-      /* Basic full-viewport layout, black background */
-      body {
-        background: #000;
+      /* Make body & html fill the entire viewport */
+      html, body {
         margin: 0;
-        overflow: hidden;
-      }
-      /* Fixed nav bar at the top (optional) */
-      #navContainer {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        height: 60px;
-        background: #222;
-        z-index: 1000;
-      }
-      /* Main container for everything below the nav bar */
-      .container {
-        position: absolute;
-        top: 60px; left: 0; right: 0; bottom: 0;
-      }
-      /* Left sidebar: starships */
-      #shipSidebar {
-        position: absolute;
-        top: 0; left: 0; bottom: 80px; width: 300px;
-        background: rgba(30, 30, 30, 0.95);
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #000; /* black background */
+        overflow: hidden; /* no scrollbars */
+        font-family: "Orbitron", sans-serif;
         color: #ccc;
+      }
+      /* Left sidebar for starships */
+      #leftSidebar {
+        position: absolute;
+        top: 0;
+        bottom: 60px; /* space for bottom control panel */
+        left: 0;
+        width: 300px;
+        background: #1a1a1a;
         padding: 10px;
+        box-sizing: border-box;
         overflow-y: auto;
         z-index: 1001;
-        display: none;
       }
-      /* Center: canvas container */
-      #hexMapContainer {
+      /* Right sidebar for hex rename + notes */
+      #rightSidebar {
         position: absolute;
-        top: 0; bottom: 80px;
-        left: 300px; right: 300px;
+        top: 0;
+        bottom: 60px;
+        right: 0;
+        width: 300px;
+        background: #1a1a1a;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        z-index: 1001;
+        display: none; /* hidden until a hex is selected */
+      }
+      /* The main canvas area in the center */
+      #canvasContainer {
+        position: absolute;
+        top: 0;
+        bottom: 60px;
+        left: 300px;  /* space for left sidebar */
+        right: 300px; /* space for right sidebar */
         background: #000;
       }
-      #hexMapCanvas {
+      #galaxyCanvas {
         width: 100%;
         height: 100%;
         display: block;
+        background: #000;
       }
-      /* Right sidebar: notes for the selected hex */
-      #notesSidebar {
-        position: absolute;
-        top: 0; right: 0; bottom: 80px; width: 300px;
-        background: rgba(30, 30, 30, 0.95);
-        color: #ccc;
-        padding: 10px;
-        overflow-y: auto;
-        z-index: 1001;
-        display: none;
-      }
-      #notesEditor {
-        width: 100%;
-        height: 70%;
-        background: #1a1a1a;
-        color: #ddd;
-        border: 1px solid #444;
-        padding: 5px;
-        resize: none;
-      }
-      /* Bottom control panel */
+      /* Bottom control panel (card) */
       #controlPanel {
         position: absolute;
-        left: 0; right: 0; bottom: 0; height: 80px;
-        background: rgba(20, 20, 20, 0.9);
-        text-align: center;
-        padding: 10px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 60px;
+        background: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         z-index: 1002;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
       }
-      /* Starship items in left sidebar */
+      #controlPanel button {
+        margin: 0 10px;
+        background: #444;
+        border: 1px solid #666;
+        color: #fff;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      #controlPanel input[type="file"] {
+        display: none;
+      }
+      /* Starship styling in the left sidebar */
       .starship {
         border-bottom: 1px solid #444;
         margin-bottom: 10px;
@@ -87,49 +92,60 @@
       .starship textarea {
         width: 100%;
         margin-top: 5px;
+        background: #222;
+        color: #ccc;
+        border: 1px solid #555;
+      }
+      /* Right sidebar: small rename box, then a bigger notes area */
+      #hexNameInput {
+        width: 100%;
+        background: #222;
+        color: #ccc;
+        border: 1px solid #555;
+        margin-bottom: 10px;
+        padding: 5px;
+      }
+      #hexNotes {
+        width: 100%;
+        height: 200px;
+        background: #222;
+        color: #ccc;
+        border: 1px solid #555;
+        resize: vertical;
       }
     </style>
   </head>
   <body>
-    <!-- Navigation bar (optional) -->
-    <div id="navContainer"></div>
-    <script>
-      // If you have a nav.html file, fetch it here:
-      fetch('nav.html')
-        .then(resp => resp.text())
-        .then(html => { document.getElementById('navContainer').innerHTML = html; })
-        .catch(err => console.error('Nav load error:', err));
-    </script>
-
-    <div class="container">
-      <!-- Left Sidebar: Starships -->
-      <div id="shipSidebar">
-        <h2>Starships</h2>
-        <div id="starshipList"></div>
-        <button id="addStarship">Add Starship</button>
-      </div>
-
-      <!-- Center Canvas -->
-      <div id="hexMapContainer">
-        <canvas id="hexMapCanvas"></canvas>
-      </div>
-
-      <!-- Right Sidebar: Notes for the selected hex -->
-      <div id="notesSidebar">
-        <h2>Hex Notes</h2>
-        <textarea id="notesEditor"></textarea>
-      </div>
-
-      <!-- Bottom Control Panel -->
-      <div id="controlPanel">
-        <button id="saveMap">Save Map</button>
-        <button id="loadMap">Load Map</button>
-        <button id="regenerateMap">Regenerate Map</button>
-        <input type="file" id="loadInput" style="display:none" />
-      </div>
+    <!-- Left Sidebar (Starships) -->
+    <div id="leftSidebar">
+      <h2>Starships</h2>
+      <div id="starshipList"></div>
+      <button id="addStarshipBtn">Add Starship</button>
     </div>
 
-    <!-- Load the JavaScript -->
+    <!-- Center Canvas -->
+    <div id="canvasContainer">
+      <canvas id="galaxyCanvas"></canvas>
+    </div>
+
+    <!-- Right Sidebar (Rename + Notes) -->
+    <div id="rightSidebar">
+      <h2>Hex Details</h2>
+      <label for="hexNameInput">Hex Name:</label>
+      <input type="text" id="hexNameInput" />
+      <label for="hexNotes">Notes:</label>
+      <textarea id="hexNotes"></textarea>
+    </div>
+
+    <!-- Bottom Control Panel -->
+    <div id="controlPanel">
+      <button id="saveMapBtn">Save Map</button>
+      <button id="loadMapBtn">Load Map</button>
+      <button id="regenerateMapBtn">Regenerate Map</button>
+      <input type="file" id="loadInput" accept=".json" />
+    </div>
+
+    <!-- Main Script -->
     <script src="galaxygen.js"></script>
   </body>
 </html>
