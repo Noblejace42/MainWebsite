@@ -5,9 +5,9 @@
  ********************************************************/
 
 /* CONFIG */
-const NUM_HEXES = 1000;
+const NUM_HEXES = 500;
 const EDGE_COLOR_PROBS = { green: 0.4, blue: 0.3, red: 0.3 };
-const HEX_EDGE_LENGTH = 100;
+const HEX_EDGE_LENGTH = 60;
 const hexWidth = 2 * HEX_EDGE_LENGTH;
 const hexHeight = Math.sqrt(3) * HEX_EDGE_LENGTH;
 
