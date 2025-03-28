@@ -18,20 +18,204 @@
   <meta name="twitter:description" content="Passionate about technology, finance, and systems design. I’m a writer, game designer, and storyteller." />
   <meta name="twitter:image" content="https://hopelesspoetic.com/image/sittingimage.jpg" />
 
-  <!-- Font -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
-  <!-- Main Styles -->
-  <link rel="stylesheet" href="home.css" />
+  <!-- Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500&display=swap">
+
+  <!-- Inline or external CSS (shown inline for clarity) -->
+  <style>
+    /* Global Reset / Basic */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+      background: #111; /* Dark by default */
+      color: #ccc;
+      font-family: 'Roboto', sans-serif; /* Body text more readable */
+      transition: background 0.4s, color 0.4s;
+    }
+    body.light-mode {
+      background: #f8f8f8;  /* Light background */
+      color: #333;          /* Dark text */
+    }
+
+    a {
+      text-decoration: none;
+      color: #0ff; /* Cyan-ish link */
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* HEADINGS use Press Start 2P for the retro style */
+    h1, h2, h3 {
+      font-family: 'Press Start 2P', monospace;
+      letter-spacing: 1px;
+      margin: 0.5em 0;
+    }
+
+    /* Center Card */
+    .center-card {
+      position: absolute;
+      padding: 20px;
+      width: 460px; /* a fixed width for your “card” */
+      border: 2px solid #0ff; /* Subdued neon-cyan border */
+      border-radius: 8px;
+      box-shadow: 0 0 30px rgba(0,255,255,0.5);
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+    body.light-mode .center-card {
+      border-color: #06c; /* Darker cyan in light mode */
+      box-shadow: 0 0 15px rgba(0, 0, 255, 0.4);
+    }
+
+    /* Buttons Row */
+    .card-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .card-btn {
+      padding: 8px 12px;
+      font-size: 12px;
+      border: 1px solid #0ff;
+      color: #0ff;
+      background: transparent;
+      transition: background 0.2s, color 0.2s;
+    }
+    .card-btn:hover {
+      background: #0ff;
+      color: #111;
+    }
+    body.light-mode .card-btn {
+      border-color: #06c;
+      color: #06c;
+    }
+    body.light-mode .card-btn:hover {
+      background: #06c;
+      color: #fff;
+    }
+
+    /* “Toggle Theme” Button */
+    .toggle-theme-btn {
+      font-size: 12px;
+      padding: 8px 12px;
+      border: 1px solid #0ff;
+      margin-right: 10px;
+      color: #0ff;
+      background: transparent;
+      cursor: pointer;
+    }
+    .toggle-theme-btn:hover {
+      background: #0ff;
+      color: #111;
+    }
+    body.light-mode .toggle-theme-btn {
+      border-color: #06c;
+      color: #06c;
+    }
+    body.light-mode .toggle-theme-btn:hover {
+      background: #06c;
+      color: #fff;
+    }
+
+    /* Card Image */
+    .card-image {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .card-image img {
+      max-width: 100%;
+      border: 2px solid #0ff;
+      border-radius: 4px;
+    }
+    body.light-mode .card-image img {
+      border-color: #06c;
+    }
+
+    /* Contact Info Section */
+    .contact-card {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .contact-card h1 {
+      font-size: 22px;
+      margin-bottom: 0.3em;
+    }
+    .contact-card h3 {
+      font-size: 14px;
+      margin-bottom: 0.5em;
+      color: #0ff;
+    }
+    body.light-mode .contact-card h3 {
+      color: #06c;
+    }
+    .contact-card p {
+      font-size: 14px;
+      margin-bottom: 0.8em;
+      line-height: 1.5;
+    }
+
+    .links a {
+      margin: 0 5px;
+    }
+
+    /* “Currently Listening” (Spotify) */
+    .spotify-container {
+      margin-top: 10px;
+      border: 2px solid #0ff;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    body.light-mode .spotify-container {
+      border-color: #06c;
+    }
+    .spotify-title {
+      margin-bottom: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    /* Tiles Container & Animations */
+    .tiles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none; /* So clicks pass through */
+      z-index: -1;          /* Behind everything */
+    }
+    .moving-tile {
+      position: absolute;
+      background-size: cover;
+      background-position: center;
+      animation: driftRight 35s linear forwards; 
+      /* 35 seconds to move across screen; adjust as desired */
+      border: 2px solid #222; /* slight border to ensure no weird edges */
+    }
+    @keyframes driftRight {
+      from { transform: translateX(-120%); }
+      to   { transform: translateX(150%); }
+    }
+  </style>
 </head>
 <body>
 
   <!-- Center Card -->
   <div class="center-card" id="centerCard">
-    <!-- Buttons Row -->
-    <div class="card-buttons">
-      <a href="systemgen.html" class="card-btn">Astral Axial</a>
-      <a href="https://emersonneher.substack.com" target="_blank" class="card-btn">Hopeless Poetic</a>
-      <a href="#" class="card-btn">Miscellaneous</a>
+    <!-- Top Row: Toggle + Buttons -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+      <button class="toggle-theme-btn" id="themeToggleBtn">Toggle Theme</button>
+      <div>
+        <a href="systemgen.html" class="card-btn">Astral Axial</a>
+        <a href="https://emersonneher.substack.com" target="_blank" class="card-btn">Hopeless Poetic</a>
+        <a href="#" class="card-btn">Miscellaneous</a>
+      </div>
     </div>
 
     <!-- Personal Image -->
@@ -55,14 +239,14 @@
         <a href="https://discord.com/users/noblejace" target="_blank">Discord</a>
       </p>
       <p class="bio">
-        Passionate about technology, finance, and systems design. I’m a writer, game designer, and storyteller 
-        who finds inspiration in the rhythm of poetry, the mechanics of RPGs, and the art of photography. 
-        Whether crafting immersive worlds, capturing fleeting moments, or experimenting with new game systems, 
-        I love exploring the intersection of creativity and experience.
+        Passionate about technology, finance, and systems design. I’m a writer, game designer, and 
+        storyteller who finds inspiration in the rhythm of poetry, the mechanics of RPGs, and the 
+        art of photography. Whether crafting immersive worlds, capturing fleeting moments, or 
+        experimenting with new game systems, I love exploring the intersection of creativity and experience.
       </p>
     </div>
 
-    <!-- Smaller Spotify Embed (blue style) -->
+    <!-- Spotify Embed -->
     <div class="spotify-container">
       <h3 class="spotify-title">Currently Listening</h3>
       <iframe 
@@ -82,131 +266,102 @@
   <div class="tiles-container"></div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    /******************************************************
+     * 1) Theme Toggle
+     ******************************************************/
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+    });
 
-      /***************************************************************
-       * 1) Center the card 
-       ***************************************************************/
-      const centerCard = document.getElementById('centerCard');
-      function centerTheCard() {
-        const rect = centerCard.getBoundingClientRect();
-        const vw = window.innerWidth, vh = window.innerHeight;
-        const topPos = Math.max(10, (vh - rect.height) / 2);
-        centerCard.style.left = (vw - rect.width) / 2 + 'px';
-        centerCard.style.top  = topPos + 'px';
-      }
-      window.addEventListener('resize', centerTheCard);
-      centerTheCard();
+    /******************************************************
+     * 2) Center the Card
+     ******************************************************/
+    const centerCard = document.getElementById('centerCard');
+    function centerTheCard() {
+      const rect = centerCard.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const topPos = Math.max(10, (vh - rect.height) / 2);
+      centerCard.style.left = (vw - rect.width) / 2 + 'px';
+      centerCard.style.top  = topPos + 'px';
+    }
+    window.addEventListener('resize', centerTheCard);
+    document.addEventListener('DOMContentLoaded', centerTheCard);
 
-      /***************************************************************
-       * 2) Preload images and store their aspect ratios 
-       ***************************************************************/
-      const tilePaths = [];
-      for (let i = 4; i <= 37; i++) {
-        tilePaths.push(`image/${i}.jpg`);
-      }
-      let loadedCount = 0;
-      const tileData = [];
-      tilePaths.forEach(src => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => {
-          tileData.push({
-            src,
-            aspect: (img.width / img.height) || 1
-          });
-          loadedCount++;
-          if (loadedCount === tilePaths.length) startSpawning();
-        };
-        img.onerror = () => {
-          console.error("Error loading image:", src);
-          loadedCount++;
-          if (loadedCount === tilePaths.length) startSpawning();
-        };
-      });
+    /******************************************************
+     * 3) Preload Images, Store Data
+     *    (Fewer spawns to reduce CPU usage)
+     ******************************************************/
+    const tilePaths = [];
+    for (let i = 4; i <= 37; i++) {
+      tilePaths.push(`image/${i}.jpg`);
+    }
+    let loadedCount = 0;
+    const tileData = [];
 
-      const tilesContainer = document.querySelector('.tiles-container');
-      const placedRects = [];
+    tilePaths.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        tileData.push({
+          src,
+          aspect: (img.width / img.height) || 1
+        });
+        loadedCount++;
+        if (loadedCount === tilePaths.length) startSpawning();
+      };
+      img.onerror = () => {
+        console.error("Error loading image:", src);
+        loadedCount++;
+        if (loadedCount === tilePaths.length) startSpawning();
+      };
+    });
 
-      function getCardRect() {
-        const c = centerCard.getBoundingClientRect();
-        return { left: c.left, top: c.top, right: c.right, bottom: c.bottom };
-      }
+    const tilesContainer = document.querySelector('.tiles-container');
 
-      function overlap(r1, r2) {
-        return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
-      }
-
-      /***************************************************************
-       * 3) Spawn images with random vertical positions & sizes,
-       *    starting off-screen to the left and animating rightward
-       ***************************************************************/
-      function startSpawning() {
-        for (let i = 0; i < 8; i++) {
+    /******************************************************
+     * 4) Spawn a tile every ~5 seconds, limit max tiles
+     *    Use CSS animation to avoid heavy JS loops
+     ******************************************************/
+    function startSpawning() {
+      spawnImage(); // spawn one immediately
+      setInterval(() => {
+        // Only spawn if fewer than 5 are on the screen
+        if (tilesContainer.children.length < 5) {
           spawnImage();
         }
-        setInterval(spawnImage, 1000);
-      }
+      }, 5000);
+    }
 
-      function spawnImage() {
-        if (!tileData.length) return;
-        const td = tileData[Math.floor(Math.random() * tileData.length)];
-        const div = document.createElement('div');
-        div.classList.add('moving-tile');
-        div.dataset.aspect = td.aspect;
-        div.style.backgroundImage = `url('${td.src}')`;
-        const minW = 150, maxW = 350;
-        const w = minW + Math.random() * (maxW - minW);
-        const h = w / td.aspect;
-        const vh = window.innerHeight;
-        // Start the image completely off-screen to the left
-        const initialLeft = -w;
+    function spawnImage() {
+      if (!tileData.length) return;
+      const td = tileData[Math.floor(Math.random() * tileData.length)];
+      const div = document.createElement('div');
+      div.classList.add('moving-tile');
+      div.style.backgroundImage = `url('${td.src}')`;
 
-        for (let tries = 0; tries < 50; tries++) {
-          const top = Math.random() * (vh - h);
-          const newRect = { left: initialLeft, top, right: initialLeft + w, bottom: top + h };
+      // Random size between 150 and 350
+      const minW = 150, maxW = 350;
+      const w = minW + Math.random() * (maxW - minW);
+      const h = w / td.aspect;
 
-          if (overlap(newRect, getCardRect())) continue;
-          let conflict = false;
-          for (const r of placedRects) {
-            if (overlap(newRect, r)) {
-              conflict = true;
-              break;
-            }
-          }
-          if (conflict) continue;
+      div.style.width = w + 'px';
+      div.style.height = h + 'px';
 
-          div.style.width = w + 'px';
-          div.style.height = h + 'px';
-          div.style.left = initialLeft + 'px';
-          div.style.top = top + 'px';
-          tilesContainer.appendChild(div);
-          placedRects.push(newRect);
-          moveTile(div, newRect);
-          return;
+      // Random vertical position
+      const top = Math.random() * (window.innerHeight - h);
+      div.style.top = top + 'px';
+
+      // Remove from DOM after the animation ends (one pass across screen)
+      div.addEventListener('animationend', () => {
+        if (tilesContainer.contains(div)) {
+          tilesContainer.removeChild(div);
         }
-      }
+      });
 
-      // Animate the tile moving rightward at a constant speed
-      function moveTile(div, rect) {
-        const speed = 30; // pixels per second
-        const frameTime = 16; // roughly 60fps
-        function animate() {
-          rect.left += speed * (frameTime / 1000);
-          rect.right = rect.left + parseFloat(div.style.width);
-          div.style.left = rect.left + 'px';
-          if (rect.left > window.innerWidth + 30) {
-            tilesContainer.removeChild(div);
-            const idx = placedRects.indexOf(rect);
-            if (idx >= 0) placedRects.splice(idx, 1);
-            return;
-          }
-          requestAnimationFrame(animate);
-        }
-        requestAnimationFrame(animate);
-      }
-
-    });
+      tilesContainer.appendChild(div);
+    }
   </script>
 
 </body>
