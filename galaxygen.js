@@ -59,6 +59,10 @@ function init() {
   canvas = document.getElementById("galaxyCanvas");
   ctx = canvas.getContext("2d");
 
+  // Ensure the right/left sidebars float above the canvas
+  document.getElementById("rightSidebar").style.zIndex = 9999;
+  document.getElementById("leftSidebar").style.zIndex = 9999;
+
   resizeCanvas();
   generateHexGrid();
   drawGrid();
@@ -138,7 +142,6 @@ function generateHexGrid() {
       }
 
       hexGrid.push(hex);
-
       count++;
       if (count >= NUM_HEXES) break;
     }
@@ -162,6 +165,7 @@ function drawGrid() {
     for (let edge = 0; edge < 6; edge++) {
       const neighbor = getNeighbor(hex, edge);
       if (!hex.edges[edge]) continue; // no edge color
+      // Draw line once for each pair (to avoid doubling)
       if (neighbor && i < hexGrid.indexOf(neighbor)) {
         ctx.beginPath();
         ctx.strokeStyle = hex.edges[edge];
@@ -178,8 +182,7 @@ function drawGrid() {
 
 function drawHex(hex) {
   if (hex.isEmpty) {
-    // draw a pure black hex (or skip edges)
-    // fill with black so it stands out
+    // draw a pure black hex so it stands out
     ctx.save();
     ctx.beginPath();
     const vertices = computeHexVertices(hex);
@@ -191,8 +194,7 @@ function drawHex(hex) {
     ctx.fillStyle = "#000";
     ctx.fill();
     ctx.restore();
-    // no star, no name, no starships
-    return;
+    return; // no star, no name, no starships
   }
 
   const vertices = computeHexVertices(hex);
@@ -259,13 +261,12 @@ function drawStarship(hex, ship) {
   const size = 8;
   const angle = ship.orbitAngle;
 
-  // Triangle
+  // Triangle shape for the ship
   const v0 = { x: posX + size * Math.cos(angle),     y: posY + size * Math.sin(angle) };
   const v1 = { x: posX + size * Math.cos(angle+2.5), y: posY + size * Math.sin(angle+2.5) };
   const v2 = { x: posX + size * Math.cos(angle-2.5), y: posY + size * Math.sin(angle-2.5) };
 
   ctx.beginPath();
-  // If currently dragging this ship, color it red
   let fillColor = (activeStarship && activeStarship.starship.id === ship.id) ? "#FF0000" : "#00FFFF";
   if (draggingStarship && draggingStarship.starship.id === ship.id) {
     fillColor = "#FF0000";
@@ -291,7 +292,7 @@ function oppositeEdge(edge) {
   return (edge + 3) % 6;
 }
 function getNeighbor(hex, edgeIndex) {
-  if (hex.isEmpty) return null; // empty hex doesn't link
+  if (hex.isEmpty) return null;
   const verts = computeHexVertices(hex);
   const v1 = verts[edgeIndex];
   const v2 = verts[(edgeIndex + 1) % 6];
@@ -311,10 +312,11 @@ function getNeighbor(hex, edgeIndex) {
  * Panning & Zooming
  ***************************/
 function onMouseDown(e) {
-  // Check if user clicked a starship for drag
+  // Convert screen coords to “world” coords
   const rect = canvas.getBoundingClientRect();
   const worldX = (e.clientX - rect.left - offsetX) / scale;
   const worldY = (e.clientY - rect.top - offsetY) / scale;
+  // Check if user clicked a starship for drag
   const starshipHit = findClickedStarship({ x: worldX, y: worldY });
 
   if (starshipHit) {
@@ -374,9 +376,8 @@ function onMouseUp(e) {
       const idx = oldHex.starships.indexOf(draggingStarship.starship);
       if (idx >= 0) oldHex.starships.splice(idx, 1);
       dropHex.starships.push(draggingStarship.starship);
-      // Clear references
     } else {
-      // Revert angle
+      // Revert angle if not placed in a new hex
       draggingStarship.starship.orbitAngle = draggingStarship.originalAngle;
     }
     draggingStarship = null;
@@ -421,16 +422,16 @@ function onKeyDown(e) {
  * Clicking & Selection
  ***************************/
 function onCanvasClick(e) {
-  if (isDragging || draggingStarship) return; // ignore if dragging
+  if (isDragging || draggingStarship) return; // ignore if still dragging
   const rect = canvas.getBoundingClientRect();
   const clickX = (e.clientX - rect.left - offsetX) / scale;
   const clickY = (e.clientY - rect.top - offsetY) / scale;
 
-  // Check starships first (already done in onMouseDown for dragging)
-  // but we do a "select" approach if not dragging?
+  // Check if a starship was clicked
   const starshipHit = findClickedStarship({ x: clickX, y: clickY });
   if (starshipHit) {
-    activeStarship = starshipHit;
+    activeStarship = starshipHit; // {starship, hex}
+    // In this code, starships are edited via the left sidebar
     updateLeftSidebar();
     drawGrid();
     return;
@@ -457,17 +458,25 @@ function onCanvasClick(e) {
  ***************************/
 function updateLeftSidebar() {
   const leftBar = document.getElementById("leftSidebar");
+
+  // If no hex is selected or the hex is empty, hide the left sidebar
   if (!activeHex || activeHex.isEmpty) {
     leftBar.style.display = "none";
     return;
   }
+  // Show it
   leftBar.style.display = "block";
+
   const list = document.getElementById("starshipList");
   list.innerHTML = "";
 
   activeHex.starships.forEach(ship => {
     const div = document.createElement("div");
     div.className = "starship";
+
+    const nameLabel = document.createElement("div");
+    nameLabel.textContent = "Name:";
+    div.appendChild(nameLabel);
 
     const nameInput = document.createElement("input");
     nameInput.type = "text";
@@ -476,12 +485,22 @@ function updateLeftSidebar() {
       ship.name = e.target.value;
       drawGrid();
     });
+    div.appendChild(nameInput);
+
+    div.appendChild(document.createElement("br"));
+
+    const notesLabel = document.createElement("div");
+    notesLabel.textContent = "Notes:";
+    div.appendChild(notesLabel);
 
     const notesArea = document.createElement("textarea");
     notesArea.value = ship.notes;
     notesArea.addEventListener("change", e => {
       ship.notes = e.target.value;
     });
+    div.appendChild(notesArea);
+
+    div.appendChild(document.createElement("br"));
 
     const selectBtn = document.createElement("button");
     selectBtn.textContent = "Select";
@@ -490,29 +509,24 @@ function updateLeftSidebar() {
       updateLeftSidebar();
       drawGrid();
     });
+    div.appendChild(selectBtn);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", () => {
       const idx = activeHex.starships.indexOf(ship);
       if (idx >= 0) {
-        activeHex.starships.splice(idx,1);
+        activeHex.starships.splice(idx, 1);
         updateLeftSidebar();
         drawGrid();
       }
     });
-
-    div.appendChild(document.createTextNode("Name:"));
-    div.appendChild(nameInput);
-    div.appendChild(document.createElement("br"));
-    div.appendChild(document.createTextNode("Notes:"));
-    div.appendChild(notesArea);
-    div.appendChild(document.createElement("br"));
-    div.appendChild(selectBtn);
     div.appendChild(deleteBtn);
+
     list.appendChild(div);
   });
 }
+
 function addStarshipToActiveHex() {
   if (!activeHex || activeHex.isEmpty) return;
   const ship = new Starship();
@@ -527,20 +541,26 @@ function addStarshipToActiveHex() {
  ***************************/
 function updateRightSidebar() {
   const rightBar = document.getElementById("rightSidebar");
+
+  // If no hex is selected or the hex is empty, hide the right sidebar
   if (!activeHex || activeHex.isEmpty) {
     rightBar.style.display = "none";
     return;
   }
+  // Show it
   rightBar.style.display = "block";
+
   document.getElementById("hexNameInput").value = activeHex.hexName;
   document.getElementById("hexNotes").value = activeHex.notes;
 }
+
 function onHexNameChange(e) {
   if (activeHex) {
     activeHex.hexName = e.target.value;
     drawGrid();
   }
 }
+
 function onHexNotesBlur(e) {
   if (activeHex) {
     activeHex.notes = e.target.value;
@@ -576,6 +596,7 @@ function saveMap() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
 function loadMap(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -591,4 +612,56 @@ function loadMap(e) {
     updateRightSidebar();
   };
   reader.readAsText(file);
+}
+
+/********************************************************
+ * FIXED FUNCTIONS BELOW
+ * 1) findClickedStarship(point): Locates starship near
+ *    the clicked point.
+ * 2) pointInHex(point, hex): Checks if point is inside
+ *    the 6-sided polygon for that hex.
+ * 3) pointInPolygon(pt, vertices): Standard raycast test.
+ ********************************************************/
+
+// 1) Finds a starship if the user clicks near its triangle center
+function findClickedStarship(point) {
+  for (let h of hexGrid) {
+    if (h.isEmpty) continue;
+    for (let s of h.starships) {
+      // Compute the starship's center
+      const orbitRadius = HEX_EDGE_LENGTH * 0.8;
+      const sx = h.centerX + orbitRadius * Math.cos(s.orbitAngle);
+      const sy = h.centerY + orbitRadius * Math.sin(s.orbitAngle);
+
+      // Check distance from click to starship center
+      const dx = point.x - sx;
+      const dy = point.y - sy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      // 15px is a small “hit box” radius around the triangle
+      if (dist < 15) {
+        return { starship: s, hex: h };
+      }
+    }
+  }
+  return null;
+}
+
+// 2) Check if point lies inside hex
+function pointInHex(point, hex) {
+  // Get hex vertices
+  const vertices = computeHexVertices(hex);
+  return pointInPolygon(point, vertices);
+}
+
+// 3) Standard “point in polygon” using ray-casting
+function pointInPolygon(pt, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i].x, yi = polygon[i].y;
+    const xj = polygon[j].x, yj = polygon[j].y;
+    const intersect = ((yi > pt.y) !== (yj > pt.y)) &&
+      (pt.x < (xj - xi) * (pt.y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
 }
