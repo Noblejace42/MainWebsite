@@ -26,7 +26,6 @@ html, body {
 }
 
 .card-buttons {
-  display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
 }
@@ -35,7 +34,7 @@ html, body {
   background: #00ffcc;
   color: #000;
   text-decoration: none;
-  padding: 10px 15px;
+  padding: 10px 25px;
   border: 2px solid #00ffcc;
   font-weight: bold;
   transition: background 0.3s ease;
