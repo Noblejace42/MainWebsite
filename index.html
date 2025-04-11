@@ -187,18 +187,18 @@
       height: 100%;
       overflow: hidden;
       pointer-events: none; /* So clicks pass through */
-      z-index: -1;          /* Behind everything */
+      z-index: -2;          /* Behind everything */
     }
     .moving-tile {
       position: absolute;
       background-size: cover;
       background-position: center;
-      animation: driftRight 35s linear forwards; 
+      animation: driftRight 25s linear forwards; 
       /* 35 seconds to move across screen; adjust as desired */
       border: 2px solid #222; /* slight border to ensure no weird edges */
     }
     @keyframes driftRight {
-      from { transform: translateX(-120%); }
+      from { transform: translateX(-150%); }
       to   { transform: translateX(150%); }
     }
   </style>
