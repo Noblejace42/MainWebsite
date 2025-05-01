@@ -7,14 +7,14 @@
 <style>
 /* ---------- Reset & Base ---------- */
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#222}
-body{background:#fafafa;line-height:1.6}
+body{background:#fafafa;line-height:1.8;color:#222}
 
 /* ---------- Hero ---------- */
-.hero{background:url("images/hero.jpg") center/cover no-repeat;height:60vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:#fff;position:relative}
-.hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.55)}
-.hero h1,.hero p{position:relative;z-index:2}
+.hero{background:url("images/hero.jpg") center/cover no-repeat;height:60vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative}
+.hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.65);z-index:1}
+.hero h1,.hero p{position:relative;z-index:2;color:#fff}
 .hero h1{font-size:3rem;font-weight:700;letter-spacing:1px;margin-bottom:.5em}
-.hero p{max-width:600px;font-size:1.25rem}
+.hero p{max-width:750px;font-size:1.15rem;padding:0 1em}
 
 /* ---------- Donate CTA ---------- */
 .cta{background:#1f8a70;color:#fff;padding:2em;text-align:center}
@@ -52,7 +52,12 @@ body{background:#fafafa;line-height:1.6}
 <!-- HERO -->
 <section class="hero">
   <h1>Can you spare any change?</h1>
-  <p>Chip in dollars, watch businesses bloom, and earn while you change lives—transparent, secure, and powered by blockchain.</p>
+  <p>
+    Imagine an app that works like a community treasure chest: anyone can drop in a few dollars, and that money turns into tiny, low-cost loans for shop-owners in Kenya, farmers in Peru, or electricians in South Africa who just need a boost to keep their businesses humming. Every cent is tracked on a public digital ledger, so you can see exactly where it goes and when it comes back. As borrowers repay, you earn a bit of interest, get a shareable impact badge, and see new solar panels, upgraded tractors, or stocked-up markets made possible by your support.
+  </p>
+  <p>
+    The magic behind the scenes is blockchain—but you don’t need to know crypto to benefit. Deposit with a debit card, choose a project, and follow the journey in a feed that feels like social media for good. Your contributions help real people grow sustainable businesses and reinvest back into their communities. Small dollars. Big ripples. That’s Weakest Link.
+  </p>
 </section>
 
 <!-- CALL TO ACTION -->
@@ -123,8 +128,6 @@ body{background:#fafafa;line-height:1.6}
         <button onclick="alert('Thanks for choosing to fund this loan!')">Fund Now</button>
       </div>
     </div>
-
-    <!-- More loan cards can be added similarly -->
   </div>
 </section>
 
@@ -132,7 +135,13 @@ body{background:#fafafa;line-height:1.6}
 <section class="about" id="about">
   <h2>About Weakest Link</h2>
   <p>Weakest Link is a student-driven nonprofit incubated at Worcester Polytechnic Institute. We harness blockchain technology to connect everyday donors with entrepreneurs in underbanked regions. Our mission is simple: strengthen every link in the global economic chain by making capital transparent, affordable, and community-powered. Every surplus dollar is reinvested into long-term infrastructure like clean energy grids and digital marketplaces—compounding impact beyond the first loan cycle.</p>
-  <p style="margin-top:1.5em">Image downloads: <a href="images/hero.jpg" download>Hero Image</a> | <a href="images/solar_kenya.jpg" download>Solar Kiosk</a> | <a href="images/tractor_peru.jpg" download>Peru Tractor</a> | <a href="images/electrician_sa.jpg" download>Electrician</a> | <a href="images/grocery_cuba.jpg" download>Grocery Stand</a></p>
+  <p style="margin-top:1.5em">Image downloads: 
+    <a href="images/hero.jpg" download>Hero Image</a> | 
+    <a href="images/solar_kenya.jpg" download>Solar Kiosk</a> | 
+    <a href="images/tractor_peru.jpg" download>Peru Tractor</a> | 
+    <a href="images/electrician_sa.jpg" download>Electrician</a> | 
+    <a href="images/grocery_cuba.jpg" download>Grocery Stand</a>
+  </p>
 </section>
 
 <script>
