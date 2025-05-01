@@ -1,75 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Weakest Link</title>
+
+<!-- ===== Fonts ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+  rel="stylesheet" />
+
 <style>
-/* ---------- Reset & Base ---------- */
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#222}
-body{background:#fafafa;line-height:1.8;color:#222}
+/* ---------- Global ---------- */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Poppins',sans-serif;
+  line-height:1.8;
+  color:#1e1e1e;
+  background:#f4f7fb;
+  overflow-x:hidden;
+}
+
+/* ---------- Utility ---------- */
+.fade-in{opacity:0;transform:translateY(40px);transition:all .8s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
 
 /* ---------- Hero ---------- */
-.hero{background:url("images/hero.jpg") center/cover no-repeat;height:60vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative}
-.hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.65);z-index:1}
-.hero h1,.hero p{position:relative;z-index:2;color:#fff}
-.hero h1{font-size:3rem;font-weight:700;letter-spacing:1px;margin-bottom:.5em}
-.hero p{max-width:750px;font-size:1.15rem;padding:0 1em}
+.hero{
+  position:relative;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  background:url("images/hero.jpg") center/cover no-repeat;
+}
+.hero::after{
+  content:"";position:absolute;inset:0;
+  /* Deep overlay so text stands out */
+  background:linear-gradient(135deg,#004f47cc 0%,#000000cc 100%);
+}
+.hero h1,.hero p{position:relative;z-index:1;color:#fff}
+.hero h1{
+  font:700 3.5rem/1 'Space Grotesk',sans-serif;
+  letter-spacing:2px;text-shadow:0 2px 6px rgba(0,0,0,.5)
+}
+.hero p{
+  max-width:750px;
+  font-size:1.15rem;
+  margin-top:1rem;
+  background:rgba(0,0,0,.45);
+  padding:1.25rem 1.5rem;
+  border-radius:10px;
+}
 
-/* ---------- Donate CTA ---------- */
-.cta{background:#1f8a70;color:#fff;padding:2em;text-align:center}
-.cta button{background:#fff;color:#1f8a70;border:none;padding:1em 2em;font-size:1.1rem;font-weight:700;border-radius:5px;cursor:pointer;transition:all .3s}
-.cta button:hover{background:#e3fff7;transform:translateY(-3px)}
+/* ---------- Wave divider ---------- */
+.wave{
+  display:block;
+  width:100%;
+  height:80px;
+  background:url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDE2MDAgODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMjBjNDAwIDQwMCA2MDAgMCAxNjAwIDB2NjBIMCIgZmlsbD0iI2Y0ZjdmYiIvPjwvc3ZnPg==") center/cover no-repeat;
+  transform:rotate(180deg);
+}
 
-/* ---------- Loan Gallery ---------- */
-.loans{padding:3em 1em;max-width:1200px;margin:auto}
-.loans h2{font-size:2rem;margin-bottom:.5em;text-align:center}
-.filter-bar{display:flex;justify-content:center;gap:1em;margin-bottom:2em;flex-wrap:wrap}
-.filter-bar select{padding:.5em;border:1px solid #ccc;border-radius:4px;min-width:160px}
+/* ---------- CTA ---------- */
+.cta{
+  background:#1f8a70;
+  color:#fff;
+  text-align:center;
+  padding:3.5rem 1.5rem;
+}
+.cta button{
+  background:#fff;color:#1f8a70;border:none;
+  padding:1rem 2.5rem;font-size:1.15rem;font-weight:700;
+  border-radius:50px;
+  cursor:pointer;transition:transform .3s ease,box-shadow .3s ease;
+  box-shadow:0 8px 14px rgba(0,0,0,.15);
+}
+.cta button:hover{transform:translateY(-4px);box-shadow:0 12px 20px rgba(0,0,0,.2)}
 
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5em}
-.card{background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);overflow:hidden;display:flex;flex-direction:column}
-.card img{width:100%;height:180px;object-fit:cover}
-.card-content{padding:1em;flex-grow:1;display:flex;flex-direction:column}
-.card h3{font-size:1.2rem;margin-bottom:.25em}
-.card p.meta{font-size:.9rem;color:#666;margin-bottom:.75em}
-.progress{background:#eee;border-radius:4px;overflow:hidden;height:8px;margin:6px 0 12px}
-.progress span{display:block;height:100%;background:#1f8a70;width:0%}
-.card button{margin-top:auto;background:#1f8a70;color:#fff;border:none;padding:.6em;border-radius:4px;cursor:pointer;transition:opacity .3s}
+/* ---------- Loans ---------- */
+.loans{
+  padding:5rem 1.5rem 4rem;
+  max-width:1200px;margin:auto;
+}
+.loans h2{
+  font:700 2.5rem 'Space Grotesk',sans-serif;
+  text-align:center;margin-bottom:1.25rem;color:#1f8a70
+}
+.filter-bar{
+  display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem
+}
+.filter-bar select{
+  padding:.65rem 1rem;font-size:1rem;border-radius:8px;border:1px solid #d1d5db;
+}
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:2rem;
+}
+.card{
+  background:#fff;border-radius:15px;overflow:hidden;
+  box-shadow:0 10px 20px rgba(0,0,0,.08);
+  display:flex;flex-direction:column;
+  transition:transform .35s ease;
+}
+.card:hover{transform:translateY(-6px)}
+.card img{width:100%;height:220px;object-fit:cover}
+.card-content{padding:1.25rem;flex-grow:1;display:flex;flex-direction:column}
+.card h3{font-size:1.25rem;margin-bottom:.35rem}
+.card p.meta{font-size:.9rem;color:#6b7280;margin-bottom:.85rem}
+.progress{background:#e5e7eb;border-radius:6px;height:10px;margin-bottom:1rem;overflow:hidden}
+.progress span{display:block;height:100%;background:#1f8a70;width:0}
+.card button{
+  margin-top:auto;background:#1f8a70;color:#fff;border:none;
+  padding:.6rem 1.1rem;border-radius:8px;cursor:pointer;
+  align-self:flex-start;transition:opacity .3s ease
+}
 .card button:hover{opacity:.85}
 
 /* ---------- About ---------- */
-.about{background:#222;color:#FFFFFF;padding:3em 1em;text-align:center}
-.about h2{font-size:1.8rem;margin-bottom:.5em;color:#fff}
-.about p{max-width:700px;margin:auto;font-size:1rem}
+.about{
+  background:#111827;
+  color:#e5e7eb;
+  padding:4.5rem 1.5rem;
+  text-align:center;
+}
+.about h2{
+  font:700 2rem 'Space Grotesk',sans-serif;
+  margin-bottom:1rem;color:#38bdf8;
+}
+.about p{max-width:750px;margin:.75rem auto;font-size:1rem}
+.about .credits{margin-top:2rem;font-weight:600;font-size:.95rem;color:#9ca3af}
 
-/* ---------- Utility ---------- */
-.hidden{display:none}
+/* ---------- Footer wave ---------- */
+.wave2{
+  display:block;width:100%;height:80px;
+  background:url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDE2MDAgODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgNzBoMTYwMFYxMGwtMTYwMCA2MHoiIGZpbGw9IiMxMTE4MjciLz48L3N2Zz4=") center/cover no-repeat;
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media(max-width:480px){
+  .hero h1{font-size:2.6rem}
+  .hero p{font-size:1rem}
+}
 </style>
 </head>
 <body>
 
-<!-- HERO -->
-<section class="hero">
-  <h1>Can you spare any change?</h1>
-  <p>
-    Imagine an app that works like a community treasure chest: anyone can drop in a few dollars, and that money turns into tiny, low-cost loans for shop-owners in Kenya, farmers in Peru, or electricians in South Africa who just need a boost to keep their businesses humming. Every cent is tracked on a public digital ledger, so you can see exactly where it goes and when it comes back. As borrowers repay, you earn a bit of interest, get a shareable impact badge, and see new solar panels, upgraded tractors, or stocked-up markets made possible by your support.
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <h1 class="fade-in">Small Dollars, Giant Ripples</h1>
+  <p class="fade-in" style="transition-delay:.2s">
+    Drop a couple bucks into our global treasure chest and watch them sprout into solar kiosks in Nairobi, tractors in Cusco, tools in Cape Town, and fresh produce in Trinidad. Every cent’s path lives on an open ledger—no smoke, no mirrors, just real impact you can track.
   </p>
-  <p>
-    The magic behind the scenes is blockchain—but you don’t need to know crypto to benefit. Deposit with a debit card, choose a project, and follow the journey in a feed that feels like social media for good. Your contributions help real people grow sustainable businesses and reinvest back into their communities. Small dollars. Big ripples. That’s Weakest Link.
-  </p>
-</section>
+</header>
 
-<!-- CALL TO ACTION -->
-<section class="cta">
-  <button onclick="window.scrollTo({top:document.querySelector('.loans').offsetTop-20,behavior:'smooth'})">
+<span class="wave"></span>
+
+<!-- ================= CTA ================= -->
+<section class="cta fade-in" style="transition-delay:.4s">
+  <button onclick="document.getElementById('loanGrid').scrollIntoView({behavior:'smooth'})">
     Browse Live Loans
   </button>
 </section>
 
-<!-- LOAN MARKETPLACE -->
-<section class="loans">
+<!-- ================= LOAN MARKETPLACE ================= -->
+<main class="loans fade-in" id="loanSection">
   <h2>Fund a Dream Today</h2>
+
   <div class="filter-bar">
     <select id="regionFilter" onchange="filterLoans()">
       <option value="all">All Regions</option>
@@ -88,87 +191,93 @@ body{background:#fafafa;line-height:1.8;color:#222}
   </div>
 
   <div class="card-grid" id="loanGrid">
-    <!-- Example Loan Cards -->
+    <!-- Kenya -->
     <div class="card" data-region="kenya" data-category="energy" data-funded="63">
-      <img src="image/solar_kenya.jpg" alt="Kenya solar project">
+      <img src="image/solar_kenya.jpg" alt="Kenya solar project" />
       <div class="card-content">
         <h3>Solar Kiosk Expansion</h3>
-        <p class="meta">Nairobi, Kenya • Goal $900 • 3% interest</p>
+        <p class="meta">Nairobi • Goal $900 • 3 % interest</p>
         <div class="progress"><span style="width:63%"></span></div>
-        <button onclick="alert('Thanks for choosing to fund this loan!')">Fund Now</button>
+        <button onclick="alert('Thanks for funding renewable energy!')">Fund Now</button>
       </div>
     </div>
 
+    <!-- Peru -->
     <div class="card" data-region="peru" data-category="agriculture" data-funded="45">
-      <img src="image/tractor_peru.jpg" alt="Peruvian farm equipment">
+      <img src="image/tractor_peru.jpg" alt="Peruvian farm equipment" />
       <div class="card-content">
-        <h3>Tractor for High-Andes Farm</h3>
-        <p class="meta">Cusco, Peru • Goal $1,400 • 4% interest</p>
+        <h3>High-Andes Tractor</h3>
+        <p class="meta">Cusco • Goal $1 400 • 4 % interest</p>
         <div class="progress"><span style="width:45%"></span></div>
-        <button onclick="alert('Thanks for choosing to fund this loan!')">Fund Now</button>
+        <button onclick="alert('Gracias for supporting Peruvian farmers!')">Fund Now</button>
       </div>
     </div>
 
+    <!-- South Africa -->
     <div class="card" data-region="southafrica" data-category="services" data-funded="80">
-      <img src="image/electrician_sa.jpg" alt="South African electrician">
+      <img src="image/electrician_sa.jpg" alt="South African electrician" />
       <div class="card-content">
-        <h3>Tool Kit for Community Electrician</h3>
-        <p class="meta">Cape Town, South Africa • Goal $600 • 2.5% interest</p>
+        <h3>Electrician’s Tool Kit</h3>
+        <p class="meta">Cape Town • Goal $600 • 2.5 % interest</p>
         <div class="progress"><span style="width:80%"></span></div>
-        <button onclick="alert('Thanks for choosing to fund this loan!')">Fund Now</button>
+        <button onclick="alert('You just sparked a brighter future!')">Fund Now</button>
       </div>
     </div>
 
+    <!-- Cuba -->
     <div class="card" data-region="cuba" data-category="retail" data-funded="28">
-      <img src="image/grocery_cuba.jpg" alt="Cuban grocery stand">
+      <img src="image/grocery_cuba.jpg" alt="Cuban grocery stand" />
       <div class="card-content">
         <h3>Grocery Stand Restock</h3>
-        <p class="meta">Trinidad, Cuba • Goal $500 • 3.5% interest</p>
+        <p class="meta">Trinidad • Goal $500 • 3.5 % interest</p>
         <div class="progress"><span style="width:28%"></span></div>
-        <button onclick="alert('Thanks for choosing to fund this loan!')">Fund Now</button>
+        <button onclick="alert('Fresh produce incoming, gracias!')">Fund Now</button>
       </div>
     </div>
   </div>
-</section>
+</main>
 
-<!-- ABOUT -->
-<section class="about" id="about">
+<span class="wave2"></span>
+
+<!-- ================= ABOUT ================= -->
+<section class="about fade-in">
   <h2>About Weakest Link</h2>
-  <p>Weakest Link is a student-driven nonprofit incubated at Worcester Polytechnic Institute. We harness blockchain technology to connect everyday donors with entrepreneurs in underbanked regions. Our mission is simple: strengthen every link in the global economic chain by making capital transparent, affordable, and community-powered. Every surplus dollar is reinvested into long-term infrastructure like clean energy grids and digital marketplaces—compounding impact beyond the first loan cycle.</p>
-  <p style="margin-top:1.5em">Image downloads: 
-    <a href="images/hero.jpg" download>Hero Image</a> | 
-    <a href="images/solar_kenya.jpg" download>Solar Kiosk</a> | 
-    <a href="images/tractor_peru.jpg" download>Peru Tractor</a> | 
-    <a href="images/electrician_sa.jpg" download>Electrician</a> | 
-    <a href="images/grocery_cuba.jpg" download>Grocery Stand</a>
+  <p>
+    Weakest Link is a student-driven nonprofit incubated at Worcester Polytechnic Institute. We harness blockchain rails to connect everyday donors with entrepreneurs in underbanked regions. Our north star is simple: strengthen every link in the global economic chain by making capital transparent, affordable, and community-powered. Surplus interest snowballs into long-term infrastructure like micro-grids and digital marketplaces—so the impact grows long after the first loan cycles back.
+  </p>
+  <p class="credits">
+    Crafted with purpose by Benjamin Coe • Emerson Neher • Brielle Porter • Nick Richardson
+  </p>
+  <p style="margin-top:1.8rem">
+    Download our assets:
+    <a href="images/hero.jpg" download style="color:#38bdf8">Hero</a> •
+    <a href="images/solar_kenya.jpg" download style="color:#38bdf8">Solar Kiosk</a> •
+    <a href="images/tractor_peru.jpg" download style="color:#38bdf8">Andes Tractor</a> •
+    <a href="images/electrician_sa.jpg" download style="color:#38bdf8">Electrician</a> •
+    <a href="images/grocery_cuba.jpg" download style="color:#38bdf8">Groceries</a>
   </p>
 </section>
 
+<!-- ================= Scripts ================= -->
 <script>
-// ---------- Simple Filtering ----------
+// ----- Scroll Fade-in -----
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}
+  });
+},{threshold:0.2});
+document.querySelectorAll('.fade-in').forEach(sec=>observer.observe(sec));
+
+// ----- Filtering -----
 function filterLoans(){
   const region=document.getElementById('regionFilter').value;
-  const category=document.getElementById('categoryFilter').value;
+  const cat=document.getElementById('categoryFilter').value;
   document.querySelectorAll('.card').forEach(card=>{
-    const matchRegion=region==="all"||card.dataset.region===region;
-    const matchCategory=category==="all"||card.dataset.category===category;
-    card.classList.toggle('hidden',!(matchRegion&&matchCategory));
+    const okRegion=region==='all'||card.dataset.region===region;
+    const okCat=cat==='all'||card.dataset.category===cat;
+    card.style.display=okRegion&&okCat?'flex':'none';
   });
 }
-
-// ---------- Animate Progress Bars on Scroll ----------
-const observer=new IntersectionObserver(entries=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      const span=entry.target.querySelector('.progress span');
-      if(span&&span.style.width==="0%"){span.style.width=entry.target.dataset.funded+"%";}
-      observer.unobserve(entry.target);
-    }
-  });
-},{threshold:0.3});
-
-document.querySelectorAll('.card').forEach(card=>observer.observe(card));
 </script>
-
 </body>
 </html>
