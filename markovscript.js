@@ -1,224 +1,170 @@
-/* markovscript.js — v7.1 “QuipForge Pro+” — 2025‑05‑02
-   Implements n‑gram smoothing, POS filters, candidate rerank,
-   temperature sampling, alliteration/rhyme boosts, corpus pruning,
-   plus a stub hook for “deep polish.”
+/* markovscript.js — v7.2 “QuipForge Warp” — 2025‑05‑02
+   Fixed: capitalize typo → cap(), tested on GitHub Pages.
 */
+
 (() => {
   if (window.__quipForgeLoaded__) return;
   window.__quipForgeLoaded__ = true;
 
-  // —— CONFIG ——
-  const CORPUS_FILE    = 'emersonmarkovchain.txt';
-  const MIN_WORDS      = 5, MAX_WORDS = 8;
-  const CANDIDATES     = 8;
-  const MAX_ATTEMPTS   = 20;
-  const RECENT_LIMIT   = 30;
-  const TEMPERATURE    = 1.2;    // >1 more random, <1 more conservative
-  const PRUNE_THRESHOLD= 2;      // drop n‑grams with <2 occurrences
-  const STOP_TAIL      = new Set(['the','and','to','of','for','with','in','on']);
+  const FILE          = 'emersonmarkovchain.txt';
+  const MIN_WORDS     = 5;
+  const MAX_WORDS     = 8;
+  const MAX_TRIES     = 30;
+  const CANDIDATES    = 8;
+  const RECENT_LIMIT  = 30;
+  const TEMPERATURE   = 1.2;
+  const TELEPORT_P    = 0.25;
+  const PRUNE_COUNT   = 2;
+  const STOP_TAIL     = new Set(['the','and','to','of','for','with','in','on']);
 
-  // —— STATE ——
-  const bigrams  = new Map(); // Map<"w1", Map<"w2", count>>
-  const trigrams = new Map(); // Map<"w1 w2", Map<"w3", count>>
-  const starts   = [];        // trigram keys that begin sentences
-  const recent   = [];        // last N quotes
-
-  // —— DOM ——
   const BOX = document.getElementById('markovQuote');
   const BTN = document.getElementById('regenerateBtn');
+
+  const bigrams = new Map();
+  const trigrams = new Map();
+  const starts = [];
+  const keys = [];
+  const recent = [];
+
   BTN.disabled = true;
+  BTN.onclick = () => BOX.textContent = generateBest() || 'Loading…';
 
-  BTN.addEventListener('click', () => {
-    BOX.textContent = generateBest() || 'Loading corpus…';
-  });
-
-  // —— BOOTSTRAP ——
-  fetch(CORPUS_FILE)
+  fetch(FILE)
     .then(r => { if(!r.ok) throw Error(`HTTP ${r.status}`); return r.text(); })
     .then(text => {
       buildModels(text);
-      BOX.textContent = generateBest() || fallback();
+      BOX.textContent = generateBest();
       BTN.disabled = false;
     })
-    .catch(err => {
-      console.error('QuipForge Pro+ load error:', err);
-      BOX.textContent = fallback();
+    .catch(e => {
+      console.error('QuipForge Warp | load error:', e);
+      BOX.textContent = 'Wisdom offline.';
     });
 
-  // —— BUILD MODELS ——
-  function buildModels(raw) {
-    bigrams.clear(); trigrams.clear(); starts.length = 0;
+  /* ---------- build ---------- */
+  function buildModels(raw){
+    const toks = raw.replace(/\r?\n+/g,' ')
+                    .split(/\s+/)
+                    .map(t => t.toLowerCase().replace(/[^a-z.?!]/g,''))
+                    .filter(w => w.length>1 && !w.includes('http') && !w.includes('com') && !w.includes('@'));
 
-    // 1. tokenize & clean
-    const tokens = raw.replace(/\r?\n+/g,' ').split(/\s+/).map(t=>{
-      const clean = t.toLowerCase().replace(/[^a-z.?!]/g,'');
-      return clean.length>1 ? clean : null;
-    }).filter(Boolean);
+    for(let i=0;i<toks.length-2;i++){
+      const w1=toks[i], w2=toks[i+1], w3=toks[i+2];
 
-    // 2. build counts
-    tokens.forEach((tok,i) => {
-      // bigram: tok -> next
-      if (i < tokens.length - 1) {
-        const w1 = tok, w2 = tokens[i+1];
-        let m = bigrams.get(w1);
-        if (!m) bigrams.set(w1, m = new Map());
-        m.set(w2, (m.get(w2)||0) + 1);
-      }
-      // trigram: tok tok2 -> next
-      if (i < tokens.length - 2) {
-        const w1 = tok, w2 = tokens[i+1], w3 = tokens[i+2];
-        const key = `${w1} ${w2}`;
-        let m = trigrams.get(key);
-        if (!m) trigrams.set(key, m = new Map());
-        m.set(w3, (m.get(w3)||0) + 1);
-      }
-      // sentence starts
-      if (i === 0 || /[.?!]$/.test(tokens[i-1])) {
-        if (i < tokens.length - 1) starts.push(`${tok} ${tokens[i+1]}`);
-      }
+      // bigram
+      (bigrams.get(w2) || bigrams.set(w2,new Map()).get(w2))
+        .set(w3, (bigrams.get(w2)?.get(w3)||0)+1);
+
+      // trigram
+      const key=`${w1} ${w2}`;
+      (trigrams.get(key) || trigrams.set(key,new Map()).get(key))
+        .set(w3,(trigrams.get(key)?.get(w3)||0)+1);
+
+      keys.push(key);
+      if(i===0||/[.!?]$/.test(w1)) starts.push(key);
+    }
+
+    // prune rare trigram continuations
+    trigrams.forEach((map,key)=>{
+      const total=[...map.values()].reduce((s,v)=>s+v,0);
+      if(total<PRUNE_COUNT) trigrams.delete(key);
     });
 
-    // 3. prune rare n‑grams
-    for (const [k,m] of trigrams) {
-      const total = [...m.values()].reduce((s,v)=>s+v,0);
-      if (total < PRUNE_THRESHOLD) trigrams.delete(k);
-    }
-    console.info('Models built:', trigrams.size, 'trigrams,', bigrams.size, 'bigrams');
+    console.info('Warp ready:', trigrams.size,'trigrams,',bigrams.size,'bigrams');
   }
 
-  // —— GENERATE & RERANK ——  
-  function generateBest() {
-    if (!trigrams.size) return '';
-
-    const candidates = [];
-    for (let i = 0; i < CANDIDATES; i++) {
-      const q = makeRaw();
-      if (q) candidates.push({ text: q, score: scoreQuote(q) });
+  /* ---------- generation pipeline ---------- */
+  function generateBest(){
+    const cands=[];
+    for(let i=0;i<CANDIDATES;i++){
+      const raw=makeRaw();
+      if(raw) cands.push({txt:raw,score:score(raw)});
     }
-    if (!candidates.length) return '';
-
-    // pick highest‑score
-    candidates.sort((a,b)=>b.score - a.score);
-    const best = candidates[0].text;
-
-    // optional: deep polish hook
-    return deepPolish(best);
+    if(!cands.length) return 'Keep iterating; refresh caffeine.';
+    cands.sort((a,b)=>b.score-a.score);
+    const best = cands[0].txt + rand(['.','!','?']);
+    if(!recent.includes(best)){
+      recent.push(best); if(recent.length>RECENT_LIMIT) recent.shift();
+    }
+    return best;
   }
 
-  // —— MAKE ONE RAW QUIP ——  
-  function makeRaw() {
-    let key = starts[Math.random()*starts.length|0];
-    let [w1,w2] = key.split(' ');
-    const out = [capitalize(w1), w2];
+  function makeRaw(){
+    for(let attempt=0;attempt<MAX_TRIES;attempt++){
+      let key=rand(starts);
+      let [w1,w2]=key.split(' ');
+      let out=[cap(w1),w2];
 
-    while (out.length < MAX_WORDS) {
-      // softmax sampling on trigram or back‑off to bigram
-      const next = pickNext(out.at(-2), out.at(-1));
-      if (!next) break;
-      out.push(next);
-      if (out.length >= MIN_WORDS && Math.random() < 0.5) break;
+      while(out.length<MAX_WORDS){
+        if(Math.random()<TELEPORT_P){
+          key=rand(keys); [w1,w2]=key.split(' ');
+          out.push(w1,w2); out=out.slice(0,MAX_WORDS);
+        }
+        const next=pickNext(out.at(-2),out.at(-1));
+        if(!next) break;
+        out.push(next);
+        if(out.length>=MIN_WORDS && Math.random()<0.5) break;
+      }
+      out=cleanup(out);
+      if(valid(out)) return out.join(' ');
     }
-
-    // cleanup: drop trailing stop‑word, dedupe, capitalise I
-    return tidy(out).join(' ');
-  }
-
-  function pickNext(w1,w2) {
-    const triKey = `${w1} ${w2}`;
-    let dist = trigrams.get(triKey);
-    if (dist) return sampleDist(dist, TEMPERATURE);
-
-    // back‑off to bigram: last word → next
-    dist = bigrams.get(w2);
-    if (dist) return sampleDist(dist, TEMPERATURE);
-
     return null;
   }
 
-  // softmax sample
-  function sampleDist(map, temp) {
-    const entries = [...map.entries()];
-    // compute weights = (count)^(1/temp)
-    const weights = entries.map(([,c])=>Math.pow(c,1/temp));
-    const sum = weights.reduce((a,b)=>a+b,0);
-    let r = Math.random() * sum;
-    for (let i = 0; i < entries.length; i++) {
-      r -= weights[i];
-      if (r <= 0) return entries[i][0];
-    }
-    return entries[entries.length-1][0];
+  function pickNext(w1,w2){
+    const tri=trigrams.get(`${w1} ${w2}`);
+    if(tri) return sample(tri);
+    const bi=bigrams.get(w2);
+    if(bi) return sample(bi,0.5);
+    return null;
   }
 
-  // —— SCORING & QUALITY ——  
-  function scoreQuote(text) {
-    const words = text.split(' ');
-    let score = 0;
+  /* ---------- scoring ---------- */
+  function score(str){
+    const doc=nlp(str);
+    let s=0;
 
-    // 1. n‑gram log‑prob
-    for (let i = 2; i < words.length; i++) {
-      const key = `${words[i-2].toLowerCase()} ${words[i-1].toLowerCase()}`;
-      const next = words[i].toLowerCase();
-      const tri = trigrams.get(key);
-      if (tri && tri.has(next)) {
-        const total = [...tri.values()].reduce((s,v)=>s+v,0);
-        score += Math.log((tri.get(next)+1) / (total + tri.size));
-      } else {
-        const bi = bigrams.get(words[i-1].toLowerCase());
-        if (bi && bi.has(next)) {
-          const total = [...bi.values()].reduce((s,v)=>s+v,0);
-          score += Math.log((bi.get(next)+1) / (total + bi.size)) * 0.5; // back‑off penalty
-        } else {
-          score -= 1; // penalty for unknown
-        }
+    // log‑prob
+    const ws=str.toLowerCase().split(' ');
+    for(let i=2;i<ws.length;i++){
+      const key=`${ws[i-2]} ${ws[i-1]}`, next=ws[i];
+      const tri=trigrams.get(key);
+      if(tri?.has(next)){
+        const tot=[...tri.values()].reduce((a,b)=>a+b,0);
+        s+=Math.log((tri.get(next)+1)/(tot+tri.size));
       }
     }
+    // POS bonuses
+    if(doc.verbs().length) s+=1;
+    if(doc.nouns().length) s+=0.5;
+    // alliteration
+    for(let i=1;i<ws.length;i++){ if(ws[i][0]===ws[i-1][0]){s+=0.4;break;} }
+    // rhyme
+    if(ws.length>1 && ws.at(-1).slice(-2)===ws.at(-2).slice(-2)) s+=0.4;
 
-    // 2. POS bonus (must have verb+noun)
-    const doc = nlp(text);
-    if (doc.verbs().out('array').length) score += 1.0;
-    if (doc.nouns().out('array').length) score += 0.5;
-
-    // 3. Alliteration bonus
-    const arr = words.map(w=>w[0].toLowerCase());
-    for (let i = 1; i < arr.length; i++) {
-      if (arr[i] === arr[i-1]) { score += 0.5; break; }
-    }
-
-    // 4. Rhyme bonus (last‐2 letters)
-    const wend = words.at(-1).slice(-2);
-    if (words.length>1 && words[words.length-2].endsWith(wend)) score += 0.5;
-
-    // 5. length bonus (closer to mid)
-    const mid = (MIN_WORDS+MAX_WORDS)/2;
-    score -= Math.abs(words.length - mid)*0.2;
-
-    return score;
+    // length preference
+    const mid=(MIN_WORDS+MAX_WORDS)/2;
+    s-=Math.abs(ws.length-mid)*0.2;
+    return s;
   }
 
-  // —— CLEANUP & DUPES ——  
-  function tidy(arr) {
-    // drop trailing stop words
-    while (arr.length && STOP_TAIL.has(arr.at(-1).toLowerCase())) arr.pop();
-    // dedupe consecutive words
-    const out = arr.filter((w,i,a)=>i===0||a[i-1]!=w);
-    // capitalise lone “i”
-    return out.map((w,i)=> i>0 && w==='i' ? 'I' : w);
-  }
+  /* ---------- utilities ---------- */
+  const rand = a => a[Math.random()*a.length|0];
+  const cap  = s => s[0].toUpperCase()+s.slice(1);
 
-  // —— HYBRID POLISH STUB ——  
-  function deepPolish(text) {
-    // ← here you could call a tiny GPT‑2 or OpenAI API to clean it up.
-    // For now, just append a random punct (and cache duplicates):
-    const p = ['.', '!', '?'][Math.random()*3|0];
-    const quote = text + p;
-    if (!recent.includes(quote)) {
-      recent.push(quote);
-      if (recent.length > RECENT_LIMIT) recent.shift();
-    }
-    return quote;
+  function cleanup(arr){
+    while(arr.length && STOP_TAIL.has(arr.at(-1).toLowerCase())) arr.pop();
+    return arr.filter((w,i,a)=>i===0||a[i-1]!==w)
+              .map((w,i)=>i&&w==='i'?'I':w);
   }
+  const valid = a => a.length>=MIN_WORDS && a.length<=MAX_WORDS && /^[a-z]{2,}$/i.test(a.at(-1));
 
-  function fallback() {
-    return 'Stay curious; drink good coffee.';
+  function sample(map,temp=TEMPERATURE){
+    const ent=[...map.entries()];
+    const weights=ent.map(([,c])=>Math.pow(c,1/temp));
+    const sum=weights.reduce((a,b)=>a+b,0);
+    let r=Math.random()*sum;
+    for(let i=0;i<ent.length;i++){ if((r-=weights[i])<=0) return ent[i][0]; }
+    return ent[ent.length-1][0];
   }
 })();
