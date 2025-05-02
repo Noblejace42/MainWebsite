@@ -5,7 +5,7 @@
      CONFIG
   ----------------------------------------------------------- */
   const TEXT_URL   = 'emersonmarkovchain.txt'; // keep your source file here
-  const ORDER      = 15;                        // 2‑gram Markov chain
+  const ORDER      = 1;                        // 2‑gram Markov chain
   const MAX_WORDS  = 20;                       // per sentence cap
 
   /* -----------------------------------------------------------
