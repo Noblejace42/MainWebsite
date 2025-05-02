@@ -1,126 +1,133 @@
-/* markovscript.js — v5 “QuipForge Solid” — 2025‑05‑02
-   Place alongside index.html + emersonmarkovchain.txt
+/* markovscript.js  —  v6  “QuipForge Pro”  —  2025‑05‑02
+   Generates tight 5‑8‑word jokes from emersonmarkovchain.txt
+   Drop this next to index.html and the corpus file.
 */
 (() => {
-  if (window.__quipForgeLoaded__) return;          // singleton guard
+  if (window.__quipForgeLoaded__) return;           // prevent double‑load
   window.__quipForgeLoaded__ = true;
 
-  const BOX   = document.getElementById('markovQuote');
-  const BTN   = document.getElementById('regenerateBtn');
-  const FILE  = 'emersonmarkovchain.txt';          // corpus file
-  const MIN   = 5, MAX = 8;                        // word count bounds
-  const TRIES = 20;                                // gen attempts
-  const RECENT_LIMIT = 20;
+  /*  ======  CONFIG  ======  */
+  const CORPUS_FILE   = 'emersonmarkovchain.txt';
+  const MIN_WORDS     = 5;
+  const MAX_WORDS     = 8;
+  const MAX_ATTEMPTS  = 25;
+  const RECENT_LIMIT  = 25;
+  const STOP_TAIL     = new Set(['the','and','to','of','for','with']);
 
-  const chain  = new Map();   // order‑2 Markov chain
-  const starts = [];          // valid sentence‑start keys
-  const recent = [];          // prevent near duplicates
+  /*  ======  DOM  ======  */
+  const BOX = document.getElementById('markovQuote');
+  const BTN = document.getElementById('regenerateBtn');
 
-  /* ---------- bootstrap ---------- */
-  loadCorpus();
+  /*  ======  STATE  ======  */
+  const chain   = new Map();   // trigram: key "w1 w2" → [w3…]
+  const starts  = [];          // valid sentence beginnings
+  const recent  = [];          // duplicate filter
 
+  /*  ======  INIT  ======  */
   BTN.addEventListener('click', () => {
-    if (!chain.size) loadCorpus();      // retry if load failed
-    BOX.textContent = craft() || fallback();
+    if (!chain.size) { fetchCorpus(); return; }
+    BOX.textContent = generateQuote() || fallback();
   });
 
-  /* ---------- load & build ---------- */
-  function loadCorpus() {
-    fetch(FILE)
+  fetchCorpus();
+
+  /*  ======  FUNCTIONS  ======  */
+
+  function fetchCorpus() {
+    fetch(CORPUS_FILE)
       .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.text();
       })
       .then(text => {
-        buildModel(text);
-        BOX.textContent = craft();
+        buildChain(text);
+        BOX.textContent = generateQuote() || fallback();
       })
       .catch(err => {
-        console.error('QuipForge: corpus load failed:', err);
+        console.error('QuipForge Pro | corpus load error:', err);
         BOX.textContent = fallback();
       });
   }
 
-  /* ---------- preprocessing & model ---------- */
-  function buildModel(raw) {
+  // ---------- build trigram chain ----------
+  function buildChain(raw) {
     chain.clear(); starts.length = 0;
 
-    const tokens = raw.replace(/\r?\n+/g, ' ').split(/\s+/);
+    const tokens = raw.replace(/\r?\n+/g,' ').split(/\s+/);
 
-    // We'll keep cleaned words here
+    // array of {word, boundary}
     const words = [];
-
     tokens.forEach(tok => {
-      const endsSentence = /[.!?]$/.test(tok);
-      // strip all non‑letters
-      const clean = tok.toLowerCase().replace(/[^a-z]/g, '');
+      const boundary = /[.!?]$/.test(tok);
+      const clean = tok.toLowerCase().replace(/[^a-z]/g,'');
       if (
         clean.length > 1 &&
         !clean.includes('http') &&
         !clean.includes('com') &&
         !clean.includes('@')
       ) {
-        words.push({ word: clean, boundary: endsSentence });
+        words.push({word: clean, boundary});
       }
     });
 
-    // Build order‑2 chain
     for (let i = 0; i < words.length - 2; i++) {
-      const key  = `${words[i].word} ${words[i + 1].word}`;
-      const next = words[i + 2].word;
-      (chain.get(key) || chain.set(key, []).get(key)).push(next);
-
-      // if the first token begins sentence OR previous token was boundary ⇒ start
+      const key = words[i].word + ' ' + words[i+1].word;
+      const next = words[i+2].word;
+      (chain.get(key) || chain.set(key,[]).get(key)).push(next);
       if (i === 0 || words[i].boundary) starts.push(key);
     }
-    console.log(`QuipForge: chain built with ${chain.size} keys`);
+
+    console.info(`QuipForge Pro | chain size: ${chain.size}, starts: ${starts.length}`);
   }
 
-  /* ---------- quote generator ---------- */
-  function craft() {
-    if (!chain.size) return '';
+  // ---------- quote generator ----------
+  function generateQuote() {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
 
-    for (let attempt = 0; attempt < TRIES; attempt++) {
-      let key = pick(starts);
-      const [w1, w2] = key.split(' ');
-      const out = [cap(w1), w2];
+      /* --- 1. Seed --- */
+      let key = choice(starts);
+      let [w1, w2] = key.split(' ');
+      let out = [capitalise(w1), w2];
 
-      while (out.length < MAX) {
-        const options = chain.get(key);
-        if (!options || !options.length) break;
-
-        const next = pick(options);
+      /* --- 2. Grow sentence --- */
+      while (out.length < MAX_WORDS) {
+        const opts = chain.get(key);
+        if (!opts || !opts.length) break;
+        const next = choice(opts);
         out.push(next);
-
-        // 50 % chance to stop once >= MIN
-        if (out.length >= MIN && Math.random() < 0.5) break;
-
-        key = `${out[out.length - 2]} ${out[out.length - 1]}`;
+        if (out.length >= MIN_WORDS && Math.random() < 0.55) break;
+        key = out[out.length-2] + ' ' + out[out.length-1];
       }
 
-      if (isValid(out)) {
-        const line = out.join(' ') + '.';
-        if (!recent.includes(line)) {
-          recent.push(line);
+      /* --- 3. Cleanup --- */
+      out = tidy(out);
+
+      /* --- 4. Validation & dedupe --- */
+      if (out.length >= MIN_WORDS && out.length <= MAX_WORDS) {
+        const quote = out.join(' ') + randomPunct();
+        if (!recent.includes(quote)) {
+          recent.push(quote);
           if (recent.length > RECENT_LIMIT) recent.shift();
-          return line;
+          return quote;
         }
       }
     }
-    return '';  // signal fallback
+    return '';
   }
 
-  /* ---------- helpers ---------- */
-  const pick = arr => arr[Math.random() * arr.length | 0];
-  const cap  = s => s.charAt(0).toUpperCase() + s.slice(1);
-
-  function isValid(arr) {
-    return (
-      arr.length >= MIN &&
-      arr.length <= MAX &&
-      /^[a-z]{2,}$/.test(arr[arr.length - 1])
-    );
+  // ---------- helpers ----------
+  function tidy(arr) {
+    // drop trailing stop‑word
+    while (arr.length && STOP_TAIL.has(arr[arr.length-1])) arr.pop();
+    // collapse immediate duplicates
+    return arr.filter((w,i,a)=> i===0 || w!==a[i-1])
+              .map((w,i)=> i===0 && w==='i' ? 'I' : w); // capitalise lone i
   }
 
-  const fallback = () => 'Stay curious; drink good coffee.';
+  const capitalise = s => s.charAt(0).toUpperCase()+s.slice(1);
+  const choice     = a => a[Math.random()*a.length|0];
+  const puncts     = ['.','!','?'];
+  const randomPunct= () => puncts[Math.random()*puncts.length|0];
+
+  const fallback   = () => 'Stay curious; drink good coffee.';
 })();
