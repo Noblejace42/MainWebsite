@@ -1,98 +1,123 @@
-/* markovscript.js — v4 “QuipForge” — 2025‑05‑02
-   Guarantees 5–8‑word, punctuation‑clean quips, filters junk, and
-   ensures only one script instance ever binds to #regenerateBtn.
-*/ 
+// markovscript.js — vFinal “Sure‑Fire Quips”
 (() => {
-  /* ===== singleton guard (prevents double‑bind) ===== */
   if (window.__quipForgeLoaded__) return;
   window.__quipForgeLoaded__ = true;
 
-  const BOX   = document.getElementById('markovQuote');
-  const BTN   = document.getElementById('regenerateBtn');
-  const FILE  = 'emersonmarkovchain.txt';  // corpus name
-  const LEN   = {min: 5, max: 8};
-  const RETRY = 15;                          // attempts to hit quality gate
-  const chain = new Map();                   // order‑2 chain
-  const starts = [];
-  const recent = [];                         // small queue to avoid repeats
-  const RECENT_LIMIT = 15;
+  const BOX      = document.getElementById('markovQuote');
+  const BTN      = document.getElementById('regenerateBtn');
+  const CORPUS   = 'emersonmarkovchain.txt'; 
+  const MIN_WORDS = 5, MAX_WORDS = 8;
+  const MAX_TRIES = 15;
+  const chain    = new Map();
+  const starts   = [];
+  const recent   = [];
 
-  /* ========== 1.  Load & build ========== */
-  fetch(FILE)
-    .then(r => r.ok ? r.text() : Promise.reject(`HTTP ${r.status}`))
-    .then(text => {
-      const words = scrub(text);
-      build(words);
-      BTN.addEventListener('click', () => BOX.textContent = craft());
-      BOX.textContent = craft();
-    })
-    .catch(err => {
-      console.error('QuipForge:', err);
-      BOX.textContent = 'Wisdom offline—try later.';
-    });
+  // Kick it off
+  init();
 
-  /* ========== 2.  Scrubber ========== */
-  function scrub(raw) {
+  // If user clicks before init finishes, retry init
+  BTN.addEventListener('click', () => {
+    if (!chain.size) init();
+    BOX.textContent = craft() || fallback();
+  });
+
+  function init() {
+    console.log('Fetching corpus from', CORPUS);
+    fetch(CORPUS)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then(txt => {
+        const words = preprocess(txt);
+        buildChain(words);
+        BOX.textContent = craft();
+      })
+      .catch(err => {
+        console.error('Could not load corpus:', err);
+        BOX.textContent = 'Wisdom is unavailable right now.';
+      });
+  }
+
+  // Clean out junk, return array of tidy words
+  function preprocess(raw) {
     return raw
-      .replace(/\r?\n+/g, ' ')          // unify line breaks
-      .replace(/([.?!])/g, ' $1 ')      // isolate terminators
+      .replace(/\r?\n+/g, ' ')
+      .replace(/([.?!])/g, ' $1 ')
       .split(/\s+/)
-      .map(w => w
-        .toLowerCase()
-        .replace(/^[^a-z]+|[^a-z]+$/g, '') ) // trim non‑letters
+      .map(w => w.toLowerCase().replace(/^[^a-z]+|[^a-z]+$/g,''))
       .filter(w =>
         w.length > 1 &&
+        /^[a-z.?!] +$/.test(w) === false && // no stray punctuation-only tokens
         !/\d/.test(w) &&
         !w.includes('http') &&
         !w.includes('.com') &&
-        !w.includes('@'));
+        !w.includes('@')
+      );
   }
 
-  /* ========== 3.  Chain builder (order‑2) ========== */
-  function build(words) {
+  // Build an order‑2 chain + sentence‑start keys
+  function buildChain(words) {
+    chain.clear();
+    starts.length = 0;
     for (let i = 0; i < words.length - 2; i++) {
       const key = `${words[i]} ${words[i + 1]}`;
-      const next = words[i + 2];
-      if (!/^[a-z]+$/.test(next)) continue; // skip junk
-      (chain.get(key) || chain.set(key, []).get(key)).push(next);
-      if (i === 0 || /[.?!]/.test(words[i])) starts.push(key);
+      const nxt = words[i + 2];
+      if (!/^[a-z]+$/.test(nxt)) continue;
+      (chain.get(key) || chain.set(key, []).get(key)).push(nxt);
+      if (i === 0 || /[.?!]/.test(words[i])) {
+        starts.push(key);
+      }
     }
+    console.log('Chain built with', chain.size, 'keys and', starts.length, 'start phrases.');
   }
 
-  /* ========== 4.  Generator ========== */
+  // Generate a 5–8 word quote
   function craft() {
-    for (let attempt = 0; attempt < RETRY; attempt++) {
+    if (!chain.size) return '';
+
+    for (let attempt = 0; attempt < MAX_TRIES; attempt++) {
       let key = pick(starts);
       const [w1, w2] = key.split(' ');
-      const out = [cap(w1), w2];
+      const out = [capitalize(w1), w2];
 
-      while (out.length < LEN.max) {
+      // expand up to MAX_WORDS
+      while (out.length < MAX_WORDS) {
         const opts = chain.get(key);
         if (!opts) break;
-        const next = pick(opts);
-        out.push(next);
-        if (out.length >= LEN.min && Math.random() < 0.45) break; // early stop
-        key = `${out.at(-2)} ${out.at(-1)}`;
+        const nxt = pick(opts);
+        out.push(nxt);
+        // early stop once min is reached ~50% chance
+        if (out.length >= MIN_WORDS && Math.random() < 0.5) break;
+        key = `${out[out.length - 2]} ${out[out.length - 1]}`;
       }
 
-      if (qualifies(out)) {
+      if (isValid(out)) {
         const line = out.join(' ') + '.';
         if (!recent.includes(line)) {
           recent.push(line);
-          if (recent.length > RECENT_LIMIT) recent.shift();
+          if (recent.length > 20) recent.shift();
           return line;
         }
       }
     }
-    return 'Gaslight Gaslight Gaslight Gaslight Gatekeep'; // ultimate fallback
+
+    return ''; // signal fallback
   }
 
-  /* ========== 5.  Helpers ========== */
-  const cap = s => s[0].toUpperCase() + s.slice(1);
-  const pick = arr => arr[Math.random() * arr.length | 0];
-  function qualifies(words) {
-    const lenOK = words.length >= LEN.min && words.length <= LEN.max;
-    const lastOK = /^[a-z]{2,}$/.test(words.at(-1));
-    return lenOK && lastOK;
+  function isValid(arr) {
+    return (
+      arr.length >= MIN_WORDS &&
+      arr.length <= MAX_WORDS &&
+      /^[a-z]{2,}$/.test(arr[arr.length - 1])
+    );
   }
+
+  function fallback() {
+    return 'Stay curious; drink good coffee.';
+  }
+
+  // Utilities
+  const pick       = arr => arr[Math.random() * arr.length | 0];
+  const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 })();
