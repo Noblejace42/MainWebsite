@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500&display=swap" rel="stylesheet"/>
 
-  <!-- Compromise.js for POS tagging -->
-  <script src="https://unpkg.com/compromise@latest/builds/compromise.min.js"></script>
+  <!-- compromise.js for POS tagging (JSDeliver CDN to avoid MIME issues) -->
+  <script src="https://cdn.jsdelivr.net/npm/compromise@latest/builds/compromise.min.js"></script>
 
   <style>
     :root {
@@ -275,7 +275,7 @@
     <div class="markov-card">
       <h3>Emerson’s Wisdom</h3>
       <div id="markovQuote">Loading…</div>
-      <button id="regenerateBtn" class="card-btn">Bestow Wisdom</button>
+      <button id="regenerateBtn" class="card-btn" disabled>Bestow Wisdom</button>
     </div>
   </div>
 
@@ -296,15 +296,14 @@
     </div>
   </div>
 
-  <!-- Markov Generator Script -->
+  <!-- Scripts -->
   <script src="markovscript.js"></script>
-
   <script>
     // Theme toggle
     document.getElementById('themeToggleBtn')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
 
-    // Tile-spawning
+    // Tile-spawning logic (unchanged)
     const tilePaths = Array.from({length:34},(_,i)=>`image/${i+4}.jpg`);
     const tilesContainer = document.querySelector('.tiles-container');
     const tileData = [];
