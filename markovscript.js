@@ -6,7 +6,7 @@
   ----------------------------------------------------------- */
   const TEXT_URL   = 'emersonmarkovchain.txt'; // keep your source file here
   const ORDER      = 4;                        // 2‑gram Markov chain
-  const MAX_WORDS  = 10;                       // per sentence cap
+  const MAX_WORDS  = 30;                       // per sentence cap
 
   /* -----------------------------------------------------------
      DOM HOOK‑UP
