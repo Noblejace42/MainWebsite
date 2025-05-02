@@ -8,9 +8,11 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500&display=swap" rel="stylesheet"/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500&display=swap"
+    rel="stylesheet"/>
 
-  <!-- compromise.js for POS tagging (JSDeliver CDN to avoid MIME issues) -->
+  <!-- compromise.js for POS tagging (no MIME issues) -->
   <script src="https://cdn.jsdelivr.net/npm/compromise@latest/builds/compromise.min.js"></script>
 
   <style>
@@ -180,15 +182,15 @@
       90%  { opacity: .3; }
       100% { transform: translateX(150vw) scale(1); opacity: 0; }
     }
-/* ——— Make the wisdom text use the same “small” Roboto font ——— */
-#markovQuote{
-  font-family:'Roboto',sans-serif;
-  font-size:.78em;        /* same size as your contact-card copy */
-  line-height:1.55;
-  margin-top:8px;
-}
 
-    
+    /* ——— Make the wisdom text use the same “small” Roboto font ——— */
+    #markovQuote {
+      font-family: 'Roboto', sans-serif;
+      font-size: .78em;
+      line-height: 1.55;
+      margin-top: 8px;
+    }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -305,32 +307,33 @@
   </div>
 
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/rita@1.3.1/rita.min.js"></script>
+  <!-- Use the UMD RiTa build from unpkg to avoid MIME issues -->
+  <script src="https://unpkg.com/rita@1.3.1/build/rita.min.js"></script>
   <script src="markovscript.js"></script>
   <script>
     // Theme toggle
     document.getElementById('themeToggleBtn')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
 
-    // Tile-spawning logic (unchanged)
-    const tilePaths = Array.from({length:34},(_,i)=>`image/${i+4}.jpg`);
+    // Tile‑spawning logic (unchanged)
+    const tilePaths = Array.from({ length: 34 }, (_, i) => `image/${i+4}.jpg`);
     const tilesContainer = document.querySelector('.tiles-container');
     const tileData = [];
     let tileLoaded = 0;
     tilePaths.forEach(src => {
       const img = new Image(); img.src = src;
-      img.onload = () => { tileData.push({src,aspect:img.width/img.height||1}); checkTiles(); };
+      img.onload = () => { tileData.push({ src, aspect: img.width/img.height||1 }); checkTiles(); };
       img.onerror = checkTiles;
     });
     function checkTiles(){
       if (++tileLoaded === tilePaths.length) {
         spawnTile();
-        setInterval(()=>{ if (tilesContainer.children.length < 5) spawnTile(); }, 2000);
+        setInterval(() => { if (tilesContainer.children.length < 5) spawnTile(); }, 2000);
       }
     }
     function spawnTile(){
       if (!tileData.length) return;
-      const {src,aspect} = tileData[Math.random()*tileData.length|0];
+      const { src, aspect } = tileData[Math.random()*tileData.length|0];
       const el = document.createElement('div');
       const w = 150 + Math.random()*250, h = w/aspect;
       el.className = 'moving-tile';
@@ -338,13 +341,13 @@
       el.style.height = h+'px';
       el.style.top = Math.random()*(window.innerHeight - h)+'px';
       el.style.backgroundImage = `url('${src}')`;
-      el.onanimationend = ()=>el.remove();
+      el.onanimationend = () => el.remove();
       tilesContainer.appendChild(el);
     }
 
     // Misc modal handlers
     const miscModal = document.getElementById('miscModal');
-    document.getElementById('miscBtn').onclick = () => miscModal.classList.remove('hidden');
+    document.getElementById('miscBtn').onclick    = () => miscModal.classList.remove('hidden');
     document.getElementById('closeModal').onclick = () => miscModal.classList.add('hidden');
     miscModal.onclick = e => { if (e.target === miscModal) miscModal.classList.add('hidden'); };
   </script>
