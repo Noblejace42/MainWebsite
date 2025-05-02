@@ -1,41 +1,39 @@
-/* markovscript.js — v3 “deep tricks” with UMD RiTa */
+/* markovscript.js — v4 “deep tricks + POS swapping” */
 
-// immediately‑invoked async wrapper so we can await fetch()
 (async () => {
   /* —————————————————— CONFIG —————————————————— */
-  const TEXT_URL        = 'emersonmarkovchain.txt';  // your corpus file
+  const TEXT_URL        = 'emersonmarkovchain.txt';  // your corpus
   const ORDERS          = [3, 2, 1];                  // fallback n‑gram depths
-  const MAX_SENTENCES   = 4;                          // max lines per quote
-  const MAX_WORDS_SENT  = 40;                         // cap per sentence
-  const REPETITION_GAP  = 5;                          // no echoing within this window
+  const MAX_SENTENCES   = 4;                          // lines per quote
+  const MAX_WORDS_SENT  = 40;                         // words per line
+  const REPETITION_GAP  = 5;                          // no echo within N
 
   /* —————————————————— DOM HOOKUP —————————————————— */
   const quoteEl   = document.getElementById('markovQuote');
   const btn       = document.getElementById('regenerateBtn');
-  const seedInput = document.getElementById('seedText');    // optional seed field
-  const themeSel  = document.getElementById('themeSelect'); // optional tone selector
+  const seedInput = document.getElementById('seedText');    // optional
+  const themeSel  = document.getElementById('themeSelect'); // optional
 
   /* —————————————————— HELPERS —————————————————— */
   const rand = arr => arr[Math.floor(Math.random() * arr.length)];
-  const cap1 = str => str.charAt(0).toUpperCase() + str.slice(1);
-  const tidy = s => s
-    .replace(/\s+([,;:.!?])/g, '$1')  // fix spaces before punctuation
-    .replace(/\s+/g, ' ')             // collapse whitespace
+  const cap1 = s   => s.charAt(0).toUpperCase() + s.slice(1);
+  const tidy = s   => s
+    .replace(/\s+([,;:.!?])/g,'$1')
+    .replace(/\s+/g,' ')
     .trim();
 
-  /* —————————————————— LOAD & PARSE CORPUS —————————————————— */
+  /* —————————————————— LOAD & TOKENIZE —————————————————— */
   const corpus    = await fetch(TEXT_URL).then(r => r.text());
-  const sentences = RiTa.sentences(corpus);  // ← correct UMD call
+  const sentences = RiTa.sentences(corpus);   // UMD RiTa API
 
-  /* —————————————————— BUILD MULTI‑ORDER CHAINS —————————————————— */
+  /* —————————————————— BUILD N‑GRAM CHAINS —————————————————— */
   const chains = {};
   ORDERS.forEach(o => chains[o] = new Map());
-
   sentences.forEach(sent => {
     const words = sent.split(/\s+/);
     ORDERS.forEach(order => {
       for (let i = 0; i <= words.length - order; i++) {
-        const key = words.slice(i, i + order).join(' ').toLowerCase();
+        const key  = words.slice(i, i + order).join(' ').toLowerCase();
         const next = words[i + order] || null;
         const bucket = chains[order].get(key) || [];
         bucket.push(next);
@@ -44,9 +42,54 @@
     });
   });
 
-  /* —————————————————— TOKEN GENERATION —————————————————— */
+  /* —————————————————— BUILD POS BUCKETS —————————————————— */
+  const posBuckets = {
+    Noun: new Set(),
+    Verb: new Set(),
+    Adjective: new Set(),
+    Adverb: new Set()
+  };
+  sentences.forEach(sent => {
+    sent.split(/\s+/).forEach(token => {
+      const clean = token.replace(/[^\w']/g, '');
+      if (!clean) return;
+      const info = nlp(clean).terms().json()[0];
+      if (!info || !info.tags) return;
+      info.tags.forEach(tag => {
+        if (posBuckets[tag]) posBuckets[tag].add(clean.toLowerCase());
+      });
+    });
+  });
+  // finalize arrays
+  Object.keys(posBuckets).forEach(tag => {
+    posBuckets[tag] = Array.from(posBuckets[tag]);
+  });
+
+  /* —————————————————— POS‑SWAP FUNCTION —————————————————— */
+  function posSwap(text) {
+    return text.replace(/\b\w+\b/g, word => {
+      const lower = word.toLowerCase();
+      const info  = nlp(lower).terms().json()[0];
+      if (!info || !info.tags) return word;
+
+      if (info.tags.includes('Noun') && Math.random() < 0.5 && posBuckets.Noun.length) {
+        return rand(posBuckets.Noun);
+      }
+      if (info.tags.includes('Verb') && Math.random() < 0.5 && posBuckets.Verb.length) {
+        return rand(posBuckets.Verb);
+      }
+      if (info.tags.includes('Adjective') && Math.random() < 0.5 && posBuckets.Adjective.length) {
+        return rand(posBuckets.Adjective);
+      }
+      if (info.tags.includes('Adverb') && Math.random() < 0.5 && posBuckets.Adverb.length) {
+        return rand(posBuckets.Adverb);
+      }
+      return word;
+    });
+  }
+
+  /* —————————————————— MARKOV GENERATION —————————————————— */
   function nextToken(context) {
-    // try highest‑order first, fallback down
     for (const order of ORDERS) {
       const key = context.slice(-order).join(' ').toLowerCase();
       const opts = chains[order].get(key);
@@ -62,7 +105,6 @@
       if (seen.has(lw)) return false;
       seen.add(lw);
       if (seen.size > REPETITION_GAP) {
-        // remove the oldest entry
         const it = seen.values();
         seen.delete(it.next().value);
       }
@@ -76,9 +118,7 @@
     return text;
   }
 
-  /* —————————————————— SENTENCE & PARAGRAPH MAKERS —————————————————— */
   function generateSentence(seedWords = []) {
-    // pick a random starter if none provided
     if (!seedWords.length) {
       do {
         seedWords = rand(sentences).split(/\s+/).slice(0, ORDERS[0]);
@@ -90,7 +130,6 @@
       const nxt = nextToken(words);
       if (!nxt) break;
       words.push(nxt);
-      // early stop on punctuation
       if (/[.!?]$/.test(nxt) && words.length > ORDERS[0] + 3) break;
     }
 
@@ -100,7 +139,7 @@
 
   function generateParagraph() {
     const rawSeed = seedInput?.value.trim() || '';
-    const seedArr = rawSeed ? rawSeed.split(/\s+/).slice(0, ORDERS[0]) : [];
+    const seedArr = rawSeed.split(/\s+/).slice(0, ORDERS[0]);
     const theme   = themeSel?.value || 'default';
     const lines   = 1 + Math.floor(Math.random() * MAX_SENTENCES);
 
@@ -111,12 +150,14 @@
     return applyTheme(out.join(' '), theme);
   }
 
-  /* —————————————————— INITIALIZE & RENDER —————————————————— */
+  /* —————————————————— RENDER & SWAP —————————————————— */
   function refresh() {
-    quoteEl.textContent = generateParagraph();
+    let quote = generateParagraph();
+    quote     = posSwap(quote);
+    quoteEl.textContent = quote;
   }
 
   btn.removeAttribute('disabled');
   btn.addEventListener('click', refresh);
-  refresh();
+  refresh(); // initial fill
 })();
