@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>Weakest Link</title>
 
-<!-- ===== Fonts ===== -->
+<!-- ========== Google Fonts ========== -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -14,7 +14,9 @@
 
 <style>
 /* ---------- Global ---------- */
-*{margin:0;padding:0;box-sizing:border-box}
+*,
+*::before,
+*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
   font-family:'Poppins',sans-serif;
@@ -22,6 +24,38 @@ body{
   color:#1e1e1e;
   background:#f4f7fb;
   overflow-x:hidden;
+}
+
+/* ---------- NAVBAR ---------- */
+.navbar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  padding:.65rem 1.5rem;
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  background:rgba(0,0,0,.35);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,.1);
+  z-index:1000;
+}
+.navbar img{
+  width:48px;
+  height:48px;
+  flex-shrink:0;
+}
+.navbar .brand{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.75rem;
+  font-weight:700;
+  letter-spacing:1px;
+  color:#fff;
+}
+.navbar .brand span{
+  color:#1f8a70;   /* match site accent */
 }
 
 /* ---------- Utility ---------- */
@@ -38,16 +72,24 @@ body{
   align-items:center;
   text-align:center;
   background:url("images/hero.jpg") center/cover no-repeat;
+  padding-top:120px;             /* keeps text clear of fixed navbar */
 }
 .hero::after{
-  content:"";position:absolute;inset:0;
-  /* Deep overlay so text stands out */
+  content:"";
+  position:absolute;
+  inset:0;
   background:linear-gradient(135deg,#004f47cc 0%,#000000cc 100%);
 }
-.hero h1,.hero p{position:relative;z-index:1;color:#fff}
+.hero h1,
+.hero p{
+  position:relative;
+  z-index:1;
+  color:#fff;
+}
 .hero h1{
   font:700 3.5rem/1 'Space Grotesk',sans-serif;
-  letter-spacing:2px;text-shadow:0 2px 6px rgba(0,0,0,.5)
+  letter-spacing:2px;
+  text-shadow:0 2px 6px rgba(0,0,0,.5);
 }
 .hero p{
   max-width:750px;
@@ -75,28 +117,46 @@ body{
   padding:3.5rem 1.5rem;
 }
 .cta button{
-  background:#fff;color:#1f8a70;border:none;
-  padding:1rem 2.5rem;font-size:1.15rem;font-weight:700;
+  background:#fff;
+  color:#1f8a70;
+  border:none;
+  padding:1rem 2.5rem;
+  font-size:1.15rem;
+  font-weight:700;
   border-radius:50px;
-  cursor:pointer;transition:transform .3s ease,box-shadow .3s ease;
+  cursor:pointer;
+  transition:transform .3s ease,box-shadow .3s ease;
   box-shadow:0 8px 14px rgba(0,0,0,.15);
 }
-.cta button:hover{transform:translateY(-4px);box-shadow:0 12px 20px rgba(0,0,0,.2)}
+.cta button:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 20px rgba(0,0,0,.2);
+}
 
 /* ---------- Loans ---------- */
 .loans{
   padding:5rem 1.5rem 4rem;
-  max-width:1200px;margin:auto;
+  max-width:1200px;
+  margin:auto;
 }
 .loans h2{
   font:700 2.5rem 'Space Grotesk',sans-serif;
-  text-align:center;margin-bottom:1.25rem;color:#1f8a70
+  text-align:center;
+  margin-bottom:1.25rem;
+  color:#1f8a70;
 }
 .filter-bar{
-  display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem
+  display:flex;
+  justify-content:center;
+  gap:1rem;
+  flex-wrap:wrap;
+  margin-bottom:2.5rem;
 }
 .filter-bar select{
-  padding:.65rem 1rem;font-size:1rem;border-radius:8px;border:1px solid #d1d5db;
+  padding:.65rem 1rem;
+  font-size:1rem;
+  border-radius:8px;
+  border:1px solid #d1d5db;
 }
 .card-grid{
   display:grid;
@@ -104,22 +164,42 @@ body{
   gap:2rem;
 }
 .card{
-  background:#fff;border-radius:15px;overflow:hidden;
+  background:#fff;
+  border-radius:15px;
+  overflow:hidden;
   box-shadow:0 10px 20px rgba(0,0,0,.08);
-  display:flex;flex-direction:column;
+  display:flex;
+  flex-direction:column;
   transition:transform .35s ease;
 }
 .card:hover{transform:translateY(-6px)}
 .card img{width:100%;height:220px;object-fit:cover}
-.card-content{padding:1.25rem;flex-grow:1;display:flex;flex-direction:column}
+.card-content{
+  padding:1.25rem;
+  flex-grow:1;
+  display:flex;
+  flex-direction:column;
+}
 .card h3{font-size:1.25rem;margin-bottom:.35rem}
 .card p.meta{font-size:.9rem;color:#6b7280;margin-bottom:.85rem}
-.progress{background:#e5e7eb;border-radius:6px;height:10px;margin-bottom:1rem;overflow:hidden}
+.progress{
+  background:#e5e7eb;
+  border-radius:6px;
+  height:10px;
+  margin-bottom:1rem;
+  overflow:hidden;
+}
 .progress span{display:block;height:100%;background:#1f8a70;width:0}
 .card button{
-  margin-top:auto;background:#1f8a70;color:#fff;border:none;
-  padding:.6rem 1.1rem;border-radius:8px;cursor:pointer;
-  align-self:flex-start;transition:opacity .3s ease
+  margin-top:auto;
+  background:#1f8a70;
+  color:#fff;
+  border:none;
+  padding:.6rem 1.1rem;
+  border-radius:8px;
+  cursor:pointer;
+  align-self:flex-start;
+  transition:opacity .3s ease;
 }
 .card button:hover{opacity:.85}
 
@@ -132,19 +212,29 @@ body{
 }
 .about h2{
   font:700 2rem 'Space Grotesk',sans-serif;
-  margin-bottom:1rem;color:#38bdf8;
+  margin-bottom:1rem;
+  color:#38bdf8;
 }
 .about p{max-width:750px;margin:.75rem auto;font-size:1rem}
-.about .credits{margin-top:2rem;font-weight:600;font-size:.95rem;color:#9ca3af}
+.about .credits{
+  margin-top:2rem;
+  font-weight:600;
+  font-size:.95rem;
+  color:#9ca3af;
+}
 
 /* ---------- Footer wave ---------- */
 .wave2{
-  display:block;width:100%;height:80px;
+  display:block;
+  width:100%;
+  height:80px;
   background:url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDE2MDAgODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgNzBoMTYwMFYxMGwtMTYwMCA2MHoiIGZpbGw9IiMxMTE4MjciLz48L3N2Zz4=") center/cover no-repeat;
 }
 
 /* ---------- Responsive tweaks ---------- */
 @media(max-width:480px){
+  .navbar img{width:40px;height:40px}
+  .navbar .brand{font-size:1.4rem}
   .hero h1{font-size:2.6rem}
   .hero p{font-size:1rem}
 }
@@ -152,7 +242,14 @@ body{
 </head>
 <body>
 
-<!-- ================= HERO ================= -->
+<!-- ========== NAVBAR ========== -->
+<nav class="navbar">
+  <!-- logo lives in image/ directory on GitHub -->
+  <img src="image/weakestlinklogo.png" alt="Weakest Link logo">
+  <span class="brand">Weakest<span> Link</span></span>
+</nav>
+
+<!-- ========== HERO ========== -->
 <header class="hero">
   <h1 class="fade-in">Can you spare a bit of change?</h1>
   <p class="fade-in" style="transition-delay:.2s">
@@ -162,14 +259,14 @@ body{
 
 <span class="wave"></span>
 
-<!-- ================= CTA ================= -->
+<!-- ========== CTA ========== -->
 <section class="cta fade-in" style="transition-delay:.4s">
   <button onclick="document.getElementById('loanGrid').scrollIntoView({behavior:'smooth'})">
     Browse Live Loans
   </button>
 </section>
 
-<!-- ================= LOAN MARKETPLACE ================= -->
+<!-- ========== LOAN MARKETPLACE ========== -->
 <main class="loans fade-in" id="loanSection">
   <h2>Fund a Dream Today</h2>
 
@@ -181,6 +278,7 @@ body{
       <option value="southafrica">South Africa</option>
       <option value="cuba">Cuba</option>
     </select>
+
     <select id="categoryFilter" onchange="filterLoans()">
       <option value="all">All Categories</option>
       <option value="agriculture">Agriculture</option>
@@ -193,7 +291,7 @@ body{
   <div class="card-grid" id="loanGrid">
     <!-- Kenya -->
     <div class="card" data-region="kenya" data-category="energy" data-funded="63">
-      <img src="image/solar_kenya.jpg" alt="Kenya solar project" />
+      <img src="image/solar_kenya.jpg" alt="Kenya solar project">
       <div class="card-content">
         <h3>Solar Kiosk Expansion</h3>
         <p class="meta">Nairobi • Goal $900 • 3 % interest</p>
@@ -204,7 +302,7 @@ body{
 
     <!-- Peru -->
     <div class="card" data-region="peru" data-category="agriculture" data-funded="45">
-      <img src="image/tractor_peru.jpg" alt="Peruvian farm equipment" />
+      <img src="image/tractor_peru.jpg" alt="Peruvian farm equipment">
       <div class="card-content">
         <h3>High-Andes Tractor</h3>
         <p class="meta">Cusco • Goal $1 400 • 4 % interest</p>
@@ -215,7 +313,7 @@ body{
 
     <!-- South Africa -->
     <div class="card" data-region="southafrica" data-category="services" data-funded="80">
-      <img src="image/electrician_sa.jpg" alt="South African electrician" />
+      <img src="image/electrician_sa.jpg" alt="South African electrician">
       <div class="card-content">
         <h3>Electrician’s Tool Kit</h3>
         <p class="meta">Cape Town • Goal $600 • 2.5 % interest</p>
@@ -226,7 +324,7 @@ body{
 
     <!-- Cuba -->
     <div class="card" data-region="cuba" data-category="retail" data-funded="28">
-      <img src="image/grocery_cuba.jpg" alt="Cuban grocery stand" />
+      <img src="image/grocery_cuba.jpg" alt="Cuban grocery stand">
       <div class="card-content">
         <h3>Grocery Stand Restock</h3>
         <p class="meta">Trinidad • Goal $500 • 3.5 % interest</p>
@@ -239,7 +337,7 @@ body{
 
 <span class="wave2"></span>
 
-<!-- ================= ABOUT ================= -->
+<!-- ========== ABOUT ========== -->
 <section class="about fade-in">
   <h2>About Weakest Link</h2>
   <p>
@@ -258,17 +356,20 @@ body{
   </p>
 </section>
 
-<!-- ================= Scripts ================= -->
+<!-- ========== SCRIPTS ========== -->
 <script>
-// ----- Scroll Fade-in -----
+// ---- Scroll Fade-in ----
 const observer=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
-    if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
   });
 },{threshold:0.2});
-document.querySelectorAll('.fade-in').forEach(sec=>observer.observe(sec));
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
 
-// ----- Filtering -----
+// ---- Loan Filtering ----
 function filterLoans(){
   const region=document.getElementById('regionFilter').value;
   const cat=document.getElementById('categoryFilter').value;
