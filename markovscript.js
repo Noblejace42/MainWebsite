@@ -1,98 +1,98 @@
-/* markovscript.js  –  v3 “Sharper, Snarkier, Self‑Cleaning” ★ 2025‑05‑02
-   Drop this next to index.html, keeping the corpus file name identical:
-   →  Emerson Markov Chain.txt
-   Generates 5–8‑word quips, order‑2 chain, deep cleanup, duplicate‑avoid,
-   light grammatical polish, and one‑click regeneration.
+/* markovscript.js — v4 “QuipForge” — 2025‑05‑02
+   Guarantees 5–8‑word, punctuation‑clean quips, filters junk, and
+   ensures only one script instance ever binds to #regenerateBtn.
 */
 (() => {
+  /* ===== singleton guard (prevents double‑bind) ===== */
+  if (window.__quipForgeLoaded__) return;
+  window.__quipForgeLoaded__ = true;
+
   const BOX   = document.getElementById('markovQuote');
   const BTN   = document.getElementById('regenerateBtn');
-  const FILE  = 'emersonmarkovchain.txt';              // <<— corpus
-  const LEN   = {min: 5, max: 8};                       // word count
-  const RETRY = 10;                                     // max attempts
+  const FILE  = 'Emerson Markov Chain.txt';  // corpus name
+  const LEN   = {min: 5, max: 8};
+  const RETRY = 15;                          // attempts to hit quality gate
+  const chain = new Map();                   // order‑2 chain
+  const starts = [];
+  const recent = [];                         // small queue to avoid repeats
+  const RECENT_LIMIT = 15;
 
-  /* ========== 1.  Corpus → order‑2 chain ========== */
-  const chain = new Map();      // key: "w1 w2"  →  [w3,…]
-  const starts = [];            // sentence‑initial “w1 w2”
-
+  /* ========== 1.  Load & build ========== */
   fetch(FILE)
-    .then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(r => r.ok ? r.text() : Promise.reject(`HTTP ${r.status}`))
     .then(text => {
-      const words = preprocess(text);
-      buildChain(words);
-      BOX.textContent = makeQuote();                  // first hit
-      BTN.onclick = () => BOX.textContent = makeQuote();
+      const words = scrub(text);
+      build(words);
+      BTN.addEventListener('click', () => BOX.textContent = craft());
+      BOX.textContent = craft();
     })
     .catch(err => {
-      console.error('Markov error:', err);
-      BOX.textContent = 'Wisdom temporarily unavailable.';
+      console.error('QuipForge:', err);
+      BOX.textContent = 'Wisdom offline—try later.';
     });
 
-  /* ========== 2.  Helpers ========== */
-
-  // rigorous scrubbing + split
-  function preprocess(raw) {
+  /* ========== 2.  Scrubber ========== */
+  function scrub(raw) {
     return raw
-      // replace newlines with space; isolate punctuation
-      .replace(/\r?\n+/g, ' ')
-      .replace(/([.?!,;:])/g, ' $1 ')
+      .replace(/\r?\n+/g, ' ')          // unify line breaks
+      .replace(/([.?!])/g, ' $1 ')      // isolate terminators
       .split(/\s+/)
-
-      // uniform lowercase & trim edge garbage
-      .map(w => w.toLowerCase().replace(/^[^a-z]+|[^a-z]+$/g, ''))
-
-      // filters: ≥2 letters, no digits, no urls/emails
-      .filter(w => w.length > 1 && !/\d/.test(w) && !w.includes('http') && !w.includes('.com') && !w.includes('@'));
+      .map(w => w
+        .toLowerCase()
+        .replace(/^[^a-z]+|[^a-z]+$/g, '') ) // trim non‑letters
+      .filter(w =>
+        w.length > 1 &&
+        !/\d/.test(w) &&
+        !w.includes('http') &&
+        !w.includes('.com') &&
+        !w.includes('@'));
   }
 
-  function buildChain(words){
-    for (let i = 0; i < words.length - 2; i++){
-      const [w1, w2, w3] = [words[i], words[i+1], words[i+2]];
-      if (!/^[a-z]+$/.test(w3)) continue;           // skip weird tokens
-      const key = `${w1} ${w2}`;
-      (chain.get(key) || chain.set(key, []).get(key)).push(w3);
-
-      // start key if w1 starts a sentence
-      if (i === 0 || /[.?!]/.test(words[i-1])) starts.push(key);
+  /* ========== 3.  Chain builder (order‑2) ========== */
+  function build(words) {
+    for (let i = 0; i < words.length - 2; i++) {
+      const key = `${words[i]} ${words[i + 1]}`;
+      const next = words[i + 2];
+      if (!/^[a-z]+$/.test(next)) continue; // skip junk
+      (chain.get(key) || chain.set(key, []).get(key)).push(next);
+      if (i === 0 || /[.?!]/.test(words[i])) starts.push(key);
     }
   }
 
-  /* ========== 3.  Generator ========== */
-  const recent = new Set();      // avoid immediate duplicates
-
-  function makeQuote(){
-    for (let attempt = 0; attempt < RETRY; attempt++){
-      let key = rand(starts);
-      let [w1, w2] = key.split(' ');
+  /* ========== 4.  Generator ========== */
+  function craft() {
+    for (let attempt = 0; attempt < RETRY; attempt++) {
+      let key = pick(starts);
+      const [w1, w2] = key.split(' ');
       const out = [cap(w1), w2];
-      while (out.length < LEN.max){
+
+      while (out.length < LEN.max) {
         const opts = chain.get(key);
         if (!opts) break;
-        const next = rand(opts);
+        const next = pick(opts);
         out.push(next);
-        if (out.length >= LEN.min && (Math.random() < 0.4 || out.length === LEN.max)) break;
-        key = `${out[out.length-2]} ${out[out.length-1]}`;
+        if (out.length >= LEN.min && Math.random() < 0.45) break; // early stop
+        key = `${out.at(-2)} ${out.at(-1)}`;
       }
-      // sanity:  length / dups / stray punctuation
-      if (ok(out)) {
+
+      if (qualifies(out)) {
         const line = out.join(' ') + '.';
-        if (!recent.has(line)){
-          recent.add(line);
-          if (recent.size > 12) recent.delete([...recent][0]); // keep cache small
+        if (!recent.includes(line)) {
+          recent.push(line);
+          if (recent.length > RECENT_LIMIT) recent.shift();
           return line;
         }
       }
     }
-    return 'Embrace uncertainty, iterate with coffee.'; // fallback
+    return 'Refactor life; compile happiness.'; // ultimate fallback
   }
 
-  /* ========== 4.  Utility ========== */
-  const rand = arr => arr[Math.random()*arr.length|0];
-
-  const cap  = s => s.charAt(0).toUpperCase() + s.slice(1);
-
-  function ok(words){
-    const last = words[words.length-1];
-    return words.length >= LEN.min && words.length <= LEN.max && /^[a-z]{2,}$/.test(last);
+  /* ========== 5.  Helpers ========== */
+  const cap = s => s[0].toUpperCase() + s.slice(1);
+  const pick = arr => arr[Math.random() * arr.length | 0];
+  function qualifies(words) {
+    const lenOK = words.length >= LEN.min && words.length <= LEN.max;
+    const lastOK = /^[a-z]{2,}$/.test(words.at(-1));
+    return lenOK && lastOK;
   }
 })();
