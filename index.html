@@ -12,7 +12,7 @@
     href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500&display=swap"
     rel="stylesheet"/>
 
-  <!-- compromise.js for POS tagging (no MIME issues) -->
+  <!-- compromise.js for light POS tagging (no MIME issues) -->
   <script src="https://cdn.jsdelivr.net/npm/compromise@latest/builds/compromise.min.js"></script>
 
   <style>
@@ -183,7 +183,7 @@
       100% { transform: translateX(150vw) scale(1); opacity: 0; }
     }
 
-    /* ——— Make the wisdom text use the same “small” Roboto font ——— */
+    /* Wisdom text matches small Roboto elsewhere */
     #markovQuote {
       font-family: 'Roboto', sans-serif;
       font-size: .78em;
@@ -235,7 +235,7 @@
 
   <div class="main-container">
     <!-- Center Card -->
-    <div class="center-card" id="centerCard">
+    <div class="center-card">
       <div class="card-buttons">
         <button id="themeToggleBtn" class="toggle-theme-btn">Toggle Theme</button>
         <a href="systemgen.html" class="card-btn">Astral Axial</a>
@@ -306,20 +306,21 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <!-- Use the UMD RiTa build from unpkg to avoid MIME issues -->
-  <script src="https://unpkg.com/rita@1.3.1/build/rita.min.js"></script>
+  <!-- SCRIPTS -->
+  <!-- 1) UMD RiTa build from CDNJS – correct MIME, global `RiTa` -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rita/2.4.200/rita.min.js"></script>
+  <!-- 2) Your Markov generator logic -->
   <script src="markovscript.js"></script>
+  <!-- 3) Inline helpers: theme toggle, tiles, modal -->
   <script>
     // Theme toggle
     document.getElementById('themeToggleBtn')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
 
-    // Tile‑spawning logic (unchanged)
+    // Tile‑spawning logic
     const tilePaths = Array.from({ length: 34 }, (_, i) => `image/${i+4}.jpg`);
     const tilesContainer = document.querySelector('.tiles-container');
-    const tileData = [];
-    let tileLoaded = 0;
+    const tileData = []; let tileLoaded = 0;
     tilePaths.forEach(src => {
       const img = new Image(); img.src = src;
       img.onload = () => { tileData.push({ src, aspect: img.width/img.height||1 }); checkTiles(); };
@@ -328,18 +329,19 @@
     function checkTiles(){
       if (++tileLoaded === tilePaths.length) {
         spawnTile();
-        setInterval(() => { if (tilesContainer.children.length < 5) spawnTile(); }, 2000);
+        setInterval(()=> tilesContainer.children.length < 5 && spawnTile(), 2000);
       }
     }
     function spawnTile(){
       if (!tileData.length) return;
       const { src, aspect } = tileData[Math.random()*tileData.length|0];
-      const el = document.createElement('div');
-      const w = 150 + Math.random()*250, h = w/aspect;
+      const el = document.createElement('div'),
+            w = 150 + Math.random()*250,
+            h = w / aspect;
       el.className = 'moving-tile';
       el.style.width = w+'px';
       el.style.height = h+'px';
-      el.style.top = Math.random()*(window.innerHeight - h)+'px';
+      el.style.top = Math.random() * (window.innerHeight - h) + 'px';
       el.style.backgroundImage = `url('${src}')`;
       el.onanimationend = () => el.remove();
       tilesContainer.appendChild(el);
@@ -347,9 +349,9 @@
 
     // Misc modal handlers
     const miscModal = document.getElementById('miscModal');
-    document.getElementById('miscBtn').onclick    = () => miscModal.classList.remove('hidden');
+    document.getElementById('miscBtn').onclick = () => miscModal.classList.remove('hidden');
     document.getElementById('closeModal').onclick = () => miscModal.classList.add('hidden');
-    miscModal.onclick = e => { if (e.target === miscModal) miscModal.classList.add('hidden'); };
+    miscModal.onclick = e => e.target===miscModal && miscModal.classList.add('hidden');
   </script>
 </body>
 </html>
