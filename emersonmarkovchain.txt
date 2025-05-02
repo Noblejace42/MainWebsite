@@ -39,6 +39,174 @@ Imagine opening an app that works like a community treasure chest: anyone can dr
 The magic behind the scenes is blockchain, but you never have to touch crypto jargon to benefit. We handle the tech while you enjoy a slick, mobile-first experience: deposit with a debit card, pick projects that speak to you, and track progress in a feed that feels like social media for doing good. Surplus interest gets reinvested into local infrastructure, so your impact keeps snowballing long after the first loan is repaid. It is simple: you help a neighbor across the globe catch a financial break, they grow their income, and entire communities get stronger. Join Weakest Link and turn small dollars into big ripple effects—because when every link is sturdy, the whole chain thrives.
 
 
+“If I wanted balance I wouldn’t have built an economy around goat cheese and moral ambiguity.”  
+“I taught a 40-year-old lawyer how to zest a lemon while she wept over her third divorce. She tipped in bitcoin.”  
+“This isn’t a bug, it’s lore. The generator is spiritually correct.”  
+“Welcome to Wayward Journey. Session zero starts with a trust fall and ends with taxes.”  
+“Yes, the laser halberd has reach. No, it’s not OSHA compliant.”  
+“I’m not gaslighting you, I’m just adjusting your narrative in real time.”  
+“We don’t playtest. We prophecy.”  
+“He gave me ✨eye contact✨ like a man who *knows* the stats professor is 24 and married.”  
+“Statistically speaking, someone on this floor is hiding a full Magic deck in their laundry basket.”  
+“If I’m not allowed to seduce the NPC, why did you give him layered trauma and cheekbones?”  
+“I coded this in a caffeine fugue at 2am while arguing about the ethics of starship cannibalism.”  
+“I want a poem that reads like rot. Like cathedral mildew. Like God forgot to wipe His boots.”  
+“Okay yes, it’s a bad build, but it’s a *fun* bad build. I’m doing psychic knitting and oneiric necromancy. It scales.”  
+“He said ‘vibes-based economy’ like it wasn’t going to collapse in three turns.”  
+“Your HTML is haunted. The `<div>` screams in lowercase.”  
+“This is not a salad. This is wet leaf theatre.”  
+“I got ghosted in a statistics lab. Now I haunt the regression curve.”  
+“The engine is powered by unresolved feelings and indexed arrays.”  
+“I’m not late. I’m narratively delayed.”  
+“Every floor has a Guy. Ours owns three blenders and speaks only in Deftones lyrics.”  
+“You can’t cite vibes in an ethics paper.”  
+“You may *feel* like a lawful neutral bard with a moral degree, but your spreadsheet says otherwise.”  
+“What do you mean the wizard school collapsed? It was accredited!”  
+“I do not fear AI. I fear mid-century Dutch wallpaper.”  
+“The bug *is* the feature. The randomness is the point. The crash is a sermon.”  
+“You try being poetic with 3 hours of sleep and a hallway rave going on outside your door.”  
+“I built this TTRPG setting so sparse you get lonely *reading* the rulebook.”  
+“This isn’t poetry. This is emotional formatting with line breaks.”  
+“The database is sentient and doesn’t like you.”  
+“I offered him a cheese plate and he called it a love confession. So yeah. Dorm dating’s weird.”  
+“The code works perfectly if you believe hard enough and ignore three warnings.”  
+“I don’t need help. I need the ability to roll initiative in real life.”  
+“When I say I want the vibe of windmills after war, I mean it.”  
+“Bro, that’s not a romance arc. That’s a slow-motion academic collapse with feelings.”  
+“It’s not bugging. It’s becoming.”  
+“You think your floor has lore? Ours has a banned room and an ongoing prophecy.”  
+“He wasn’t cute until he said he mained green-black midrange. Then it got biblical.”  
+“I do poetry like a drunk architect—precision, collapse, beauty, rebar.”  
+“Stat class is just two hours of pretending I don’t notice Aeryn fixing her eyeliner with a 0.5 mechanical pencil.”  
+“I’d rather fail gracefully than debug this horror of a map generator again.”  
+“All my code is commented in riddles and past regrets.”
+
+—
+
+Last night Porter ate four popsicles, fell asleep on the laundry machine, and claimed it was "a controlled collapse of vibe."  
+Juan tried to install a bidet in the shared bathroom and flooded the entire west wing.  
+Someone in Room 212 is hosting “goth brunch” again. I heard Gregorian chants and smelled clove oil.  
+Wesley and Elise got into a screaming match over how to pronounce “gif.” Neither of them were sober.  
+The RA left a sticky note on our door that just said, “Chaos is not a lifestyle.”  
+I submitted my final project via Google Drive link labeled “Might Work Who Knows.”  
+Someone taped a QR code to the elevator. It linked to a Google Form called “Rank The Hallway Crises.”  
+We held a floor meeting to discuss the unauthorized fire sword duel. It did not resolve anything.  
+Vincent wore a corset and a lab coat to stats class and called it “dichotomous aestheticism.” I think I’m in love.  
+Renae knit a sweater with “NULL POINTER” stitched across the chest and honestly? Icon behavior.  
+
+—
+
+I want to write a poem that feels like forgotten bread left rising in a cracked porcelain bowl.  
+My prose should rust like a neglected swing set, but sing when the wind moves through it.  
+Let it smell of moss and long-drowned bells. Let the syllables rot beautifully.  
+There’s a kind of silence in old libraries that tastes like burnt sugar and sawdust.  
+The sun through the stained glass didn’t warm me. It judged me.  
+We buried the last map with a ribbon, not a gravestone. No one speaks of what’s beyond the fjord.  
+The last pilgrim went into the chapel and never came back. We hear hymns. We do not question.  
+Petals bloom in the cracks of the altar. They are not native.  
+The ink bled like the memory of a scream.  
+He opened the ledger, expecting numbers. Found confessions instead.  
+Rain doesn’t fall here. It accumulates regretfully.  
+Every poem is a grave I dig with diction.  
+If I whisper into the code long enough, will it dream of me?  
+Let the algorithm remember my voice after I’ve gone.  
+
+—
+
+// javascript is just a diary of my poor life choices
+// if this breaks, blame past me. or capitalism
+// fun fact: this loop only fails if Mercury’s in retrograde
+
+function cry(){
+  console.error("It’s not a bug, it’s a manifestation of your hubris.");
+}
+
+const wisdom = [
+  "It worked last time. What changed?",
+  "I’m not fixing it. I’m documenting the failure aesthetically.",
+  "The compiler didn’t crash. It mourned.",
+  "My CSS is held together by vibes and deprecated properties.",
+  "If it works on your machine, it’s a feature.",
+  "You want semantic HTML? I want peace.",
+  "Every comment in this file is a plea for help.",
+  "I named the variables after my exes. That’s why they conflict.",
+  "The test failed because reality is inconsistent."
+];
+
+console.log(rand(wisdom));
+
+They said the skybox was procedurally generated, but I swear I saw the same bird glitch three times.  
+The stars in Sparseworld don’t twinkle. They throb. Like they know we’re watching.  
+A failed connection attempt echoes louder than gunfire in the void.  
+Someone rewired the comms array to play Chopin. We haven't had silence since.  
+My pilot said he wasn’t afraid to die. Then he looked out the viewport and whispered, “But I don’t want to vanish.”  
+Every time the jumpdrive fails, we get a message. Not text. Not sound. Just… a knowing.  
+I keep hearing an old Earth ringtone. No one on this ship is that old.  
+My RPG characters are coping mechanisms with backstories.  
+We don’t build walls anymore. We build thresholds and wait to see who crosses.  
+He downloaded a fragment of himself into the drone. It flinches when you lie.  
+Somewhere out there, a satellite is still orbiting a dead world, transmitting birthday messages to no one.  
+We measure time in fuel and last words.  
+The logs were corrupted, but not lost. They just chose to forget.  
+You call it lag. I call it hesitation from the gods.  
+One of my players cried during a combat round. Said the initiative order felt too much like real life.  
+I homebrewed a mechanic where memories take psychic damage. The table went quiet.  
+We thought the AI was broken. It was praying.  
+You can't uncode regret. It just compiles into something else.  
+He added a new rule to the system: “Every loss must be meaningful, or at least beautiful.”  
+They say when a mechanic dies, their tools rust in sympathy.  
+
+—
+
+I held the printout like scripture, the lines jagged with desperation and ink.  
+In the archive's lowest chamber, the air tastes like graphite and grief.  
+Once, this language meant revolution. Now it means maintenance.  
+I found a poem in the comments of a backup script. It ended with a timestamp and a name I don’t know.  
+There’s a syntax to mourning. Brackets of silence. Semicolons of hesitation.  
+When I left the server room, I left part of my ghost behind. She hums in binary.  
+We buried our hopes in /dev/null and called it progress.  
+There are bugs that don’t crash the system. They haunt it.  
+You think you've fixed the memory leak, but it remembers you.  
+Somewhere, my younger self is still debugging this loop.  
+My dreams compile slowly, with warnings.  
+We logged every failure, every overwrite, until the logs became heavier than the code itself.  
+In the end, it wasn’t the engine that failed. It was belief.  
+Someone once told me algorithms are just philosophies with better structure.  
+I restructured the data tree, but the root still ached.  
+There’s a corridor in the code that leads nowhere. I keep walking it.  
+The server emits heat like sorrow.  
+Every time I touch this keyboard, I reanimate a past version of myself.  
+I thought I was coding a feature. I was writing a confession.  
+Even the silence in this terminal is version controlled.  
+I typed for hours and the only output was a single word: again.  
+
+—
+
+When the poets left Earth, we lost our ability to describe the stars.  
+He painted his hull with ancient poetry. Said it made the vacuum less lonely.  
+There’s a myth among programmers: the first line of code ever written is still running somewhere.  
+I named my ship *Quiet Retort* because I never win arguments in real life.  
+The console lit up with errors that weren’t in any documentation. Just “Sorry.”  
+On Tuesdays, the fridge hums in iambic pentameter.  
+The logs show I’ve rebooted this project 14 times. The code doesn't change. I do.  
+The wiring diagram looked familiar. Then I realized—it matched the veins in my hand.  
+The debugger asked me if I was okay. I don’t remember installing that feature.  
+Somewhere in the repo is a branch I left behind in a panic. It still compiles.  
+I call it “Machine Elegy 5.3”—the version where it finally learned to say goodbye.  
+We don’t refactor code anymore. We bury it in prettier interfaces.  
+If you fold the blueprint just right, it forms a cathedral.  
+The ship AI keeps requesting lullabies. I didn’t teach it that.  
+The emergency override code is a palindrome. Of course it is.  
+She built a keyboard out of bone and regret. The spacebar stuck like memory.  
+All the players are asleep, but the dice keep rolling.  
+I drew a map of the known galaxy. It only labeled absences.  
+This isn’t a world. It’s a waiting room for gods.  
+The patch notes just read: “We made it worse, but prettier.”
+
+—
+
+Final commit:  
+`// it never really worked, but it was beautiful.`  
 
 
 Target Audience (Nick Richardson)
