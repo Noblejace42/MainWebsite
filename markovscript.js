@@ -1,121 +1,163 @@
-/* markovscript.js — v5 “Template + POS‑Swap Wisdom” */
+/* markovscript.js — v4 “deep tricks + POS swapping” */
 
 (async () => {
-  /* —————————————————— DOM —————————————————— */
-  const quoteEl = document.getElementById('markovQuote');
-  const btn     = document.getElementById('regenerateBtn');
+  /* —————————————————— CONFIG —————————————————— */
+  const TEXT_URL        = 'emersonmarkovchain.txt';  // your corpus
+  const ORDERS          = [3, 2, 1];                  // fallback n‑gram depths
+  const MAX_SENTENCES   = 4;                          // lines per quote
+  const MAX_WORDS_SENT  = 40;                         // words per line
+  const REPETITION_GAP  = 5;                          // no echo within N
+
+  /* —————————————————— DOM HOOKUP —————————————————— */
+  const quoteEl   = document.getElementById('markovQuote');
+  const btn       = document.getElementById('regenerateBtn');
+  const seedInput = document.getElementById('seedText');    // optional
+  const themeSel  = document.getElementById('themeSelect'); // optional
 
   /* —————————————————— HELPERS —————————————————— */
   const rand = arr => arr[Math.floor(Math.random() * arr.length)];
-  const cap1 = str => str.charAt(0).toUpperCase() + str.slice(1);
-  const tidy = str => str
+  const cap1 = s   => s.charAt(0).toUpperCase() + s.slice(1);
+  const tidy = s   => s
     .replace(/\s+([,;:.!?])/g,'$1')
     .replace(/\s+/g,' ')
     .trim();
 
-  /* —————————————————— LOAD & BUILD POS BUCKETS —————————————————— */
-  const text = await fetch('emersonmarkovchain.txt').then(r => r.text());
-  const sents = RiTa.sentences(text);
-  const buckets = { Noun: new Set(), Verb: new Set(), Adjective: new Set(), Adverb: new Set() };
+  /* —————————————————— LOAD & TOKENIZE —————————————————— */
+  const corpus    = await fetch(TEXT_URL).then(r => r.text());
+  const sentences = RiTa.sentences(corpus);   // UMD RiTa API
 
-  sents.forEach(s => {
-    s.split(/\s+/).forEach(tok => {
-      const w = tok.replace(/[^\w']/g, '');
-      if (!w) return;
-      const info = nlp(w).terms().json()[0];
-      if (!info?.tags) return;
+  /* —————————————————— BUILD N‑GRAM CHAINS —————————————————— */
+  const chains = {};
+  ORDERS.forEach(o => chains[o] = new Map());
+  sentences.forEach(sent => {
+    const words = sent.split(/\s+/);
+    ORDERS.forEach(order => {
+      for (let i = 0; i <= words.length - order; i++) {
+        const key  = words.slice(i, i + order).join(' ').toLowerCase();
+        const next = words[i + order] || null;
+        const bucket = chains[order].get(key) || [];
+        bucket.push(next);
+        chains[order].set(key, bucket);
+      }
+    });
+  });
+
+  /* —————————————————— BUILD POS BUCKETS —————————————————— */
+  const posBuckets = {
+    Noun: new Set(),
+    Verb: new Set(),
+    Adjective: new Set(),
+    Adverb: new Set()
+  };
+  sentences.forEach(sent => {
+    sent.split(/\s+/).forEach(token => {
+      const clean = token.replace(/[^\w']/g, '');
+      if (!clean) return;
+      const info = nlp(clean).terms().json()[0];
+      if (!info || !info.tags) return;
       info.tags.forEach(tag => {
-        if (buckets[tag]) buckets[tag].add(w.toLowerCase());
+        if (posBuckets[tag]) posBuckets[tag].add(clean.toLowerCase());
       });
     });
   });
-  // turn sets into arrays
-  Object.keys(buckets).forEach(k => buckets[k] = [...buckets[k]]);
+  // finalize arrays
+  Object.keys(posBuckets).forEach(tag => {
+    posBuckets[tag] = Array.from(posBuckets[tag]);
+  });
 
-  /* —————————————————— TEMPLATES —————————————————— */
-  const templates = [
-    '{Noun} of the {Adjective} {Noun}',
-    'Never {Verb} without {Verbing} the {Noun}',
-    'Trust the {Adjective} {Noun}',
-    'Silence is the loudest {Noun}',
-    'Embrace {Adjective} {Noun}',
-    '{Noun} feeds on {Noun}',
-    'Your {Noun} is your {Noun}',
-    'Don’t {Verb} the {Noun} too soon',
-    'Every {Noun} hides a {Adjective} {Noun}',
-    'Beware the {Adjective} {Noun}'
-  ];
+  /* —————————————————— POS‑SWAP FUNCTION —————————————————— */
+  function posSwap(text) {
+    return text.replace(/\b\w+\b/g, word => {
+      const lower = word.toLowerCase();
+      const info  = nlp(lower).terms().json()[0];
+      if (!info || !info.tags) return word;
 
-  /* —————————————————— GERUND HELPER —————————————————— */
-  function toGerund(v) {
-    if (v.endsWith('ie')) return v.slice(0, -2) + 'ying';
-    if (v.endsWith('e'))  return v.slice(0, -1) + 'ing';
-    return v + 'ing';
-  }
-
-  /* —————————————————— FILL A TEMPLATE —————————————————— */
-  function fillTemplate(tpl) {
-    return tpl.replace(/\{(\w+)\}/g, (_, tag) => {
-      if (tag === 'Noun' && buckets.Noun.length) {
-        return rand(buckets.Noun);
+      if (info.tags.includes('Noun') && Math.random() < 0.5 && posBuckets.Noun.length) {
+        return rand(posBuckets.Noun);
       }
-      if (tag === 'Verb' && buckets.Verb.length) {
-        return rand(buckets.Verb);
+      if (info.tags.includes('Verb') && Math.random() < 0.5 && posBuckets.Verb.length) {
+        return rand(posBuckets.Verb);
       }
-      if (tag === 'Adjective' && buckets.Adjective.length) {
-        return rand(buckets.Adjective);
+      if (info.tags.includes('Adjective') && Math.random() < 0.5 && posBuckets.Adjective.length) {
+        return rand(posBuckets.Adjective);
       }
-      if (tag === 'Adverb' && buckets.Adverb.length) {
-        return rand(buckets.Adverb);
-      }
-      if (tag === 'Verbing' && buckets.Verb.length) {
-        return toGerund(rand(buckets.Verb));
-      }
-      return tag;
-    });
-  }
-
-  /* —————————————————— POS‑SWAP PASS —————————————————— */
-  function posSwap(str) {
-    return str.replace(/\b\w+\b/g, word => {
-      const w = word.toLowerCase();
-      const info = nlp(w).terms().json()[0];
-      if (!info?.tags) return word;
-
-      if (info.tags.includes('Noun') && Math.random() < 0.5 && buckets.Noun.length) {
-        return rand(buckets.Noun);
-      }
-      if (info.tags.includes('Verb') && Math.random() < 0.5 && buckets.Verb.length) {
-        return rand(buckets.Verb);
-      }
-      if (info.tags.includes('Adjective') && Math.random() < 0.5 && buckets.Adjective.length) {
-        return rand(buckets.Adjective);
-      }
-      if (info.tags.includes('Adverb') && Math.random() < 0.5 && buckets.Adverb.length) {
-        return rand(buckets.Adverb);
+      if (info.tags.includes('Adverb') && Math.random() < 0.5 && posBuckets.Adverb.length) {
+        return rand(posBuckets.Adverb);
       }
       return word;
     });
   }
 
-  /* —————————————————— GENERATE A WISDOM NUGGET —————————————————— */
-  function generateWisdom() {
-    // Choose a random template
-    let line = fillTemplate(rand(templates));
-    // Clean up whitespace/punctuation
-    line = tidy(line);
-    // Swap ~50% of tagged words
-    line = posSwap(line);
-    // Capitalize & ensure end punctuation
-    line = cap1(line);
-    if (!/[.!?]$/.test(line)) line += '.';
-    return line;
+  /* —————————————————— MARKOV GENERATION —————————————————— */
+  function nextToken(context) {
+    for (const order of ORDERS) {
+      const key = context.slice(-order).join(' ').toLowerCase();
+      const opts = chains[order].get(key);
+      if (opts && opts.length) return rand(opts);
+    }
+    return null;
   }
 
-  /* —————————————————— HOOK UP BUTTON & INIT —————————————————— */
+  function pruneRepetition(arr) {
+    const seen = new Set();
+    return arr.filter(w => {
+      const lw = w.toLowerCase();
+      if (seen.has(lw)) return false;
+      seen.add(lw);
+      if (seen.size > REPETITION_GAP) {
+        const it = seen.values();
+        seen.delete(it.next().value);
+      }
+      return true;
+    });
+  }
+
+  function applyTheme(text, theme) {
+    if (theme === 'question') return text.replace(/\.$/, '?');
+    if (theme === 'exclaim')  return text.replace(/\.$/, '!');
+    return text;
+  }
+
+  function generateSentence(seedWords = []) {
+    if (!seedWords.length) {
+      do {
+        seedWords = rand(sentences).split(/\s+/).slice(0, ORDERS[0]);
+      } while (seedWords.length < ORDERS[0] || !/^[A-Za-z]/.test(seedWords[0]));
+    }
+
+    const words = [...seedWords];
+    while (words.length < MAX_WORDS_SENT) {
+      const nxt = nextToken(words);
+      if (!nxt) break;
+      words.push(nxt);
+      if (/[.!?]$/.test(nxt) && words.length > ORDERS[0] + 3) break;
+    }
+
+    const line = tidy(pruneRepetition(words).join(' '));
+    return cap1(/[.!?]$/.test(line) ? line : line + '.');
+  }
+
+  function generateParagraph() {
+    const rawSeed = seedInput?.value.trim() || '';
+    const seedArr = rawSeed.split(/\s+/).slice(0, ORDERS[0]);
+    const theme   = themeSel?.value || 'default';
+    const lines   = 1 + Math.floor(Math.random() * MAX_SENTENCES);
+
+    const out = [];
+    for (let i = 0; i < lines; i++) {
+      out.push(generateSentence(i === 0 ? seedArr : []));
+    }
+    return applyTheme(out.join(' '), theme);
+  }
+
+  /* —————————————————— RENDER & SWAP —————————————————— */
+  function refresh() {
+    let quote = generateParagraph();
+    quote     = posSwap(quote);
+    quoteEl.textContent = quote;
+  }
+
   btn.removeAttribute('disabled');
-  btn.addEventListener('click', () => {
-    quoteEl.textContent = generateWisdom();
-  });
-  quoteEl.textContent = generateWisdom();
+  btn.addEventListener('click', refresh);
+  refresh(); // initial fill
 })();
