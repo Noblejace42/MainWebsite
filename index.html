@@ -11,351 +11,209 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500&display=swap" rel="stylesheet"/>
 
   <style>
-    /* === Root & Resets === */
-    :root {
-      --bg-dark: #0a0a0a;
-      --bg-light: #f8f8f8;
-      --text-light: #00ffcc;
-      --text-dark: #333;
-      --accent: #00ffcc;
-      --accent-hover: #00cc99;
-      --accent-alt: #ff00ff;
-      --card-bg: rgba(0, 0, 0, 0.85);
-      --card-bg-light: rgba(255,255,255,0.9);
+    /* ---------- Root & reset ---------- */
+    :root{
+      --bg-dark:#0a0a0a;
+      --bg-light:#f8f8f8;
+      --text-light:#00ffcc;
+      --text-dark:#222;
+      --accent:#00ffcc;
+      --accent-hover:#00cc99;
+      --accent-alt:#ff00ff;
+      --card-bg:rgba(0,0,0,.85);
+      --card-bg-light:rgba(255,255,255,.92);
     }
-    html, body {
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      font-family: 'Press Start 2P', monospace;
-      background: linear-gradient(135deg, var(--bg-dark), #1a1a1a);
-      color: var(--text-light);
-      overflow: hidden;
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      width:100%;height:100%;
+      font-family:'Press Start 2P',monospace;
+      background:linear-gradient(135deg,var(--bg-dark),#1a1a1a);
+      color:var(--text-light);
+      overflow:hidden;
     }
-    body.light-mode {
-      background: var(--bg-light);
-      color: var(--text-dark);
+    body.light-mode{
+      background:var(--bg-light);
+      color:var(--text-dark);
     }
-    a {
-      color: var(--accent);
-      text-decoration: none;
-      transition: color .2s;
+    a{color:var(--accent);text-decoration:none;transition:color .2s}
+    a:hover{color:var(--accent-hover);text-decoration:underline}
+
+    /* ---------- layout ---------- */
+    .main-container{
+      display:flex;justify-content:center;align-items:flex-start;
+      gap:20px;padding:20px;height:100%;position:relative;z-index:2;
     }
-    a:hover {
-      color: var(--accent-hover);
-      text-decoration: underline;
+    .center-card,.markov-card{
+      border:4px solid var(--accent);
+      background:var(--card-bg);
+      box-shadow:0 10px 25px rgba(0,255,204,.3);
+      overflow:hidden;z-index:3;
+    }
+    body.light-mode .center-card,
+    body.light-mode .markov-card{
+      background:var(--card-bg-light);border-color:var(--accent-hover);
     }
 
-    /* === Layout === */
-    .main-container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 20px;
-      position: relative;
-      z-index: 2;
-      height: 100%;
+    /* center card */
+    .center-card{max-width:90%;width:700px;padding:20px 30px 30px;text-align:center}
+    .card-buttons{display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:15px;gap:8px}
+    .card-btn,.toggle-theme-btn{
+      background:var(--accent);color:#000;border:2px solid var(--accent);
+      padding:10px 22px;font-family:'Roboto',sans-serif;font-size:.75em;
+      cursor:pointer;transition:background .2s;text-transform:uppercase;font-weight:bold;
+    }
+    .card-btn:hover,.toggle-theme-btn:hover{background:var(--accent-hover)}
+    body.light-mode .card-btn,body.light-mode .toggle-theme-btn{
+      background:var(--accent-hover);border-color:var(--accent-hover);color:#fff;
+    }
+    /* profile img */
+    .card-image{margin:0 auto 15px;width:200px;height:200px;border:2px solid var(--accent);overflow:hidden}
+    .card-image img{width:100%;height:100%;object-fit:cover}
+    /* contact */
+    .contact-card h1{margin:8px 0;font-size:1.5em;color:var(--accent)}
+    .contact-card h3{margin:4px 0 15px;font-size:.9em;color:var(--accent-hover)}
+    .contact-card p{margin:4px 0;font-size:.78em;font-family:'Roboto',sans-serif}
+    .contact-card .links a{color:var(--accent-alt);margin:0 6px}
+    .bio{margin-top:10px;font-size:.75em;line-height:1.5;font-family:'Roboto',sans-serif;color:var(--text-light)}
+
+    /* spotify */
+    .spotify-container{margin-top:20px;border:2px solid var(--accent);
+      box-shadow:0 2px 8px rgba(0,255,204,.3);background:rgba(0,0,0,.8);padding:10px}
+    .spotify-title{margin:0 0 8px;font-size:1em;color:var(--accent);font-family:'Roboto',sans-serif}
+
+    /* markov card */
+    .markov-card{width:300px;padding:20px 15px}
+    .markov-card h3{margin-bottom:10px;font-size:1em;color:var(--accent)}
+    #markovQuote{min-height:80px;margin-bottom:15px;font-family:'Roboto',sans-serif;
+      font-size:.9em;line-height:1.4}
+
+    /* tiles */
+    .tiles-container{position:fixed;inset:0;pointer-events:none;z-index:1}
+    .moving-tile{position:absolute;background-size:cover;background-position:center;
+      border:2px solid var(--accent);animation:drift 25s linear forwards;
+      box-shadow:0 4px 10px rgba(0,255,204,.3);mix-blend-mode:screen}
+    @keyframes drift{
+      0%{transform:translateX(-150vw) scale(1);opacity:0}
+      10%{opacity:.8}
+      50%{transform:translateX(50vw) scale(1.05)}
+      90%{opacity:.3}
+      100%{transform:translateX(150vw) scale(1);opacity:0}
     }
 
-    /* === Center Card === */
-    .center-card {
-      max-width: 90%;
-      width: 700px;
-      background: var(--card-bg);
-      border: 4px solid var(--accent);
-      box-shadow: 0 10px 25px rgba(0,255,204,0.3);
-      overflow: hidden;
-      text-align: center;
-      padding: 20px 30px 30px;
-      z-index: 3;
-    }
-    body.light-mode .center-card {
-      background: var(--card-bg-light);
-      border-color: var(--accent-hover);
-    }
-
-    /* === Markov Card === */
-    .markov-card {
-      width: 300px;
-      background: var(--card-bg);
-      border: 4px solid var(--accent);
-      box-shadow: 0 10px 25px rgba(0,255,204,0.3);
-      overflow: hidden;
-      padding: 20px 15px;
-      z-index: 3;
-    }
-    body.light-mode .markov-card {
-      background: var(--card-bg-light);
-      border-color: var(--accent-hover);
-    }
-    .markov-card h3 {
-      margin-bottom: 10px;
-      font-size: 1em;
-      color: var(--accent);
-    }
-    #markovQuote {
-      min-height: 80px;
-      font-family: 'Roboto', sans-serif;
-      font-size: 0.875em;
-      line-height: 1.4;
-      margin-bottom: 15px;
-      color: inherit;
-    }
-
-    /* === Buttons === */
-    .card-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 15px;
-    }
-    .card-btn, .toggle-theme-btn {
-      background: var(--accent);
-      color: #000;
-      padding: 10px 25px;
-      border: 2px solid var(--accent);
-      font-weight: bold;
-      cursor: pointer;
-      transition: background .2s;
-      font-family: 'Roboto', sans-serif;
-      font-size: 0.75em;
-      text-transform: uppercase;
-    }
-    .card-btn:hover, .toggle-theme-btn:hover {
-      background: var(--accent-hover);
-    }
-    body.light-mode .card-btn, body.light-mode .toggle-theme-btn {
-      background: var(--accent-hover);
-      color: #fff;
-      border-color: var(--accent-hover);
-    }
-
-    /* === Profile Image === */
-    .card-image {
-      margin: 0 auto 15px;
-      width: 200px; height: 200px;
-      overflow: hidden;
-      border: 2px solid var(--accent);
-    }
-    .card-image img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-    }
-
-    /* === Contact Info === */
-    .contact-card h1 {
-      margin: 8px 0;
-      font-size: 1.5em;
-      color: var(--accent);
-    }
-    .contact-card h3 {
-      margin: 4px 0 15px;
-      font-size: 0.875em;
-      color: var(--accent-hover);
-    }
-    .contact-card p {
-      margin: 4px 0;
-      font-size: 0.75em;
-      color: var(--text-light);
-      font-family: 'Roboto', sans-serif;
-    }
-    .contact-card a {
-      color: var(--accent);
-    }
-    .contact-card .links a {
-      color: var(--accent-alt);
-      margin: 0 6px;
-    }
-
-    /* === Spotify Embed === */
-    .spotify-container {
-      margin-top: 20px;
-      border: 2px solid var(--accent);
-      box-shadow: 0 2px 8px rgba(0,255,204,0.3);
-      background: rgba(0,0,0,0.8);
-      padding: 10px;
-    }
-    .spotify-title {
-      margin: 0 0 8px;
-      font-size: 1em;
-      color: var(--accent);
-      font-weight: bold;
-      font-family: 'Roboto', sans-serif;
-    }
-
-    /* === Floating Tiles === */
-    .tiles-container {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .moving-tile {
-      position: absolute;
-      background-size: cover;
-      background-position: center;
-      border: 2px solid var(--accent);
-      box-shadow: 0 4px 10px rgba(0,255,204,0.3);
-      animation: drift 25s linear forwards;
-      mix-blend-mode: screen;
-    }
-    @keyframes drift {
-      0%   { transform: translateX(-150vw) scale(1); opacity: 0; }
-      10%  { opacity: 0.8; }
-      50%  { transform: translateX(50vw) scale(1.05); }
-      90%  { opacity: 0.3; }
-      100% { transform: translateX(150vw) scale(1); opacity: 0; }
-    }
-
-    /* === Modal === */
-    .modal {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85);
-      display: flex; justify-content: center; align-items: center;
-      backdrop-filter: blur(5px);
-      z-index: 10;
-    }
-    .modal.hidden { display: none; }
-    .modal-content {
-      position: relative;
-      background: var(--card-bg);
-      padding: 30px;
-      width: 90%; max-width: 480px;
-      border: 2px solid var(--accent);
-      box-shadow: 0 0 30px rgba(0,255,204,0.6);
-      text-align: center;
-      font-family: 'Roboto', sans-serif;
-      color: var(--text-light);
-    }
-    body.light-mode .modal-content {
-      background: var(--card-bg-light);
-      border-color: var(--accent-hover);
-      color: var(--text-dark);
-    }
-    .close-btn {
-      position: absolute; top: 10px; right: 10px;
-      background: transparent; border: none;
-      font-size: 24px; color: var(--text-light);
-      cursor: pointer;
-    }
-    .close-btn:hover { color: var(--accent-hover); }
-    body.light-mode .close-btn { color: var(--text-dark); }
+    /* modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.85);
+      display:flex;justify-content:center;align-items:center;backdrop-filter:blur(5px);z-index:10}
+    .modal.hidden{display:none}
+    .modal-content{position:relative;padding:30px;width:90%;max-width:480px;
+      background:var(--card-bg);border:2px solid var(--accent);
+      box-shadow:0 0 30px rgba(0,255,204,.6);text-align:center;
+      font-family:'Roboto',sans-serif;color:var(--text-light)}
+    body.light-mode .modal-content{background:var(--card-bg-light);
+      border-color:var(--accent-hover);color:var(--text-dark)}
+    .close-btn{position:absolute;top:10px;right:10px;background:transparent;
+      border:none;font-size:24px;color:var(--text-light);cursor:pointer}
+    .close-btn:hover{color:var(--accent-hover)}
   </style>
 </head>
 <body>
 
   <div class="main-container">
-    <!-- === Center Card === -->
-    <div class="center-card" id="centerCard">
+    <!-- ===== Center card ===== -->
+    <div class="center-card">
       <div class="card-buttons">
-        <button class="toggle-theme-btn" id="themeToggleBtn">Toggle Theme</button>
-        <a href="systemgen.html" class="card-btn">Astral Axial</a>
-        <a href="https://emersonneher.substack.com" target="_blank" class="card-btn">Hopeless Poetic</a>
+        <button id="themeToggleBtn" class="toggle-theme-btn">Toggle Theme</button>
+        <a class="card-btn" href="systemgen.html">Astral Axial</a>
+        <a class="card-btn" href="https://emersonneher.substack.com" target="_blank">Hopeless Poetic</a>
         <button id="miscBtn" class="card-btn">Miscellaneous</button>
       </div>
 
-      <div class="card-image">
-        <img src="image/sittingimage.jpg" alt="Emerson Neher"/>
-      </div>
+      <div class="card-image"><img src="image/sittingimage.jpg" alt="Emerson Neher"></div>
 
       <div class="contact-card">
-        <h1>Emerson Neher</h1>
+        <h1>Emerson Neher</h1>
         <h3>they/them/theirs</h3>
         <p>Email: <a href="mailto:emersonneher@gmail.com">emersonneher@gmail.com</a></p>
-        <p>Worcester, MA &amp; Evergreen, CO</p>
-        <p>
-          Worcester Polytechnic Institute | Class of 2028<br/>
-          Financial Technology Major | Information Systems Major
-        </p>
+        <p>Worcester, MA & Evergreen, CO</p>
+        <p>Worcester Polytechnic Institute | Class of 2028<br>
+           Financial Technology Major | Information Systems Major</p>
         <p class="links">
           <a href="https://www.linkedin.com/in/emerson-neher-184274346" target="_blank">LinkedIn</a> |
           <a href="https://www.instagram.com/emerson.neher/" target="_blank">Instagram</a> |
           <a href="https://discord.com/users/noblejace" target="_blank">Discord</a>
         </p>
+        <p class="bio">
+          Passionate about technology, finance, and systems design. I’m a writer, game designer,
+          and storyteller who finds inspiration in the rhythm of poetry, the mechanics of RPGs,
+          and the art of photography. Whether crafting immersive worlds, capturing fleeting
+          moments, or experimenting with new game systems, I explore where creativity meets
+          lived experience.
+        </p>
       </div>
 
       <div class="spotify-container">
         <div class="spotify-title">Currently Listening</div>
-        <iframe 
-          src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator&theme=1"
-          width="100%" height="180" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
-        </iframe>
+        <iframe src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator&amp;theme=1"
+                width="100%" height="180" frameborder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"></iframe>
       </div>
     </div>
 
-    <!-- === Markov Generator === -->
+    <!-- ===== Markov card ===== -->
     <div class="markov-card">
-      <h3>Emerson Words of Wisdom</h3>
+      <h3>Emerson Words of Wisdom</h3>
       <div id="markovQuote">Click “Regenerate” to get a quote.</div>
       <button id="regenerateBtn" class="card-btn">Regenerate</button>
     </div>
   </div>
 
-  <!-- === Floating Tiles === -->
+  <!-- floating tiles -->
   <div class="tiles-container"></div>
 
-  <!-- === Misc Modal === -->
+  <!-- modal -->
   <div id="miscModal" class="modal hidden">
     <div class="modal-content">
       <button id="closeModal" class="close-btn" aria-label="Close">&times;</button>
       <h2>Miscellaneous Projects</h2>
       <p>Explore extra snippets, downloads, and fun experiments.</p>
-      <ul style="list-style:none;padding:0;line-height:1.8;margin-top:1em;">
-        <li><a href="resume.pdf" download>Download my resume</a></li>
-        <li><a href="https://open.spotify.com/playlist/3vDF8HiTd7JqePb8OrA4vA?si=59d7ce28997841d1" target="_blank">Favorite Playlist</a></li>
-        <li><a href="https://hopelesspoetic.com/weakestlink.html" target="_blank">Weakest Link (MKT4030)</a></li>
+      <ul style="list-style:none;line-height:1.8;padding:0;margin-top:1em">
+        <li><a href="resume.pdf" download>Download my resume</a></li>
+        <li><a href="https://open.spotify.com/playlist/3vDF8HiTd7JqePb8OrA4vA?si=59d7ce28997841d1" target="_blank">Favorite Playlist</a></li>
+        <li><a href="https://hopelesspoetic.com/weakestlink.html" target="_blank">Weakest Link (MKT4030)</a></li>
       </ul>
     </div>
   </div>
 
-  <!-- === JS: Markov + Theme + Tiles + Modal === -->
+  <!-- scripts -->
   <script src="markovscript.js"></script>
   <script>
-    // Theme toggle
+    /* === theme toggle === */
     document.getElementById('themeToggleBtn')
-      .addEventListener('click', () => document.body.classList.toggle('light-mode'));
+            .addEventListener('click',()=>document.body.classList.toggle('light-mode'));
 
-    // Tile data preload & spawn
-    const tilePaths = [];
-    for (let i = 4; i <= 37; i++) tilePaths.push(`image/${i}.jpg`);
-    const tileData = [], tilesContainer = document.querySelector('.tiles-container');
-    let loadedCount = 0;
-
-    tilePaths.forEach(src => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => { tileData.push({src, aspect: img.width/img.height||1}); next(); };
-      img.onerror = next;
+    /* === image‑tile generator === */
+    const tilePaths=[...Array(34).keys()].map(i=>`image/${i+4}.jpg`);
+    const tilesContainer=document.querySelector('.tiles-container'), data=[];
+    let loaded=0;
+    tilePaths.forEach(src=>{
+      const img=new Image();img.src=src;
+      img.onload=()=>{data.push({src,aspect:img.width/img.height||1});done()};
+      img.onerror=done;
     });
-    function next() {
-      loadedCount++;
-      if (loadedCount === tilePaths.length) {
-        spawnTile();
-        setInterval(() => { if (tilesContainer.children.length < 5) spawnTile(); }, 2000);
-      }
-    }
-    function spawnTile() {
-      if (!tileData.length) return;
-      const td = tileData[Math.floor(Math.random()*tileData.length)];
-      const el = document.createElement('div');
-      el.className = 'moving-tile';
-      el.style.backgroundImage = `url('${td.src}')`;
-      const w = 150 + Math.random()*250;
-      const h = w / td.aspect;
-      el.style.width = w + 'px';
-      el.style.height = h + 'px';
-      el.style.top = Math.random()*(window.innerHeight - h) + 'px';
-      el.addEventListener('animationend', () => el.remove());
-      tilesContainer.appendChild(el);
+    function done(){ if(++loaded===tilePaths.length){spawn();setInterval(()=>{if(tilesContainer.children.length<5)spawn()},2000);} }
+    function spawn(){
+      if(!data.length) return;
+      const d=data[Math.random()*data.length|0],el=document.createElement('div');
+      const w=150+Math.random()*250,h=w/d.aspect;
+      Object.assign(el.style,{width:`${w}px`,height:`${h}px`,top:`${Math.random()*(innerHeight-h)}px`,backgroundImage:`url('${d.src}')`});
+      el.className='moving-tile';el.onanimationend=()=>el.remove();tilesContainer.appendChild(el);
     }
 
-    // Misc modal
-    const miscBtn = document.getElementById('miscBtn'),
-          miscModal = document.getElementById('miscModal'),
-          closeBtn = document.getElementById('closeModal');
-    miscBtn.addEventListener('click', () => miscModal.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => miscModal.classList.add('hidden'));
-    miscModal.addEventListener('click', e => { if (e.target === miscModal) miscModal.classList.add('hidden'); });
+    /* === modal === */
+    const miscModal=document.getElementById('miscModal');
+    document.getElementById('miscBtn').onclick=()=>miscModal.classList.remove('hidden');
+    document.getElementById('closeModal').onclick=()=>miscModal.classList.add('hidden');
+    miscModal.onclick=e=>{if(e.target===miscModal)miscModal.classList.add('hidden');}
   </script>
 </body>
 </html>
