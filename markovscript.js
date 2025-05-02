@@ -9,7 +9,7 @@
 
   const BOX   = document.getElementById('markovQuote');
   const BTN   = document.getElementById('regenerateBtn');
-  const FILE  = 'Emerson Markov Chain.txt';  // corpus name
+  const FILE  = 'emersonmarkovchain.txt';  // corpus name
   const LEN   = {min: 5, max: 8};
   const RETRY = 15;                          // attempts to hit quality gate
   const chain = new Map();                   // order‑2 chain
