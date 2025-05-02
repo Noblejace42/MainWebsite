@@ -1,7 +1,7 @@
 /* markovscript.js — v4 “QuipForge” — 2025‑05‑02
    Guarantees 5–8‑word, punctuation‑clean quips, filters junk, and
    ensures only one script instance ever binds to #regenerateBtn.
-*/
+*/ 
 (() => {
   /* ===== singleton guard (prevents double‑bind) ===== */
   if (window.__quipForgeLoaded__) return;
@@ -84,7 +84,7 @@
         }
       }
     }
-    return 'Refactor life; compile happiness.'; // ultimate fallback
+    return 'Gaslight Gaslight Gaslight Gaslight Gatekeep'; // ultimate fallback
   }
 
   /* ========== 5.  Helpers ========== */
