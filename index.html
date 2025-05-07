@@ -306,49 +306,49 @@
     </div>
   </div>
 
-<script src="https://unpkg.com/js-markov/dist/markov.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/alex‑mas/mchains@master/mchains.js"></script>
+
 <script>
+// 1. fetch your cleaned corpus
 fetch('emersonmarkovchain_clean.txt')
   .then(r => r.text())
   .then(raw => {
-    // 1) strip any stray HTML
-    const noHtml = raw.replace(/<[^>]+>/g, '');
+    // carve into 2–6 word snippets
+    const bits = raw
+      .replace(/<[^>]+>/g, '')
+      .split(/\r?\n/)
+      .flatMap(l => l.split(/[\.\?!,;—]/g))
+      .map(s => s.trim())
+      .filter(s => {
+        const wc = s.split(/\s+/).length;
+        return wc >= 2 && wc <= 6;
+      });
 
-    // 2) break on newlines **and** on common clause delimiters
-    const bits = noHtml
-      .split(/\r?\n/)                                  // every line
-      .flatMap(line =>
-        line
-          .split(/[\.\?!,;—]/g)                       // split sentences & clauses
-          .map(s => s.trim())
-          .filter(Boolean)
-      );
+    // 2. build & train the chain
+    const chain = new mchains.Chain({ order: 2 });
+    chain.train(bits);
 
-    // 3) only keep the really snappy ones—e.g. 2–6 words
-    const segments = bits.filter(s => {
-      const wc = s.split(/\s+/).length;
-      return wc >= 2 && wc <= 6;
+    // 3. configure output length, capitalization, etc.
+    chain.configOutput({
+      minLength: 2,
+      maxLength: 5,
+      capitalizeFirst: true,
+      cropToLength: true
     });
 
-    console.log('Loaded', segments.length, 'segments'); // should be dozens+
-
-    // rest is the same Markov setup
-    const m = new Markov();
-    m.addStates(segments);
-    m.train(2);
-    m.generate = m.generateRandom;
-
-    const quoteEl = document.getElementById('markovQuote');
-    const btn     = document.getElementById('regenerateBtn');
+    // 4. wire up your UI
+    const out = document.getElementById('markovQuote');
+    const btn = document.getElementById('regenerateBtn');
     btn.disabled = false;
-    btn.onclick  = () => quoteEl.textContent = m.generate(5).trim();
-
-    // first shot
-    quoteEl.textContent = m.generate(5).trim();
+    btn.onclick = () => {
+      // generate() returns an array of strings
+      out.textContent = chain.generate()[0];
+    };
+    out.textContent = chain.generate()[0];
   })
   .catch(console.error);
-
 </script>
+
 
 
 
