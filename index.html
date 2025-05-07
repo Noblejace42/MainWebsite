@@ -322,7 +322,7 @@ fetch('emersonmarkovchain_clean.txt')
         const words = s.split(/\s+/).length;
         return words >= 3 && words <= 7;
       });
-
+console.log('Loaded', segments.length, 'segments');
     // order‑2 chain for jumpy transitions
     const m = new Markov();
     m.addStates(segments);
