@@ -311,41 +311,43 @@
 fetch('emersonmarkovchain_clean.txt')
   .then(r => r.text())
   .then(raw => {
-    // strip HTML tags
+    // 1) strip any stray HTML
     const noHtml = raw.replace(/<[^>]+>/g, '');
 
-    // pick only 3–7 word phrases
-    const segments = noHtml
-      .split(/[\.\?!]/g)
-      .map(s => s.trim())
-      .filter(s => {
-        const words = s.split(/\s+/).length;
-        return words >= 3 && words <= 7;
-      });
-console.log('Loaded', segments.length, 'segments');
-    // order‑2 chain for jumpy transitions
+    // 2) break on newlines **and** on common clause delimiters
+    const bits = noHtml
+      .split(/\r?\n/)                                  // every line
+      .flatMap(line =>
+        line
+          .split(/[\.\?!,;—]/g)                       // split sentences & clauses
+          .map(s => s.trim())
+          .filter(Boolean)
+      );
+
+    // 3) only keep the really snappy ones—e.g. 2–6 words
+    const segments = bits.filter(s => {
+      const wc = s.split(/\s+/).length;
+      return wc >= 2 && wc <= 6;
+    });
+
+    console.log('Loaded', segments.length, 'segments'); // should be dozens+
+
+    // rest is the same Markov setup
     const m = new Markov();
     m.addStates(segments);
     m.train(2);
-    // alias
     m.generate = m.generateRandom;
-
-    // cap at 5 words for snappiness
-    function newBlurb() {
-      return m.generate(5)
-              .replace(/\s+/g,' ')
-              .trim();
-    }
 
     const quoteEl = document.getElementById('markovQuote');
     const btn     = document.getElementById('regenerateBtn');
     btn.disabled = false;
-    btn.onclick  = () => quoteEl.textContent = newBlurb();
+    btn.onclick  = () => quoteEl.textContent = m.generate(5).trim();
 
-    // initial shot
-    quoteEl.textContent = newBlurb();
+    // first shot
+    quoteEl.textContent = m.generate(5).trim();
   })
   .catch(console.error);
+
 </script>
 
 
