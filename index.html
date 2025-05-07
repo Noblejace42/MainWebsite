@@ -309,27 +309,43 @@
   <!-- SCRIPTS -->
   <script src="https://unpkg.com/js-markov/dist/markov.js"></script>
 <script>
-fetch('emersonmarkovchain.txt')
+fetch('emersonmarkovchain_clean.txt')
   .then(r => r.text())
-  .then(corpus => {
-    const markov = new Markov();
-    markov.addStates(corpus.split(/\r?\n/).filter(Boolean));
-    markov.train(3);                   // order‑3, tweak if you like
+  .then(raw => {
+    // 1) split on punctuation, filter 3–7 word segments
+    const segments = raw
+      .split(/[\.\?!]/g)
+      .map(s => s.trim())
+      .filter(s => {
+        const cnt = s.split(/\s+/).length;
+        return cnt >= 3 && cnt <= 7;
+      });
 
-    // alias (optional)
-    markov.generate = markov.generateRandom;
+    // 2) train an order‑2 chain
+    const m = new Markov();
+    m.addStates(segments);
+    m.train(2);
 
+    // alias shorter call
+    m.generate = m.generateRandom;
+
+    // 3) cap the blurb at 5 words
+    function newBlurb() {
+      return m.generate(5)
+              .replace(/\s+/g,' ')
+              .trim();
+    }
+
+    // hook up UI
     const quoteEl = document.getElementById('markovQuote');
     const btn     = document.getElementById('regenerateBtn');
-
-    function newBlurb() { return markov.generate(25).trim(); }
-
-    quoteEl.textContent = newBlurb();
     btn.disabled = false;
     btn.onclick  = () => quoteEl.textContent = newBlurb();
+    quoteEl.textContent = newBlurb();
   })
-  .catch(err => console.error('Markov init failed:', err));
+  .catch(console.error);
 </script>
+
 
 
   <!-- 3) Inline helpers: theme toggle, tiles, modal -->
