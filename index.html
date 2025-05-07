@@ -306,45 +306,48 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
-  <script src="https://unpkg.com/js-markov/dist/markov.js"></script>
+<script src="https://unpkg.com/js-markov/dist/markov.js"></script>
 <script>
 fetch('emersonmarkovchain_clean.txt')
   .then(r => r.text())
   .then(raw => {
-    // 1) split on punctuation, filter 3–7 word segments
-    const segments = raw
+    // strip HTML tags
+    const noHtml = raw.replace(/<[^>]+>/g, '');
+
+    // pick only 3–7 word phrases
+    const segments = noHtml
       .split(/[\.\?!]/g)
       .map(s => s.trim())
       .filter(s => {
-        const cnt = s.split(/\s+/).length;
-        return cnt >= 3 && cnt <= 7;
+        const words = s.split(/\s+/).length;
+        return words >= 3 && words <= 7;
       });
 
-    // 2) train an order‑2 chain
+    // order‑2 chain for jumpy transitions
     const m = new Markov();
     m.addStates(segments);
     m.train(2);
-
-    // alias shorter call
+    // alias
     m.generate = m.generateRandom;
 
-    // 3) cap the blurb at 5 words
+    // cap at 5 words for snappiness
     function newBlurb() {
       return m.generate(5)
               .replace(/\s+/g,' ')
               .trim();
     }
 
-    // hook up UI
     const quoteEl = document.getElementById('markovQuote');
     const btn     = document.getElementById('regenerateBtn');
     btn.disabled = false;
     btn.onclick  = () => quoteEl.textContent = newBlurb();
+
+    // initial shot
     quoteEl.textContent = newBlurb();
   })
   .catch(console.error);
 </script>
+
 
 
 
