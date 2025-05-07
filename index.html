@@ -307,10 +307,43 @@
   </div>
 
   <!-- SCRIPTS -->
-  <!-- 1) UMD RiTa build from CDNJS – correct MIME, global `RiTa` -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rita/2.4.200/rita.min.js"></script>
-  <!-- 2) Your Markov generator logic -->
-  <script src="markovscript.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/TobiasNickel/js-markov/dist/markov.min.js"></script>
+
+<script>
+  // fetch the raw corpus (plain‑text file in your repo root)
+  fetch('emersonmarkovchain.txt')
+    .then(r => r.text())
+    .then(corpus => {
+      const lines = corpus
+        .split(/\r?\n/)
+        .filter(Boolean);          // drop blank lines
+
+      const markov = new Markov(); // default = text mode
+      markov.addStates(lines);     // feed the corpus
+      markov.train(3);             // 3‑gram order feels natural
+
+      // first blurb
+      function newBlurb(maxWords = 25) {
+        return markov.generate(maxWords)
+                     .replace(/\s+/g, ' ')
+                     .trim();
+      }
+
+      const quoteEl = document.getElementById('markovQuote');
+      quoteEl.textContent = newBlurb();
+
+      // hook up your “Bestow Wisdom” button
+      const btn = document.getElementById('regenerateBtn');
+      btn.disabled = false;
+      btn.onclick = () => (quoteEl.textContent = newBlurb());
+    })
+    .catch(err => {
+      console.error('Markov init failed:', err);
+      document.getElementById('markovQuote').textContent =
+        'Error loading wisdom';
+    });
+</script>
+
   <!-- 3) Inline helpers: theme toggle, tiles, modal -->
   <script>
     // Theme toggle
