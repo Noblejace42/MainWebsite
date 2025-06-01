@@ -1,33 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Astral Axial System Generator</title>
-    <!-- Link to the external stylesheet -->
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral Axial Enemy Generator</title>
+
+  <!-- site-wide stylesheet -->
+  <link rel="stylesheet" href="styles.css"/>
+
+  <!-- local tweaks -->
+  <style>
+    .enemy-output   {overflow-wrap:anywhere;max-width:100%;}
+    .enemy-line     {white-space:pre-wrap;word-break:break-word;margin:.4em 0;}
+    .talent         {font-style:italic;}
+    .weapon-block   {margin-left:1.25rem;}
+  </style>
+</head>
+<body>
 <div id="navContainer"></div>
 <script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
+fetch('nav.html')
+  .then(r=>r.text())
+  .then(t=>{document.getElementById('navContainer').innerHTML=t;})
+  .catch(e=>console.error('Nav load error:',e));
 </script>
 
+<div class="container">
+  <h1>Astral Axial Enemy Generator</h1>
 
-    <div class="container">
-      <h1>Astral Axial Enemy Generator</h1>
-      <button onclick="generateEnemy()">Generate Enemies</button>
-      <div id="systemOutput"></div>
-    </div>
-    <div class="art-credit">
-      <a href="https://www.instagram.com/vinny.longbow?igsh=c203czNuMW92MXA3" target="_blank">
-        Art Credit: Vincent Fleetwood
-      </a>
-    </div>
-    </body>
+  <div class="section">
+    <button id="genBtn">Generate Enemies</button>
+  </div>
+
+  <div class="section">
+    <h2>Enemies</h2>
+    <div id="enemyOutput" class="enemy-output"></div>
+  </div>
+</div>
+
+<script>
+/* ------------- helpers -------------------- */
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=(arr)=>arr[rand(0,arr.length-1)];
+function weightedRandom(arr){
+  const tot=arr.reduce((s,o)=>s+o.weight,0);
+  let r=Math.random()*tot;
+  for(const o of arr){
+    if(r<o.weight) return o.value!==undefined?o.value:o;
+    r-=o.weight;
+  }
+}
+
+/* ------------- WEAPON GENERATOR (lifted from weapon page, trimmed) ----- */
+function generateWeapon(){
+  // dice
+  const die=weightedRandom([
+    {value:4,weight:40},{value:6,weight:30},{value:8,weight:20},
+    {value:10,weight:8},{value:12,weight:2}
+  ]);
+  // super-compact weapon name generator
+  const wpType=pick(["Rifle","Handgun","Blade","Shotgun","Blaster","Pike","Tesla"]);
+  const prefix=pick(["Nova","Quantum","Eclipse","Ion","Zenith","Crimson","Obsidian","Aurora"]);
+  const suffix=pick(["X","Mk-II","Prime","Zero","EX","Sigma"]);
+  const name=`${prefix} ${wpType} ${suffix}`;
+  return {name, damage:`1d${die}`};
+}
+
+/* ------------- TALENT POOL -------------------------------------------- */
+let talentPool=[];      // filled once
+const extraEnemyTalents=[
+ "Intimidation","Brutal Strike","Suppressive Fire","Shield Tactics","Pack Hunter",
+ "Grapple","Ambush Position","Overwatch","Toughness","Cybernetics","Fear Aura",
+ "Pin Down","Flash Advance","Disarming Shot","Power Swing"
+];
+
+/* remove obviously non-combat words */
+const bannedWords=/cook|bake|chef|music|perform|paint|craft|fish|garden/i;
+
+function loadTalents(){
+  if(talentPool.length) return Promise.resolve();
+  return fetch('lifepath_data.json')
+    .then(r=>r.json())
+    .then(j=>{
+      const fileTalents = Object.values(j)
+        .flatMap(v=>Array.isArray(v)?v:[])
+        .filter(t=>typeof t==="string" && !bannedWords.test(t));
+      talentPool=[...new Set([...fileTalents,...extraEnemyTalents])];
+    });
+}
+
+/* ------------- NAME SCAFFOLD ------------------------------------------ */
+const personalNames=["Vorgath","Selene","Harkan","Ilyra","Kryos","Zerak","Nyss","Rhadon","Tyrak","Azura"];
+const epithets      =["the Devourer","the Unbound","Iron Warden","Soul Harvester","Void Singer","Storm Fury"];
+
+const prefixRole    =["Heavy","Armored","Rapid","Stealth","Hazard","Elite","Riot","Siege","Recon","Cyber"];
+const roleBase      =["Breacher","Infantry","Gunner","Marksman","Shock Trooper","Scout","Rifleman","Enforcer","Sentry","Grenadier"];
+const suffixRole    =["Unit","Operative","Drone","Cadre","Specialist","Element"];
+
+/* ------------- DIFFICULTY TABLE --------------------------------------- */
+const tiers=[
+  {label:"Boss",        n:1, hp:[20,100], skill:[3,4], defCap:4, wpn:[2,3], tal:[6,10]},
+  {label:"Hard",        n:2, hp:[15,60],  skill:[2,3], defCap:4, wpn:[1,2], tal:[5,8]},
+  {label:"Intermediate",n:2, hp:[10,40],  skill:[2,2], defCap:3, wpn:[1,2], tal:[3,6]},
+  {label:"Easy",        n:2, hp:[5,25],   skill:[1,1], defCap:2, wpn:[1,1], tal:[1,4]}
+];
+
+/* ------------- GENERATORS --------------------------------------------- */
+function rollHp([lo,hi]){
+  // exponential tail bias toward low
+  let v=Math.floor(Math.pow(Math.random(),2.3)*(hi-lo))+lo;
+  return Math.max(lo,v);
+}
+function buildDefense(cap){
+  const dice=[]; const dieW=[{value:"d6",weight:50},{value:"d4",weight:35},{value:"d8",weight:15}];
+  const count=rand(1,cap);
+  for(let i=0;i<count;i++) dice.push(weightedRandom(dieW));
+  return dice.sort((a,b)=>parseInt(b.slice(1))-parseInt(a.slice(1))); // d8,d6,d4
+}
+function pickTalents([min,max]){
+  const n=rand(min,max);
+  const picks=[];
+  const pool=[...talentPool];   // shallow copy
+  while(picks.length<n && pool.length){
+    const idx=rand(0,pool.length-1);
+    picks.push(pool.splice(idx,1)[0]);
+  }
+  return picks;
+}
+function talentBonus(){return `+1d${pick([4,6,8,10,12])}`;}
+
+function makeName(enemy,tier){
+  if(tier.label==="Boss"){
+    return `${pick(personalNames)} ${pick(epithets)}`;
+  }
+  // choose role hints
+  let prefix=pick(prefixRole), role=pick(roleBase), suffix="";
+  // weapon-aware tweak
+  const mainWpn=enemy.weapons[0].name;
+  if(/Rifle/i.test(mainWpn)) role="Rifleman";
+  if(/Blade|Pike/i.test(mainWpn)) role="Skirmisher";
+  if(/Shotgun/i.test(mainWpn)) role="Breacher";
+  // build pattern
+  const pat=rand(1,3);
+  switch(pat){
+    case 1: return `${prefix} ${role}`;
+    case 2: return `${role} ${pick(suffixRole)}`;
+    default:return `${prefix} ${role} ${pick(suffixRole)}`;
+  }
+}
+function makeDescription(e){
+  const tags=[];
+  if(e.hp>40) tags.push("stubbornly resilient");
+  if(e.defense.length>=4) tags.push("heavily armoured");
+  if(parseInt(e.skill)>2) tags.push("highly trained");
+  if(e.talents.some(t=>/Stealth|Ambush/i.test(t))) tags.push("prefers ambush tactics");
+  return tags.length?tags.join(", ")+".":"";
+}
+
+function createEnemy(tier){
+  const hp=rollHp(tier.hp);
+  const skillDice=rand(tier.skill[0],tier.skill[1]);
+  const enemy={
+    hp,
+    skill:`${skillDice}d6`,
+    weapons:Array.from({length:rand(tier.wpn[0],tier.wpn[1])},generateWeapon),
+    defense:buildDefense(tier.defCap),
+    talents:pickTalents(tier.tal),
+    talentBonus:talentBonus()
+  };
+  enemy.name=makeName(enemy,tier);
+  enemy.desc=makeDescription(enemy);
+  return enemy;
+}
+
+/* ------------- RENDER --------------------------------------------------- */
+function renderEnemy(e,tier){
+  const weapons=e.weapons.map(w=>`  – ${w.name} (${w.damage})`).join("\n");
+  return `<div class="enemy-line">
+<strong>[${tier.label}] ${e.name}</strong>
+  HP ${e.hp} | Skill ${e.skill} | Defense ${e.defense.join(",")}
+  | Talents (${e.talents.length}${e.talentBonus?` ${e.talentBonus}`:""}):
+     ${e.talents.map(t=>`<span class="talent">${t}</span>`).join(", ")}
+  ${e.desc?`| ${e.desc}`:""}
+  <div class="weapon-block">${weapons}</div>
+</div>`;
+}
+
+function generateEnemies(){
+  const out=document.getElementById('enemyOutput');
+  out.innerHTML="Generating…";
+  loadTalents().then(()=>{
+    const blocks=[];
+    tiers.forEach(t=>{
+      for(let i=0;i<t.n;i++){
+        const e=createEnemy(t);
+        blocks.push(renderEnemy(e,t));
+      }
+    });
+    out.innerHTML=blocks.join("\n");
+  });
+}
+
+/* ------------- INIT ----------------------------------------------------- */
+document.getElementById('genBtn').addEventListener('click',generateEnemies);
+</script>
+</body>
 </html>
