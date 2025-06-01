@@ -264,3 +264,5 @@ function toggleView(){
   document.querySelector(".toggle-btn").textContent=verbose?"Compact View":"Verbose View";
   generateWeapons();
 }
+
+export { generateWeapon };
