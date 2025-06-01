@@ -269,15 +269,16 @@ function generateEnemies(){
 
 /*────────────────  INIT  ────────────────────────────*/
 genBtn.addEventListener('click',generateEnemies);
-    document.addEventListener("DOMContentLoaded", function() {
-      fetch("weapongenerator.html")
-        .then(response => response.json())
-        .then(data => {
-          config = data;
-          showInitialPoolSelection();
-        });
-    });
+
   
+</script>
+  <script type="module">
+  import { generateWeapon } from './weapongen.js';
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const weapon = generateWeapon();
+    console.log(weapon);
+  });
 </script>
 </body>
 </html>
