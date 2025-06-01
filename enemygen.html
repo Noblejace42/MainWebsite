@@ -196,6 +196,15 @@ function generateEnemies(){
 
 /*────────────────  INIT  ────────────────────────────*/
 genBtn.addEventListener('click',generateEnemies);
+    document.addEventListener("DOMContentLoaded", function() {
+      fetch("weapongenerator.html")
+        .then(response => response.json())
+        .then(data => {
+          config = data;
+          showInitialPoolSelection();
+        });
+    });
+  
 </script>
 </body>
 </html>
