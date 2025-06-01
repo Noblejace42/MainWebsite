@@ -3,206 +3,199 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Astral Axial Enemy Generator</title>
+  <title>Astral Axial — Enemy Generator</title>
 
-  <!-- site-wide stylesheet -->
   <link rel="stylesheet" href="styles.css"/>
 
-  <!-- local tweaks -->
   <style>
-    .enemy-output   {overflow-wrap:anywhere;max-width:100%;}
-    .enemy-line     {white-space:pre-wrap;word-break:break-word;margin:.4em 0;}
-    .talent         {font-style:italic;}
-    .weapon-block   {margin-left:1.25rem;}
+    .enemy-wrap   {display:flex;flex-direction:column;gap:.8rem;max-width:100%;}
+    .enemy-card   {border:1px solid #555;background:#222;padding:.9rem;border-radius:6px;
+                   overflow-wrap:anywhere;}
+    .enemy-card h3{margin:.1rem 0 .4rem 0;font-size:1.15rem;}
+    .enemy-meta   {margin:.3rem 0;font-size:.9rem;}
+    .talent-list, .weapon-list{margin:.25rem 0 0 1.1rem;padding:0;font-size:.9rem;}
+    .talent-list li, .weapon-list li{margin:.15rem 0;list-style:disc;}
   </style>
 </head>
 <body>
 <div id="navContainer"></div>
 <script>
-fetch('nav.html')
-  .then(r=>r.text())
-  .then(t=>{document.getElementById('navContainer').innerHTML=t;})
-  .catch(e=>console.error('Nav load error:',e));
+fetch('nav.html').then(r=>r.text()).then(t=>navContainer.innerHTML=t)
+                 .catch(e=>console.error('nav load',e));
 </script>
 
 <div class="container">
-  <h1>Astral Axial Enemy Generator</h1>
+  <h1>Enemy Generator</h1>
 
   <div class="section">
     <button id="genBtn">Generate Enemies</button>
   </div>
 
   <div class="section">
-    <h2>Enemies</h2>
-    <div id="enemyOutput" class="enemy-output"></div>
+    <h2>Roster</h2>
+    <div id="enemyOutput" class="enemy-wrap"></div>
   </div>
 </div>
 
 <script>
-/* ------------- helpers -------------------- */
+/*────────────────  BASIC RAND HELPERS ────────────────*/
 const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const pick=(arr)=>arr[rand(0,arr.length-1)];
-function weightedRandom(arr){
-  const tot=arr.reduce((s,o)=>s+o.weight,0);
-  let r=Math.random()*tot;
-  for(const o of arr){
-    if(r<o.weight) return o.value!==undefined?o.value:o;
-    r-=o.weight;
-  }
+const pick=arr=>arr[rand(0,arr.length-1)];
+function weightedRandom(arr){let t=arr.reduce((s,o)=>s+o.weight,0),r=Math.random()*t;
+  for(const o of arr){if(r<o.weight)return o.value!==undefined?o.value:o;r-=o.weight;}}
+
+/*────────────────  LOAD WEAPON GENERATOR  ─────────────*/
+let weaponLoaded=false;
+function loadWeaponGen(){
+  if(weaponLoaded) return Promise.resolve();
+  return fetch('weapongenerator.html')
+    .then(r=>r.text())
+    .then(html=>{
+      const m=html.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+      if(m) {eval(m[1]); weaponLoaded=true;}
+    })
+    .catch(e=>console.error('weapon load',e));
 }
 
-/* ------------- WEAPON GENERATOR (lifted from weapon page, trimmed) ----- */
-function generateWeapon(){
-  // dice
-  const die=weightedRandom([
-    {value:4,weight:40},{value:6,weight:30},{value:8,weight:20},
-    {value:10,weight:8},{value:12,weight:2}
-  ]);
-  // super-compact weapon name generator
-  const wpType=pick(["Rifle","Handgun","Blade","Shotgun","Blaster","Pike","Tesla"]);
-  const prefix=pick(["Nova","Quantum","Eclipse","Ion","Zenith","Crimson","Obsidian","Aurora"]);
-  const suffix=pick(["X","Mk-II","Prime","Zero","EX","Sigma"]);
-  const name=`${prefix} ${wpType} ${suffix}`;
-  return {name, damage:`1d${die}`};
-}
-
-/* ------------- TALENT POOL -------------------------------------------- */
-let talentPool=[];      // filled once
-const extraEnemyTalents=[
- "Intimidation","Brutal Strike","Suppressive Fire","Shield Tactics","Pack Hunter",
- "Grapple","Ambush Position","Overwatch","Toughness","Cybernetics","Fear Aura",
- "Pin Down","Flash Advance","Disarming Shot","Power Swing"
+/*────────────────  TALENT DATA  ───────────────────────*/
+let talentPool=[];   // combat-relevant skill names
+const banned=/cook|music|garden|craft|fish|chef|perform/i;
+const extraSkill   =["Tracking","First-Aid","Demolitions","Interrogation","Pilot"];
+const abilityPool  =[
+  {name:"Jump",desc:"Leap up to one zone away."},
+  {name:"Charge",desc:"Move two zones and make a melee attack."},
+  {name:"Suppress",desc:"Force targets in a zone to step down their next attack die."},
+  {name:"Overwatch",desc:"Reactively shoot the first enemy that moves within line of sight."},
+  {name:"Stealth Dive",desc:"Become unseen until you attack or move to a lit zone."}
 ];
-
-/* remove obviously non-combat words */
-const bannedWords=/cook|bake|chef|music|perform|paint|craft|fish|garden/i;
+const itemPool     =[
+  {name:"Grappling Hook",die:"1d6",note:"once per combat, allows enemy to move up to a non-connected zone within line of sight. Uses positioning move"},
+  {name:"Smoke Canister",die:"1d8",note:"adds 1d8 to defense pool of all creatures in zone deployed in. Lasts for 1 full round. Deployed as a medium move."},
+  {name:"Adaptive Shield",die:"1d6",note:"adds d6 to defense once per round."}
+];
 
 function loadTalents(){
   if(talentPool.length) return Promise.resolve();
   return fetch('lifepath_data.json')
     .then(r=>r.json())
     .then(j=>{
-      const fileTalents = Object.values(j)
-        .flatMap(v=>Array.isArray(v)?v:[])
-        .filter(t=>typeof t==="string" && !bannedWords.test(t));
-      talentPool=[...new Set([...fileTalents,...extraEnemyTalents])];
+      const raw=Object.values(j).flatMap(v=>Array.isArray(v)?v:[]);
+      talentPool=[...new Set([...raw.filter(t=>!banned.test(t)),...extraSkill])]
+                 .map(t=>t.replace(/_/g,' '))
+                 .filter(Boolean);
     });
 }
 
-/* ------------- NAME SCAFFOLD ------------------------------------------ */
-const personalNames=["Vorgath","Selene","Harkan","Ilyra","Kryos","Zerak","Nyss","Rhadon","Tyrak","Azura"];
-const epithets      =["the Devourer","the Unbound","Iron Warden","Soul Harvester","Void Singer","Storm Fury"];
-
-const prefixRole    =["Heavy","Armored","Rapid","Stealth","Hazard","Elite","Riot","Siege","Recon","Cyber"];
-const roleBase      =["Breacher","Infantry","Gunner","Marksman","Shock Trooper","Scout","Rifleman","Enforcer","Sentry","Grenadier"];
-const suffixRole    =["Unit","Operative","Drone","Cadre","Specialist","Element"];
-
-/* ------------- DIFFICULTY TABLE --------------------------------------- */
+/*────────────────  DIFFICULTY TABLE  ─────────────────*/
 const tiers=[
-  {label:"Boss",        n:1, hp:[20,100], skill:[3,4], defCap:4, wpn:[2,3], tal:[6,10]},
-  {label:"Hard",        n:2, hp:[15,60],  skill:[2,3], defCap:4, wpn:[1,2], tal:[5,8]},
-  {label:"Intermediate",n:2, hp:[10,40],  skill:[2,2], defCap:3, wpn:[1,2], tal:[3,6]},
-  {label:"Easy",        n:2, hp:[5,25],   skill:[1,1], defCap:2, wpn:[1,1], tal:[1,4]}
+ {label:"Boss",n:1,hp:[20,100],skill:[3,4],defCap:4,wpn:[2,3],tal:[6,10]},
+ {label:"Hard",n:2,hp:[15,60], skill:[2,3],defCap:4,wpn:[1,2],tal:[5,8]},
+ {label:"Intermediate",n:2,hp:[10,40],skill:[2,2],defCap:3,wpn:[1,2],tal:[3,6]},
+ {label:"Easy",n:2,hp:[5,25],  skill:[1,1],defCap:2,wpn:[1,1],tal:[1,4]}
 ];
 
-/* ------------- GENERATORS --------------------------------------------- */
-function rollHp([lo,hi]){
-  // exponential tail bias toward low
-  let v=Math.floor(Math.pow(Math.random(),2.3)*(hi-lo))+lo;
-  return Math.max(lo,v);
-}
+/*────────────────  CORE GENERATORS  ──────────────────*/
+function rollHp([lo,hi]){return Math.max(lo,Math.floor(Math.pow(Math.random(),2.3)*(hi-lo))+lo);}
 function buildDefense(cap){
-  const dice=[]; const dieW=[{value:"d6",weight:50},{value:"d4",weight:35},{value:"d8",weight:15}];
-  const count=rand(1,cap);
-  for(let i=0;i<count;i++) dice.push(weightedRandom(dieW));
-  return dice.sort((a,b)=>parseInt(b.slice(1))-parseInt(a.slice(1))); // d8,d6,d4
+  const dieW=[{value:"d6",weight:50},{value:"d4",weight:35},{value:"d8",weight:15}];
+  const arr=Array.from({length:rand(1,cap)},()=>weightedRandom(dieW));
+  return arr.sort((a,b)=>parseInt(b.slice(1))-parseInt(a.slice(1)));
 }
-function pickTalents([min,max]){
-  const n=rand(min,max);
-  const picks=[];
-  const pool=[...talentPool];   // shallow copy
-  while(picks.length<n && pool.length){
-    const idx=rand(0,pool.length-1);
-    picks.push(pool.splice(idx,1)[0]);
-  }
-  return picks;
-}
-function talentBonus(){return `+1d${pick([4,6,8,10,12])}`;}
+function skillTalent(name){return {type:"skill",name,die:`1d${pick([4,6,8,10,12])}`}}
 
-function makeName(enemy,tier){
-  if(tier.label==="Boss"){
-    return `${pick(personalNames)} ${pick(epithets)}`;
+function pickTalents([min,max]){
+  const total=rand(min,max), list=[];
+  while(list.length<total){
+    const kind=weightedRandom([{value:"skill",weight:60},{value:"ability",weight:25},{value:"item",weight:15}]);
+    if(kind==="skill"){
+      const name=pick(talentPool);
+      list.push(skillTalent(name));
+    }else if(kind==="ability"){
+      list.push({...pick(abilityPool),type:"ability"});
+    }else{
+      list.push({...pick(itemPool),type:"item"});
+    }
   }
-  // choose role hints
-  let prefix=pick(prefixRole), role=pick(roleBase), suffix="";
-  // weapon-aware tweak
-  const mainWpn=enemy.weapons[0].name;
-  if(/Rifle/i.test(mainWpn)) role="Rifleman";
-  if(/Blade|Pike/i.test(mainWpn)) role="Skirmisher";
-  if(/Shotgun/i.test(mainWpn)) role="Breacher";
-  // build pattern
-  const pat=rand(1,3);
-  switch(pat){
-    case 1: return `${prefix} ${role}`;
-    case 2: return `${role} ${pick(suffixRole)}`;
-    default:return `${prefix} ${role} ${pick(suffixRole)}`;
+  return list;
+}
+
+const persNames=["Vorgath","Selene","Harkan","Ilyra","Kryos","Zerak","Nyss","Rhadon","Azura"];
+const epithets=["the Devourer","the Unbound","Iron Warden","Void Singer","Storm Fury"];
+const pfx=["Heavy","Armored","Rapid","Stealth","Hazard","Elite","Riot","Siege","Recon"];
+const role=["Breacher","Infantry","Gunner","Marksman","Scout","Rifleman","Enforcer","Grenadier","Sentry"];
+const sfx=["Unit","Operative","Drone","Cadre","Specialist","Element"];
+
+function makeName(e,tier){
+  if(tier.label==="Boss") return `${pick(persNames)} ${pick(epithets)}`;
+  const main=e.weapons[0].name;
+  let r=/Rifle/i.test(main)?"Rifleman":/Blade|Pike/i.test(main)?"Skirmisher":pick(role);
+  const namePattern=rand(1,3);
+  switch(namePattern){
+    case 1:return `${pick(pfx)} ${r}`;
+    case 2:return `${r} ${pick(sfx)}`;
+    default:return `${pick(pfx)} ${r} ${pick(sfx)}`;
   }
 }
-function makeDescription(e){
-  const tags=[];
-  if(e.hp>40) tags.push("stubbornly resilient");
-  if(e.defense.length>=4) tags.push("heavily armoured");
-  if(parseInt(e.skill)>2) tags.push("highly trained");
-  if(e.talents.some(t=>/Stealth|Ambush/i.test(t))) tags.push("prefers ambush tactics");
-  return tags.length?tags.join(", ")+".":"";
+function describe(e){
+  const bits=[];
+  if(e.hp>40) bits.push("stubbornly resilient");
+  if(e.defense.length>=4) bits.push("heavily armoured");
+  if(parseInt(e.skill)>2) bits.push("highly trained");
+  if(e.talents.some(t=>/Stealth|Ambush/i.test(t.name))) bits.push("prefers ambush tactics");
+  return bits.join(", ");
 }
 
 function createEnemy(tier){
   const hp=rollHp(tier.hp);
   const skillDice=rand(tier.skill[0],tier.skill[1]);
-  const enemy={
+  const obj={
     hp,
     skill:`${skillDice}d6`,
-    weapons:Array.from({length:rand(tier.wpn[0],tier.wpn[1])},generateWeapon),
+    weapons:Array.from({length:rand(tier.wpn[0],tier.wpn[1])},()=>generateWeapon()),
     defense:buildDefense(tier.defCap),
-    talents:pickTalents(tier.tal),
-    talentBonus:talentBonus()
+    talents:pickTalents(tier.tal)
   };
-  enemy.name=makeName(enemy,tier);
-  enemy.desc=makeDescription(enemy);
-  return enemy;
+  obj.name=makeName(obj,tier);
+  obj.desc=describe(obj);
+  return obj;
 }
 
-/* ------------- RENDER --------------------------------------------------- */
+/*────────────────  RENDER  ───────────────────────────*/
+function talentLine(t){
+  if(t.type==="skill")   return `${t.name}: ${t.die}`;
+  if(t.type==="ability") return `${t.name}: ${t.desc}`;
+  return `${t.name}: ${t.die}${t.note?` | ${t.note}`:""}`;
+}
+function weaponLine(w){return `${w.name} (${w.damage})`;}
+
 function renderEnemy(e,tier){
-  const weapons=e.weapons.map(w=>`  – ${w.name} (${w.damage})`).join("\n");
-  return `<div class="enemy-line">
-<strong>[${tier.label}] ${e.name}</strong>
-  HP ${e.hp} | Skill ${e.skill} | Defense ${e.defense.join(",")}
-  | Talents (${e.talents.length}${e.talentBonus?` ${e.talentBonus}`:""}):
-     ${e.talents.map(t=>`<span class="talent">${t}</span>`).join(", ")}
-  ${e.desc?`| ${e.desc}`:""}
-  <div class="weapon-block">${weapons}</div>
-</div>`;
+  return `<div class="enemy-card">
+    <h3>[${tier.label}] ${e.name}</h3>
+    <div class="enemy-meta">
+      HP ${e.hp} | Skill ${e.skill} | Defense ${e.defense.join(", ")}
+      ${e.desc?`| ${e.desc}`:""}
+    </div>
+    <strong>Weapons:</strong>
+    <ul class="weapon-list">${e.weapons.map(w=>`<li>${weaponLine(w)}</li>`).join("")}</ul>
+    <strong>Talents:</strong>
+    <ul class="talent-list">${e.talents.map(t=>`<li>${talentLine(t)}</li>`).join("")}</ul>
+  </div>`;
 }
 
+/*────────────────  MASTER GENERATE  ─────────────────*/
 function generateEnemies(){
-  const out=document.getElementById('enemyOutput');
-  out.innerHTML="Generating…";
-  loadTalents().then(()=>{
-    const blocks=[];
+  enemyOutput.innerHTML="Generating…";
+  Promise.all([loadWeaponGen(),loadTalents()]).then(()=>{
+    const cards=[];
     tiers.forEach(t=>{
-      for(let i=0;i<t.n;i++){
-        const e=createEnemy(t);
-        blocks.push(renderEnemy(e,t));
-      }
+      for(let i=0;i<t.n;i++) cards.push(renderEnemy(createEnemy(t),t));
     });
-    out.innerHTML=blocks.join("\n");
+    enemyOutput.innerHTML=cards.join("");
   });
 }
 
-/* ------------- INIT ----------------------------------------------------- */
-document.getElementById('genBtn').addEventListener('click',generateEnemies);
+/*────────────────  INIT  ────────────────────────────*/
+genBtn.addEventListener('click',generateEnemies);
 </script>
 </body>
 </html>
