@@ -274,7 +274,7 @@ genBtn.addEventListener('click',generateEnemies);
 </script>
   <script type="module">
    import { generateWeapon } from 'https://hopelesspoetic.com/weapongen.js';
-
+window.generateWeapon = generateWeapon;
   document.addEventListener("DOMContentLoaded", () => {
     const wpn = generateWeapon();
     console.log(wpn);
