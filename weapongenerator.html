@@ -15,17 +15,27 @@
     .tag                {cursor:help;border-bottom:1px dotted #888;}
     .toggle-btn         {margin-left:.5rem;}
     .tag            {position:relative; cursor:help; border-bottom:1px dotted #888;}
-.tag[data-tip]:hover::after{
+    .tag[data-tip]:hover::after{
   content:attr(data-tip);
   position:absolute;
-  left:50%; top:-0.6rem;
-  transform:translate(-50%,-100%);
-  background:#222; color:#fff;
-  padding:4px 8px; border-radius:4px;
-  font-size:.75rem; line-height:1.1;
-  white-space:pre-wrap; max-width:18rem;
+  left:50%;               /* centred on the tag */
+  top:0;                  /* sits just above it */
+  transform:translate(-50%, -110%);
+  display:block;          /* ← stops the 1-char column bug   */
+  background:#222;
+  color:#fff;
+  padding:6px 10px;
+  border-radius:4px;
+  font-size:.75rem;
+  line-height:1.25;
+  white-space:normal;     /* wrap at word boundaries         */
+  word-break:break-word;  /* wrap mid-word if needed          */
+  min-width:120px;        /* ensures a sensible width         */
+  max-width:18rem;
+  text-align:left;
   z-index:9999;
 }
+
 
   </style>
   
