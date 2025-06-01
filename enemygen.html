@@ -239,7 +239,9 @@ function talentLine(t){
   if(t.type==="ability") return `${t.name}: ${t.desc}`;
   return `${t.name}: ${t.die}${t.note?` | ${t.note}`:""}`;
 }
-function weaponLine(w){return `${w.name} (${w.damage})`;}
+function weaponLine(w) {
+  return `${w.name} (${w.damage})${w.tagDisplay ? ' — ' + w.tagDisplay : ''}`;
+}
 
 function renderEnemy(e,tier){
   return `<div class="enemy-card">
