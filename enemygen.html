@@ -60,18 +60,20 @@ function loadWeaponGen(){
 /*────────────────  TALENT DATA  ───────────────────────*/
 let talentPool=[];   // combat-relevant skill names
 const banned=/cook|music|garden|craft|fish|chef|perform/i;
-const extraSkill   =["Tracking","First-Aid","Demolitions","Interrogation","Pilot"];
+const extraSkill   =["Tracking","First-Aid","Demolitions","Interrogation","Pilot", "Running", "Climbing", "Grappling", "Initiative", "Keeping Watch", "Martial Arts"];
 const abilityPool  =[
-  {name:"Jump",desc:"Leap up to one zone away."},
-  {name:"Charge",desc:"Move two zones and make a melee attack."},
-  {name:"Suppress",desc:"Force targets in a zone to step down their next attack die."},
-  {name:"Overwatch",desc:"Reactively shoot the first enemy that moves within line of sight."},
-  {name:"Stealth Dive",desc:"Become unseen until you attack or move to a lit zone."}
+  {name:"Jump",desc:"Instantly move to an adjacent zone."},
+  {name:"Charge",desc:"Move up to two zones and make an attack with a (Melee) weapon."},
+  {name:"Suppress",desc:"Force targets in an adjacent or occupied zone to step down their next attack die."},
+  {name:"Overwatch",desc:"If an enemy enters the occupied zone, make an attack against them."},
+  {name:"Cheap Shot",desc:"If an enemy leaves the occupied zone, make an attack against them."}
 ];
 const itemPool     =[
   {name:"Grappling Hook",die:"1d6",note:"once per combat, allows enemy to move up to a non-connected zone within line of sight. Uses positioning move"},
   {name:"Smoke Canister",die:"1d8",note:"adds 1d8 to defense pool of all creatures in zone deployed in. Lasts for 1 full round. Deployed as a medium move."},
-  {name:"Adaptive Shield",die:"1d6",note:"adds d6 to defense once per round."}
+  {name:"Adaptive Shield",die:"1d6",note:"adds d6 to defense once per round."},
+  {name:"Ammo Box",die:"1d6",note:"Can be looted for 1d6 Ammo at the end of the fight."},
+  {name:"Ration Box",die:"1d4",note:"Can be looted for 1d4 rations at the end of the fight."}
 ];
 
 function loadTalents(){
