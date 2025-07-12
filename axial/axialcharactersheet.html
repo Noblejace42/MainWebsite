@@ -422,7 +422,7 @@ function renderObjects(){
     let text = o.raw
       ? o.raw
       : `${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} | `
-      +`${o.count}d${o.size}${o.modifier? "+"+o.modifier:""} | `
+      +`${o.count}${o.size}${o.modifier? "+"+o.modifier:""} | `
       +`(${o.skillTags.join(", ")}, ${o.rangeTag}) | `
       +`(${o.coreExtraTags.join(", ")}) | ${o.mass} Mass`
       + (o.special? ` | Special: ${o.special}`:"");
