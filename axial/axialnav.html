@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Axial Nav</title>
+  <style>
+    /* --- NAV BAR VARIABLES & RESET --- */
+    :root {
+      --nav-gap: 16px;
+      --nav-pad: 8px;
+      --nav-radius: 6px;
+      --nav-bg: #1c1d21;
+      --nav-fg: #e6e7eb;
+      --nav-accent: #3a86ff;
+      --nav-border: #44454b;
+      --nav-z: 1000;
+    }
+    /* strip default list styles */
+    #axial-nav, #axial-nav ul { margin:0; padding:0; }
+    #axial-nav ul { list-style:none; }
+
+    /* container */
+    #axial-nav {
+      position: fixed;
+      top: var(--nav-gap);
+      right: var(--nav-gap);
+      z-index: var(--nav-z);
+      font-family: sans-serif;
+    }
+    /* toggle button */
+    #axial-nav #nav-toggle {
+      background: var(--nav-accent);
+      color: #fff;
+      border: none;
+      padding: var(--nav-pad) var(--nav-pad);
+      border-radius: var(--nav-radius);
+      cursor: pointer;
+    }
+    /* hidden menu */
+    #axial-nav #nav-menu {
+      display: none;
+      background: var(--nav-bg);
+      border: 1px solid var(--nav-border);
+      border-radius: var(--nav-radius);
+      margin-top: var(--nav-pad);
+      overflow: hidden;
+    }
+    /* show when toggled */
+    #axial-nav.show #nav-menu {
+      display: block;
+    }
+    /* menu items */
+    #axial-nav #nav-menu li a {
+      display: block;
+      padding: var(--nav-pad);
+      color: var(--nav-fg);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    #axial-nav #nav-menu li a:hover {
+      background: var(--nav-border);
+    }
+  </style>
+</head>
+<body>
+  <nav id="axial-nav">
+    <button id="nav-toggle">☰ Menu</button>
+    <ul id="nav-menu">
+      <li><a href="axialcharactersheet.html">Character Sheet</a></li>
+      <li><a href="axialweapongen.html">Weapon Generator</a></li>
+    </ul>
+  </nav>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const nav = document.getElementById('axial-nav');
+      document.getElementById('nav-toggle')
+        .addEventListener('click', () => nav.classList.toggle('show'));
+    });
+  </script>
+</body>
+</html>
