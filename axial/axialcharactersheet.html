@@ -1,36 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Axial Character Sheet</title>
-<!-- AXIAL NAVIGATION BAR -->
-<div id="axial-nav-container"></div>
-<script>
-<!-- AXIAL NAVIGATION BAR (with CSS) -->
-<div id="axial-nav-container"></div>
-  <script>
-  fetch('axialnav.html')
-    .then(r => r.text())
-    .then(html => {
-      // parse the fetched HTML
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      // grab its <style> block (if any) and append to THIS page's <head>
-      const style = doc.querySelector('head style');
-      if (style) document.head.appendChild(style.cloneNode(true));
-      // grab its <nav> and insert at the top of <body>
-      const nav = doc.querySelector('nav#axial-nav');
-      if (nav) document.getElementById('axial-nav-container')
-                    .appendChild(nav.cloneNode(true));
-      // wire up the toggle button
-      const toggle = document.querySelector('#axial-nav #nav-toggle');
-      const axialNav = document.querySelector('#axial-nav');
-      if (toggle && axialNav) {
-        toggle.addEventListener('click', ()=> axialNav.classList.toggle('show'));
-      }
-    })
-    .catch(console.error);
-</script>
-  </script>
+  <meta charset="utf-8">
+  <title>Axial Character Sheet</title>
   <style>
 :root {
   --bg: #1c1d21;
@@ -45,11 +17,12 @@
 @media (prefers-color-scheme:light) {
   :root { --bg:#fdfdfd; --fg:#111; --border:#ccc; }
 }
-* { box-sizing:border-box; }
+* { box-sizing: border-box; }
 body {
   margin:0; padding:0; background:var(--bg); color:var(--fg);
   font-family:var(--font); line-height:1.3; position: relative;
 }
+/* Page form styles */
 form {
   max-width:960px; margin:var(--gap) auto; padding:var(--gap);
   display:flex; flex-direction:column; gap:var(--gap);
@@ -105,506 +78,537 @@ fieldset {
   padding:var(--gap); margin-bottom:var(--gap);
   background:#222;
 }
+/* Sticky-note styles */
 .sticky {
-  position:absolute; width:200px; height:140px;
+  position:absolute;
+  width:200px; height:140px;
   background:#ffd; color:#000;
   border:1px solid #aaa; border-radius:4px;
-  padding:0.4rem; cursor:move;
-  resize:both; overflow:auto;
   box-shadow:2px 2px 6px rgba(0,0,0,0.3);
+  display:flex; flex-direction:column;
+  overflow:hidden;
 }
-</style>
+.sticky .drag-handle {
+  height:20px; background:rgba(0,0,0,0.1);
+  cursor:move; flex-shrink:0;
+}
+.sticky .sticky-content {
+  flex:1; padding:4px; overflow:auto;
+}
+  </style>
 </head>
 <body>
-<form id="sheet" autocomplete="off">
+  <!-- NAVBAR INJECTION -->
+  <div id="axial-nav-container"></div>
+  <script>
+    fetch('axialnav.html')
+      .then(r => r.text())
+      .then(html => {
+        const doc = new DOMParser().parseFromString(html,'text/html');
+        // import nav CSS
+        const navStyle = doc.querySelector('head style');
+        if (navStyle) document.head.appendChild(navStyle.cloneNode(true));
+        // import nav HTML
+        const nav = doc.querySelector('#axial-nav');
+        if (nav) document.getElementById('axial-nav-container')
+                      .appendChild(nav.cloneNode(true));
+        // wire toggle
+        const toggle = document.querySelector('#axial-nav #nav-toggle');
+        const axialNav = document.querySelector('#axial-nav');
+        if (toggle && axialNav) {
+          toggle.addEventListener('click', ()=> axialNav.classList.toggle('show'));
+        }
+      })
+      .catch(console.error);
+  </script>
 
-  <section>
-    <h2>Identity</h2>
-    <div class="grid2">
-      <label>Name<input id="name"></label>
-      <label>Concept<input id="concept"></label>
-      <label>Age<input id="age" type="number" min="0"></label>
-      <label>Player<input id="player"></label>
-      <label>XP<input id="xp" type="number" min="0"></label>
-      <label>Bonds<textarea id="bonds"></textarea></label>
-    </div>
-  </section>
+  <form id="sheet" autocomplete="off">
+    <section>
+      <h2>Identity</h2>
+      <div class="grid2">
+        <label>Name<input id="name"></label>
+        <label>Concept<input id="concept"></label>
+        <label>Age<input id="age" type="number" min="0"></label>
+        <label>Player<input id="player"></label>
+        <label>XP<input id="xp" type="number" min="0"></label>
+        <label>Bonds<textarea id="bonds"></textarea></label>
+      </div>
+    </section>
 
-  <section>
-    <h2>Core Skills</h2>
-    <div class="grid2" id="skills"></div>
-  </section>
+    <section>
+      <h2>Core Skills</h2>
+      <div class="grid2" id="skills"></div>
+    </section>
 
-  <section>
-    <h2>Statistics</h2>
-    <div class="grid2">
-      <label>Strain<input id="strain" type="number"></label>
-      <label>Surges<input id="surges" type="number"></label>
-      <label>Supplies<input id="supplies" type="number"></label>
-      <label>Wealth<input id="wealth" type="number"></label>
-      <label>Health<input id="health" placeholder="cur/max"></label>
-      <label>Enc. Cur<input id="encCurrent" type="number"></label>
-      <label>Enc. Max<input id="encMax" type="number"></label>
-    </div>
-  </section>
+    <section>
+      <h2>Statistics</h2>
+      <div class="grid2">
+        <label>Strain<input id="strain" type="number"></label>
+        <label>Surges<input id="surges" type="number"></label>
+        <label>Supplies<input id="supplies" type="number"></label>
+        <label>Wealth<input id="wealth" type="number"></label>
+        <label>Health<input id="health" placeholder="cur/max"></label>
+        <label>Enc. Cur<input id="encCurrent" type="number"></label>
+        <label>Enc. Max<input id="encMax" type="number"></label>
+      </div>
+    </section>
 
-  <section>
-    <h2>Conditions</h2>
-    <label>Conditions<textarea id="conditions" placeholder="e.g. Drowning, Stunned"></textarea></label>
-  </section>
+    <section>
+      <h2>Conditions</h2>
+      <label>Conditions<textarea id="conditions" placeholder="e.g. Drowning, Stunned"></textarea></label>
+    </section>
 
-  <section>
-    <h2>Talents</h2>
-    <fieldset id="talents"></fieldset>
-    <button type="button" onclick="addRow('talent')">Add Talent</button>
-  </section>
+    <section>
+      <h2>Talents</h2>
+      <fieldset id="talents"></fieldset>
+      <button type="button" onclick="addRow('talent')">Add Talent</button>
+    </section>
 
-  <section>
-    <h2>Powers</h2>
-    <div class="button-row">
-      <button type="button" onclick="showPowerBlankForm()">Paste Blank</button>
-      <button type="button" onclick="showPowerForm()">Add Power</button>
-    </div>
-    <div id="power-blank-form-container"></div>
-    <div id="power-form-container"></div>
-    <fieldset id="powers"></fieldset>
-  </section>
+    <section>
+      <h2>Powers</h2>
+      <div class="button-row">
+        <button type="button" onclick="showPowerBlankForm()">Paste Blank</button>
+        <button type="button" onclick="showPowerForm()">Add Power</button>
+      </div>
+      <div id="power-blank-form-container"></div>
+      <div id="power-form-container"></div>
+      <fieldset id="powers"></fieldset>
+    </section>
 
-  <section id="inventorySection">
-    <h2>Inventory</h2>
-    <div class="button-row">
-      <button type="button" onclick="showRawForm()">Paste Struct</button>
-      <button type="button" onclick="showBlankForm()">Paste Blank</button>
-      <button type="button" onclick="showObjectForm()">Add Object</button>
-    </div>
-    <div id="raw-form-container"></div>
-    <div id="blank-form-container"></div>
-    <div id="object-form-container"></div>
-    <fieldset id="objects"></fieldset>
-  </section>
+    <section id="inventorySection">
+      <h2>Inventory</h2>
+      <div class="button-row">
+        <button type="button" onclick="showRawForm()">Paste Struct</button>
+        <button type="button" onclick="showBlankForm()">Paste Blank</button>
+        <button type="button" onclick="showObjectForm()">Add Object</button>
+      </div>
+      <div id="raw-form-container"></div>
+      <div id="blank-form-container"></div>
+      <div id="object-form-container"></div>
+      <fieldset id="objects"></fieldset>
+    </section>
 
-  <section>
-    <h2>Notes</h2>
-    <div class="grid2">
-      <label>Notes A<textarea id="notesA" placeholder="Left side"></textarea></label>
-      <label>Notes B<textarea id="notesB" placeholder="Right side"></textarea></label>
-    </div>
-    <button type="button" id="addStickyBtn">New Sticky Note</button>
-  </section>
+    <section>
+      <h2>Notes</h2>
+      <div class="grid2">
+        <label>Notes A<textarea id="notesA" placeholder="Left side"></textarea></label>
+        <label>Notes B<textarea id="notesB" placeholder="Right side"></textarea></label>
+      </div>
+      <button type="button" id="addStickyBtn">New Sticky Note</button>
+    </section>
 
-  <section class="grid2">
-    <button type="button" id="saveBtn">Save JSON</button>
-    <button type="button" id="loadBtn">Load JSON</button>
-    <input type="file" id="fileInput" accept="application/json" style="display:none">
-  </section>
+    <section class="grid2">
+      <button type="button" id="saveBtn">Save JSON</button>
+      <button type="button" id="loadBtn">Load JSON</button>
+      <input type="file" id="fileInput" accept="application/json" style="display:none">
+    </section>
+  </form>
 
-</form>
-
-<!-- Templates -->
-<template id="talent-template">
-  <div class="row compact">
-    <input class="name" placeholder="Talent">
-    <select class="die">
-      <option>d4</option><option>d6</option><option>d8</option>
-      <option>d10</option><option>d12</option>
-    </select>
-    <button type="button" onclick="removeRow(this)">×</button>
-  </div>
-</template>
-
-<template id="power-form-template">
-  <div class="object-form">
-    <label>Name<input class="pname"></label>
-    <label>Type<input class="ptype"></label>
-    <label>Cooldown<input class="pcd" type="number"></label>
-    <label>Speed<input class="pspeed" type="number"></label>
-    <label>Description<textarea class="pdesc"></textarea></label>
+  <!-- Templates -->
+  <template id="talent-template">
     <div class="row compact">
-      <button type="button" onclick="savePower(this)">Confirm</button>
-      <button type="button" onclick="cancelPowerForm()">Cancel</button>
-    </div>
-  </div>
-</template>
-
-<template id="power-blank-form-template">
-  <div class="object-form">
-    <label>Paste Text<textarea class="blankInput" placeholder="Freeform power"></textarea></label>
-    <div class="row compact">
-      <button type="button" onclick="confirmPowerBlank()">Confirm</button>
-      <button type="button" onclick="cancelPowerBlankForm()">Cancel</button>
-    </div>
-  </div>
-</template>
-
-<template id="raw-form-template">
-  <div class="object-form">
-    <label>Paste Struct<textarea class="rawInput" placeholder="Name | type, subtype | 3d8+1 | (tags) | (tags) | Mass"></textarea></label>
-    <div class="row compact">
-      <button type="button" onclick="parseRawObject()">Confirm</button>
-      <button type="button" onclick="cancelRawForm()">Cancel</button>
-    </div>
-  </div>
-</template>
-
-<template id="blank-form-template">
-  <div class="object-form">
-    <label>Paste Text<textarea class="blankInput" placeholder="Freeform item"></textarea></label>
-    <div class="row compact">
-      <button type="button" onclick="confirmBlank()">Confirm</button>
-      <button type="button" onclick="cancelBlankForm()">Cancel</button>
-    </div>
-  </div>
-</template>
-
-<template id="object-form-template">
-  <div class="object-form">
-    <label>Name<input class="name"></label>
-    <label>Type<input class="type"></label>
-    <label>Subtype<input class="subtype"></label>
-    <div class="row compact">
-      <label>Count<input class="count" type="number" min="0"></label>
-      <label>Size<select class="size">
+      <input class="name" placeholder="Talent">
+      <select class="die">
         <option>d4</option><option>d6</option><option>d8</option>
         <option>d10</option><option>d12</option>
-      </select></label>
-      <label>Mod<input class="modifier" type="number"></label>
+      </select>
+      <button type="button" onclick="removeRow(this)">×</button>
     </div>
-    <label>Skill Tags<input class="skillTags" placeholder="comma-separated"></label>
-    <label>Range Tag<input class="rangeTag"></label>
-    <label>Other Tags<input class="coreExtraTags" placeholder="comma-separated"></label>
-    <label>Special<textarea class="special"></textarea></label>
-    <label>Mass<input class="mass" type="number" min="0"></label>
-    <div class="row compact">
-      <button type="button" onclick="saveObject(this)">Confirm</button>
-      <button type="button" onclick="cancelObjectForm()">Cancel</button>
+  </template>
+
+  <template id="power-form-template">
+    <div class="object-form">
+      <label>Name<input class="pname"></label>
+      <label>Type<input class="ptype"></label>
+      <label>Cooldown<input class="pcd" type="number"></label>
+      <label>Speed<input class="pspeed" type="number"></label>
+      <label>Description<textarea class="pdesc"></textarea></label>
+      <div class="row compact">
+        <button type="button" onclick="savePower(this)">Confirm</button>
+        <button type="button" onclick="cancelPowerForm()">Cancel</button>
+      </div>
     </div>
-  </div>
-</template>
+  </template>
 
-<script>
-// element aliases
-const talents = document.getElementById("talents");
-const powers  = document.getElementById("powers");
-const objectsField = document.getElementById("objects");
-const fileInput = document.getElementById("fileInput");
+  <template id="power-blank-form-template">
+    <div class="object-form">
+      <label>Paste Text<textarea class="blankInput" placeholder="Freeform power"></textarea></label>
+      <div class="row compact">
+        <button type="button" onclick="confirmPowerBlank()">Confirm</button>
+        <button type="button" onclick="cancelPowerBlankForm()">Cancel</button>
+      </div>
+    </div>
+  </template>
 
-// data stores
-let powersData = [];
-let objects = [];
+  <template id="raw-form-template">
+    <div class="object-form">
+      <label>Paste Struct<textarea class="rawInput" placeholder="Name | type, subtype | 3d8+1 | (tags) | (tags) | Mass"></textarea></label>
+      <div class="row compact">
+        <button type="button" onclick="parseRawObject()">Confirm</button>
+        <button type="button" onclick="cancelRawForm()">Cancel</button>
+      </div>
+    </div>
+  </template>
 
-// init core skills
-const skillList = ["Agility","Artifice","Charm","Fortitude","Intellect","Might","Presence","Precision","Resolve","Sense"];
-const skillsDiv = document.getElementById("skills");
-skillList.forEach(s=>{
-  const lbl=document.createElement("label"); lbl.textContent=s;
-  const sel=document.createElement("select"); sel.id=s.toLowerCase();
-  ["d4","d6","d8","d10","d12"].forEach(d=>sel.appendChild(new Option(d,d)));
-  lbl.appendChild(sel); skillsDiv.appendChild(lbl);
-});
+  <template id="blank-form-template">
+    <div class="object-form">
+      <label>Paste Text<textarea class="blankInput" placeholder="Freeform item"></textarea></label>
+      <div class="row compact">
+        <button type="button" onclick="confirmBlank()">Confirm</button>
+        <button type="button" onclick="cancelBlankForm()">Cancel</button>
+      </div>
+    </div>
+  </template>
 
-// row helpers
-function addRow(kind){
-  document.getElementById(kind+"s")
-    .appendChild(document.getElementById(kind+"-template").content.cloneNode(true));
-}
-function removeRow(btn){ btn.parentNode.remove(); }
+  <template id="object-form-template">
+    <div class="object-form">
+      <label>Name<input class="name"></label>
+      <label>Type<input class="type"></label>
+      <label>Subtype<input class="subtype"></label>
+      <div class="row compact">
+        <label>Count<input class="count" type="number" min="0"></label>
+        <label>Size<select class="size">
+          <option>d4</option><option>d6</option><option>d8</option>
+          <option>d10</option><option>d12</option>
+        </select></label>
+        <label>Mod<input class="modifier" type="number"></label>
+      </div>
+      <label>Skill Tags<input class="skillTags" placeholder="comma-separated"></label>
+      <label>Range Tag<input class="rangeTag"></label>
+      <label>Other Tags<input class="coreExtraTags" placeholder="comma-separated"></label>
+      <label>Special<textarea class="special"></textarea></label>
+      <label>Mass<input class="mass" type="number" min="0"></label>
+      <div class="row compact">
+        <button type="button" onclick="saveObject(this)">Confirm</button>
+        <button type="button" onclick="cancelObjectForm()">Cancel</button>
+      </div>
+    </div>
+  </template>
 
-// Powers: structured
-function showPowerForm(){
-  if(document.querySelector("#power-form-container .object-form")) return;
-  document.getElementById("power-form-container")
-    .appendChild(document.getElementById("power-form-template").content.cloneNode(true));
-}
-function cancelPowerForm(){ document.getElementById("power-form-container").innerHTML="";}
-function savePower(btn){
-  const f=btn.closest(".object-form");
-  powersData.push({
-    name: f.querySelector(".pname").value,
-    type: f.querySelector(".ptype").value,
-    cd:   +f.querySelector(".pcd").value,
-    speed:+f.querySelector(".pspeed").value,
-    desc: f.querySelector(".pdesc").value
-  });
-  renderPowers(); cancelPowerForm();
-}
+  <script>
+    // element aliases
+    const talents = document.getElementById("talents");
+    const powers  = document.getElementById("powers");
+    const objectsField = document.getElementById("objects");
+    const fileInput = document.getElementById("fileInput");
 
-// Powers: blank
-function showPowerBlankForm(){
-  if(document.querySelector("#power-blank-form-container .object-form")) return;
-  document.getElementById("power-blank-form-container")
-    .appendChild(document.getElementById("power-blank-form-template").content.cloneNode(true));
-}
-function cancelPowerBlankForm(){ document.getElementById("power-blank-form-container").innerHTML=""; }
-function confirmPowerBlank(){
-  const txt=document.querySelector("#power-blank-form-container .blankInput").value.trim();
-  if(txt) powersData.push({raw:txt});
-  renderPowers(); cancelPowerBlankForm();
-}
+    // data stores
+    let powersData = [];
+    let objects = [];
 
-// render Powers
-function renderPowers(){
-  powers.innerHTML="";
-  powersData.forEach((p,i)=>{
-    const row=document.createElement("div"); row.className="row compact";
-    let text = p.raw
-      ? p.raw
-      : `${p.name} | ${p.type} | ${p.cd} | ${p.speed} – ${p.desc}`;
-    // wrap tags
-    text = text.replace(/\(([^)]+)\)/g,(m,tag)=>{
-      const tip = dict[tag.replace(/\d+/,"X")]||"";
-      return `<span class="tag" title="${tip}">(${tag})</span>`;
+    // init core skills
+    const skillList = ["Agility","Artifice","Charm","Fortitude","Intellect","Might","Presence","Precision","Resolve","Sense"];
+    const skillsDiv = document.getElementById("skills");
+    skillList.forEach(s=>{
+      const lbl=document.createElement("label"); lbl.textContent=s;
+      const sel=document.createElement("select"); sel.id=s.toLowerCase();
+      ["d4","d6","d8","d10","d12"].forEach(d=>sel.appendChild(new Option(d,d)));
+      lbl.appendChild(sel); skillsDiv.appendChild(lbl);
     });
-    row.innerHTML = text;
-    const del=document.createElement("button");
-    del.textContent="×"; del.onclick=()=>{powersData.splice(i,1);renderPowers();};
-    row.appendChild(del);
-    powers.appendChild(row);
-  });
-}
 
-// Inventory: structured
-function showObjectForm(){
-  if(document.querySelector("#object-form-container .object-form")) return;
-  document.getElementById("object-form-container")
-    .appendChild(document.getElementById("object-form-template").content.cloneNode(true));
-}
-function cancelObjectForm(){ document.getElementById("object-form-container").innerHTML=""; }
-function saveObject(btn){
-  const f=btn.closest(".object-form");
-  const o = {
-    name: f.querySelector(".name").value,
-    type: f.querySelector(".type").value,
-    subtype: f.querySelector(".subtype").value,
-    count:+f.querySelector(".count").value,
-    size: f.querySelector(".size").value,
-    modifier:+f.querySelector(".modifier").value,
-    skillTags: f.querySelector(".skillTags").value.split(",").map(s=>s.trim()).filter(Boolean),
-    rangeTag: f.querySelector(".rangeTag").value.trim(),
-    coreExtraTags: f.querySelector(".coreExtraTags").value.split(",").map(s=>s.trim()).filter(Boolean),
-    special: f.querySelector(".special").value,
-    mass:+f.querySelector(".mass").value
-  };
-  objects.push(o);
-  renderObjects(); cancelObjectForm();
-}
-
-// Inventory: paste struct
-function showRawForm(){
-  if(document.querySelector("#raw-form-container .object-form")) return;
-  document.getElementById("raw-form-container")
-    .appendChild(document.getElementById("raw-form-template").content.cloneNode(true));
-}
-function cancelRawForm(){ document.getElementById("raw-form-container").innerHTML=""; }
-function parseRawObject(){
-  const txt=document.querySelector("#raw-form-container .rawInput").value.trim();
-  if(txt) objects.push({raw:txt});
-  renderObjects(); cancelRawForm();
-}
-
-// Inventory: paste blank
-function showBlankForm(){
-  if(document.querySelector("#blank-form-container .object-form")) return;
-  document.getElementById("blank-form-container")
-    .appendChild(document.getElementById("blank-form-template").content.cloneNode(true));
-}
-function cancelBlankForm(){ document.getElementById("blank-form-container").innerHTML=""; }
-function confirmBlank(){
-  const txt=document.querySelector("#blank-form-container .blankInput").value.trim();
-  if(txt) objects.push({raw:txt});
-  renderObjects(); cancelBlankForm();
-}
-
-// render Inventory
-function renderObjects(){
-  objectsField.innerHTML="";
-  objects.forEach((o,i)=>{
-    const row=document.createElement("div"); row.className="row compact";
-    let text = o.raw
-      ? o.raw
-      : `${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} | `
-      +`${o.count}${o.size}${o.modifier? "+"+o.modifier:""} | `
-      +`(${o.skillTags.join(", ")}, ${o.rangeTag}) | `
-      +`(${o.coreExtraTags.join(", ")}) | ${o.mass} Mass`
-      + (o.special? ` | Special: ${o.special}`:"");
-    text = text.replace(/\(([^)]+)\)/g,(m,tag)=>{
-      const tip = dict[tag.replace(/\d+/,"X")]||"";
-      return `<span class="tag" title="${tip}">(${tag})</span>`;
-    });
-    row.innerHTML = text;
-    const del=document.createElement("button");
-    del.textContent="×"; del.onclick=()=>{objects.splice(i,1);renderObjects();};
-    row.appendChild(del);
-    objectsField.appendChild(row);
-  });
-}
-
-// Sticky notes
-function createSticky(text="",x=20,y=20,w=200,h=140){
-  const n=document.createElement("div"); n.className="sticky";
-  n.contentEditable="true"; n.style.left=`${x}px`; n.style.top=`${y}px`;
-  n.style.width=`${w}px`; n.style.height=`${h}px`;
-  n.innerHTML=text; document.body.append(n);
-  let dx,dy,moving=false;
-  n.addEventListener("mousedown", e=>{
-    const rect=n.getBoundingClientRect();
-    const offX=e.clientX-rect.left, offY=e.clientY-rect.top;
-    // if near bottom-right 16px -> let resize
-    if(offX>rect.width-16 && offY>rect.height-16) return;
-    moving=true; dx=offX; dy=offY; e.preventDefault();
-  });
-  document.addEventListener("mousemove", e=>{
-    if(!moving) return;
-    n.style.left=`${e.clientX-dx}px`;
-    n.style.top=`${e.clientY-dy}px`;
-    if(e.clientY > window.innerHeight-40) window.scrollBy(0,20);
-  });
-  document.addEventListener("mouseup", ()=>moving=false);
-}
-document.getElementById("addStickyBtn").onclick = ()=>createSticky();
-
-// Save / Load JSON
-document.getElementById("saveBtn").onclick = saveJSON;
-document.getElementById("loadBtn").onclick = ()=>fileInput.click();
-fileInput.onchange = loadJSON;
-
-function saveJSON(){
-  const [hc,hm]=v("health").split("/").map(n=>+n)||[0,0];
-  const data={
-    identity:{name:v("name"),concept:v("concept"),age:+v("age"),
-              player:v("player"),xp:+v("xp"),bonds:v("bonds")},
-    skills:Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
-    stats:{strain:+v("strain"),surges:+v("surges"),supplies:+v("supplies"),
-           wealth:+v("wealth"),health:[hc,hm],
-           enc:[+v("encCurrent"),+v("encMax")]},
-    conditions:v("conditions"),
-    talents:[...talents.children].map(r=>({
-      name:r.querySelector(".name").value,die:r.querySelector(".die").value
-    })),
-    powers:powersData, inventory:objects,
-    notesA:v("notesA"), notesB:v("notesB"),
-    stickies:[...document.querySelectorAll(".sticky")].map(el=>({
-      content:el.innerHTML,left:parseInt(el.style.left),
-      top:parseInt(el.style.top),width:el.offsetWidth,height:el.offsetHeight
-    }))
-  };
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download="axial_character.json"; a.click();
-}
-
-function loadJSON(e){
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{
-      const d=JSON.parse(r.result);
-      ["name","concept","age","player","xp","bonds"]
-        .forEach(id=>set(id,d.identity[id]));
-      skillList.forEach(s=>set(s.toLowerCase(),d.skills[s]));
-      set("strain",d.stats.strain);set("surges",d.stats.surges);
-      set("supplies",d.stats.supplies);set("wealth",d.stats.wealth);
-      set("health",d.stats.health.join("/"));
-      set("encCurrent",d.stats.enc[0]);set("encMax",d.stats.enc[1]);
-      set("conditions",d.conditions);
-      talents.innerHTML=""; d.talents.forEach(t=>{
-        addRow("talent");
-        const r=talents.lastElementChild;
-        r.querySelector(".name").value=t.name;
-        r.querySelector(".die").value=t.die;
-      });
-      powersData=d.powers||[]; renderPowers();
-      objects=d.inventory||[]; renderObjects();
-      set("notesA",d.notesA||""); set("notesB",d.notesB||"");
-      document.querySelectorAll(".sticky").forEach(el=>el.remove());
-      (d.stickies||[]).forEach(s=>createSticky(s.content,s.left,s.top,s.width,s.height));
-    }catch{
-      alert("Invalid JSON");
+    // row helpers
+    function addRow(kind){
+      document.getElementById(kind+"s")
+        .appendChild(document.getElementById(kind+"-template").content.cloneNode(true));
     }
-  };
-  r.readAsText(f);
-}
+    function removeRow(btn){ btn.parentNode.remove(); }
 
-const v=id=>document.getElementById(id).value;
-const set=(id,val)=>{ const e=document.getElementById(id); if(e) e.value=val; };
+    // Powers: structured
+    function showPowerForm(){
+      if(document.querySelector("#power-form-container .object-form")) return;
+      document.getElementById("power-form-container")
+        .appendChild(document.getElementById("power-form-template").content.cloneNode(true));
+    }
+    function cancelPowerForm(){ document.getElementById("power-form-container").innerHTML="";}
+    function savePower(btn){
+      const f=btn.closest(".object-form");
+      powersData.push({
+        name: f.querySelector(".pname").value,
+        type: f.querySelector(".ptype").value,
+        cd:   +f.querySelector(".pcd").value,
+        speed:+f.querySelector(".pspeed").value,
+        desc: f.querySelector(".pdesc").value
+      });
+      renderPowers(); cancelPowerForm();
+    }
 
-// full dictionary of tags
-const dict = {
-  // 2.2 Universal
-  "Multipurpose|X":"This object may also be useful as an X object type in certain scenarios.",
-  "Special":"This object has an additional more complicated ability. May violate struct.",
-  "Ornate":"Visually impressive; contesting with it steps up a Skill die.",
-  "Charging X":"After X uses, needs recharge before reuse.",
-  "Damaged":"Next use destroys the object.",
-  "Dangerous":"Complications have unpredictable side effects.",
-  "Consumable X":"Destroyed after X uses.",
-  "Consistent X":"Reroll X ones in its dice pool.",
-  "Melee":"Use within 0–2m (same zone).",
-  "Near-range":"Use within 2–20m (adjacent zones).",
-  "Long-range":"Use within 20–100m (up to 3 zones).",
-  "Far-range":"Use at any visible distance.",
-  "Agility":"Agility is an object skill.",
-  "Artifice":"Artifice is an object skill.",
-  "Charm":"Charm is an object skill.",
-  "Fortitude":"Fortitude is an object skill.",
-  "Intellect":"Intellect is an object skill.",
-  "Might":"Might is an object skill.",
-  "Presence":"Presence is an object skill.",
-  "Precision":"Precision is an object skill.",
-  "Resolve":"Resolve is an object skill.",
-  "Sense":"Sense is an object skill.",
-  "Intricate 1dX":"Requires Agility die 1dX.",
-  "Engineered 1dX":"Requires Artifice die 1dX.",
-  "Disarming 1dX":"Requires Charm die 1dX.",
-  "Stalwart 1dX":"Requires Fortitude die 1dX.",
-  "Complex 1dX":"Requires Intellect die 1dX.",
-  "Unruly 1dX":"Requires Might die 1dX.",
-  "Commanding 1dX":"Requires Presence die 1dX.",
-  "Exacting 1dX":"Requires Precision die 1dX.",
-  "Resolute 1dX":"Requires Resolve die 1dX.",
-  "Perceptive 1dX":"Requires Sense die 1dX.",
-  // 2.3 Weapons Core
-  "Ammo":"Complications may force extra shots and expend 1 ammo.",
-  "Loading":"Must expend an ammo to use.",
-  "Loading X":"Must expend X-type ammo to use.",
-  "Throwable":"Can be thrown (same or adjacent zone).",
-  "Versatile":"Can be used as melee in same zone.",
-  "Quick":"Attack as medium move; one attack/turn.",
-  "Reload X":"Cannot be used for X rounds after attack.",
-  // Weapons Extra
-  "Forceful":"Pushes target into adjacent zone on success.",
-  "Energized":"Does not consume ammo; can overheat.",
-  "Piercing X":"Ignores X damage reduction.",
-  "Cycling":"Expend 1 ammo to step up all dice.",
-  "Efficient":"50% chance to not consume ammo.",
-  "Volatile":"Step up all dice; roll weapon die and lose that much HP.",
-  "Shredding X":"Remove X smallest defend dice from opponent.",
-  "Covering X":"Step down X dice on next attack of nearby allies.",
-  "Suppressed":"No noise; cannot be heard >2 zones away.",
-  "Explosive":"Hits all creatures in zone on success.",
-  "Brutal":"Also attack closest creature.",
-  "Violent X":"Add X dice to attack pool.",
-  "Flaming X":"Hit targets become enflamed X.",
-  "Poisoned X":"+X to attack; give poisoned. X-1 after roll.",
-  "Stunning":"On damage, roll 1d6; on 6, stun until end of turn.",
-  // Wearables Core
-  "Gear":"Cannot add its die to defend pool.",
-  "Adornment":"Can use without hands; max 5 equipped.",
-  // Wearables Extra
-  "Toughness X":"Reduce damage by X.",
-  "Hardened X":"Add an extra die to defend pool.",
-  "Shielding X":"Count X extra defend dice.",
-  "Dense X":"Add +X to defend total.",
-  "Protective":"Ignore damage once, gain Damaged tag.",
-  "Resistant X":"Immune to X condition.",
-  "Supporting X":"Increase encumbrance by X.",
-  // Tools Core
-  "Aid|X":"Always contribute die if Talent X is present; step up Talent X.",
-  "Supplies X":"Can be created by spending X Supplies.",
-  // Attachments Core
-  "Removable":"Can be removed with heavy action.",
-  "Permanent":"Cannot be removed once attached.",
-  "X Made":"Only attach to objects of subtype X."
-};
-</script>
+    // Powers: blank
+    function showPowerBlankForm(){
+      if(document.querySelector("#power-blank-form-container .object-form")) return;
+      document.getElementById("power-blank-form-container")
+        .appendChild(document.getElementById("power-blank-form-template").content.cloneNode(true));
+    }
+    function cancelPowerBlankForm(){ document.getElementById("power-blank-form-container").innerHTML=""; }
+    function confirmPowerBlank(){
+      const txt=document.querySelector("#power-blank-form-container .blankInput").value.trim();
+      if(txt) powersData.push({raw:txt});
+      renderPowers(); cancelPowerBlankForm();
+    }
+
+    // render Powers
+    function renderPowers(){
+      powers.innerHTML="";
+      powersData.forEach((p,i)=>{
+        const row=document.createElement("div"); row.className="row compact";
+        let text = p.raw
+          ? p.raw
+          : `${p.name} | ${p.type} | ${p.cd} | ${p.speed} – ${p.desc}`;
+        text = text.replace(/\(([^)]+)\)/g,(m,tag)=>{
+          const tip = dict[tag.replace(/\d+/,"X")]||"";
+          return `<span class="tag" title="${tip}">(${tag})</span>`;
+        });
+        row.innerHTML = text;
+        const del=document.createElement("button");
+        del.textContent="×"; del.onclick=()=>{powersData.splice(i,1);renderPowers();};
+        row.appendChild(del);
+        powers.appendChild(row);
+      });
+    }
+
+    // Inventory: structured
+    function showObjectForm(){
+      if(document.querySelector("#object-form-container .object-form")) return;
+      document.getElementById("object-form-container")
+        .appendChild(document.getElementById("object-form-template").content.cloneNode(true));
+    }
+    function cancelObjectForm(){ document.getElementById("object-form-container").innerHTML=""; }
+    function saveObject(btn){
+      const f=btn.closest(".object-form");
+      const o = {
+        name: f.querySelector(".name").value,
+        type: f.querySelector(".type").value,
+        subtype: f.querySelector(".subtype").value,
+        count:+f.querySelector(".count").value,
+        size: f.querySelector(".size").value,
+        modifier:+f.querySelector(".modifier").value,
+        skillTags: f.querySelector(".skillTags").value.split(",").map(s=>s.trim()).filter(Boolean),
+        rangeTag: f.querySelector(".rangeTag").value.trim(),
+        coreExtraTags: f.querySelector(".coreExtraTags").value.split(",").map(s=>s.trim()).filter(Boolean),
+        special: f.querySelector(".special").value,
+        mass:+f.querySelector(".mass").value
+      };
+      objects.push(o);
+      renderObjects(); cancelObjectForm();
+    }
+
+    // Inventory: paste struct
+    function showRawForm(){
+      if(document.querySelector("#raw-form-container .object-form")) return;
+      document.getElementById("raw-form-container")
+        .appendChild(document.getElementById("raw-form-template").content.cloneNode(true));
+    }
+    function cancelRawForm(){ document.getElementById("raw-form-container").innerHTML=""; }
+    function parseRawObject(){
+      const txt=document.querySelector("#raw-form-container .rawInput").value.trim();
+      if(txt) objects.push({raw:txt});
+      renderObjects(); cancelRawForm();
+    }
+
+    // Inventory: paste blank
+    function showBlankForm(){
+      if(document.querySelector("#blank-form-container .object-form")) return;
+      document.getElementById("blank-form-container")
+        .appendChild(document.getElementById("blank-form-template").content.cloneNode(true));
+    }
+    function cancelBlankForm(){ document.getElementById("blank-form-container").innerHTML=""; }
+    function confirmBlank(){
+      const txt=document.querySelector("#blank-form-container .blankInput").value.trim();
+      if(txt) objects.push({raw:txt});
+      renderObjects(); cancelBlankForm();
+    }
+
+    // render Inventory
+    function renderObjects(){
+      objectsField.innerHTML="";
+      objects.forEach((o,i)=>{
+        const row=document.createElement("div"); row.className="row compact";
+        let text = o.raw
+          ? o.raw
+          : `${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} | `
+          +`${o.count}${o.size}${o.modifier? "+"+o.modifier:""} | `
+          +`(${o.skillTags.join(", ")}, ${o.rangeTag}) | `
+          +`(${o.coreExtraTags.join(", ")}) | ${o.mass} Mass`
+          + (o.special? ` | Special: ${o.special}`:"");
+        text = text.replace(/\(([^)]+)\)/g,(m,tag)=>{
+          const tip = dict[tag.replace(/\d+/,"X")]||"";
+          return `<span class="tag" title="${tip}">(${tag})</span>`;
+        });
+        row.innerHTML = text;
+        const del=document.createElement("button");
+        del.textContent="×"; del.onclick=()=>{objects.splice(i,1);renderObjects();};
+        row.appendChild(del);
+        objectsField.appendChild(row);
+      });
+    }
+
+    // Sticky notes
+    function createSticky(text="",x=20,y=20,w=200,h=140){
+      const n=document.createElement("div"); n.className="sticky";
+      n.style.left=`${x}px`; n.style.top=`${y}px`;
+      n.style.width=`${w}px`; n.style.height=`${h}px`;
+
+      const drag=document.createElement("div"); drag.className="drag-handle";
+      const content=document.createElement("div"); content.className="sticky-content";
+      content.contentEditable="true"; content.innerHTML=text;
+
+      n.appendChild(drag);
+      n.appendChild(content);
+      document.body.append(n);
+
+      let dx,dy,m=false;
+      drag.addEventListener("mousedown", e=>{
+        m=true; dx=e.clientX-n.offsetLeft; dy=e.clientY-n.offsetTop;
+        e.preventDefault();
+      });
+      document.addEventListener("mousemove", e=>{
+        if(!m) return;
+        n.style.left=`${e.clientX-dx}px`;
+        n.style.top=`${e.clientY-dy}px`;
+        if(e.clientY>window.innerHeight-40) window.scrollBy(0,20);
+      });
+      document.addEventListener("mouseup", ()=>m=false);
+    }
+    document.getElementById("addStickyBtn").onclick = ()=>createSticky();
+
+    // Save / Load JSON
+    document.getElementById("saveBtn").onclick = saveJSON;
+    document.getElementById("loadBtn").onclick = ()=>fileInput.click();
+    fileInput.onchange = loadJSON;
+
+    function saveJSON(){
+      const [hc,hm]=v("health").split("/").map(n=>+n)||[0,0];
+      const data={
+        identity:{name:v("name"),concept:v("concept"),age:+v("age"),
+                  player:v("player"),xp:+v("xp"),bonds:v("bonds")},
+        skills:Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
+        stats:{strain:+v("strain"),surges:+v("surges"),supplies:+v("supplies"),
+               wealth:+v("wealth"),health:[hc,hm],
+               enc:[+v("encCurrent"),+v("encMax")]},
+        conditions:v("conditions"),
+        talents:[...talents.children].map(r=>({
+          name:r.querySelector(".name").value,die:r.querySelector(".die").value
+        })),
+        powers:powersData, inventory:objects,
+        notesA:v("notesA"), notesB:v("notesB"),
+        stickies:[...document.querySelectorAll(".sticky")].map(el=>({
+          content:el.querySelector(".sticky-content").innerHTML,
+          left:parseInt(el.style.left), top:parseInt(el.style.top),
+          width:el.offsetWidth, height:el.offsetHeight
+        }))
+      };
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+      a.download="axial_character.json"; a.click();
+    }
+
+    function loadJSON(e){
+      const f=e.target.files[0]; if(!f) return;
+      const r=new FileReader();
+      r.onload=()=>{
+        try{
+          const d=JSON.parse(r.result);
+          ["name","concept","age","player","xp","bonds"]
+            .forEach(id=>set(id,d.identity[id]));
+          skillList.forEach(s=>set(s.toLowerCase(),d.skills[s]));
+          set("strain",d.stats.strain); set("surges",d.stats.surges);
+          set("supplies",d.stats.supplies); set("wealth",d.stats.wealth);
+          set("health",d.stats.health.join("/"));
+          set("encCurrent",d.stats.enc[0]); set("encMax",d.stats.enc[1]);
+          set("conditions",d.conditions);
+          talents.innerHTML=""; d.talents.forEach(t=>{
+            addRow("talent");
+            const r=talents.lastElementChild;
+            r.querySelector(".name").value=t.name;
+            r.querySelector(".die").value=t.die;
+          });
+          powersData=d.powers||[]; renderPowers();
+          objects=d.inventory||[]; renderObjects();
+          set("notesA",d.notesA||""); set("notesB",d.notesB||"");
+          document.querySelectorAll(".sticky").forEach(el=>el.remove());
+          (d.stickies||[]).forEach(s=>createSticky(
+            s.content,s.left,s.top,s.width,s.height
+          ));
+        }catch{
+          alert("Invalid JSON");
+        }
+      };
+      r.readAsText(f);
+    }
+
+    const v=id=>document.getElementById(id).value;
+    const set=(id,val)=>{ const e=document.getElementById(id); if(e) e.value=val; };
+
+    // full dictionary of tags
+    const dict = {
+      "Multipurpose|X":"This object may also be useful as an X object type in certain scenarios.",
+      "Special":"This object has an additional more complicated ability. May violate struct.",
+      "Ornate":"Visually impressive; contesting with it steps up a Skill die.",
+      "Charging X":"After X uses, needs recharge before reuse.",
+      "Damaged":"Next use destroys the object.",
+      "Dangerous":"Complications have unpredictable side effects.",
+      "Consumable X":"Destroyed after X uses.",
+      "Consistent X":"Reroll X ones in its dice pool.",
+      "Melee":"Use within 0–2m (same zone).",
+      "Near-range":"Use within 2–20m (adjacent zones).",
+      "Long-range":"Use within 20–100m (up to 3 zones).",
+      "Far-range":"Use at any visible distance.",
+      "Agility":"Agility is an object skill.",
+      "Artifice":"Artifice is an object skill.",
+      "Charm":"Charm is an object skill.",
+      "Fortitude":"Fortitude is an object skill.",
+      "Intellect":"Intellect is an object skill.",
+      "Might":"Might is an object skill.",
+      "Presence":"Presence is an object skill.",
+      "Precision":"Precision is an object skill.",
+      "Resolve":"Resolve is an object skill.",
+      "Sense":"Sense is an object skill.",
+      "Intricate 1dX":"Requires Agility die 1dX.",
+      "Engineered 1dX":"Requires Artifice die 1dX.",
+      "Disarming 1dX":"Requires Charm die 1dX.",
+      "Stalwart 1dX":"Requires Fortitude die 1dX.",
+      "Complex 1dX":"Requires Intellect die 1dX.",
+      "Unruly 1dX":"Requires Might die 1dX.",
+      "Commanding 1dX":"Requires Presence die 1dX.",
+      "Exacting 1dX":"Requires Precision die 1dX.",
+      "Resolute 1dX":"Requires Resolve die 1dX.",
+      "Perceptive 1dX":"Requires Sense die 1dX.",
+      "Ammo":"Complications may force extra shots and expend 1 ammo.",
+      "Loading":"Must expend an ammo to use.",
+      "Loading X":"Must expend X-type ammo to use.",
+      "Throwable":"Can be thrown (same or adjacent zone).",
+      "Versatile":"Can be used as melee in same zone.",
+      "Quick":"Attack as medium move; one attack/turn.",
+      "Reload X":"Cannot be used for X rounds after attack.",
+      "Forceful":"Pushes target into adjacent zone on success.",
+      "Energized":"Does not consume ammo; can overheat.",
+      "Piercing X":"Ignores X damage reduction.",
+      "Cycling":"Expend 1 ammo to step up all dice.",
+      "Efficient":"50% chance to not consume ammo.",
+      "Volatile":"Step up all dice; roll weapon die and lose that much HP.",
+      "Shredding X":"Remove X smallest defend dice from opponent.",
+      "Covering X":"Step down X dice on next attack of nearby allies.",
+      "Suppressed":"No noise; cannot be heard >2 zones away.",
+      "Explosive":"Hits all creatures in zone on success.",
+      "Brutal":"Also attack closest creature.",
+      "Violent X":"Add X dice to attack pool.",
+      "Flaming X":"Hit targets become enflamed X.",
+      "Poisoned X":"+X to attack; give poisoned. X-1 after roll.",
+      "Stunning":"On damage, roll 1d6; on 6, stun until end of turn.",
+      "Gear":"Cannot add its die to defend pool.",
+      "Adornment":"Can use without hands; max 5 equipped.",
+      "Toughness X":"Reduce damage by X.",
+      "Hardened X":"Add an extra die to defend pool.",
+      "Shielding X":"Count X extra defend dice.",
+      "Dense X":"Add +X to defend total.",
+      "Protective":"Ignore damage once, gain Damaged tag.",
+      "Resistant X":"Immune to X condition.",
+      "Supporting X":"Increase encumbrance by X.",
+      "Aid|X":"Always contribute die if Talent X is present; step up Talent X.",
+      "Supplies X":"Can be created by spending X Supplies.",
+      "Removable":"Can be removed with heavy action.",
+      "Permanent":"Cannot be removed once attached.",
+      "X Made":"Only attach to objects of subtype X."
+    };
+  </script>
 </body>
 </html>
