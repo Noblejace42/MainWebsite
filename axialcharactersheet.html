@@ -17,68 +17,84 @@
 @media (prefers-color-scheme:light) {
   :root { --bg: #fdfdfd; --fg: #111; --border: #ccc; }
 }
-html,body {
-  margin:0; padding:0; height:100%; background:var(--bg); color:var(--fg);
-  font-family:var(--font);
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font);
 }
 form {
-  max-width:900px; margin:auto; padding:var(--gap);
-  display:flex; flex-direction:column; gap:var(--gap);
+  max-width: 900px; margin: auto; padding: var(--gap);
+  display: flex; flex-direction: column; gap: var(--gap);
 }
 h2 {
-  margin:var(--gap) 0 0.2rem; font-size:1rem;
-  border-bottom:1px solid var(--border);
+  margin: var(--gap) 0 0.2rem; font-size: 1rem;
+  border-bottom: 1px solid var(--border);
 }
 .grid2 {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-  gap:var(--gap);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--gap);
 }
 label {
-  display:flex; flex-direction:column; font-size:0.9rem;
+  display: flex; flex-direction: column; font-size: 0.9rem;
 }
-input,select,textarea,button {
-  font-family:inherit; font-size:0.9rem;
+input, select, textarea, button {
+  font-family: inherit; font-size: 0.9rem;
 }
-input,select {
-  width:100%; padding:var(--pad);
-  border:1px solid var(--border); border-radius:var(--radius);
-  background:transparent; color:inherit;
+input, select {
+  padding: var(--pad);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent; color: inherit;
+}
+select, option {
+  background: var(--bg); color: var(--fg);
 }
 textarea {
-  width:100%; padding:var(--pad);
-  border:1px solid var(--border); border-radius:var(--radius);
-  resize:vertical; min-height:2rem;
-}
-select,option {
-  background:var(--bg); color:var(--fg);
+  padding: var(--pad);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 2rem; resize: vertical;
 }
 button {
-  cursor:pointer; background:var(--accent);
-  color:#fff; border:none; border-radius:var(--radius);
-  padding:var(--pad) var(--pad);
+  padding: var(--pad) var(--pad);
+  border: none; border-radius: var(--radius);
+  background: var(--accent); color: #fff;
+  cursor: pointer;
 }
 .row {
-  display:flex; gap:var(--gap);
-  align-items:center; margin-bottom:var(--gap);
+  display: flex; gap: var(--gap); align-items: center;
 }
 .row.compact {
-  padding:0; margin:0 0 var(--gap);
+  padding: 0; margin-bottom: var(--gap);
 }
 .row.compact input,
 .row.compact select,
 .row.compact button {
-  padding:0.2rem; font-size:0.85rem;
+  padding: 0.2rem; font-size: 0.85rem;
 }
 fieldset {
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:var(--pad); margin:0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--pad);
 }
-.template { display:none; }
+.tag {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+.object-form {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--gap);
+  display: flex; flex-direction: column; gap: var(--gap);
+  margin-bottom: var(--gap);
+}
 </style>
 </head>
 <body>
 <form id="sheet" autocomplete="off">
+
   <section>
     <h2>Identity</h2>
     <div class="grid2">
@@ -90,10 +106,12 @@ fieldset {
       <label>Bonds<textarea id="bonds"></textarea></label>
     </div>
   </section>
+
   <section>
     <h2>Core Skills</h2>
     <div class="grid2" id="skills"></div>
   </section>
+
   <section>
     <h2>Statistics</h2>
     <div class="grid2">
@@ -101,40 +119,42 @@ fieldset {
       <label>Surges<input id="surges" type="number"></label>
       <label>Supplies<input id="supplies" type="number"></label>
       <label>Wealth<input id="wealth" type="number"></label>
-      <label>Health Current<input id="healthCurrent" type="number"></label>
-      <label>Health Max<input id="healthMax" type="number"></label>
-      <label>Enc. Current<input id="encCurrent" type="number"></label>
+      <label>Health<input id="health" placeholder="cur/max"></label>
+      <label>Enc. Cur<input id="encCurrent" type="number"></label>
       <label>Enc. Max<input id="encMax" type="number"></label>
     </div>
   </section>
+
   <section>
     <h2>Conditions</h2>
     <label>Conditions<textarea id="conditions" placeholder="e.g. Drowning, Stunned"></textarea></label>
   </section>
+
   <section>
     <h2>Talents</h2>
     <fieldset id="talents"></fieldset>
     <button type="button" onclick="addRow('talent')">Add Talent</button>
   </section>
+
   <section>
     <h2>Powers</h2>
+    <div id="power-form-container"></div>
     <fieldset id="powers"></fieldset>
-    <button type="button" onclick="addRow('power')">Add Power</button>
+    <button type="button" onclick="showPowerForm()">Add Power</button>
   </section>
-  <section>
-    <h2>Wounds</h2>
-    <fieldset id="wounds"></fieldset>
-    <button type="button" onclick="addRow('wound')">Add Wound</button>
-  </section>
-  <section>
+
+  <section id="inventorySection">
     <h2>Inventory</h2>
-    <fieldset id="inventory"></fieldset>
-    <button type="button" onclick="addRow('item')">Add Item</button>
+    <div id="object-form-container"></div>
+    <fieldset id="objects"></fieldset>
+    <button type="button" onclick="showObjectForm()">Add Object</button>
   </section>
+
   <section>
     <h2>Notes</h2>
     <textarea id="notes" placeholder="Extras"></textarea>
   </section>
+
   <section class="grid2">
     <button type="button" id="saveBtn">Save JSON</button>
     <button type="button" id="loadBtn">Load JSON</button>
@@ -142,148 +162,343 @@ fieldset {
   </section>
 </form>
 
+<!-- Templates -->
 <template id="talent-template">
   <div class="row compact">
-    <input class="name" placeholder="Name">
+    <input class="name" placeholder="Talent">
     <select class="die">
       <option>d4</option><option>d6</option><option>d8</option><option>d10</option><option>d12</option>
     </select>
     <button type="button" onclick="removeRow(this)">×</button>
   </div>
 </template>
-<template id="power-template">
-  <div class="row compact">
-    <input class="meta" placeholder="Name | Type | CD | Speed">
-    <input class="desc" placeholder="Description">
-    <button type="button" onclick="removeRow(this)">×</button>
-  </div>
-</template>
+
 <template id="wound-template">
   <div class="row compact">
+    <input class="roll" type="number" placeholder="Roll">
     <input class="name" placeholder="Name">
     <input class="effect" placeholder="Effect">
     <input class="penalty" type="number" placeholder="HP Pen">
     <button type="button" onclick="removeRow(this)">×</button>
   </div>
 </template>
-<template id="item-template">
-  <div class="row compact">
-    <input class="line" placeholder="Object | tags | Mass | Cost">
-    <button type="button" onclick="removeRow(this)">×</button>
+
+<template id="power-form-template">
+  <div class="object-form" data-index="">
+    <label>Name<input class="pname"></label>
+    <label>Type<input class="ptype"></label>
+    <label>Cooldown<input class="pcd" type="number"></label>
+    <label>Speed<input class="pspeed" type="number"></label>
+    <label>Description<textarea class="pdesc"></textarea></label>
+    <div class="row compact">
+      <button type="button" onclick="savePower(this)">Confirm</button>
+      <button type="button" onclick="cancelPowerForm()">Cancel</button>
+    </div>
+  </div>
+</template>
+
+<template id="object-form-template">
+  <div class="object-form" data-index="">
+    <label>Name<input class="name"></label>
+    <label>Type<input class="type"></label>
+    <label>Subtype<input class="subtype"></label>
+    <div class="row compact">
+      <label>Count<input class="count" type="number" min="0"></label>
+      <label>Size<input class="size" type="number" min="0"></label>
+      <label>Mod<input class="modifier" type="number"></label>
+    </div>
+    <label>Skill Tag(s)<input class="skillTags" placeholder="comma-separated"></label>
+    <label>Range Tag<input class="rangeTag"></label>
+    <label>Universal Tag(s)<input class="universalTags" placeholder="comma-separated"></label>
+    <label>Core Tag(s)<input class="coreTags" placeholder="comma-separated"></label>
+    <label>Extra Tag(s)<input class="extraTags" placeholder="comma-separated"></label>
+    <label>Mass<input class="mass" type="number" min="0"></label>
+    <div class="row compact">
+      <button type="button" onclick="saveObject(this)">Confirm</button>
+      <button type="button" onclick="cancelObjectForm()">Cancel</button>
+    </div>
   </div>
 </template>
 
 <script>
-const skillList=["Agility","Artifice","Charm","Fortitude","Intellect","Might","Presence","Precision","Resolve","Sense"];
-const skillsDiv=document.getElementById("skills");
-skillList.forEach(s=>{
-  const lbl=document.createElement("label");
-  lbl.textContent=s;
-  const sel=document.createElement("select");
-  sel.id=s.toLowerCase();
-  ["d4","d6","d8","d10","d12"].forEach(d=>{
-    sel.appendChild(Object.assign(document.createElement("option"),{textContent:d}));
+// dictionary for universal tags
+const dict = {
+  "Multipurpose|X": "This object may also be useful as an X object type in certain scenarios. This object can have tags of X object type.",
+  "Special": "This object has an additional more complicated ability. Typically detailed after the object struct. Special objects might not have an object dice or may violate the object struct format in other ways.",
+  "Ornate": "This object is visually impressive; when you contest while showing it off, step up a relevant Skill die.",
+  "Charging X": "After use X times, this object needs to be recharged and cannot be used again until you next recover.",
+  "Damaged": "The next time this object adds dice to a dice pool or would be used, it is destroyed afterwards.",
+  "Dangerous": "Complications while using this object can have wildly unintended side effects, determined by the GM.",
+  "Consumable X": "After X uses, this object is destroyed.",
+  "Consistent X": "You may reroll X 1’s in this object’s dice pool. You must keep the new result.",
+  "Melee": "Ideal for use within arm's reach (0–2m).",
+  "Near-range": "Ideal for targets 2–20m away (same or adjacent zone).",
+  "Long-range": "Ideal for targets 20–100m away (up to 3 zones). Step down dice if used at same-zone range.",
+  "Far-range": "Ideal for any target you can see (>100m). Step down dice if used at same-zone range.",
+  "Agility": "Agility is an object skill for this object.",
+  "Artifice": "Artifice is an object skill for this object.",
+  "Charm": "Charm is an object skill for this object.",
+  "Fortitude": "Fortitude is an object skill for this object.",
+  "Intellect": "Intellect is an object skill for this object.",
+  "Might": "Might is an object skill for this object.",
+  "Presence": "Presence is an object skill for this object.",
+  "Precision": "Precision is an object skill for this object.",
+  "Resolve": "Resolve is an object skill for this object.",
+  "Sense": "Sense is an object skill for this object.",
+  "Intricate 1dX": "Requires Agility die 1dX to use.",
+  "Engineered 1dX": "Requires Artifice die 1dX to use.",
+  "Disarming 1dX": "Requires Charm die 1dX to use.",
+  "Stalwart 1dX": "Requires Fortitude die 1dX to use.",
+  "Complex 1dX": "Requires Intellect die 1dX to use.",
+  "Unruly 1dX": "Requires Might die 1dX to use.",
+  "Commanding 1dX": "Requires Presence die 1dX to use.",
+  "Exacting 1dX": "Requires Precision die 1dX to use.",
+  "Resolute 1dX": "Requires Resolve die 1dX to use.",
+  "Perceptive 1dX": "Requires Sense die 1dX to use."
+};
+
+const skillList = ["Agility","Artifice","Charm","Fortitude","Intellect","Might","Presence","Precision","Resolve","Sense"];
+const objects = [];
+const powersData = [];
+
+// initialize core skills selectors
+const skillsDiv = document.getElementById("skills");
+skillList.forEach(s => {
+  const lbl = document.createElement("label");
+  lbl.textContent = s;
+  const sel = document.createElement("select");
+  sel.id = s.toLowerCase();
+  ["d4","d6","d8","d10","d12"].forEach(d => {
+    sel.appendChild(Object.assign(document.createElement("option"), { textContent: d }));
   });
   lbl.appendChild(sel);
   skillsDiv.appendChild(lbl);
 });
 
-function addRow(kind){
-  const map={talent:"talents",power:"powers",wound:"wounds",item:"inventory"};
-  const tpl=document.getElementById(kind+"-template").content.cloneNode(true);
-  document.getElementById(map[kind]).appendChild(tpl);
+// talents & wounds remain as before
+function addRow(kind) {
+  const tpl = document.getElementById(kind + "-template").content.cloneNode(true);
+  document.getElementById(kind + "s").appendChild(tpl);
 }
-function removeRow(btn){
-  btn.parentNode.remove();
+function removeRow(btn) { btn.parentNode.remove(); }
+
+// JSON save/load wiring
+document.getElementById("saveBtn").onclick = saveJSON;
+document.getElementById("loadBtn").onclick = () => fileInput.click();
+fileInput.onchange = loadJSON;
+
+// Power form handlers
+function showPowerForm(idx) {
+  if (document.querySelector("#power-form-container .object-form")) return;
+  const tpl = document.getElementById("power-form-template").content.cloneNode(true);
+  const form = tpl.querySelector(".object-form");
+  form.dataset.index = idx ?? "";
+  if (idx != null && powersData[idx]) {
+    const p = powersData[idx];
+    form.querySelector(".pname").value = p.name;
+    form.querySelector(".ptype").value = p.type;
+    form.querySelector(".pcd").value = p.cd;
+    form.querySelector(".pspeed").value = p.speed;
+    form.querySelector(".pdesc").value = p.desc;
+  }
+  document.getElementById("power-form-container").appendChild(form);
 }
-
-document.getElementById("loadBtn")
-  .addEventListener("click",()=>document.getElementById("fileInput").click());
-document.getElementById("fileInput")
-  .addEventListener("change",loadJSON);
-
-function collect(el,fn){
-  return [...el.children].map(fn);
+function cancelPowerForm() {
+  document.getElementById("power-form-container").innerHTML = "";
 }
-
-function saveJSON(){
-  const d={
-    identity:{
-      name:v("name"),concept:v("concept"),
-      age:+v("age"),player:v("player"),xp:+v("xp"),bonds:v("bonds")
-    },
-    skills:Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
-    stats:{
-      strain:+v("strain"),surges:+v("surges"),
-      supplies:+v("supplies"),wealth:+v("wealth"),
-      health:[+v("healthCurrent"),+v("healthMax")],
-      enc:[+v("encCurrent"),+v("encMax")]
-    },
-    conditions:v("conditions"),
-    talents:collect(talents,r=>({
-      name:r.querySelector(".name").value,die:r.querySelector(".die").value
-    })),
-    powers:collect(powers,r=>({
-      meta:r.querySelector(".meta").value,desc:r.querySelector(".desc").value
-    })),
-    wounds:collect(wounds,r=>({
-      roll:+r.querySelector(".roll").value,
-      name:r.querySelector(".name").value,
-      effect:r.querySelector(".effect").value,
-      penalty:+r.querySelector(".penalty").value
-    })),
-    inventory:collect(inventory,r=>r.querySelector(".line").value),
-    notes:v("notes")
+function savePower(btn) {
+  const form = btn.closest(".object-form");
+  const idx = form.dataset.index;
+  const p = {
+    name: form.querySelector(".pname").value.trim(),
+    type: form.querySelector(".ptype").value.trim(),
+    cd: +form.querySelector(".pcd").value,
+    speed: +form.querySelector(".pspeed").value,
+    desc: form.querySelector(".pdesc").value.trim()
   };
-  const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="axial_character.json";
+  if (idx !== "") powersData[idx] = p;
+  else powersData.push(p);
+  renderPowers();
+  cancelPowerForm();
+}
+function renderPowers() {
+  const fld = powers;
+  fld.innerHTML = "";
+  powersData.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "row compact";
+    const text = `${p.name} | ${p.type} | cd ${p.cd} | speed ${p.speed} – ${p.desc}`;
+    row.appendChild(Object.assign(document.createElement("span"), { textContent: text }));
+    const edit = Object.assign(document.createElement("button"), { textContent: "Edit" });
+    edit.onclick = () => showPowerForm(i);
+    row.appendChild(edit);
+    const del = Object.assign(document.createElement("button"), { textContent: "×" });
+    del.onclick = () => { powersData.splice(i,1); renderPowers(); };
+    row.appendChild(del);
+    fld.appendChild(row);
+  });
+}
+
+// Object form handlers
+function showObjectForm(idx) {
+  if (document.querySelector("#object-form-container .object-form")) return;
+  const tpl = document.getElementById("object-form-template").content.cloneNode(true);
+  const form = tpl.querySelector(".object-form");
+  form.dataset.index = idx ?? "";
+  if (idx != null && objects[idx]) {
+    const o = objects[idx];
+    Object.entries(o).forEach(([k,v]) => {
+      const inp = form.querySelector("."+k);
+      if (inp) inp.value = Array.isArray(v)? v.join(",") : v;
+    });
+  }
+  document.getElementById("object-form-container").appendChild(form);
+}
+function cancelObjectForm() {
+  document.getElementById("object-form-container").innerHTML = "";
+}
+function saveObject(btn) {
+  const form = btn.closest(".object-form");
+  const idx = form.dataset.index;
+  const o = {
+    name: form.querySelector(".name").value.trim(),
+    type: form.querySelector(".type").value.trim(),
+    subtype: form.querySelector(".subtype").value.trim(),
+    count: +form.querySelector(".count").value,
+    size: +form.querySelector(".size").value,
+    modifier: +form.querySelector(".modifier").value,
+    skillTags: form.querySelector(".skillTags").value.trim(),
+    rangeTag: form.querySelector(".rangeTag").value.trim(),
+    universalTags: form.querySelector(".universalTags").value.trim().split(",").map(s=>s.trim()).filter(Boolean),
+    coreTags: form.querySelector(".coreTags").value.trim().split(",").map(s=>s.trim()).filter(Boolean),
+    extraTags: form.querySelector(".extraTags").value.trim().split(",").map(s=>s.trim()).filter(Boolean),
+    mass: +form.querySelector(".mass").value
+  };
+  if (idx !== "") objects[idx] = o; else objects.push(o);
+  renderObjects();
+  cancelObjectForm();
+}
+function renderObjects() {
+  const fld = objectsSection.querySelector("#objects");
+  fld.innerHTML = "";
+  objects.forEach((o,i) => {
+    let parts = [];
+    parts.push(o.name);
+    let tt = o.type + (o.subtype? `, ${o.subtype}` : "");
+    parts.push(tt);
+    parts.push(`${o.count}d${o.size}${o.modifier? "+"+o.modifier : ""}`);
+    const tags = [
+      o.skillTags,
+      o.rangeTag,
+      ...o.universalTags,
+      ...o.coreTags,
+      ...o.extraTags
+    ].filter(Boolean);
+    if (tags.length) parts.push("Tags: "+tags.join(", "));
+    if (o.mass) parts.push("Mass: "+o.mass);
+    const text = parts.join(" | ");
+    const row = document.createElement("div");
+    row.className = "row compact";
+    const span = document.createElement("span");
+    span.innerHTML = text.replace(/\(([^)]+)\)/g, (_,tag)=> {
+      const def = dict[tag] || "";
+      return `<span class="tag" title="${def}">(${tag})</span>`;
+    });
+    row.appendChild(span);
+    const edit = Object.assign(document.createElement("button"), { textContent: "Edit" });
+    edit.onclick = () => showObjectForm(i);
+    row.appendChild(edit);
+    const del = Object.assign(document.createElement("button"), { textContent: "×" });
+    del.onclick = () => { objects.splice(i,1); renderObjects(); };
+    row.appendChild(del);
+    fld.appendChild(row);
+  });
+}
+
+// JSON save / load
+function saveJSON() {
+  // parse health
+  const [hc, hm] = (v("health").split("/").map(n=>+n) || [0,0]);
+  const data = {
+    identity: {
+      name: v("name"), concept: v("concept"),
+      age: +v("age"), player: v("player"), xp: +v("xp"), bonds: v("bonds")
+    },
+    skills: Object.fromEntries(skillList.map(s=>[s, v(s.toLowerCase())])),
+    stats: {
+      strain: +v("strain"), surges: +v("surges"),
+      supplies: +v("supplies"), wealth: +v("wealth"),
+      health: [hc, hm],
+      enc: [+v("encCurrent"), +v("encMax")]
+    },
+    conditions: v("conditions"),
+    talents: [...talents.children].map(r=>({
+      name: r.querySelector(".name").value, die: r.querySelector(".die").value
+    })),
+    powers: powersData,
+    inventory: objects,
+    notes: v("notes")
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "axial_character.json";
   a.click();
 }
 
-function loadJSON(e){
-  const f=e.target.files[0];
-  if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{populate(JSON.parse(r.result));}
-    catch{alert("Invalid JSON");}
-  };
-  r.readAsText(f);
-}
-
-function populate(d){
-  ["name","concept","age","player","xp","bonds"].forEach(id=>set(id,d.identity[id]));
-  skillList.forEach(s=>set(s.toLowerCase(),d.skills[s]));
-  set("strain",d.stats.strain); set("surges",d.stats.surges);
-  set("supplies",d.stats.supplies); set("wealth",d.stats.wealth);
-  set("healthCurrent",d.stats.health[0]); set("healthMax",d.stats.health[1]);
-  set("encCurrent",d.stats.enc[0]); set("encMax",d.stats.enc[1]);
-  set("conditions",d.conditions);
-  ["talents","powers","wounds","inventory"].forEach(sec=>{
-    const el=document.getElementById(sec);
-    el.innerHTML="";
-    d[sec].forEach(item=>{
-      addRow(sec.slice(0,-1));
-      const last=el.lastElementChild;
-      Object.entries(item).forEach(([k,v])=>{
-        const fld=last.querySelector("."+k);
-        if(fld) fld.value=v;
+function loadJSON(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const d = JSON.parse(reader.result);
+      // identity
+      ["name","concept","age","player","xp","bonds"].forEach(id => set(id, d.identity[id]));
+      // skills
+      skillList.forEach(s => set(s.toLowerCase(), d.skills[s]));
+      // stats
+      set("strain", d.stats.strain);
+      set("surges", d.stats.surges);
+      set("supplies", d.stats.supplies);
+      set("wealth", d.stats.wealth);
+      set("health", d.stats.health.join("/"));
+      set("encCurrent", d.stats.enc[0]);
+      set("encMax", d.stats.enc[1]);
+      // conditions
+      set("conditions", d.conditions);
+      // talents
+      talents.innerHTML = "";
+      d.talents.forEach(t => {
+        addRow("talent");
+        const r = talents.lastElementChild;
+        r.querySelector(".name").value = t.name;
+        r.querySelector(".die").value = t.die;
       });
-    });
-  });
-  set("notes",d.notes);
+      // powers
+      powersData.length = 0;
+      Array.prototype.push.apply(powersData, d.powers);
+      renderPowers();
+      // inventory
+      objects.length = 0;
+      Array.prototype.push.apply(objects, d.inventory);
+      renderObjects();
+      // notes
+      set("notes", d.notes);
+    } catch {
+      alert("Invalid JSON");
+    }
+  };
+  reader.readAsText(file);
 }
 
-const v=id=>document.getElementById(id).value;
-const set=(id,val)=>{
-  const e=document.getElementById(id);
-  if(e) e.value=val;
-};
+const v = id => document.getElementById(id).value;
+const set = (id, val) => { const e = document.getElementById(id); if(e) e.value = val; };
 
-document.getElementById("saveBtn")
-  .addEventListener("click",saveJSON);
+// alias some elements
+const talents = document.getElementById("talents");
+const powers = document.getElementById("powers");
+const objectsSection = document.getElementById("inventorySection");
+const fileInput = document.getElementById("fileInput");
 </script>
 </body>
 </html>
