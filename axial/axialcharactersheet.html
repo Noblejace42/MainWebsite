@@ -6,12 +6,31 @@
 <!-- AXIAL NAVIGATION BAR -->
 <div id="axial-nav-container"></div>
 <script>
+<!-- AXIAL NAVIGATION BAR (with CSS) -->
+<div id="axial-nav-container"></div>
+<script>
   fetch('axialnav.html')
     .then(r => r.text())
     .then(html => {
-      document.getElementById('axial-nav-container').innerHTML = html;
+      // parse the fetched HTML
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      // grab its <style> block (if any) and append to THIS page's <head>
+      const style = doc.querySelector('head style');
+      if (style) document.head.appendChild(style.cloneNode(true));
+      // grab its <nav> and insert at the top of <body>
+      const nav = doc.querySelector('nav#axial-nav');
+      if (nav) document.getElementById('axial-nav-container')
+                    .appendChild(nav.cloneNode(true));
+      // wire up the toggle button
+      const toggle = document.querySelector('#axial-nav #nav-toggle');
+      const axialNav = document.querySelector('#axial-nav');
+      if (toggle && axialNav) {
+        toggle.addEventListener('click', ()=> axialNav.classList.toggle('show'));
+      }
     })
     .catch(console.error);
+</script>
+
 </script>
 </head>
 <body>
