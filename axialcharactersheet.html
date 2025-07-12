@@ -4,144 +4,173 @@
 <meta charset="utf-8">
 <title>Axial Character Sheet</title>
 <style>
-:root{
-  --bg:#1c1d21;--fg:#e6e7eb;--accent:#3a86ff;--border:#44454b;
-  --pad:0.4rem;--gap:0.6rem;--radius:6px;--font:system-ui,Segoe UI,Roboto,sans-serif;
+:root {
+  --bg: #1c1d21;
+  --fg: #e6e7eb;
+  --accent: #3a86ff;
+  --border: #44454b;
+  --pad: 0.2rem;
+  --gap: 0.4rem;
+  --radius: 4px;
+  --font: system-ui,Segoe UI,Roboto,sans-serif;
 }
-@media (prefers-color-scheme:light){
-  :root{--bg:#fdfdfd;--fg:#111;--border:#ccc;}
+@media (prefers-color-scheme:light) {
+  :root { --bg: #fdfdfd; --fg: #111; --border: #ccc; }
 }
-html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:var(--font);}
-h2{margin:var(--gap) 0 0.3rem;font-size:1.1rem;border-bottom:1px solid var(--border);}
-section{margin-bottom:1.2rem;}
-form{max-width:960px;margin:auto;padding:1rem;display:flex;flex-direction:column;gap:var(--gap);}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--gap);}
-input,select,textarea{width:100%;box-sizing:border-box;padding:var(--pad);border:1px solid var(--border);border-radius:var(--radius);background:transparent;color:inherit;}
-textarea{min-height:4rem;resize:vertical;}
-button{cursor:pointer;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:var(--pad) 0.8rem;font-weight:600;}
-button.small{padding:0 var(--pad);font-size:0.9rem;}
-fieldset{border:1px solid var(--border);border-radius:var(--radius);padding:var(--pad);margin:0;}
-.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:var(--gap);margin-bottom:var(--gap);}
-.row > *:first-child{grid-column:1 / span 1;}
-.template{display:none;}
+html,body {
+  margin:0; padding:0; height:100%; background:var(--bg); color:var(--fg);
+  font-family:var(--font);
+}
+form {
+  max-width:900px; margin:auto; padding:var(--gap);
+  display:flex; flex-direction:column; gap:var(--gap);
+}
+h2 {
+  margin:var(--gap) 0 0.2rem; font-size:1rem;
+  border-bottom:1px solid var(--border);
+}
+.grid2 {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:var(--gap);
+}
+label {
+  display:flex; flex-direction:column; font-size:0.9rem;
+}
+input,select,textarea,button {
+  font-family:inherit; font-size:0.9rem;
+}
+input,select {
+  width:100%; padding:var(--pad);
+  border:1px solid var(--border); border-radius:var(--radius);
+  background:transparent; color:inherit;
+}
+textarea {
+  width:100%; padding:var(--pad);
+  border:1px solid var(--border); border-radius:var(--radius);
+  resize:vertical; min-height:2rem;
+}
+select,option {
+  background:var(--bg); color:var(--fg);
+}
+button {
+  cursor:pointer; background:var(--accent);
+  color:#fff; border:none; border-radius:var(--radius);
+  padding:var(--pad) var(--pad);
+}
+.row {
+  display:flex; gap:var(--gap);
+  align-items:center; margin-bottom:var(--gap);
+}
+.row.compact {
+  padding:0; margin:0 0 var(--gap);
+}
+.row.compact input,
+.row.compact select,
+.row.compact button {
+  padding:0.2rem; font-size:0.85rem;
+}
+fieldset {
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:var(--pad); margin:0;
+}
+.template { display:none; }
 </style>
 </head>
 <body>
 <form id="sheet" autocomplete="off">
-  <!-- Identity -->
   <section>
     <h2>Identity</h2>
     <div class="grid2">
-      <input id="name" placeholder="Name">
-      <input id="concept" placeholder="Concept">
-      <input id="age" placeholder="Age" type="number" min="0">
-      <input id="player" placeholder="Player">
-      <input id="xp" placeholder="Experience" type="number" min="0">
-      <textarea id="bonds" placeholder="Bonds"></textarea>
+      <label>Name<input id="name"></label>
+      <label>Concept<input id="concept"></label>
+      <label>Age<input id="age" type="number" min="0"></label>
+      <label>Player<input id="player"></label>
+      <label>XP<input id="xp" type="number" min="0"></label>
+      <label>Bonds<textarea id="bonds"></textarea></label>
     </div>
   </section>
-
-  <!-- Core Skills -->
   <section>
-    <h2>Core Skills (die size)</h2>
+    <h2>Core Skills</h2>
     <div class="grid2" id="skills"></div>
   </section>
-
-  <!-- Special Statistics -->
   <section>
     <h2>Statistics</h2>
     <div class="grid2">
-      <input id="strain" type="number" placeholder="Strain">
-      <input id="surges" type="number" placeholder="Surges">
-      <input id="supplies" type="number" placeholder="Supplies">
-      <input id="wealth" type="number" placeholder="Wealth">
-      <input id="healthCurrent" type="number" placeholder="Health Current">
-      <input id="healthMax" type="number" placeholder="Health Max">
-      <input id="encCurrent" type="number" placeholder="Encumbrance Current">
-      <input id="encMax" type="number" placeholder="Encumbrance Max">
+      <label>Strain<input id="strain" type="number"></label>
+      <label>Surges<input id="surges" type="number"></label>
+      <label>Supplies<input id="supplies" type="number"></label>
+      <label>Wealth<input id="wealth" type="number"></label>
+      <label>Health Current<input id="healthCurrent" type="number"></label>
+      <label>Health Max<input id="healthMax" type="number"></label>
+      <label>Enc. Current<input id="encCurrent" type="number"></label>
+      <label>Enc. Max<input id="encMax" type="number"></label>
     </div>
   </section>
-
-  <!-- Conditions -->
   <section>
     <h2>Conditions</h2>
-    <textarea id="conditions" placeholder="Comma-separated conditions"></textarea>
+    <label>Conditions<textarea id="conditions" placeholder="e.g. Drowning, Stunned"></textarea></label>
   </section>
-
-  <!-- Dynamic Lists -->
   <section>
     <h2>Talents</h2>
     <fieldset id="talents"></fieldset>
     <button type="button" onclick="addRow('talent')">Add Talent</button>
   </section>
-
   <section>
     <h2>Powers</h2>
     <fieldset id="powers"></fieldset>
     <button type="button" onclick="addRow('power')">Add Power</button>
   </section>
-
   <section>
     <h2>Wounds</h2>
     <fieldset id="wounds"></fieldset>
     <button type="button" onclick="addRow('wound')">Add Wound</button>
   </section>
-
   <section>
     <h2>Inventory</h2>
     <fieldset id="inventory"></fieldset>
     <button type="button" onclick="addRow('item')">Add Item</button>
   </section>
-
-  <!-- Notes -->
   <section>
-    <h2>Miscellaneous Notes</h2>
-    <textarea id="notes"></textarea>
+    <h2>Notes</h2>
+    <textarea id="notes" placeholder="Extras"></textarea>
   </section>
-
-  <!-- Controls -->
   <section class="grid2">
-    <button type="button" onclick="saveJSON()">Save to JSON</button>
-    <label style="display:flex;align-items:center;gap:var(--gap);">
-      <button type="button">Load JSON</button>
-      <input type="file" accept="application/json" style="display:none" onchange="loadJSON(event)">
-    </label>
+    <button type="button" id="saveBtn">Save JSON</button>
+    <button type="button" id="loadBtn">Load JSON</button>
+    <input type="file" id="fileInput" accept="application/json" style="display:none">
   </section>
 </form>
 
-<!-- Templates -->
 <template id="talent-template">
-  <div class="row">
-    <input placeholder="Talent Name" class="name">
+  <div class="row compact">
+    <input class="name" placeholder="Name">
     <select class="die">
       <option>d4</option><option>d6</option><option>d8</option><option>d10</option><option>d12</option>
     </select>
-    <button type="button" class="small" onclick="removeRow(this)">✕</button>
+    <button type="button" onclick="removeRow(this)">×</button>
   </div>
 </template>
-
 <template id="power-template">
-  <div class="row">
-    <input placeholder="Name | Type | Cooldown | Speed" class="meta">
-    <textarea placeholder="Description" class="desc"></textarea>
-    <button type="button" class="small" onclick="removeRow(this)">✕</button>
+  <div class="row compact">
+    <input class="meta" placeholder="Name | Type | CD | Speed">
+    <input class="desc" placeholder="Description">
+    <button type="button" onclick="removeRow(this)">×</button>
   </div>
 </template>
-
 <template id="wound-template">
-  <div class="row">
-    <input placeholder="Roll" class="roll" type="number">
-    <input placeholder="Name" class="name">
-    <input placeholder="Effect" class="effect">
-    <input placeholder="HP Penalty" class="penalty" type="number">
-    <button type="button" class="small" onclick="removeRow(this)">✕</button>
+  <div class="row compact">
+    <input class="roll" type="number" placeholder="Roll">
+    <input class="name" placeholder="Name">
+    <input class="effect" placeholder="Effect">
+    <input class="penalty" type="number" placeholder="HP Pen">
+    <button type="button" onclick="removeRow(this)">×</button>
   </div>
 </template>
-
 <template id="item-template">
-  <div class="row">
-    <input placeholder="Object Line (pipe-delimited)" class="line">
-    <button type="button" class="small" onclick="removeRow(this)">✕</button>
+  <div class="row compact">
+    <input class="line" placeholder="Object | tags | Mass | Cost">
+    <button type="button" onclick="removeRow(this)">×</button>
   </div>
 </template>
 
@@ -149,76 +178,113 @@ fieldset{border:1px solid var(--border);border-radius:var(--radius);padding:var(
 const skillList=["Agility","Artifice","Charm","Fortitude","Intellect","Might","Presence","Precision","Resolve","Sense"];
 const skillsDiv=document.getElementById("skills");
 skillList.forEach(s=>{
-  const label=document.createElement("label");
-  label.textContent=s;
-  label.style.display="contents";
+  const lbl=document.createElement("label");
+  lbl.textContent=s;
   const sel=document.createElement("select");
   sel.id=s.toLowerCase();
   ["d4","d6","d8","d10","d12"].forEach(d=>{
-    const o=document.createElement("option");o.textContent=d;sel.appendChild(o);
+    sel.appendChild(Object.assign(document.createElement("option"),{textContent:d}));
   });
-  label.appendChild(sel);
-  skillsDiv.appendChild(label);
+  lbl.appendChild(sel);
+  skillsDiv.appendChild(lbl);
 });
+
 function addRow(kind){
   const map={talent:"talents",power:"powers",wound:"wounds",item:"inventory"};
-  const tpl=document.getElementById(`${kind}-template`).content.cloneNode(true);
+  const tpl=document.getElementById(kind+"-template").content.cloneNode(true);
   document.getElementById(map[kind]).appendChild(tpl);
 }
-function removeRow(btn){btn.parentElement.remove();}
-function collectSection(container,mapper){
-  return [...container.children].map(mapper);
+function removeRow(btn){
+  btn.parentNode.remove();
 }
+
+document.getElementById("loadBtn")
+  .addEventListener("click",()=>document.getElementById("fileInput").click());
+document.getElementById("fileInput")
+  .addEventListener("change",loadJSON);
+
+function collect(el,fn){
+  return [...el.children].map(fn);
+}
+
 function saveJSON(){
-  const data={
+  const d={
     identity:{
-      name:val("name"),concept:val("concept"),age:num("age"),player:val("player"),xp:num("xp"),bonds:val("bonds")
+      name:v("name"),concept:v("concept"),
+      age:+v("age"),player:v("player"),xp:+v("xp"),bonds:v("bonds")
     },
-    skills:skillList.reduce((o,s)=>(o[s]=val(s.toLowerCase()),o),{}),
+    skills:Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
     stats:{
-      strain:num("strain"),surges:num("surges"),supplies:num("supplies"),wealth:num("wealth"),
-      health:[num("healthCurrent"),num("healthMax")],
-      encumbrance:[num("encCurrent"),num("encMax")]
+      strain:+v("strain"),surges:+v("surges"),
+      supplies:+v("supplies"),wealth:+v("wealth"),
+      health:[+v("healthCurrent"),+v("healthMax")],
+      enc:[+v("encCurrent"),+v("encMax")]
     },
-    conditions:val("conditions"),
-    talents:collectSection(talents,r=>({name:r.querySelector(".name").value,die:r.querySelector(".die").value})),
-    powers:collectSection(powers,r=>({meta:r.querySelector(".meta").value,desc:r.querySelector(".desc").value})),
-    wounds:collectSection(wounds,r=>({
-      roll:+r.querySelector(".roll").value,name:r.querySelector(".name").value,
-      effect:r.querySelector(".effect").value,penalty:+r.querySelector(".penalty").value
+    conditions:v("conditions"),
+    talents:collect(talents,r=>({
+      name:r.querySelector(".name").value,die:r.querySelector(".die").value
     })),
-    inventory:collectSection(inventory,r=>r.querySelector(".line").value),
-    notes:val("notes")
+    powers:collect(powers,r=>({
+      meta:r.querySelector(".meta").value,desc:r.querySelector(".desc").value
+    })),
+    wounds:collect(wounds,r=>({
+      roll:+r.querySelector(".roll").value,
+      name:r.querySelector(".name").value,
+      effect:r.querySelector(".effect").value,
+      penalty:+r.querySelector(".penalty").value
+    })),
+    inventory:collect(inventory,r=>r.querySelector(".line").value),
+    notes:v("notes")
   };
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="axial_character.json";a.click();
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="axial_character.json";
+  a.click();
 }
+
 function loadJSON(e){
-  const file=e.target.files[0];if(!file)return;
-  const fr=new FileReader();
-  fr.onload=()=>{try{populate(JSON.parse(fr.result));}catch(err){alert("Invalid JSON");}};
-  fr.readAsText(file);
+  const f=e.target.files[0];
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{populate(JSON.parse(r.result));}
+    catch{alert("Invalid JSON");}
+  };
+  r.readAsText(f);
 }
+
 function populate(d){
-  setVal("name",d.identity.name);setVal("concept",d.identity.concept);
-  setVal("age",d.identity.age);setVal("player",d.identity.player);
-  setVal("xp",d.identity.xp);setVal("bonds",d.identity.bonds);
-  skillList.forEach(s=>setVal(s.toLowerCase(),d.skills[s]));
-  setVal("strain",d.stats.strain);setVal("surges",d.stats.surges);
-  setVal("supplies",d.stats.supplies);setVal("wealth",d.stats.wealth);
-  setVal("healthCurrent",d.stats.health[0]);setVal("healthMax",d.stats.health[1]);
-  setVal("encCurrent",d.stats.encumbrance[0]);setVal("encMax",d.stats.encumbrance[1]);
-  setVal("conditions",d.conditions);
-  talents.innerHTML="";d.talents.forEach(t=>{addRow('talent');const last=talents.lastElementChild;last.querySelector(".name").value=t.name;last.querySelector(".die").value=t.die;});
-  powers.innerHTML="";d.powers.forEach(p=>{addRow('power');const last=powers.lastElementChild;last.querySelector(".meta").value=p.meta;last.querySelector(".desc").value=p.desc;});
-  wounds.innerHTML="";d.wounds.forEach(w=>{addRow('wound');const last=wounds.lastElementChild;last.querySelector(".roll").value=w.roll;last.querySelector(".name").value=w.name;last.querySelector(".effect").value=w.effect;last.querySelector(".penalty").value=w.penalty;});
-  inventory.innerHTML="";d.inventory.forEach(i=>{addRow('item');inventory.lastElementChild.querySelector(".line").value=i;});
-  setVal("notes",d.notes);
+  ["name","concept","age","player","xp","bonds"].forEach(id=>set(id,d.identity[id]));
+  skillList.forEach(s=>set(s.toLowerCase(),d.skills[s]));
+  set("strain",d.stats.strain); set("surges",d.stats.surges);
+  set("supplies",d.stats.supplies); set("wealth",d.stats.wealth);
+  set("healthCurrent",d.stats.health[0]); set("healthMax",d.stats.health[1]);
+  set("encCurrent",d.stats.enc[0]); set("encMax",d.stats.enc[1]);
+  set("conditions",d.conditions);
+  ["talents","powers","wounds","inventory"].forEach(sec=>{
+    const el=document.getElementById(sec);
+    el.innerHTML="";
+    d[sec].forEach(item=>{
+      addRow(sec.slice(0,-1));
+      const last=el.lastElementChild;
+      Object.entries(item).forEach(([k,v])=>{
+        const fld=last.querySelector("."+k);
+        if(fld) fld.value=v;
+      });
+    });
+  });
+  set("notes",d.notes);
 }
-const val=id=>document.getElementById(id).value;
-const num=id=>+val(id)||0;
-const setVal=(id,v)=>{if(document.getElementById(id))document.getElementById(id).value=v??"";}
+
+const v=id=>document.getElementById(id).value;
+const set=(id,val)=>{
+  const e=document.getElementById(id);
+  if(e) e.value=val;
+};
+
+document.getElementById("saveBtn")
+  .addEventListener("click",saveJSON);
 </script>
 </body>
 </html>
-
