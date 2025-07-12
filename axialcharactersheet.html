@@ -83,6 +83,13 @@ fieldset {
   padding:var(--gap); margin-bottom:var(--gap);
   display:flex; flex-direction:column; gap:var(--gap);
 }
+.sticky {
+  position:absolute; width:150px; height:120px;
+  background: #ffd; color:#000;
+  border:1px solid #aaa; border-radius:4px;
+  padding:0.3rem; cursor:move;
+  overflow:auto;
+}
 </style>
 </head>
 <body>
@@ -138,6 +145,8 @@ fieldset {
 
   <section id="inventorySection">
     <h2>Inventory</h2>
+    <div id="raw-form-container"></div>
+    <button type="button" onclick="showRawForm()">Paste Struct</button>
     <div id="object-form-container"></div>
     <fieldset id="objects"></fieldset>
     <button type="button" onclick="showObjectForm()">Add Object</button>
@@ -149,6 +158,7 @@ fieldset {
       <label>Notes A<textarea id="notesA" placeholder="Left side"></textarea></label>
       <label>Notes B<textarea id="notesB" placeholder="Right side"></textarea></label>
     </div>
+    <button type="button" id="addStickyBtn">New Sticky Note</button>
   </section>
 
   <section class="grid2">
@@ -209,11 +219,25 @@ fieldset {
       </label>
       <label>Mod<input class="modifier" type="number"></label>
     </div>
-    <label>Tags<input class="tags" placeholder="comma-separated"></label>
+    <label>Skill Tag(s)<input class="skillTags" placeholder="comma-separated"></label>
+    <label>Range Tag<input class="rangeTag"></label>
+    <label>Universal Tag(s)<input class="universalTags" placeholder="comma-separated"></label>
+    <label>Core+Extra Tag(s)<input class="coreExtraTags" placeholder="comma-separated"></label>
+    <label>Special Ability<textarea class="special"></textarea></label>
     <label>Mass<input class="mass" type="number" min="0"></label>
     <div class="row compact">
       <button type="button" onclick="saveObject(this)">Confirm</button>
       <button type="button" onclick="cancelObjectForm()">Cancel</button>
+    </div>
+  </div>
+</template>
+
+<template id="raw-form-template">
+  <div class="object-form">
+    <label>Paste Struct<textarea id="rawInput" placeholder="Name | type, subtype | 3d8+1 | (tags) | (tags) | Mass"></textarea></label>
+    <div class="row compact">
+      <button type="button" onclick="parseRawObject()">Confirm</button>
+      <button type="button" onclick="cancelRawForm()">Cancel</button>
     </div>
   </div>
 </template>
@@ -237,7 +261,8 @@ skillList.forEach(s=>{
   const sel = document.createElement("select");
   sel.id = s.toLowerCase();
   ["d4","d6","d8","d10","d12"].forEach(d=>{
-    sel.appendChild(document.createElement("option")).textContent = d;
+    const o = document.createElement("option"); o.textContent = d;
+    sel.appendChild(o);
   });
   lbl.appendChild(sel);
   skillsDiv.appendChild(lbl);
@@ -256,7 +281,7 @@ function showPowerForm(idx){
   const tpl = document.getElementById("power-form-template").content.cloneNode(true);
   const f = tpl.querySelector(".object-form");
   f.dataset.index = idx ?? "";
-  if(idx !== undefined){
+  if(idx!==undefined){
     const p = powersData[idx];
     f.querySelector(".pname").value  = p.name;
     f.querySelector(".ptype").value  = p.type;
@@ -281,21 +306,16 @@ function savePower(btn){
   };
   if(idx!=="") powersData[idx]=p;
   else powersData.push(p);
-  renderPowers();
-  cancelPowerForm();
+  renderPowers(); cancelPowerForm();
 }
 function renderPowers(){
-  powers.innerHTML="";
+  powers.innerHTML = "";
   powersData.forEach((p,i)=>{
-    const row = document.createElement("div");
-    row.className="row compact";
+    const row=document.createElement("div"); row.className="row compact";
     row.textContent = `${p.name} | ${p.type} | ${p.cd} | ${p.speed} – ${p.desc}`;
-    const e = document.createElement("button");
-    e.textContent="Edit"; e.onclick=()=>showPowerForm(i);
-    const d = document.createElement("button");
-    d.textContent="×";    d.onclick=()=>{ powersData.splice(i,1); renderPowers(); };
-    row.append(e,d);
-    powers.append(row);
+    const e=document.createElement("button"); e.textContent="Edit"; e.onclick=()=>showPowerForm(i);
+    const d=document.createElement("button"); d.textContent="×"; d.onclick=()=>{powersData.splice(i,1);renderPowers();};
+    row.append(e,d); powers.append(row);
   });
 }
 
@@ -307,14 +327,18 @@ function showObjectForm(idx){
   f.dataset.index = idx ?? "";
   if(idx!==undefined){
     const o = objects[idx];
-    f.querySelector(".name").value     = o.name;
-    f.querySelector(".type").value     = o.type;
-    f.querySelector(".subtype").value  = o.subtype;
-    f.querySelector(".count").value    = o.count;
-    f.querySelector(".size").value     = o.size;
-    f.querySelector(".modifier").value = o.modifier;
-    f.querySelector(".tags").value     = o.tags.join(", ");
-    f.querySelector(".mass").value     = o.mass;
+    f.querySelector(".name").value        = o.name;
+    f.querySelector(".type").value        = o.type;
+    f.querySelector(".subtype").value     = o.subtype;
+    f.querySelector(".count").value       = o.count;
+    f.querySelector(".size").value        = o.size;
+    f.querySelector(".modifier").value    = o.modifier;
+    f.querySelector(".skillTags").value   = o.skillTags.join(", ");
+    f.querySelector(".rangeTag").value    = o.rangeTag;
+    f.querySelector(".universalTags").value = o.universalTags.join(", ");
+    f.querySelector(".coreExtraTags").value  = o.coreExtraTags.join(", ");
+    f.querySelector(".special").value     = o.special;
+    f.querySelector(".mass").value        = o.mass;
   }
   document.getElementById("object-form-container").appendChild(f);
 }
@@ -325,43 +349,96 @@ function saveObject(btn){
   const f = btn.closest(".object-form");
   const idx = f.dataset.index;
   const o = {
-    name:     f.querySelector(".name").value.trim(),
-    type:     f.querySelector(".type").value.trim(),
-    subtype:  f.querySelector(".subtype").value.trim(),
-    count:    +f.querySelector(".count").value,
-    size:     f.querySelector(".size").value,
-    modifier: +f.querySelector(".modifier").value,
-    tags:     f.querySelector(".tags").value.split(",").map(s=>s.trim()).filter(Boolean),
-    mass:     +f.querySelector(".mass").value
+    name:         f.querySelector(".name").value.trim(),
+    type:         f.querySelector(".type").value.trim(),
+    subtype:      f.querySelector(".subtype").value.trim(),
+    count:        +f.querySelector(".count").value,
+    size:         f.querySelector(".size").value,
+    modifier:     +f.querySelector(".modifier").value,
+    skillTags:    f.querySelector(".skillTags").value.split(",").map(s=>s.trim()).filter(Boolean),
+    rangeTag:     f.querySelector(".rangeTag").value.trim(),
+    universalTags:f.querySelector(".universalTags").value.split(",").map(s=>s.trim()).filter(Boolean),
+    coreExtraTags:f.querySelector(".coreExtraTags").value.split(",").map(s=>s.trim()).filter(Boolean),
+    special:      f.querySelector(".special").value.trim(),
+    mass:         +f.querySelector(".mass").value
   };
-  if(idx!=="") objects[idx]=o;
-  else objects.push(o);
-  renderObjects();
-  cancelObjectForm();
+  if(idx!=="") objects[idx]=o; else objects.push(o);
+  renderObjects(); cancelObjectForm();
 }
 function renderObjects(){
-  objectsField.innerHTML="";
+  objectsField.innerHTML = "";
   objects.forEach((o,i)=>{
-    const row = document.createElement("div");
-    row.className="row compact";
-    // build tag spans, normalize parameter to X
-    const tagSpans = o.tags.map(tag=>{
-      const key = tag.replace(/\d+/,"X");
-      const tip = dict[key]||"";
-      return `<span class="tag" title="${tip}">${tag}</span>`;
-    }).join(", ");
-    row.innerHTML = `${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} | `
-                  +`${o.count}d${o.size}${o.modifier? "+"+o.modifier:""}`
-                  + (tagSpans? ` | Tags: ${tagSpans}` : "")
-                  + (o.mass? ` | Mass: ${o.mass}` : "");
-    const e = document.createElement("button");
-    e.textContent="Edit"; e.onclick=()=>showObjectForm(i);
-    const d = document.createElement("button");
-    d.textContent="×";    d.onclick=()=>{ objects.splice(i,1); renderObjects(); };
-    row.append(e,d);
-    objectsField.append(row);
+    const row=document.createElement("div"); row.className="row compact";
+    // build tag span arrays
+    const combinedTags = [...o.skillTags, o.rangeTag, ...o.universalTags].filter(Boolean);
+    const coreExtra = o.coreExtraTags;
+    const tagsHtml = combinedTags.map(tag=>`<span class="tag">${tag}</span>`).join(", ");
+    const coreHtml = coreExtra.length? ` | (${coreExtra.join(", ")})` : "";
+    row.innerHTML = `
+      ${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} |
+      ${o.count}d${o.size}${o.modifier? "+"+o.modifier:""} |
+      (${combinedTags.join(", ")})${coreHtml} | ${o.mass} Mass
+      ${o.special? ` | Special: ${o.special}` : ""}
+    `;
+    const e=document.createElement("button"); e.textContent="Edit"; e.onclick=()=>showObjectForm(i);
+    const d=document.createElement("button"); d.textContent="×"; d.onclick=()=>{objects.splice(i,1);renderObjects();};
+    row.append(e,d); objectsField.append(row);
   });
 }
+
+// raw struct parser
+function showRawForm(){
+  if(document.querySelector("#raw-form-container .object-form")) return;
+  const tpl = document.getElementById("raw-form-template").content.cloneNode(true);
+  document.getElementById("raw-form-container").appendChild(tpl);
+}
+function cancelRawForm(){
+  document.getElementById("raw-form-container").innerHTML="";
+}
+function parseRawObject(){
+  const txt = document.getElementById("rawInput").value.trim();
+  const parts = txt.split("|").map(s=>s.trim());
+  if(parts.length<6){ alert("Need 6 parts"); return; }
+  const [name, typeSub, diceText, tagsGroup, tagsGroup2, massText] = parts;
+  const [type, subtype=""] = typeSub.split(",").map(s=>s.trim());
+  const dm = diceText.match(/^(\d+)d(\d+)([+-]\d+)?$/);
+  if(!dm){ alert("Bad dice"); return; }
+  const [,c,s,z] = dm;
+  const combinedTags = tagsGroup.replace(/^\(/,"").replace(/\)$/,"").split(",").map(s=>s.trim());
+  const coreExtra = tagsGroup2.replace(/^\(/,"").replace(/\)$/,"").split(",").map(s=>s.trim());
+  const mass = parseInt(massText.replace(/Mass:?/i,"").trim());
+  objects.push({
+    name, type, subtype,
+    count:+c, size:s, modifier:z?+z:0,
+    skillTags:combinedTags, rangeTag:"",
+    universalTags:[], coreExtraTags:coreExtra,
+    special:"", mass
+  });
+  renderObjects(); cancelRawForm();
+}
+
+// sticky notes
+function createSticky(text="", x=20, y=20){
+  const n = document.createElement("div");
+  n.className="sticky"; n.contentEditable="true";
+  n.style.left=`${x}px`; n.style.top=`${y}px`;
+  n.innerHTML=text;
+  document.body.append(n);
+  let dx, dy, moving=false;
+  n.addEventListener("mousedown", e=>{
+    moving=true;
+    dx=e.clientX - n.offsetLeft;
+    dy=e.clientY - n.offsetTop;
+    e.preventDefault();
+  });
+  document.addEventListener("mousemove", e=>{
+    if(!moving) return;
+    n.style.left=`${e.clientX-dx}px`;
+    n.style.top =`${e.clientY-dy}px`;
+  });
+  document.addEventListener("mouseup", ()=>moving=false);
+}
+document.getElementById("addStickyBtn").onclick = ()=>createSticky("",20,20);
 
 // save/load JSON
 document.getElementById("saveBtn").onclick = saveJSON;
@@ -371,19 +448,22 @@ fileInput.onchange = loadJSON;
 function saveJSON(){
   const [hc,hm] = v("health").split("/").map(n=>+n)||[0,0];
   const data = {
-    identity:{ name:v("name"),concept:v("concept"),
-               age:+v("age"),player:v("player"),xp:+v("xp"),bonds:v("bonds") },
-    skills: Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
-    stats:{ strain:+v("strain"),surges:+v("surges"),
-            supplies:+v("supplies"),wealth:+v("wealth"),
-            health:[hc,hm],enc:[+v("encCurrent"),+v("encMax")] },
+    identity:{name:v("name"),concept:v("concept"),
+              age:+v("age"),player:v("player"),xp:+v("xp"),bonds:v("bonds")},
+    skills:Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
+    stats:{strain:+v("strain"),surges:+v("surges"),
+           supplies:+v("supplies"),wealth:+v("wealth"),
+           health:[hc,hm],enc:[+v("encCurrent"),+v("encMax")]},
     conditions:v("conditions"),
-    talents:[...talents.children].map(r=>({
-      name:r.querySelector(".name").value, die:r.querySelector(".die").value
-    })),
+    talents:[...talents.children].map(r=>({name:r.querySelector(".name").value,die:r.querySelector(".die").value})),
     powers:powersData,
     inventory:objects,
-    notesA:v("notesA"), notesB:v("notesB")
+    notesA:v("notesA"),notesB:v("notesB"),
+    stickies:[...document.querySelectorAll(".sticky")].map(el=>({
+      content:el.innerHTML,
+      left:parseInt(el.style.left),
+      top:parseInt(el.style.top)
+    }))
   };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");
@@ -393,7 +473,7 @@ function saveJSON(){
 }
 
 function loadJSON(e){
-  const f=e.target.files[0]; if(!f) return;
+  const f=e.target.files[0]; if(!f)return;
   const r=new FileReader();
   r.onload=()=>{
     try{
@@ -416,13 +496,19 @@ function loadJSON(e){
       objects.length=0; objects.push(...d.inventory||[]);
       renderObjects();
       set("notesA",d.notesA||""); set("notesB",d.notesB||"");
-    }catch{ alert("Invalid JSON"); }
+      // clear existing stickies
+      document.querySelectorAll(".sticky").forEach(el=>el.remove());
+      (d.stickies||[]).forEach(s=>createSticky(s.content,s.left,s.top));
+    }catch{
+      alert("Invalid JSON");
+    }
   };
   r.readAsText(f);
 }
 
 const v=id=>document.getElementById(id).value;
-const set=(id,val)=>{ const e=document.getElementById(id); if(e) e.value=val; };
+const set=(id,val)=>{ const e=document.getElementById(id); if(e)e.value=val; };
+
 
 // full dictionary
 const dict = {
