@@ -19,7 +19,8 @@
 }
 * { box-sizing: border-box; }
 body {
-  margin:0; padding:0; background:var(--bg); color:var(--fg);
+  margin:0; padding:0;
+  background:var(--bg); color:var(--fg);
   font-family:var(--font);
 }
 form {
@@ -157,6 +158,7 @@ fieldset {
   </section>
 </form>
 
+<!-- Templates -->
 <template id="talent-template">
   <div class="row compact">
     <input class="name" placeholder="Talent">
@@ -199,14 +201,15 @@ fieldset {
     <label>Subtype<input class="subtype"></label>
     <div class="row compact">
       <label>Count<input class="count" type="number" min="0"></label>
-      <label>Size<input class="size" type="number" min="0"></label>
+      <label>Size
+        <select class="size">
+          <option>d4</option><option>d6</option><option>d8</option>
+          <option>d10</option><option>d12</option>
+        </select>
+      </label>
       <label>Mod<input class="modifier" type="number"></label>
     </div>
-    <label>Skill Tag(s)<input class="skillTags" placeholder="comma-separated"></label>
-    <label>Range Tag<input class="rangeTag"></label>
-    <label>Universal Tag(s)<input class="universalTags" placeholder="comma-separated"></label>
-    <label>Core Tag(s)<input class="coreTags" placeholder="comma-separated"></label>
-    <label>Extra Tag(s)<input class="extraTags" placeholder="comma-separated"></label>
+    <label>Tags<input class="tags" placeholder="comma-separated"></label>
     <label>Mass<input class="mass" type="number" min="0"></label>
     <div class="row compact">
       <button type="button" onclick="saveObject(this)">Confirm</button>
@@ -216,37 +219,34 @@ fieldset {
 </template>
 
 <script>
-// element aliases must come first
+// aliases
 const talents = document.getElementById("talents");
-const powers = document.getElementById("powers");
-const objectsSection = document.getElementById("inventorySection");
+const powers  = document.getElementById("powers");
+const objectsField = document.getElementById("objects");
 const fileInput = document.getElementById("fileInput");
 
-const skillList = [
-  "Agility","Artifice","Charm","Fortitude","Intellect",
-  "Might","Presence","Precision","Resolve","Sense"
-];
+const skillList = ["Agility","Artifice","Charm","Fortitude","Intellect","Might","Presence","Precision","Resolve","Sense"];
 const objects = [];
 const powersData = [];
 
 // init core skills
 const skillsDiv = document.getElementById("skills");
-skillList.forEach(s => {
+skillList.forEach(s=>{
   const lbl = document.createElement("label");
   lbl.textContent = s;
   const sel = document.createElement("select");
   sel.id = s.toLowerCase();
-  ["d4","d6","d8","d10","d12"].forEach(d => {
-    sel.appendChild(Object.assign(document.createElement("option"),{textContent:d}));
+  ["d4","d6","d8","d10","d12"].forEach(d=>{
+    sel.appendChild(document.createElement("option")).textContent = d;
   });
   lbl.appendChild(sel);
   skillsDiv.appendChild(lbl);
 });
 
-// basic row helpers
+// row helpers
 function addRow(kind){
-  const tpl = document.getElementById(kind + "-template").content.cloneNode(true);
-  document.getElementById(kind + "s").appendChild(tpl);
+  const tpl = document.getElementById(kind+"-template").content.cloneNode(true);
+  document.getElementById(kind+"s").appendChild(tpl);
 }
 function removeRow(btn){ btn.parentNode.remove(); }
 
@@ -254,20 +254,20 @@ function removeRow(btn){ btn.parentNode.remove(); }
 function showPowerForm(idx){
   if(document.querySelector("#power-form-container .object-form")) return;
   const tpl = document.getElementById("power-form-template").content.cloneNode(true);
-  const form = tpl.querySelector(".object-form");
-  form.dataset.index = idx ?? "";
-  if(idx!=null && powersData[idx]){
+  const f = tpl.querySelector(".object-form");
+  f.dataset.index = idx ?? "";
+  if(idx !== undefined){
     const p = powersData[idx];
-    form.querySelector(".pname").value = p.name;
-    form.querySelector(".ptype").value = p.type;
-    form.querySelector(".pcd").value = p.cd;
-    form.querySelector(".pspeed").value = p.speed;
-    form.querySelector(".pdesc").value = p.desc;
+    f.querySelector(".pname").value  = p.name;
+    f.querySelector(".ptype").value  = p.type;
+    f.querySelector(".pcd").value    = p.cd;
+    f.querySelector(".pspeed").value= p.speed;
+    f.querySelector(".pdesc").value = p.desc;
   }
-  document.getElementById("power-form-container").appendChild(form);
+  document.getElementById("power-form-container").appendChild(f);
 }
 function cancelPowerForm(){
-  document.getElementById("power-form-container").innerHTML="";
+  document.getElementById("power-form-container").innerHTML = "";
 }
 function savePower(btn){
   const f = btn.closest(".object-form");
@@ -275,11 +275,11 @@ function savePower(btn){
   const p = {
     name: f.querySelector(".pname").value.trim(),
     type: f.querySelector(".ptype").value.trim(),
-    cd: +f.querySelector(".pcd").value,
-    speed: +f.querySelector(".pspeed").value,
+    cd:   +f.querySelector(".pcd").value,
+    speed:+f.querySelector(".pspeed").value,
     desc: f.querySelector(".pdesc").value.trim()
   };
-  if(idx!=="") powersData[idx] = p;
+  if(idx!=="") powersData[idx]=p;
   else powersData.push(p);
   renderPowers();
   cancelPowerForm();
@@ -287,17 +287,15 @@ function savePower(btn){
 function renderPowers(){
   powers.innerHTML="";
   powersData.forEach((p,i)=>{
-    const row=document.createElement("div"); row.className="row compact";
-    row.appendChild(Object.assign(document.createElement("span"),{
-      textContent:`${p.name} | ${p.type} | cd ${p.cd} | speed ${p.speed} – ${p.desc}`
-    }));
-    const e=Object.assign(document.createElement("button"),{textContent:"Edit"});
-    e.onclick=()=>showPowerForm(i);
-    row.appendChild(e);
-    const d=Object.assign(document.createElement("button"),{textContent:"×"});
-    d.onclick=()=>{powersData.splice(i,1);renderPowers();};
-    row.appendChild(d);
-    powers.appendChild(row);
+    const row = document.createElement("div");
+    row.className="row compact";
+    row.textContent = `${p.name} | ${p.type} | ${p.cd} | ${p.speed} – ${p.desc}`;
+    const e = document.createElement("button");
+    e.textContent="Edit"; e.onclick=()=>showPowerForm(i);
+    const d = document.createElement("button");
+    d.textContent="×";    d.onclick=()=>{ powersData.splice(i,1); renderPowers(); };
+    row.append(e,d);
+    powers.append(row);
   });
 }
 
@@ -305,36 +303,36 @@ function renderPowers(){
 function showObjectForm(idx){
   if(document.querySelector("#object-form-container .object-form")) return;
   const tpl = document.getElementById("object-form-template").content.cloneNode(true);
-  const form = tpl.querySelector(".object-form");
-  form.dataset.index = idx ?? "";
-  if(idx!=null && objects[idx]){
-    const o=objects[idx];
-    Object.entries(o).forEach(([k,v])=>{
-      const inp=form.querySelector("."+k);
-      if(inp) inp.value=Array.isArray(v)?v.join(","):v;
-    });
+  const f = tpl.querySelector(".object-form");
+  f.dataset.index = idx ?? "";
+  if(idx!==undefined){
+    const o = objects[idx];
+    f.querySelector(".name").value     = o.name;
+    f.querySelector(".type").value     = o.type;
+    f.querySelector(".subtype").value  = o.subtype;
+    f.querySelector(".count").value    = o.count;
+    f.querySelector(".size").value     = o.size;
+    f.querySelector(".modifier").value = o.modifier;
+    f.querySelector(".tags").value     = o.tags.join(", ");
+    f.querySelector(".mass").value     = o.mass;
   }
-  document.getElementById("object-form-container").appendChild(form);
+  document.getElementById("object-form-container").appendChild(f);
 }
 function cancelObjectForm(){
   document.getElementById("object-form-container").innerHTML="";
 }
 function saveObject(btn){
-  const f=btn.closest(".object-form");
-  const idx=f.dataset.index;
-  const o={
-    name: f.querySelector(".name").value.trim(),
-    type: f.querySelector(".type").value.trim(),
-    subtype: f.querySelector(".subtype").value.trim(),
-    count: +f.querySelector(".count").value,
-    size: +f.querySelector(".size").value,
+  const f = btn.closest(".object-form");
+  const idx = f.dataset.index;
+  const o = {
+    name:     f.querySelector(".name").value.trim(),
+    type:     f.querySelector(".type").value.trim(),
+    subtype:  f.querySelector(".subtype").value.trim(),
+    count:    +f.querySelector(".count").value,
+    size:     f.querySelector(".size").value,
     modifier: +f.querySelector(".modifier").value,
-    skillTags: f.querySelector(".skillTags").value.trim(),
-    rangeTag: f.querySelector(".rangeTag").value.trim(),
-    universalTags: f.querySelector(".universalTags").value.trim().split(",").map(s=>s.trim()).filter(Boolean),
-    coreTags: f.querySelector(".coreTags").value.trim().split(",").map(s=>s.trim()).filter(Boolean),
-    extraTags: f.querySelector(".extraTags").value.trim().split(",").map(s=>s.trim()).filter(Boolean),
-    mass: +f.querySelector(".mass").value
+    tags:     f.querySelector(".tags").value.split(",").map(s=>s.trim()).filter(Boolean),
+    mass:     +f.querySelector(".mass").value
   };
   if(idx!=="") objects[idx]=o;
   else objects.push(o);
@@ -342,49 +340,47 @@ function saveObject(btn){
   cancelObjectForm();
 }
 function renderObjects(){
-  const fld=document.getElementById("objects");
-  fld.innerHTML="";
+  objectsField.innerHTML="";
   objects.forEach((o,i)=>{
-    let parts=[o.name, o.type + (o.subtype?`, ${o.subtype}`:""),
-               `${o.count}d${o.size}${o.modifier? "+"+o.modifier:""}`];
-    const tags=[o.skillTags,o.rangeTag,...o.universalTags,...o.coreTags,...o.extraTags]
-                 .filter(Boolean).join(", ");
-    if(tags) parts.push("Tags: "+tags);
-    if(o.mass) parts.push("Mass: "+o.mass);
-    const row=document.createElement("div"); row.className="row compact";
-    row.appendChild(Object.assign(document.createElement("span"),{
-      innerHTML: parts.join(" | ")
-        .replace(/\(([^)]+)\)/g,(_,t)=>`<span class="tag" title="${(dict[t]||"")}">(${t})</span>`)
-    }));
-    const e=Object.assign(document.createElement("button"),{textContent:"Edit"});
-    e.onclick=()=>showObjectForm(i); row.appendChild(e);
-    const d=Object.assign(document.createElement("button"),{textContent:"×"});
-    d.onclick=()=>{objects.splice(i,1);renderObjects();}; row.appendChild(d);
-    fld.appendChild(row);
+    const row = document.createElement("div");
+    row.className="row compact";
+    // build tag spans, normalize parameter to X
+    const tagSpans = o.tags.map(tag=>{
+      const key = tag.replace(/\d+/,"X");
+      const tip = dict[key]||"";
+      return `<span class="tag" title="${tip}">${tag}</span>`;
+    }).join(", ");
+    row.innerHTML = `${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} | `
+                  +`${o.count}d${o.size}${o.modifier? "+"+o.modifier:""}`
+                  + (tagSpans? ` | Tags: ${tagSpans}` : "")
+                  + (o.mass? ` | Mass: ${o.mass}` : "");
+    const e = document.createElement("button");
+    e.textContent="Edit"; e.onclick=()=>showObjectForm(i);
+    const d = document.createElement("button");
+    d.textContent="×";    d.onclick=()=>{ objects.splice(i,1); renderObjects(); };
+    row.append(e,d);
+    objectsField.append(row);
   });
 }
 
 // save/load JSON
 document.getElementById("saveBtn").onclick = saveJSON;
-document.getElementById("loadBtn").onclick = () => fileInput.click();
+document.getElementById("loadBtn").onclick = ()=>fileInput.click();
 fileInput.onchange = loadJSON;
 
 function saveJSON(){
   const [hc,hm] = v("health").split("/").map(n=>+n)||[0,0];
   const data = {
-    identity:{
-      name:v("name"),concept:v("concept"),
-      age:+v("age"),player:v("player"),xp:+v("xp"),bonds:v("bonds")
-    },
-    skills:Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
-    stats:{
-      strain:+v("strain"),surges:+v("surges"),
-      supplies:+v("supplies"),wealth:+v("wealth"),
-      health:[hc,hm],
-      enc:[+v("encCurrent"),+v("encMax")]
-    },
+    identity:{ name:v("name"),concept:v("concept"),
+               age:+v("age"),player:v("player"),xp:+v("xp"),bonds:v("bonds") },
+    skills: Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
+    stats:{ strain:+v("strain"),surges:+v("surges"),
+            supplies:+v("supplies"),wealth:+v("wealth"),
+            health:[hc,hm],enc:[+v("encCurrent"),+v("encMax")] },
     conditions:v("conditions"),
-    talents:[...talents.children].map(r=>({name:r.querySelector(".name").value,die:r.querySelector(".die").value})),
+    talents:[...talents.children].map(r=>({
+      name:r.querySelector(".name").value, die:r.querySelector(".die").value
+    })),
     powers:powersData,
     inventory:objects,
     notesA:v("notesA"), notesB:v("notesB")
@@ -397,7 +393,7 @@ function saveJSON(){
 }
 
 function loadJSON(e){
-  const f=e.target.files[0]; if(!f)return;
+  const f=e.target.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=()=>{
     try{
@@ -410,7 +406,8 @@ function loadJSON(e){
       set("encCurrent",d.stats.enc[0]); set("encMax",d.stats.enc[1]);
       set("conditions",d.conditions);
       talents.innerHTML="";
-      d.talents.forEach(t=>{addRow("talent");const r=talents.lastElementChild;
+      d.talents.forEach(t=>{ addRow("talent");
+        const r=talents.lastElementChild;
         r.querySelector(".name").value=t.name;
         r.querySelector(".die").value=t.die;
       });
@@ -419,101 +416,92 @@ function loadJSON(e){
       objects.length=0; objects.push(...d.inventory||[]);
       renderObjects();
       set("notesA",d.notesA||""); set("notesB",d.notesB||"");
-    }catch{
-      alert("Invalid JSON");
-    }
+    }catch{ alert("Invalid JSON"); }
   };
   r.readAsText(f);
 }
 
 const v=id=>document.getElementById(id).value;
-const set=(id,val)=>{const e=document.getElementById(id); if(e) e.value=val;};
+const set=(id,val)=>{ const e=document.getElementById(id); if(e) e.value=val; };
 
-// dictionary snippet
+// full dictionary
 const dict = {
   // 2.2 Universal Object Tags
-  "Multipurpose|X": "This object may also be useful as an X object type in certain scenarios. This object can have tags of X object type.",
-  "Special": "This object has an additional more complicated ability. Typically detailed after the object struct. Special objects might not have an object dice or may violate the object struct format in other ways.",
-  "Ornate": "This object is visually impressive; when you contest while showing off the object to someone it would impress, step up a relevant Skill die.",
-  "Charging X": "After use X times, this object needs to be recharged and cannot be used again until you next recover.",
-  "Damaged": "The next time this object adds dice to a dice pool or would be used, it is destroyed afterwards.",
-  "Dangerous": "Complications while using this object can have wildly unintended side effects. What exactly this entails is up to the GM and may be different each time.",
-  "Consumable X": "After X uses, this object is destroyed.",
-  "Consistent X": "You may reroll X 1’s in this object’s dice pool. You must keep the new result.",
-  "Melee": "This object is meant for use up close and personal. It is ideal for activities within arm's reach (0 to 2 meters). It can be used against targets in the same zone as you.",
-  "Near-range": "This object is meant for use on targets you could throw a rock at, typically 2 to 20 meters away. It can be used against targets in the same zone or an adjacent zone.",
-  "Long-range": "This object is meant for use on targets usually 20 to 100 meters away. It can interact with targets within 3 zones. Step down all your dice if used to attack a target in the same zone.",
-  "Far-range": "This object can be used on any target you can see, often beyond 100 meters. Step down all your dice if used to attack a target in the same zone.",
-  "Agility": "Agility is an object skill for this object.",
-  "Artifice": "Artifice is an object skill for this object.",
-  "Charm": "Charm is an object skill for this object.",
-  "Fortitude": "Fortitude is an object skill for this object.",
-  "Intellect": "Intellect is an object skill for this object.",
-  "Might": "Might is an object skill for this object.",
-  "Presence": "Presence is an object skill for this object.",
-  "Precision": "Precision is an object skill for this object.",
-  "Resolve": "Resolve is an object skill for this object.",
-  "Sense": "Sense is an object skill for this object.",
-  "Intricate 1dX": "Requires Agility die 1dX to use.",
-  "Engineered 1dX": "Requires Artifice die 1dX to use.",
-  "Disarming 1dX": "Requires Charm die 1dX to use.",
-  "Stalwart 1dX": "Requires Fortitude die 1dX to use.",
-  "Complex 1dX": "Requires Intellect die 1dX to use.",
-  "Unruly 1dX": "Requires Might die 1dX to use.",
-  "Commanding 1dX": "Requires Presence die 1dX to use.",
-  "Exacting 1dX": "Requires Precision die 1dX to use.",
-  "Resolute 1dX": "Requires Resolve die 1dX to use.",
-  "Perceptive 1dX": "Requires Sense die 1dX to use.",
-
+  "Multipurpose|X":"This object may also be useful as an X object type in certain scenarios. This object can have tags of X object type.",
+  "Special":"This object has an additional more complicated ability. Typically detailed after the object struct. Special objects might not have an object dice or may violate the object struct format in other ways.",
+  "Ornate":"This object is visually impressive; when you contest while showing off the object to someone it would impress, step up a relevant Skill die.",
+  "Charging X":"After use X times, this object needs to be recharged and cannot be used again until you next recover.",
+  "Damaged":"The next time this object adds dice to a dice pool or would be used, it is destroyed afterwards.",
+  "Dangerous":"Complications while using this object can have wildly unintended side effects. What exactly this entails is up to the GM and may be different each time.",
+  "Consumable X":"After X uses, this object is destroyed.",
+  "Consistent X":"You may reroll X 1’s in this object’s dice pool. You must keep the new result.",
+  "Melee":"This object is meant for use up close and personal. It is ideal for activities within arm's reach (0 to 2 meters). It can be used against targets in the same zone as you.",
+  "Near-range":"This object is meant for use on targets you could throw a rock at, typically 2 to 20 meters away. It can be used against targets in the same zone or an adjacent zone.",
+  "Long-range":"This object is meant for use on targets usually 20 to 100 meters away. It can interact with targets within 3 zones. Step down all your dice if used to attack a target in the same zone.",
+  "Far-range":"This object can be used on any target you can see, often beyond 100 meters. Step down all your dice if used to attack a target in the same zone.",
+  "Agility":"Agility is an object skill for this object.",
+  "Artifice":"Artifice is an object skill for this object.",
+  "Charm":"Charm is an object skill for this object.",
+  "Fortitude":"Fortitude is an object skill for this object.",
+  "Intellect":"Intellect is an object skill for this object.",
+  "Might":"Might is an object skill for this object.",
+  "Presence":"Presence is an object skill for this object.",
+  "Precision":"Precision is an object skill for this object.",
+  "Resolve":"Resolve is an object skill for this object.",
+  "Sense":"Sense is an object skill for this object.",
+  "Intricate 1dX":"Requires Agility die 1dX to use.",
+  "Engineered 1dX":"Requires Artifice die 1dX to use.",
+  "Disarming 1dX":"Requires Charm die 1dX to use.",
+  "Stalwart 1dX":"Requires Fortitude die 1dX to use.",
+  "Complex 1dX":"Requires Intellect die 1dX to use.",
+  "Unruly 1dX":"Requires Might die 1dX to use.",
+  "Commanding 1dX":"Requires Presence die 1dX to use.",
+  "Exacting 1dX":"Requires Precision die 1dX to use.",
+  "Resolute 1dX":"Requires Resolve die 1dX to use.",
+  "Perceptive 1dX":"Requires Sense die 1dX to use.",
   // 2.3 Weapons Core Tags
-  "Ammo": "Whenever you suffer a complication with this weapon, you may be forced to take multiple shots and expend 1 ammo. This weapon requires that the user has at least one ammo on their person to be used.",
-  "Loading": "To use this weapon, you must expend an ammo. Complications can still cause extra ammo to be consumed.",
-  "Loading X": "To use this weapon, you must expend a use of a special ammo X. Complications can still cause extra ammo to be consumed.",
-  "Throwable": "You can throw this weapon to attack. It can be used to attack targets in the same zone or an adjacent zone as you.",
-  "Versatile": "This weapon can be used as a (Melee) weapon against targets in the same zone.",
-  "Quick": "This weapon can be used to attack as a medium move instead of a heavy move. This weapon can make only one attack per turn. This weapon is one-handed.",
-  "Reload X": "After an attack, this weapon cannot be used for X rounds. Medium moves may be spent to reduce the amount of rounds waited at a rate of one round per medium move used.",
-
+  "Ammo":"Whenever you suffer a complication with this weapon, you may be forced to take multiple shots and expend 1 ammo. This weapon requires that the user has at least one ammo on their person to be used.",
+  "Loading":"To use this weapon, you must expend an ammo. Complications can still cause extra ammo to be consumed.",
+  "Loading X":"To use this weapon, you must expend a use of a special ammo X. Complications can still cause extra ammo to be consumed.",
+  "Throwable":"You can throw this weapon to attack. It can be used to attack targets in the same zone or an adjacent zone as you.",
+  "Versatile":"This weapon can be used as a (Melee) weapon against targets in the same zone.",
+  "Quick":"This weapon can be used to attack as a medium move instead of a heavy move. This weapon can make only one attack per turn. This weapon is one-handed.",
+  "Reload X":"After an attack, this weapon cannot be used for X rounds. Medium moves may be spent to reduce the amount of rounds waited at a rate of one round per medium move used.",
   // Weapons Extra Tags
-  "Forceful": "This weapon pushes an attack target into an adjacent zone on a success.",
-  "Energized": "The weapon does not consume or require ammo. Complications may cause it to overheat and become unusable until the end of your next turn. Using it while overheated will cause the weapon to gain the (Damaged) tag after use.",
-  "Piercing X": "Ignores X damage reduction (from any source, typically from (Toughness X) tagged wearables) when you attack.",
-  "Cycling": "You can expend 1 ammo when you attack to step up all dice in your pool.",
-  "Efficient": "This weapon has a 50% chance to not consume ammo when it would consume ammo.",
-  "Volatile": "When you contest or attack with this weapon, step up all dice in your pool. Then, roll the weapons die and lose health equal to the value rolled.",
-  "Shredding X": "Remove the X smallest wearable/object dice from the defend pool of your opponent if they defend against an attack from this weapon.",
-  "Covering X": "When you attack with this weapon, that creature and its nearby allies step down X dice on their next attack made with a weapon that has the (Near-range), (Far-range), or (Long-range) tags.",
-  "Suppressed": "This weapon makes little to no noise. Creatures cannot hear it through closed doors or windows. Creatures over 2 zones away cannot hear it.",
-  "Explosive": "When you attack with this weapon, roll your attack and against each creature in the same zone. Deal damage each creature applicable upon successful resolution. In some cases, the GM may allow resist peril to be used to avoid weapons with this tag.",
-  "Brutal": "When you attack with this weapon, you also attack the closest creature to the contested creature with the same roll.",
-  "Violent X": "When you attack, count an additional X dice from your attack pool when calculating your total.",
-  "Flaming X": "When this weapon makes a successful attack, any hit targets will become enflamed X.",
-  "Poisoned X": "Add an additional +X to your attack total and give all damaged units become poisoned. After the attack pool is rolled, reduce the level of X by one.",
-  "Stunning": "If you damage a creature with this weapon, roll 1d6, on a 6, they are stunned until the end of their next turn.",
-
+  "Forceful":"This weapon pushes an attack target into an adjacent zone on a success.",
+  "Energized":"The weapon does not consume or require ammo. Complications may cause it to overheat and become unusable until the end of your next turn. Using it while overheated will cause the weapon to gain the (Damaged) tag after use.",
+  "Piercing X":"Ignores X damage reduction (from any source, typically from (Toughness X) tagged wearables) when you attack.",
+  "Cycling":"You can expend 1 ammo when you attack to step up all dice in your pool.",
+  "Efficient":"This weapon has a 50% chance to not consume ammo when it would consume ammo.",
+  "Volatile":"When you contest or attack with this weapon, step up all dice in your pool. Then, roll the weapons die and lose health equal to the value rolled.",
+  "Shredding X":"Remove the X smallest wearable/object dice from the defend pool of your opponent if they defend against an attack from this weapon.",
+  "Covering X":"When you attack with this weapon, that creature and its nearby allies step down X dice on their next attack made with a weapon that has the (Near-range), (Far-range), or (Long-range) tags.",
+  "Suppressed":"This weapon makes little to no noise. Creatures cannot hear it through closed doors or windows. Creatures over 2 zones away cannot hear it.",
+  "Explosive":"When you attack with this weapon, roll your attack and against each creature in the same zone. Deal damage each creature applicable upon successful resolution. In some cases, the GM may allow resist peril to be used to avoid weapons with this tag.",
+  "Brutal":"When you attack with this weapon, you also attack the closest creature to the contested creature with the same roll.",
+  "Violent X":"When you attack, count an additional X dice from your attack pool when calculating your total.",
+  "Flaming X":"When this weapon makes a successful attack, any hit targets will become enflamed X.",
+  "Poisoned X":"Add an additional +X to your attack total and give all damaged units become poisoned. After the attack pool is rolled, reduce the level of X by one.",
+  "Stunning":"If you damage a creature with this weapon, roll 1d6, on a 6, they are stunned until the end of their next turn.",
   // Wearables Core Tags
-  "Gear": "This wearable cannot add its object die to your defend pool.",
-  "Adornment": "You can utilize this wearable without needing to touch it or use your hands as long as it is being worn. You may only have five (Adornment) wearables equipped at once.",
-
+  "Gear":"This wearable cannot add its object die to your defend pool.",
+  "Adornment":"You can utilize this wearable without needing to touch it or use your hands as long as it is being worn. You may only have five (Adornment) wearables equipped at once.",
   // Wearables Extra Tags
-  "Toughness X": "While equipped, you may reduce the total damage of an attack against you by X.",
-  "Hardened X": "Add an additional dice of this wearable’s die into your defend pool.",
-  "Shielding X": "Count an additional X dice from your defend pool so long as this wearable’s die is in it.",
-  "Dense X": "Add +X to your defend total.",
-  "Protective": "If you would take damage, you may instead take no damage and give this wearable the (Damaged) tag.",
-  "Resistant X": "Provides immunity to the X condition.",
-  "Supporting X": "Increases your encumbrance capacity by X mass.",
-
+  "Toughness X":"While equipped, you may reduce the total damage of an attack against you by X.",
+  "Hardened X":"Add an additional dice of this wearable’s die into your defend pool.",
+  "Shielding X":"Count an additional X dice from your defend pool so long as this wearable’s die is in it.",
+  "Dense X":"Add +X to your defend total.",
+  "Protective":"If you would take damage, you may instead take no damage and give this wearable the (Damaged) tag.",
+  "Resistant X":"Provides immunity to the X condition.",
+  "Supporting X":"Increases your encumbrance capacity by X mass.",
   // Tools Core Tags
-  "Aid|X": "This tool can always contribute its object die to a dice pool if a dice for a given talent X is also in that dice pool. Step up the dice of the given Talent X.",
-  "Supplies X": "This tool can be created by reducing your Supplies by X. The created Tool does not have (Supplies X).",
-
+  "Aid|X":"This tool can always contribute its object die to a dice pool if a dice for a given talent X is also in that dice pool. Step up the dice of the given Talent X.",
+  "Supplies X":"This tool can be created by reducing your Supplies by X. The created Tool does not have (Supplies X).",
   // Attachments Core Tags
-  "Removable": "This attachment can be removed from an object as a heavy action, taking added tags with it. An object can only have one (Removable) attachment at a time.",
-  "Permanent": "This attachment cannot be removed from an object once it is attached.",
-  "X Made": "This attachment can only be used on objects with the X subtype."
+  "Removable":"This attachment can be removed from an object as a heavy action, taking added tags with it. An object can only have one (Removable) attachment at a time.",
+  "Permanent":"This attachment cannot be removed from an object once it is attached.",
+  "X Made":"This attachment can only be used on objects with the X subtype."
 };
-
 </script>
 </body>
 </html>
