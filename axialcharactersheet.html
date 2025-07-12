@@ -9,86 +9,73 @@
   --fg: #e6e7eb;
   --accent: #3a86ff;
   --border: #44454b;
-  --pad: 0.2rem;
-  --gap: 0.4rem;
-  --radius: 4px;
-  --font: system-ui,Segoe UI,Roboto,sans-serif;
+  --pad: 0.3rem;
+  --gap: 0.5rem;
+  --radius: 6px;
+  --font: "Segoe UI", Roboto, sans-serif;
 }
 @media (prefers-color-scheme:light) {
-  :root { --bg: #fdfdfd; --fg: #111; --border: #ccc; }
+  :root { --bg:#fdfdfd; --fg:#111; --border:#ccc; }
 }
-* { box-sizing: border-box; }
+* { box-sizing:border-box; }
 body {
-  margin:0; padding:0;
-  background:var(--bg); color:var(--fg);
-  font-family:var(--font);
+  margin:0; padding:0; background:var(--bg); color:var(--fg);
+  font-family:var(--font); line-height:1.3;
 }
 form {
-  max-width:900px; margin:auto; padding:var(--gap);
+  max-width:960px; margin:var(--gap) auto; padding:var(--gap);
   display:flex; flex-direction:column; gap:var(--gap);
 }
 h2 {
-  margin:var(--gap) 0 0.2rem; font-size:1rem;
+  margin:var(--gap) 0 0.2rem; font-size:1.1rem;
   border-bottom:1px solid var(--border);
 }
 .grid2 {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
   gap:var(--gap);
 }
-label {
-  display:flex; flex-direction:column; font-size:0.9rem;
-}
+label { display:flex; flex-direction:column; font-size:0.9rem; }
 input, select, textarea, button {
-  font-family:inherit; font-size:0.9rem;
+  font:inherit; font-size:0.9rem;
 }
 input, select {
   padding:var(--pad); border:1px solid var(--border);
-  border-radius:var(--radius);
-  background:transparent; color:inherit;
+  border-radius:var(--radius); background:transparent; color:inherit;
 }
-select, option {
-  background:var(--bg); color:var(--fg);
-}
-textarea {
-  padding:var(--pad); border:1px solid var(--border);
+select, option { background:var(--bg); color:var(--fg); }
+textarea { padding:var(--pad); border:1px solid var(--border);
   border-radius:var(--radius); min-height:2rem; resize:vertical;
 }
 button {
   padding:var(--pad) var(--pad); border:none;
-  border-radius:var(--radius); background:var(--accent);
-  color:#fff; cursor:pointer;
+  border-radius:var(--radius); background:var(--accent); color:#fff;
+  cursor:pointer; transition:opacity .2s;
 }
+button:hover { opacity:.85; }
 .row {
   display:flex; gap:var(--gap); align-items:center;
+  background:var(--border); padding:var(--pad); border-radius:var(--radius);
 }
-.row.compact {
-  padding:0; margin-bottom:var(--gap);
-}
-.row.compact input,
-.row.compact select,
-.row.compact button {
+.row.compact { margin-bottom:var(--gap); }
+.row.compact input, .row.compact select, .row.compact button {
   padding:0.2rem; font-size:0.85rem;
 }
 fieldset {
-  border:1px solid var(--border);
-  border-radius:var(--radius); padding:var(--pad);
-}
-.tag {
-  text-decoration:underline dotted; cursor:help;
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:var(--pad);
 }
 .object-form {
-  border:1px solid var(--border);
-  border-radius:var(--radius);
+  border:1px solid var(--border); border-radius:var(--radius);
   padding:var(--gap); margin-bottom:var(--gap);
-  display:flex; flex-direction:column; gap:var(--gap);
+  background: #222;
 }
 .sticky {
-  position:absolute; width:150px; height:120px;
-  background: #ffd; color:#000;
+  position:absolute; width:200px; height:140px;
+  background:#ffd; color:#000;
   border:1px solid #aaa; border-radius:4px;
-  padding:0.3rem; cursor:move;
-  overflow:auto;
+  padding:0.4rem; cursor:move; resize:both; overflow:auto;
+  box-shadow:2px 2px 6px rgba(0,0,0,0.3);
 }
 </style>
 </head>
@@ -147,6 +134,8 @@ fieldset {
     <h2>Inventory</h2>
     <div id="raw-form-container"></div>
     <button type="button" onclick="showRawForm()">Paste Struct</button>
+    <div id="blank-form-container"></div>
+    <button type="button" onclick="showBlankForm()">Paste Blank</button>
     <div id="object-form-container"></div>
     <fieldset id="objects"></fieldset>
     <button type="button" onclick="showObjectForm()">Add Object</button>
@@ -166,9 +155,9 @@ fieldset {
     <button type="button" id="loadBtn">Load JSON</button>
     <input type="file" id="fileInput" accept="application/json" style="display:none">
   </section>
+
 </form>
 
-<!-- Templates -->
 <template id="talent-template">
   <div class="row compact">
     <input class="name" placeholder="Talent">
@@ -180,18 +169,8 @@ fieldset {
   </div>
 </template>
 
-<template id="wound-template">
-  <div class="row compact">
-    <input class="roll" type="number" placeholder="Roll">
-    <input class="name" placeholder="Name">
-    <input class="effect" placeholder="Effect">
-    <input class="penalty" type="number" placeholder="HP Pen">
-    <button type="button" onclick="removeRow(this)">×</button>
-  </div>
-</template>
-
 <template id="power-form-template">
-  <div class="object-form" data-index="">
+  <div class="object-form">
     <label>Name<input class="pname"></label>
     <label>Type<input class="ptype"></label>
     <label>Cooldown<input class="pcd" type="number"></label>
@@ -205,25 +184,22 @@ fieldset {
 </template>
 
 <template id="object-form-template">
-  <div class="object-form" data-index="">
+  <div class="object-form">
     <label>Name<input class="name"></label>
     <label>Type<input class="type"></label>
     <label>Subtype<input class="subtype"></label>
     <div class="row compact">
       <label>Count<input class="count" type="number" min="0"></label>
-      <label>Size
-        <select class="size">
-          <option>d4</option><option>d6</option><option>d8</option>
-          <option>d10</option><option>d12</option>
-        </select>
-      </label>
+      <label>Size<select class="size">
+        <option>d4</option><option>d6</option><option>d8</option>
+        <option>d10</option><option>d12</option>
+      </select></label>
       <label>Mod<input class="modifier" type="number"></label>
     </div>
-    <label>Skill Tag(s)<input class="skillTags" placeholder="comma-separated"></label>
+    <label>Skill Tags<input class="skillTags" placeholder="comma-separated"></label>
     <label>Range Tag<input class="rangeTag"></label>
-    <label>Universal Tag(s)<input class="universalTags" placeholder="comma-separated"></label>
-    <label>Core+Extra Tag(s)<input class="coreExtraTags" placeholder="comma-separated"></label>
-    <label>Special Ability<textarea class="special"></textarea></label>
+    <label>Other Tags<input class="coreExtraTags" placeholder="comma-separated"></label>
+    <label>Special<textarea class="special"></textarea></label>
     <label>Mass<input class="mass" type="number" min="0"></label>
     <div class="row compact">
       <button type="button" onclick="saveObject(this)">Confirm</button>
@@ -242,234 +218,183 @@ fieldset {
   </div>
 </template>
 
+<template id="blank-form-template">
+  <div class="object-form">
+    <label>Paste Text<textarea id="blankInput" placeholder="Freetext line"></textarea></label>
+    <div class="row compact">
+      <button type="button" onclick="confirmBlank()">Confirm</button>
+      <button type="button" onclick="cancelBlankForm()">Cancel</button>
+    </div>
+  </div>
+</template>
+
 <script>
-// aliases
+// aliases & data
 const talents = document.getElementById("talents");
 const powers  = document.getElementById("powers");
 const objectsField = document.getElementById("objects");
 const fileInput = document.getElementById("fileInput");
-
 const skillList = ["Agility","Artifice","Charm","Fortitude","Intellect","Might","Presence","Precision","Resolve","Sense"];
-const objects = [];
-const powersData = [];
+let powersData = [], objects = [];
 
-// init core skills
+// init skills
 const skillsDiv = document.getElementById("skills");
 skillList.forEach(s=>{
-  const lbl = document.createElement("label");
-  lbl.textContent = s;
-  const sel = document.createElement("select");
-  sel.id = s.toLowerCase();
-  ["d4","d6","d8","d10","d12"].forEach(d=>{
-    const o = document.createElement("option"); o.textContent = d;
-    sel.appendChild(o);
-  });
-  lbl.appendChild(sel);
-  skillsDiv.appendChild(lbl);
+  const l=document.createElement("label"); l.textContent=s;
+  const sel=document.createElement("select"); sel.id=s.toLowerCase();
+  ["d4","d6","d8","d10","d12"].forEach(d=>sel.appendChild(new Option(d,d)));
+  l.appendChild(sel); skillsDiv.appendChild(l);
 });
 
 // row helpers
 function addRow(kind){
-  const tpl = document.getElementById(kind+"-template").content.cloneNode(true);
-  document.getElementById(kind+"s").appendChild(tpl);
+  document.getElementById(kind+"s")
+    .appendChild(document.getElementById(kind+"-template").content.cloneNode(true));
 }
 function removeRow(btn){ btn.parentNode.remove(); }
 
-// power handlers
-function showPowerForm(idx){
+// powers
+function showPowerForm(){
   if(document.querySelector("#power-form-container .object-form")) return;
-  const tpl = document.getElementById("power-form-template").content.cloneNode(true);
-  const f = tpl.querySelector(".object-form");
-  f.dataset.index = idx ?? "";
-  if(idx!==undefined){
-    const p = powersData[idx];
-    f.querySelector(".pname").value  = p.name;
-    f.querySelector(".ptype").value  = p.type;
-    f.querySelector(".pcd").value    = p.cd;
-    f.querySelector(".pspeed").value= p.speed;
-    f.querySelector(".pdesc").value = p.desc;
-  }
-  document.getElementById("power-form-container").appendChild(f);
+  document.getElementById("power-form-container")
+    .appendChild(document.getElementById("power-form-template").content.cloneNode(true));
 }
-function cancelPowerForm(){
-  document.getElementById("power-form-container").innerHTML = "";
-}
+function cancelPowerForm(){ document.getElementById("power-form-container").innerHTML=""; }
 function savePower(btn){
-  const f = btn.closest(".object-form");
-  const idx = f.dataset.index;
-  const p = {
-    name: f.querySelector(".pname").value.trim(),
-    type: f.querySelector(".ptype").value.trim(),
-    cd:   +f.querySelector(".pcd").value,
+  const f=btn.closest(".object-form");
+  powersData.push({
+    name:f.querySelector(".pname").value,
+    type:f.querySelector(".ptype").value,
+    cd:+f.querySelector(".pcd").value,
     speed:+f.querySelector(".pspeed").value,
-    desc: f.querySelector(".pdesc").value.trim()
-  };
-  if(idx!=="") powersData[idx]=p;
-  else powersData.push(p);
+    desc:f.querySelector(".pdesc").value
+  });
   renderPowers(); cancelPowerForm();
 }
 function renderPowers(){
-  powers.innerHTML = "";
-  powersData.forEach((p,i)=>{
-    const row=document.createElement("div"); row.className="row compact";
-    row.textContent = `${p.name} | ${p.type} | ${p.cd} | ${p.speed} – ${p.desc}`;
-    const e=document.createElement("button"); e.textContent="Edit"; e.onclick=()=>showPowerForm(i);
-    const d=document.createElement("button"); d.textContent="×"; d.onclick=()=>{powersData.splice(i,1);renderPowers();};
-    row.append(e,d); powers.append(row);
+  powers.innerHTML="";
+  powersData.forEach(p=>{
+    const r=document.createElement("div"); r.className="row compact";
+    r.textContent=`${p.name} | ${p.type} | ${p.cd} | ${p.speed} – ${p.desc}`;
+    powers.appendChild(r);
   });
 }
 
-// object handlers
-function showObjectForm(idx){
+// objects
+function showObjectForm(){
   if(document.querySelector("#object-form-container .object-form")) return;
-  const tpl = document.getElementById("object-form-template").content.cloneNode(true);
-  const f = tpl.querySelector(".object-form");
-  f.dataset.index = idx ?? "";
-  if(idx!==undefined){
-    const o = objects[idx];
-    f.querySelector(".name").value        = o.name;
-    f.querySelector(".type").value        = o.type;
-    f.querySelector(".subtype").value     = o.subtype;
-    f.querySelector(".count").value       = o.count;
-    f.querySelector(".size").value        = o.size;
-    f.querySelector(".modifier").value    = o.modifier;
-    f.querySelector(".skillTags").value   = o.skillTags.join(", ");
-    f.querySelector(".rangeTag").value    = o.rangeTag;
-    f.querySelector(".universalTags").value = o.universalTags.join(", ");
-    f.querySelector(".coreExtraTags").value  = o.coreExtraTags.join(", ");
-    f.querySelector(".special").value     = o.special;
-    f.querySelector(".mass").value        = o.mass;
-  }
-  document.getElementById("object-form-container").appendChild(f);
+  document.getElementById("object-form-container")
+    .appendChild(document.getElementById("object-form-template").content.cloneNode(true));
 }
-function cancelObjectForm(){
-  document.getElementById("object-form-container").innerHTML="";
-}
+function cancelObjectForm(){ document.getElementById("object-form-container").innerHTML=""; }
 function saveObject(btn){
-  const f = btn.closest(".object-form");
-  const idx = f.dataset.index;
-  const o = {
-    name:         f.querySelector(".name").value.trim(),
-    type:         f.querySelector(".type").value.trim(),
-    subtype:      f.querySelector(".subtype").value.trim(),
-    count:        +f.querySelector(".count").value,
-    size:         f.querySelector(".size").value,
-    modifier:     +f.querySelector(".modifier").value,
-    skillTags:    f.querySelector(".skillTags").value.split(",").map(s=>s.trim()).filter(Boolean),
-    rangeTag:     f.querySelector(".rangeTag").value.trim(),
-    universalTags:f.querySelector(".universalTags").value.split(",").map(s=>s.trim()).filter(Boolean),
+  const f=btn.closest(".object-form");
+  objects.push({
+    name:f.querySelector(".name").value,
+    type:f.querySelector(".type").value,
+    subtype:f.querySelector(".subtype").value,
+    count:+f.querySelector(".count").value,
+    size:f.querySelector(".size").value,
+    modifier:+f.querySelector(".modifier").value,
+    skillTags:f.querySelector(".skillTags").value.split(",").map(s=>s.trim()).filter(Boolean),
+    rangeTag:f.querySelector(".rangeTag").value,
     coreExtraTags:f.querySelector(".coreExtraTags").value.split(",").map(s=>s.trim()).filter(Boolean),
-    special:      f.querySelector(".special").value.trim(),
-    mass:         +f.querySelector(".mass").value
-  };
-  if(idx!=="") objects[idx]=o; else objects.push(o);
+    special:f.querySelector(".special").value,
+    mass:+f.querySelector(".mass").value
+  });
   renderObjects(); cancelObjectForm();
 }
-function renderObjects(){
-  objectsField.innerHTML = "";
-  objects.forEach((o,i)=>{
-    const row=document.createElement("div"); row.className="row compact";
-    // build tag span arrays
-    const combinedTags = [...o.skillTags, o.rangeTag, ...o.universalTags].filter(Boolean);
-    const coreExtra = o.coreExtraTags;
-    const tagsHtml = combinedTags.map(tag=>`<span class="tag">${tag}</span>`).join(", ");
-    const coreHtml = coreExtra.length? ` | (${coreExtra.join(", ")})` : "";
-    row.innerHTML = `
-      ${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} |
-      ${o.count}d${o.size}${o.modifier? "+"+o.modifier:""} |
-      (${combinedTags.join(", ")})${coreHtml} | ${o.mass} Mass
-      ${o.special? ` | Special: ${o.special}` : ""}
-    `;
-    const e=document.createElement("button"); e.textContent="Edit"; e.onclick=()=>showObjectForm(i);
-    const d=document.createElement("button"); d.textContent="×"; d.onclick=()=>{objects.splice(i,1);renderObjects();};
-    row.append(e,d); objectsField.append(row);
-  });
-}
 
-// raw struct parser
+// raw struct
 function showRawForm(){
   if(document.querySelector("#raw-form-container .object-form")) return;
-  const tpl = document.getElementById("raw-form-template").content.cloneNode(true);
-  document.getElementById("raw-form-container").appendChild(tpl);
+  document.getElementById("raw-form-container")
+    .appendChild(document.getElementById("raw-form-template").content.cloneNode(true));
 }
-function cancelRawForm(){
-  document.getElementById("raw-form-container").innerHTML="";
-}
+function cancelRawForm(){ document.getElementById("raw-form-container").innerHTML=""; }
 function parseRawObject(){
-  const txt = document.getElementById("rawInput").value.trim();
-  const parts = txt.split("|").map(s=>s.trim());
-  if(parts.length<6){ alert("Need 6 parts"); return; }
-  const [name, typeSub, diceText, tagsGroup, tagsGroup2, massText] = parts;
-  const [type, subtype=""] = typeSub.split(",").map(s=>s.trim());
-  const dm = diceText.match(/^(\d+)d(\d+)([+-]\d+)?$/);
-  if(!dm){ alert("Bad dice"); return; }
-  const [,c,s,z] = dm;
-  const combinedTags = tagsGroup.replace(/^\(/,"").replace(/\)$/,"").split(",").map(s=>s.trim());
-  const coreExtra = tagsGroup2.replace(/^\(/,"").replace(/\)$/,"").split(",").map(s=>s.trim());
-  const mass = parseInt(massText.replace(/Mass:?/i,"").trim());
-  objects.push({
-    name, type, subtype,
-    count:+c, size:s, modifier:z?+z:0,
-    skillTags:combinedTags, rangeTag:"",
-    universalTags:[], coreExtraTags:coreExtra,
-    special:"", mass
-  });
+  const txt=document.getElementById("rawInput").value;
+  objects.push({ raw: txt });
   renderObjects(); cancelRawForm();
 }
 
-// sticky notes
-function createSticky(text="", x=20, y=20){
-  const n = document.createElement("div");
+// blank
+function showBlankForm(){
+  if(document.querySelector("#blank-form-container .object-form")) return;
+  document.getElementById("blank-form-container")
+    .appendChild(document.getElementById("blank-form-template").content.cloneNode(true));
+}
+function cancelBlankForm(){ document.getElementById("blank-form-container").innerHTML=""; }
+function confirmBlank(){
+  const txt=document.getElementById("blankInput").value;
+  objects.push({ raw: txt });
+  renderObjects(); cancelBlankForm();
+}
+
+// render
+function renderObjects(){
+  objectsField.innerHTML="";
+  objects.forEach(o=>{
+    const r=document.createElement("div"); r.className="row compact";
+    if(o.raw) r.textContent=o.raw;
+    else {
+      const t=`${o.name} | ${o.type}${o.subtype?`, ${o.subtype}`:""} | `
+            +`${o.count}d${o.size}${o.modifier? "+"+o.modifier:""} | `
+            +`(${o.skillTags.join(", ")}, ${o.rangeTag}) | `
+            +`(${o.coreExtraTags.join(", ")}) | ${o.mass} Mass`
+            + (o.special? ` | Special: ${o.special}`:"");
+      r.textContent=t;
+    }
+    objectsField.appendChild(r);
+  });
+}
+
+// stickies
+function createSticky(text="",x=20,y=20){
+  const n=document.createElement("div");
   n.className="sticky"; n.contentEditable="true";
   n.style.left=`${x}px`; n.style.top=`${y}px`;
-  n.innerHTML=text;
-  document.body.append(n);
-  let dx, dy, moving=false;
-  n.addEventListener("mousedown", e=>{
-    moving=true;
-    dx=e.clientX - n.offsetLeft;
-    dy=e.clientY - n.offsetTop;
-    e.preventDefault();
-  });
-  document.addEventListener("mousemove", e=>{
-    if(!moving) return;
+  n.textContent=text; document.body.append(n);
+  let dx,dy,m=false;
+  n.onmousedown=e=>{ m=true; dx=e.clientX-n.offsetLeft; dy=e.clientY-n.offsetTop; };
+  document.onmouseup=()=>m=false;
+  document.onmousemove=e=>{
+    if(!m) return;
     n.style.left=`${e.clientX-dx}px`;
-    n.style.top =`${e.clientY-dy}px`;
-  });
-  document.addEventListener("mouseup", ()=>moving=false);
+    n.style.top=`${e.clientY-dy}px`;
+    if(e.clientY > window.innerHeight-40) window.scrollBy(0,20);
+  };
 }
-document.getElementById("addStickyBtn").onclick = ()=>createSticky("",20,20);
+document.getElementById("addStickyBtn")
+  .onclick=()=>createSticky("","20","20");
 
-// save/load JSON
+// JSON save/load
 document.getElementById("saveBtn").onclick = saveJSON;
 document.getElementById("loadBtn").onclick = ()=>fileInput.click();
 fileInput.onchange = loadJSON;
 
 function saveJSON(){
-  const [hc,hm] = v("health").split("/").map(n=>+n)||[0,0];
-  const data = {
-    identity:{name:v("name"),concept:v("concept"),
-              age:+v("age"),player:v("player"),xp:+v("xp"),bonds:v("bonds")},
+  const [hc,hm]=v("health").split("/").map(n=>+n)||[0,0];
+  const data={
+    identity:{name:v("name"),concept:v("concept"),age:+v("age"),
+              player:v("player"),xp:+v("xp"),bonds:v("bonds")},
     skills:Object.fromEntries(skillList.map(s=>[s,v(s.toLowerCase())])),
-    stats:{strain:+v("strain"),surges:+v("surges"),
-           supplies:+v("supplies"),wealth:+v("wealth"),
-           health:[hc,hm],enc:[+v("encCurrent"),+v("encMax")]},
+    stats:{strain:+v("strain"),surges:+v("surges"),supplies:+v("supplies"),
+           wealth:+v("wealth"),health:[hc,hm],enc:[+v("encCurrent"),+v("encMax")]},
     conditions:v("conditions"),
-    talents:[...talents.children].map(r=>({name:r.querySelector(".name").value,die:r.querySelector(".die").value})),
-    powers:powersData,
-    inventory:objects,
+    talents:[...talents.children].map(r=>({
+      name:r.querySelector(".name").value,die:r.querySelector(".die").value
+    })),
+    powers:powersData,inventory:objects,
     notesA:v("notesA"),notesB:v("notesB"),
     stickies:[...document.querySelectorAll(".sticky")].map(el=>({
-      content:el.innerHTML,
-      left:parseInt(el.style.left),
-      top:parseInt(el.style.top)
+      content:el.innerHTML,left:parseInt(el.style.left),top:parseInt(el.style.top),
+      width:el.offsetWidth,height:el.offsetHeight
     }))
   };
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="axial_character.json";
-  a.click();
+  const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+  a.download="axial_character.json"; a.click();
 }
 
 function loadJSON(e){
@@ -480,35 +405,28 @@ function loadJSON(e){
       const d=JSON.parse(r.result);
       ["name","concept","age","player","xp","bonds"].forEach(id=>set(id,d.identity[id]));
       skillList.forEach(s=>set(s.toLowerCase(),d.skills[s]));
-      set("strain",d.stats.strain); set("surges",d.stats.surges);
-      set("supplies",d.stats.supplies); set("wealth",d.stats.wealth);
+      set("strain",d.stats.strain);set("surges",d.stats.surges);
+      set("supplies",d.stats.supplies);set("wealth",d.stats.wealth);
       set("health",d.stats.health.join("/"));
-      set("encCurrent",d.stats.enc[0]); set("encMax",d.stats.enc[1]);
+      set("encCurrent",d.stats.enc[0]);set("encMax",d.stats.enc[1]);
       set("conditions",d.conditions);
-      talents.innerHTML="";
-      d.talents.forEach(t=>{ addRow("talent");
+      talents.innerHTML=""; d.talents.forEach(t=>{ addRow("talent");
         const r=talents.lastElementChild;
         r.querySelector(".name").value=t.name;
         r.querySelector(".die").value=t.die;
       });
-      powersData.length=0; powersData.push(...d.powers||[]);
-      renderPowers();
-      objects.length=0; objects.push(...d.inventory||[]);
-      renderObjects();
+      powersData=d.powers||[]; renderPowers();
+      objects=d.inventory||[]; renderObjects();
       set("notesA",d.notesA||""); set("notesB",d.notesB||"");
-      // clear existing stickies
       document.querySelectorAll(".sticky").forEach(el=>el.remove());
       (d.stickies||[]).forEach(s=>createSticky(s.content,s.left,s.top));
-    }catch{
-      alert("Invalid JSON");
-    }
+    }catch{ alert("Invalid JSON"); }
   };
   r.readAsText(f);
 }
 
 const v=id=>document.getElementById(id).value;
 const set=(id,val)=>{ const e=document.getElementById(id); if(e)e.value=val; };
-
 
 // full dictionary
 const dict = {
