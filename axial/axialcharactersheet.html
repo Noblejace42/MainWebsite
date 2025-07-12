@@ -3,89 +3,16 @@
 <head>
 <meta charset="utf-8">
 <title>Axial Character Sheet</title>
-<style>
-:root {
-  --bg: #1c1d21;
-  --fg: #e6e7eb;
-  --accent: #3a86ff;
-  --border: #44454b;
-  --pad: 0.3rem;
-  --gap: 0.5rem;
-  --radius: 6px;
-  --font: "Segoe UI", Roboto, sans-serif;
-}
-@media (prefers-color-scheme:light) {
-  :root { --bg:#fdfdfd; --fg:#111; --border:#ccc; }
-}
-* { box-sizing:border-box; }
-body {
-  margin:0; padding:0; background:var(--bg); color:var(--fg);
-  font-family:var(--font); line-height:1.3; position: relative;
-}
-form {
-  max-width:960px; margin:var(--gap) auto; padding:var(--gap);
-  display:flex; flex-direction:column; gap:var(--gap);
-}
-h2 {
-  margin:var(--gap) 0 0.2rem; font-size:1.1rem;
-  border-bottom:1px solid var(--border);
-}
-.grid2 {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:var(--gap);
-}
-label { display:flex; flex-direction:column; font-size:0.9rem; }
-input, select, textarea, button {
-  font:inherit; font-size:0.9rem;
-}
-input, select {
-  padding:var(--pad); border:1px solid var(--border);
-  border-radius:var(--radius); background:transparent; color:inherit;
-}
-select, option { background:var(--bg); color:var(--fg); }
-textarea {
-  padding:var(--pad); border:1px solid var(--border);
-  border-radius:var(--radius); min-height:2rem; resize:vertical;
-}
-button {
-  padding:var(--pad) var(--pad); border:none;
-  border-radius:var(--radius); background:var(--accent); color:#fff;
-  cursor:pointer; transition:opacity .2s;
-}
-button:hover { opacity:.85; }
-.button-row {
-  display:flex; gap:var(--gap); margin-bottom:var(--gap);
-}
-.row {
-  display:flex; gap:var(--gap); align-items:center;
-  background:#2a2b2f; padding:var(--pad); border-radius:var(--radius);
-}
-.row.compact { margin-bottom:var(--gap); }
-.row.compact input, .row.compact select, .row.compact button {
-  padding:0.2rem; font-size:0.85rem;
-}
-fieldset {
-  border:1px solid var(--border); border-radius:var(--radius);
-  padding:var(--pad);
-}
-.tag {
-  text-decoration:underline dotted; cursor:help;
-}
-.object-form {
-  border:1px solid var(--border); border-radius:var(--radius);
-  padding:var(--gap); margin-bottom:var(--gap);
-  background:#222;
-}
-.sticky {
-  position:absolute; width:200px; height:140px;
-  background:#ffd; color:#000;
-  border:1px solid #aaa; border-radius:4px;
-  padding:0.4rem; cursor:move;
-  resize:both; overflow:auto;
-  box-shadow:2px 2px 6px rgba(0,0,0,0.3);
-}
-</style>
+<!-- AXIAL NAVIGATION BAR -->
+<div id="axial-nav-container"></div>
+<script>
+  fetch('axialnav.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('axial-nav-container').innerHTML = html;
+    })
+    .catch(console.error);
+</script>
 </head>
 <body>
 <form id="sheet" autocomplete="off">
