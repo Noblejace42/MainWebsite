@@ -52,7 +52,7 @@
       z-index: 2;
       height: 100%;
     }
-    .center-card, .markov-card {
+    .center-card, .markov-card, .rss-card {
       background: var(--card-bg);
       border: 4px solid var(--accent);
       box-shadow: 0 10px 25px rgba(0,255,204,0.3);
@@ -62,7 +62,8 @@
       transition: background .4s, border-color .4s;
     }
     body.light-mode .center-card,
-    body.light-mode .markov-card {
+    body.light-mode .markov-card,
+    body.light-mode .rss-card {
       background: var(--card-bg-light);
       border-color: var(--accent-hover);
     }
@@ -75,6 +76,59 @@
     .markov-card {
       width: 300px;
       padding: 20px 15px;
+    }
+
+    .rss-card {
+      width: 360px;
+      max-width: 90%;
+      padding: 20px 20px 24px;
+      text-align: left;
+    }
+    .rss-card h3 {
+      font-size: 1em;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+    .rss-subtitle {
+      font-family: 'Roboto', sans-serif;
+      font-size: .7em;
+      margin-bottom: 10px;
+      color: var(--text-light);
+    }
+    .rss-status {
+      font-family: 'Roboto', sans-serif;
+      font-size: .7em;
+      margin-bottom: 8px;
+      color: var(--accent-hover);
+    }
+    .rss-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      font-size: .72em;
+      line-height: 1.45;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .rss-item {
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(0,255,204,0.25);
+    }
+    .rss-item a {
+      color: var(--accent-alt);
+    }
+    .rss-item-meta {
+      font-size: .65em;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+    .rss-footnote {
+      display: block;
+      margin-top: 8px;
+      font-family: 'Roboto', sans-serif;
+      font-size: .6em;
+      opacity: 0.7;
     }
 
     .card-buttons {
@@ -234,6 +288,18 @@
 <body>
 
   <div class="main-container">
+
+    <!-- RSS / Interests Feed Card -->
+    <div class="rss-card">
+      <h3>Interest Feed</h3>
+      <p class="rss-subtitle">Fintech, security, RPGs, poetry, and more.</p>
+      <div id="rssStatus" class="rss-status">Loading latest posts…</div>
+      <ul id="rssFeed" class="rss-list"></ul>
+      <span class="rss-footnote">
+        Feeds are powered by public RSS. Edit the feed list directly in <code>index.html</code>.
+      </span>
+    </div>
+
     <!-- Center Card -->
     <div class="center-card">
       <div class="card-buttons">
@@ -299,14 +365,13 @@
       <ul style="list-style:none;line-height:1.8;padding:0;margin-top:1em;">
         <li><a href="resume.pdf" download>Download my resume</a></li>
         <li><a href="https://open.spotify.com/playlist/3vDF8HiTd7JqePb8OrA4vA?si=59d7ce28997841d1" target="_blank">Favorite Playlist</a></li>
-        <li><a href="https://hopelesspoetic.com/weakestlink.html" target="_blank">Weakest Link (MKT4030)</a></li>
+        <li><a href="https://hopelesspoetic.com/weakestlink.html" target="_blank">Weakest&nbsp;Link (MKT4030)</a></li>
         <li><a href="systemgen.html" target="_blank">Astral Axial (Legacy)</a></li>
       </ul>
     </div>
   </div>
 
 <script src="https://rawcdn.githack.com/alex-mas/mchains/master/mchains.js"></script>
-
 
 <script>
 // 1. fetch your cleaned corpus
@@ -349,17 +414,13 @@ fetch('emersonmarkovchain.txt')
   .catch(console.error);
 </script>
 
-
-
-
-
-  <!-- 3) Inline helpers: theme toggle, tiles, modal -->
+  <!-- 3) Inline helpers: theme toggle, tiles, modal, RSS -->
   <script>
     // Theme toggle
     document.getElementById('themeToggleBtn')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
 
-    // Tile‑spawning logic
+    // Tile-spawning logic
     const tilePaths = Array.from({ length: 34 }, (_, i) => `image/${i+4}.jpg`);
     const tilesContainer = document.querySelector('.tiles-container');
     const tileData = []; let tileLoaded = 0;
@@ -394,6 +455,103 @@ fetch('emersonmarkovchain.txt')
     document.getElementById('miscBtn').onclick = () => miscModal.classList.remove('hidden');
     document.getElementById('closeModal').onclick = () => miscModal.classList.add('hidden');
     miscModal.onclick = e => e.target===miscModal && miscModal.classList.add('hidden');
+
+    // RSS feed for interests
+    const rssListEl = document.getElementById('rssFeed');
+    const rssStatusEl = document.getElementById('rssStatus');
+
+    if (rssListEl && rssStatusEl) {
+      const rssFeeds = [
+        {
+          label: 'Fintech',
+          url: 'https://www.finextra.com/rss/headlines.aspx?channel=fintech'
+        },
+        {
+          label: 'InfoSec',
+          url: 'https://feeds.feedburner.com/TheHackersNews'
+        },
+        {
+          label: 'RPG Design',
+          url: 'https://www.enworld.org/ewr-porta/index.rss'
+        },
+        {
+          label: 'Poetry',
+          url: 'https://www.poetryfoundation.org/rss/poem-of-the-day'
+        }
+      ];
+
+      const allItems = [];
+
+      function formatDate(d) {
+        const date = new Date(d);
+        if (isNaN(date.getTime())) return '';
+        return date.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+
+      function renderRSS() {
+        rssListEl.innerHTML = '';
+        if (!allItems.length) {
+          rssStatusEl.textContent = 'No items loaded yet. Try refreshing in a bit.';
+          return;
+        }
+        rssStatusEl.textContent = 'Latest from across my obsessions:';
+        allItems
+          .sort((a, b) => (b.pubDate || 0) - (a.pubDate || 0))
+          .slice(0, 18)
+          .forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'rss-item';
+
+            const link = document.createElement('a');
+            link.href = item.link;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = item.title;
+            li.appendChild(link);
+
+            const meta = document.createElement('div');
+            meta.className = 'rss-item-meta';
+            meta.textContent = `${item.label} • ${formatDate(item.pubDateRaw)}`;
+            li.appendChild(meta);
+
+            rssListEl.appendChild(li);
+          });
+      }
+
+      async function loadRSS() {
+        rssStatusEl.textContent = 'Loading latest posts…';
+        for (const feed of rssFeeds) {
+          try {
+            const response = await fetch(
+              'https://api.rss2json.com/v1/api.json?rss_url=' +
+              encodeURIComponent(feed.url)
+            );
+            if (!response.ok) continue;
+            const data = await response.json();
+            if (data && data.status === 'ok' && Array.isArray(data.items)) {
+              data.items.slice(0, 5).forEach(item => {
+                allItems.push({
+                  label: feed.label,
+                  title: item.title,
+                  link: item.link,
+                  pubDateRaw: item.pubDate,
+                  pubDate: new Date(item.pubDate).getTime() || 0
+                });
+              });
+            }
+          } catch (e) {
+            // ignore individual feed errors; we just skip that feed
+          }
+        }
+        renderRSS();
+      }
+
+      loadRSS();
+    }
   </script>
 </body>
 </html>
