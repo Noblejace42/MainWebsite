@@ -6,94 +6,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emerson Neher - Portfolio</title>
 
-  <!-- SEO Meta Tags -->
-  <meta name="description"
-    content="Emerson Neher - Financial Technology & Information Systems student at WPI. Security enthusiast, game designer, and writer." />
-  <meta name="keywords"
-    content="Emerson Neher, WPI, Financial Technology, Information Systems, Security, Game Design, TTRPG" />
+  <div class="substack-card">
+    <h3>Hopeless Poetic</h3>
+    <p class="rss-subtitle">Latest from my Substack</p>
+    <div id="substackStatus" class="rss-status">Loading posts…</div>
+    <ul id="substackFeed" class="substack-list"></ul>
+    <span class="rss-footnote">
+      <a href="https://emersonneher.substack.com" target="_blank">Visit Hopeless Poetic →</a>
+    </span>
+  </div>
 
-  <!-- Fonts -->
+  <!-- Markov Generator Card -->
+  <div class="markov-card">
+    <h3>Emerson's Wisdom</h3>
+    <div id="markovQuote">Click below to generate...</div>
+    <button id="regenerateBtn" class="card-btn">Bestow Wisdom</button>
+  </div>
+  </div>
 
-  <div class="main-container">
-
-    <!-- Left Column -->
-    <div class="left-column">
-      <!-- Substack Blog Feed -->
-      <div class="substack-card">
-        <h3>Hopeless Poetic</h3>
-        <p class="rss-subtitle">Latest from my Substack</p>
-        <div id="substackStatus" class="rss-status">Loading posts…</div>
-        <ul id="substackFeed" class="substack-list"></ul>
-        <span class="rss-footnote">
-          <a href="https://emersonneher.substack.com" target="_blank">Visit Hopeless Poetic →</a>
-        </span>
-      </div>
-
-      <!-- Markov Generator Card -->
-      <div class="markov-card">
-        <h3>Emerson's Wisdom</h3>
-        <div id="markovQuote">Click below to generate...</div>
-        <button id="regenerateBtn" class="card-btn">Bestow Wisdom</button>
-      </div>
+  <!-- Center Card -->
+  <div class="center-card">
+    <div class="card-buttons">
+      <button id="themeToggleBtn" class="toggle-theme-btn">Toggle Theme</button>
+      <a href="axial/axialcharactersheet.html" class="card-btn">Axial TTRPG</a>
+      <a href="https://emersonneher.substack.com" target="_blank" class="card-btn">Hopeless Poetic</a>
+      <button id="miscBtn" class="card-btn">Miscellaneous</button>
     </div>
 
-    <!-- Center Card -->
-    <div class="center-card">
-      <div class="card-buttons">
-        <button id="themeToggleBtn" class="toggle-theme-btn">Toggle Theme</button>
-        <a href="axial/axialcharactersheet.html" class="card-btn">Axial TTRPG</a>
-        <a href="https://emersonneher.substack.com" target="_blank" class="card-btn">Hopeless Poetic</a>
-        <button id="miscBtn" class="card-btn">Miscellaneous</button>
-      </div>
-
-      <div class="card-image">
-        <img src="assets/images/sittingimage.jpg" alt="Emerson Neher" />
-      </div>
-
-      <div class="contact-card">
-        <h1>Emerson Neher</h1>
-        <h3>they/them/theirs</h3>
-        <p>Email: <a href="mailto:emersonneher@gmail.com">emersonneher@gmail.com</a></p>
-        <p>Worcester, MA & Evergreen, CO</p>
-        <p>
-          Worcester Polytechnic Institute | Class of 2028<br />
-          Financial Technology Major | Information Systems Major
-        </p>
-        <p class="links">
-          <a href="https://www.linkedin.com/in/emerson-neher-184274346" target="_blank">LinkedIn</a> |
-          <a href="https://www.instagram.com/emerson.neher/" target="_blank">Instagram</a> |
-          <a href="https://discord.com/users/noblejace" target="_blank">Discord</a>
-        </p>
-        <p class="bio">
-          Passionate about security, technology, and system design. I'm a writer, game designer,
-          and storyteller who loves poetry, the mechanics of RPGs,
-          and the art of photography. I am also deeply fascinated by security and the systems that minimize risk in our
-          world. If you can't break it, it can't be fixed.
-        </p>
-      </div>
-
-      <div class="spotify-container">
-        <div class="spotify-title">Currently Listening</div>
-        <iframe src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator&theme=1"
-          width="100%" height="180" frameborder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
-        </iframe>
-      </div>
+    <div class="card-image">
+      <img src="assets/images/sittingimage.jpg" alt="Emerson Neher" />
     </div>
 
-    <!-- Right Column -->
-    <div class="right-column">
-      <!-- RSS / Interests Feed Card -->
-      <div class="rss-card">
-        <h3>Interest Feed</h3>
-        <p class="rss-subtitle">Fintech, security, RPGs, poetry, and more.</p>
-        <div id="rssStatus" class="rss-status">Loading latest posts…</div>
-        <ul id="rssFeed" class="rss-list"></ul>
-        <span class="rss-footnote">
-          All in good fun.
-        </span>
-      </div>
+    <div class="contact-card">
+      <h1>Emerson Neher</h1>
+      <h3>they/them/theirs</h3>
+      <p>Email: <a href="mailto:emersonneher@gmail.com">emersonneher@gmail.com</a></p>
+      <p>Worcester, MA & Evergreen, CO</p>
+      <p>
+        Worcester Polytechnic Institute | Class of 2028<br />
+        Financial Technology Major | Information Systems Major
+      </p>
+      <p class="links">
+        <a href="https://www.linkedin.com/in/emerson-neher-184274346" target="_blank">LinkedIn</a> |
+        <a href="https://www.instagram.com/emerson.neher/" target="_blank">Instagram</a> |
+        <a href="https://discord.com/users/noblejace" target="_blank">Discord</a>
+      </p>
+      <p class="bio">
+        Passionate about security, technology, and system design. I'm a writer, game designer,
+        and storyteller who loves poetry, the mechanics of RPGs,
+        and the art of photography. I am also deeply fascinated by security and the systems that minimize risk in our
+        world. If you can't break it, it can't be fixed.
+      </p>
     </div>
+
+    <div class="spotify-container">
+      <div class="spotify-title">Currently Listening</div>
+      <iframe src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator&theme=1"
+        width="100%" height="180" frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div class="right-column">
+    <!-- RSS / Interests Feed Card -->
+    <div class="rss-card">
+      <h3>Interest Feed</h3>
+      <p class="rss-subtitle">Fintech, security, RPGs, poetry, and more.</p>
+      <div id="rssStatus" class="rss-status">Loading latest posts…</div>
+      <ul id="rssFeed" class="rss-list"></ul>
+      <span class="rss-footnote">
+        All in good fun.
+      </span>
+    </div>
+  </div>
   </div>
 
   <!-- Floating Image Tiles -->
