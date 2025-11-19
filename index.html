@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Emerson Neher</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emerson Neher - Portfolio</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="Emerson Neher - Financial Technology & Information Systems student at WPI. Security enthusiast, game designer, and writer." />
+  <meta name="keywords"
+    content="Emerson Neher, WPI, Financial Technology, Information Systems, Security, Game Design, TTRPG" />
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500&display=swap"
-    rel="stylesheet"/>
-
-  <!-- compromise.js for light POS tagging (no MIME issues) -->
-  <script src="https://cdn.jsdelivr.net/npm/compromise@latest/builds/compromise.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet" />
 
   <style>
     :root {
@@ -24,105 +27,209 @@
       --accent: #00ffcc;
       --accent-hover: #00cc99;
       --accent-alt: #ff00ff;
-      --card-bg: rgba(0,0,0,0.85);
-      --card-bg-light: rgba(255,255,255,0.92);
+      --card-bg: rgba(0, 0, 0, 0.85);
+      --card-bg-light: rgba(255, 255, 255, 0.92);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%; height: 100%;
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
       background: linear-gradient(135deg, var(--bg-dark), #1a1a1a);
       color: var(--text-light);
       font-family: 'Press Start 2P', monospace;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
+
     body.light-mode {
       background: var(--bg-light);
       color: var(--text-dark);
     }
-    a { color: var(--accent); text-decoration: none; transition: color .2s; }
-    a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
 
     .main-container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      display: grid;
+      grid-template-columns: 360px 1fr 360px;
       gap: 20px;
       padding: 20px;
       position: relative;
       z-index: 2;
-      height: 100%;
+      min-height: 100vh;
+      max-width: 1800px;
+      margin: 0 auto;
     }
-    .center-card, .markov-card, .rss-card {
+
+    @media (max-width: 1400px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        max-width: 800px;
+      }
+
+      .rss-card,
+      .substack-card,
+      .markov-card {
+        max-width: 100% !important;
+      }
+    }
+
+    .center-card,
+    .markov-card,
+    .rss-card,
+    .substack-card {
       background: var(--card-bg);
       border: 4px solid var(--accent);
-      box-shadow: 0 10px 25px rgba(0,255,204,0.3);
+      box-shadow: 0 10px 25px rgba(0, 255, 204, 0.3);
       overflow: hidden;
       z-index: 3;
       text-align: center;
-      transition: background .4s, border-color .4s;
+      transition: all .4s ease;
+      border-radius: 8px;
     }
+
+    .center-card:hover,
+    .markov-card:hover,
+    .rss-card:hover,
+    .substack-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0, 255, 204, 0.4);
+    }
+
     body.light-mode .center-card,
     body.light-mode .markov-card,
-    body.light-mode .rss-card {
+    body.light-mode .rss-card,
+    body.light-mode .substack-card {
       background: var(--card-bg-light);
       border-color: var(--accent-hover);
     }
 
     .center-card {
-      width: 700px;
-      max-width: 90%;
+      grid-column: 2;
       padding: 20px 30px 30px;
     }
-    .markov-card {
-      width: 300px;
+
+    .left-column {
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .right-column {
+      grid-column: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @media (max-width: 1400px) {
+      .center-card {
+        grid-column: 1;
+      }
+
+      .left-column,
+      .right-column {
+        grid-column: 1;
+      }
+    }
+
+    .markov-card,
+    .substack-card {
       padding: 20px 15px;
     }
 
-    .rss-card {
-      width: 360px;
-      max-width: 90%;
-      padding: 20px 20px 24px;
+    .rss-card,
+    .substack-card {
+      padding: 20px;
       text-align: left;
     }
-    .rss-card h3 {
+
+    .rss-card h3,
+    .substack-card h3 {
       font-size: 1em;
       margin-bottom: 8px;
       color: var(--accent);
     }
+
     .rss-subtitle {
       font-family: 'Roboto', sans-serif;
       font-size: .7em;
       margin-bottom: 10px;
       color: var(--text-light);
     }
+
     .rss-status {
       font-family: 'Roboto', sans-serif;
       font-size: .7em;
       margin-bottom: 8px;
       color: var(--accent-hover);
     }
-    .rss-list {
+
+    .rss-list,
+    .substack-list {
       list-style: none;
       padding: 0;
       margin: 0;
       font-family: 'Roboto', sans-serif;
       font-size: .72em;
       line-height: 1.45;
-      max-height: 420px;
+      max-height: 500px;
       overflow-y: auto;
     }
-    .rss-item {
-      padding: 6px 0;
-      border-bottom: 1px dashed rgba(0,255,204,0.25);
+
+    .rss-item,
+    .substack-item {
+      padding: 10px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--accent);
+      background: rgba(0, 255, 204, 0.05);
+      transition: all .3s ease;
     }
-    .rss-item a {
+
+    .rss-item:hover,
+    .substack-item:hover {
+      background: rgba(0, 255, 204, 0.1);
+      border-left-width: 5px;
+      transform: translateX(4px);
+    }
+
+    .rss-item a,
+    .substack-item a {
       color: var(--accent-alt);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 4px;
     }
+
     .rss-item-meta {
       font-size: .65em;
       opacity: 0.8;
       margin-top: 2px;
     }
+
+    .rss-item-excerpt {
+      font-size: .7em;
+      opacity: 0.7;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
     .rss-footnote {
       display: block;
       margin-top: 8px;
@@ -138,7 +245,9 @@
       gap: 8px;
       margin-bottom: 15px;
     }
-    .card-btn, .toggle-theme-btn {
+
+    .card-btn,
+    .toggle-theme-btn {
       background: var(--accent);
       color: #000;
       border: 2px solid var(--accent);
@@ -148,11 +257,17 @@
       text-transform: uppercase;
       font-weight: bold;
       cursor: pointer;
-      transition: background .2s;
+      transition: all .3s ease;
+      border-radius: 4px;
     }
-    .card-btn:hover, .toggle-theme-btn:hover {
+
+    .card-btn:hover,
+    .toggle-theme-btn:hover {
       background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 255, 204, 0.3);
     }
+
     body.light-mode .card-btn,
     body.light-mode .toggle-theme-btn {
       background: var(--accent-hover);
@@ -164,11 +279,22 @@
       margin: 0 auto 15px;
       width: 200px;
       height: 200px;
-      border: 2px solid var(--accent);
+      border: 3px solid var(--accent);
+      border-radius: 50%;
       overflow: hidden;
+      position: relative;
+      transition: all .4s ease;
     }
+
+    .card-image:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.5);
+      border-width: 4px;
+    }
+
     .card-image img {
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
 
@@ -176,22 +302,27 @@
       margin: 8px 0;
       font-size: 1.5em;
       color: var(--accent);
+      text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
     }
+
     .contact-card h3 {
       margin: 4px 0 15px;
       font-size: .9em;
       color: var(--accent-hover);
     }
+
     .contact-card p {
       margin: 4px 0;
       font-family: 'Roboto', sans-serif;
       font-size: .78em;
       color: var(--text-light);
     }
+
     .contact-card .links a {
       color: var(--accent-alt);
       margin: 0 6px;
     }
+
     .bio {
       margin-top: 10px;
       font-family: 'Roboto', sans-serif;
@@ -202,11 +333,13 @@
 
     .spotify-container {
       margin-top: 20px;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       border: 2px solid var(--accent);
-      box-shadow: 0 2px 8px rgba(0,255,204,0.3);
+      box-shadow: 0 2px 8px rgba(0, 255, 204, 0.3);
       padding: 10px;
+      border-radius: 8px;
     }
+
     .spotify-title {
       margin: 0 0 8px;
       font-family: 'Roboto', sans-serif;
@@ -220,84 +353,147 @@
       pointer-events: none;
       z-index: 1;
     }
+
     .moving-tile {
       position: absolute;
       background-size: cover;
       background-position: center;
       border: 2px solid var(--accent);
-      box-shadow: 0 4px 10px rgba(0,255,204,0.3);
+      box-shadow: 0 4px 10px rgba(0, 255, 204, 0.3);
       animation: drift 25s linear forwards;
       mix-blend-mode: screen;
-    }
-    @keyframes drift {
-      0%   { transform: translateX(-150vw) scale(1); opacity: 0; }
-      10%  { opacity: .8; }
-      50%  { transform: translateX(50vw) scale(1.05); }
-      90%  { opacity: .3; }
-      100% { transform: translateX(150vw) scale(1); opacity: 0; }
+      opacity: 0.6;
     }
 
-    /* Wisdom text matches small Roboto elsewhere */
+    @keyframes drift {
+      0% {
+        transform: translateX(-150vw) scale(1);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: .6;
+      }
+
+      50% {
+        transform: translateX(50vw) scale(1.05);
+      }
+
+      90% {
+        opacity: .3;
+      }
+
+      100% {
+        transform: translateX(150vw) scale(1);
+        opacity: 0;
+      }
+    }
+
     #markovQuote {
       font-family: 'Roboto', sans-serif;
       font-size: .78em;
       line-height: 1.55;
       margin-top: 8px;
+      min-height: 60px;
     }
 
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0, 0, 0, 0.85);
       display: flex;
       justify-content: center;
       align-items: center;
       backdrop-filter: blur(5px);
       z-index: 10;
     }
-    .modal.hidden { display: none; }
+
+    .modal.hidden {
+      display: none;
+    }
+
     .modal-content {
       position: relative;
       background: var(--card-bg);
       padding: 30px;
-      width: 90%; max-width: 480px;
+      width: 90%;
+      max-width: 480px;
       border: 2px solid var(--accent);
-      box-shadow: 0 0 30px rgba(0,255,204,0.6);
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
       text-align: center;
       font-family: 'Roboto', sans-serif;
       color: var(--text-light);
+      border-radius: 8px;
     }
+
     body.light-mode .modal-content {
       background: var(--card-bg-light);
       border-color: var(--accent-hover);
       color: var(--text-dark);
     }
+
     .close-btn {
       position: absolute;
-      top: 10px; right: 10px;
+      top: 10px;
+      right: 10px;
       background: transparent;
       border: none;
       font-size: 24px;
       color: var(--text-light);
       cursor: pointer;
     }
-    .close-btn:hover { color: var(--accent-hover); }
-    body.light-mode .close-btn { color: var(--text-dark); }
+
+    .close-btn:hover {
+      color: var(--accent-hover);
+    }
+
+    body.light-mode .close-btn {
+      color: var(--text-dark);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-hover);
+    }
   </style>
 </head>
+
 <body>
 
   <div class="main-container">
 
-    <!-- RSS / Interests Feed Card -->
-    <div class="rss-card">
-      <h3>Interest Feed</h3>
-      <p class="rss-subtitle">Fintech, security, RPGs, poetry, and more.</p>
-      <div id="rssStatus" class="rss-status">Loading latest posts…</div>
-      <ul id="rssFeed" class="rss-list"></ul>
-      <span class="rss-footnote">
-        All in good fun.
-      </span>
+    <!-- Left Column -->
+    <div class="left-column">
+      <!-- Substack Blog Feed -->
+      <div class="substack-card">
+        <h3>Hopeless Poetic</h3>
+        <p class="rss-subtitle">Latest from my Substack</p>
+        <div id="substackStatus" class="rss-status">Loading posts…</div>
+        <ul id="substackFeed" class="substack-list"></ul>
+        <span class="rss-footnote">
+          <a href="https://emersonneher.substack.com" target="_blank">Visit Hopeless Poetic →</a>
+        </span>
+      </div>
+
+      <!-- Markov Generator Card -->
+      <div class="markov-card">
+        <h3>Emerson's Wisdom</h3>
+        <div id="markovQuote">Click below to generate...</div>
+        <button id="regenerateBtn" class="card-btn">Bestow Wisdom</button>
+      </div>
     </div>
 
     <!-- Center Card -->
@@ -310,7 +506,7 @@
       </div>
 
       <div class="card-image">
-        <img src="assets/images/sittingimage.jpg" alt="Emerson Neher"/>
+        <img src="assets/images/sittingimage.jpg" alt="Emerson Neher" />
       </div>
 
       <div class="contact-card">
@@ -319,7 +515,7 @@
         <p>Email: <a href="mailto:emersonneher@gmail.com">emersonneher@gmail.com</a></p>
         <p>Worcester, MA & Evergreen, CO</p>
         <p>
-          Worcester Polytechnic Institute | Class of 2028<br/>
+          Worcester Polytechnic Institute | Class of 2028<br />
           Financial Technology Major | Information Systems Major
         </p>
         <p class="links">
@@ -328,28 +524,34 @@
           <a href="https://discord.com/users/noblejace" target="_blank">Discord</a>
         </p>
         <p class="bio">
-          Passionate about security, technology, and system design. I’m a writer, game designer,
+          Passionate about security, technology, and system design. I'm a writer, game designer,
           and storyteller who loves poetry, the mechanics of RPGs,
-          and the art of photography. I am also deeply fascinated by security and the systems that minimize risk in our world. If you can't break it, it can't be fixed.
+          and the art of photography. I am also deeply fascinated by security and the systems that minimize risk in our
+          world. If you can't break it, it can't be fixed.
         </p>
       </div>
 
       <div class="spotify-container">
         <div class="spotify-title">Currently Listening</div>
-        <iframe
-          src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator&theme=1"
+        <iframe src="https://open.spotify.com/embed/playlist/0FdmEAvUL4hFCzBDev8n6J?utm_source=generator&theme=1"
           width="100%" height="180" frameborder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy">
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
         </iframe>
       </div>
     </div>
 
-    <!-- Markov Generator Card -->
-    <div class="markov-card">
-      <h3>Emerson’s Wisdom</h3>
-      <div id="markovQuote">Loading…</div>
-      <button id="regenerateBtn" class="card-btn" disabled>Bestow Wisdom</button>
+    <!-- Right Column -->
+    <div class="right-column">
+      <!-- RSS / Interests Feed Card -->
+      <div class="rss-card">
+        <h3>Interest Feed</h3>
+        <p class="rss-subtitle">Fintech, security, RPGs, poetry, and more.</p>
+        <div id="rssStatus" class="rss-status">Loading latest posts…</div>
+        <ul id="rssFeed" class="rss-list"></ul>
+        <span class="rss-footnote">
+          All in good fun.
+        </span>
+      </div>
     </div>
   </div>
 
@@ -364,147 +566,179 @@
       <p>Explore extra snippets, downloads, and fun experiments.</p>
       <ul style="list-style:none;line-height:1.8;padding:0;margin-top:1em;">
         <li><a href="resume.pdf" download>Download my resume</a></li>
-        <li><a href="https://open.spotify.com/playlist/3vDF8HiTd7JqePb8OrA4vA?si=59d7ce28997841d1" target="_blank">Favorite Playlist</a></li>
+        <li><a href="Omega/index.html" target="_blank">Portfolio Optimizer (Omega API)</a></li>
+        <li><a href="https://open.spotify.com/playlist/3vDF8HiTd7JqePb8OrA4vA?si=59d7ce28997841d1"
+            target="_blank">Favorite Playlist</a></li>
         <li><a href="https://hopelesspoetic.com/weakestlink.html" target="_blank">Weakest&nbsp;Link (MKT4030)</a></li>
         <li><a href="systemgen.html" target="_blank">Astral Axial (Legacy)</a></li>
       </ul>
     </div>
   </div>
 
-<script src="https://rawcdn.githack.com/alex-mas/mchains/master/mchains.js"></script>
+  <script>
+    // ============================================
+    // CUSTOM MARKOV CHAIN IMPLEMENTATION
+    // ============================================
+    class SimpleMarkov {
+      constructor(order = 2) {
+        this.order = order;
+        this.chain = {};
+      }
 
-<script>
-// 1. fetch your cleaned corpus
-fetch('assets/data/emersonmarkovchain.txt')
-  .then(r => r.text())
-  .then(raw => {
-    // carve into 2–6 word snippets
-    const bits = raw
-      .replace(/<[^>]+>/g, '')
-      .split(/\r?\n/)
-      .flatMap(l => l.split(/[\.\?!,;—]/g))
-      .map(s => s.trim())
-      .filter(s => {
-        const wc = s.split(/\s+/).length;
-        return wc >= 2 && wc <= 6;
+      train(text) {
+        const words = text.split(/\s+/).filter(w => w.length > 0);
+
+        for (let i = 0; i < words.length - this.order; i++) {
+          const key = words.slice(i, i + this.order).join(' ');
+          const next = words[i + this.order];
+
+          if (!this.chain[key]) {
+            this.chain[key] = [];
+          }
+          this.chain[key].push(next);
+        }
+      }
+
+      generate(minLength = 5, maxLength = 15) {
+        const keys = Object.keys(this.chain);
+        if (keys.length === 0) return "No wisdom available yet...";
+
+        let key = keys[Math.floor(Math.random() * keys.length)];
+        let result = key.split(' ');
+
+        while (result.length < maxLength) {
+          const possibilities = this.chain[key];
+          if (!possibilities || possibilities.length === 0) break;
+
+          const next = possibilities[Math.floor(Math.random() * possibilities.length)];
+          result.push(next);
+
+          // Update key for next iteration
+          const words = result.slice(-this.order);
+          key = words.join(' ');
+        }
+
+        // Capitalize first letter
+        let sentence = result.join(' ');
+        sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+
+        // Add period if not present
+        if (!/[.!?]$/.test(sentence)) {
+          sentence += '.';
+        }
+
+        return sentence;
+      }
+    }
+
+    // Initialize and train Markov chain
+    const markov = new SimpleMarkov(2);
+
+    fetch('assets/data/emersonmarkovchain.txt')
+      .then(r => r.text())
+      .then(raw => {
+        // Clean and prepare text
+        const cleanText = raw
+          .replace(/<[^>]+>/g, '')
+          .replace(/[^\w\s.!?]/g, '')
+          .toLowerCase();
+
+        markov.train(cleanText);
+
+        // Wire up UI
+        const out = document.getElementById('markovQuote');
+        const btn = document.getElementById('regenerateBtn');
+
+        btn.onclick = () => {
+          out.textContent = markov.generate(5, 15);
+        };
+
+        // Generate initial quote
+        out.textContent = markov.generate(5, 15);
+      })
+      .catch(err => {
+        console.error('Markov error:', err);
+        document.getElementById('markovQuote').textContent = 'Failed to load wisdom corpus.';
       });
 
-    // 2. build & train the chain
-    const chain = new mchains.Chain({ order: 2 });
-    chain.train(bits);
-
-    // 3. configure output length, capitalization, etc.
-    chain.configOutput({
-      minLength: 2,
-      maxLength: 5,
-      capitalizeFirst: true,
-      cropToLength: true
-    });
-
-    // 4. wire up your UI
-    const out = document.getElementById('markovQuote');
-    const btn = document.getElementById('regenerateBtn');
-    btn.disabled = false;
-    btn.onclick = () => {
-      // generate() returns an array of strings
-      out.textContent = chain.generate()[0];
-    };
-    out.textContent = chain.generate()[0];
-  })
-  .catch(console.error);
-</script>
-
-  <!-- 3) Inline helpers: theme toggle, tiles, modal, RSS -->
-  <script>
-    // Theme toggle
+    // ============================================
+    // THEME TOGGLE
+    // ============================================
     document.getElementById('themeToggleBtn')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
 
-    // Tile-spawning logic
-    const tilePaths = Array.from({ length: 34 }, (_, i) => `assets/images/${i+4}.jpg`);
+    // ============================================
+    // FLOATING TILES
+    // ============================================
+    const tilePaths = Array.from({ length: 34 }, (_, i) => `assets/images/${i + 4}.jpg`);
     const tilesContainer = document.querySelector('.tiles-container');
-    const tileData = []; let tileLoaded = 0;
+    const tileData = [];
+    let tileLoaded = 0;
+
     tilePaths.forEach(src => {
-      const img = new Image(); img.src = src;
-      img.onload = () => { tileData.push({ src, aspect: img.width/img.height||1 }); checkTiles(); };
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        tileData.push({ src, aspect: img.width / img.height || 1 });
+        checkTiles();
+      };
       img.onerror = checkTiles;
     });
-    function checkTiles(){
+
+    function checkTiles() {
       if (++tileLoaded === tilePaths.length) {
         spawnTile();
-        setInterval(()=> tilesContainer.children.length < 5 && spawnTile(), 2000);
+        setInterval(() => tilesContainer.children.length < 5 && spawnTile(), 2000);
       }
     }
-    function spawnTile(){
+
+    function spawnTile() {
       if (!tileData.length) return;
-      const { src, aspect } = tileData[Math.random()*tileData.length|0];
+      const { src, aspect } = tileData[Math.random() * tileData.length | 0];
       const el = document.createElement('div'),
-            w = 150 + Math.random()*250,
-            h = w / aspect;
+        w = 150 + Math.random() * 250,
+        h = w / aspect;
       el.className = 'moving-tile';
-      el.style.width = w+'px';
-      el.style.height = h+'px';
+      el.style.width = w + 'px';
+      el.style.height = h + 'px';
       el.style.top = Math.random() * (window.innerHeight - h) + 'px';
       el.style.backgroundImage = `url('${src}')`;
       el.onanimationend = () => el.remove();
       tilesContainer.appendChild(el);
     }
 
-    // Misc modal handlers
+    // ============================================
+    // MODAL HANDLERS
+    // ============================================
     const miscModal = document.getElementById('miscModal');
     document.getElementById('miscBtn').onclick = () => miscModal.classList.remove('hidden');
     document.getElementById('closeModal').onclick = () => miscModal.classList.add('hidden');
-    miscModal.onclick = e => e.target===miscModal && miscModal.classList.add('hidden');
+    miscModal.onclick = e => e.target === miscModal && miscModal.classList.add('hidden');
 
-    // RSS feed for interests
-    const rssListEl = document.getElementById('rssFeed');
-    const rssStatusEl = document.getElementById('rssStatus');
+    // ============================================
+    // SUBSTACK RSS FEED
+    // ============================================
+    const substackListEl = document.getElementById('substackFeed');
+    const substackStatusEl = document.getElementById('substackStatus');
 
-    if (rssListEl && rssStatusEl) {
-      const rssFeeds = [
-        {
-          label: 'Fintech',
-          url: 'https://www.finextra.com/rss/headlines.aspx?channel=fintech'
-        },
-        {
-          label: 'InfoSec',
-          url: 'https://feeds.feedburner.com/TheHackersNews'
-        },
-        {
-          label: 'RPG Design',
-          url: 'https://www.enworld.org/ewr-porta/index.rss'
-        },
-        {
-          label: 'Poetry',
-          url: 'https://www.poetryfoundation.org/rss/poem-of-the-day'
-        }
-      ];
+    async function loadSubstack() {
+      try {
+        substackStatusEl.textContent = 'Loading posts…';
+        const response = await fetch(
+          'https://api.rss2json.com/v1/api.json?rss_url=' +
+          encodeURIComponent('https://emersonneher.substack.com/feed')
+        );
 
-      const allItems = [];
+        if (!response.ok) throw new Error('Failed to fetch');
 
-      function formatDate(d) {
-        const date = new Date(d);
-        if (isNaN(date.getTime())) return '';
-        return date.toLocaleDateString(undefined, {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-      }
+        const data = await response.json();
 
-      function renderRSS() {
-        rssListEl.innerHTML = '';
-        if (!allItems.length) {
-          rssStatusEl.textContent = 'No items loaded yet. Try refreshing in a bit.';
-          return;
-        }
-        rssStatusEl.textContent = 'Latest from across my obsessions:';
-        allItems
-          .sort((a, b) => (b.pubDate || 0) - (a.pubDate || 0))
-          .slice(0, 18)
-          .forEach(item => {
+        if (data && data.status === 'ok' && Array.isArray(data.items)) {
+          substackStatusEl.textContent = 'Latest posts:';
+
+          data.items.slice(0, 5).forEach(item => {
             const li = document.createElement('li');
-            li.className = 'rss-item';
+            li.className = 'substack-item';
 
             const link = document.createElement('a');
             link.href = item.link;
@@ -515,43 +749,156 @@ fetch('assets/data/emersonmarkovchain.txt')
 
             const meta = document.createElement('div');
             meta.className = 'rss-item-meta';
-            meta.textContent = `${item.label} • ${formatDate(item.pubDateRaw)}`;
+            const date = new Date(item.pubDate);
+            meta.textContent = date.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
             li.appendChild(meta);
 
-            rssListEl.appendChild(li);
-          });
-      }
-
-      async function loadRSS() {
-        rssStatusEl.textContent = 'Loading latest posts…';
-        for (const feed of rssFeeds) {
-          try {
-            const response = await fetch(
-              'https://api.rss2json.com/v1/api.json?rss_url=' +
-              encodeURIComponent(feed.url)
-            );
-            if (!response.ok) continue;
-            const data = await response.json();
-            if (data && data.status === 'ok' && Array.isArray(data.items)) {
-              data.items.slice(0, 5).forEach(item => {
-                allItems.push({
-                  label: feed.label,
-                  title: item.title,
-                  link: item.link,
-                  pubDateRaw: item.pubDate,
-                  pubDate: new Date(item.pubDate).getTime() || 0
-                });
-              });
+            // Add excerpt if available
+            if (item.description) {
+              const excerpt = document.createElement('div');
+              excerpt.className = 'rss-item-excerpt';
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = item.description;
+              const text = tempDiv.textContent || tempDiv.innerText || '';
+              excerpt.textContent = text.substring(0, 150) + (text.length > 150 ? '...' : '');
+              li.appendChild(excerpt);
             }
-          } catch (e) {
-            // ignore individual feed errors; we just skip that feed
-          }
+
+            substackListEl.appendChild(li);
+          });
+        } else {
+          substackStatusEl.textContent = 'No posts available.';
         }
-        renderRSS();
+      } catch (e) {
+        console.error('Substack error:', e);
+        substackStatusEl.textContent = 'Failed to load posts.';
+      }
+    }
+
+    // ============================================
+    // ENHANCED RSS FEED
+    // ============================================
+    const rssListEl = document.getElementById('rssFeed');
+    const rssStatusEl = document.getElementById('rssStatus');
+
+    const rssFeeds = [
+      {
+        label: 'Fintech',
+        url: 'https://www.finextra.com/rss/headlines.aspx?channel=fintech'
+      },
+      {
+        label: 'InfoSec',
+        url: 'https://feeds.feedburner.com/TheHackersNews'
+      },
+      {
+        label: 'Cybersecurity',
+        url: 'https://www.schneier.com/blog/atom.xml'
+      },
+      {
+        label: 'RPG Design',
+        url: 'https://www.enworld.org/ewr-porta/index.rss'
+      },
+      {
+        label: 'Tech News',
+        url: 'https://hnrss.org/frontpage'
+      },
+      {
+        label: 'Game Dev',
+        url: 'https://www.gamedeveloper.com/rss.xml'
+      }
+    ];
+
+    const allItems = [];
+
+    function formatDate(d) {
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function renderRSS() {
+      rssListEl.innerHTML = '';
+      if (!allItems.length) {
+        rssStatusEl.textContent = 'No items loaded yet. Try refreshing in a bit.';
+        return;
       }
 
-      loadRSS();
+      rssStatusEl.textContent = 'Latest from across my obsessions:';
+      allItems
+        .sort((a, b) => (b.pubDate || 0) - (a.pubDate || 0))
+        .slice(0, 20)
+        .forEach(item => {
+          const li = document.createElement('li');
+          li.className = 'rss-item';
+
+          const link = document.createElement('a');
+          link.href = item.link;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = item.title;
+          li.appendChild(link);
+
+          const meta = document.createElement('div');
+          meta.className = 'rss-item-meta';
+          meta.textContent = `${item.label} • ${formatDate(item.pubDateRaw)}`;
+          li.appendChild(meta);
+
+          // Add excerpt if available
+          if (item.description) {
+            const excerpt = document.createElement('div');
+            excerpt.className = 'rss-item-excerpt';
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = item.description;
+            const text = tempDiv.textContent || tempDiv.innerText || '';
+            excerpt.textContent = text.substring(0, 120) + (text.length > 120 ? '...' : '');
+            li.appendChild(excerpt);
+          }
+
+          rssListEl.appendChild(li);
+        });
     }
+
+    async function loadRSS() {
+      rssStatusEl.textContent = 'Loading latest posts…';
+      for (const feed of rssFeeds) {
+        try {
+          const response = await fetch(
+            'https://api.rss2json.com/v1/api.json?rss_url=' +
+            encodeURIComponent(feed.url)
+          );
+          if (!response.ok) continue;
+          const data = await response.json();
+          if (data && data.status === 'ok' && Array.isArray(data.items)) {
+            data.items.slice(0, 5).forEach(item => {
+              allItems.push({
+                label: feed.label,
+                title: item.title,
+                link: item.link,
+                description: item.description || item.content || '',
+                pubDateRaw: item.pubDate,
+                pubDate: new Date(item.pubDate).getTime() || 0
+              });
+            });
+          }
+        } catch (e) {
+          console.error(`Error loading ${feed.label}:`, e);
+        }
+      }
+      renderRSS();
+    }
+
+    // Initialize feeds
+    loadSubstack();
+    loadRSS();
   </script>
 </body>
+
 </html>
