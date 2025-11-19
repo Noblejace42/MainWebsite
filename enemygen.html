@@ -1,288 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Astral Axial — Enemy Generator</title>
 
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="css/styles.css" />
 
   <style>
-    .enemy-wrap   {display:flex;flex-direction:column;gap:.8rem;max-width:100%;}
-    .enemy-card   {border:1px solid #555;background:#222;padding:.9rem;border-radius:6px;
-                   overflow-wrap:anywhere;}
-    .enemy-card h3{margin:.1rem 0 .4rem 0;font-size:1.15rem;}
-    .enemy-meta   {margin:.3rem 0;font-size:.9rem;}
-    .talent-list, .weapon-list{margin:.25rem 0 0 1.1rem;padding:0;font-size:.9rem;}
-    .talent-list li, .weapon-list li{margin:.15rem 0;list-style:disc;}
+    .enemy-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: .8rem;
+      max-width: 100%;
+    }
+
+    .enemy-card {
+      border: 1px solid #555;
+      background: #222;
+      padding: .9rem;
+      border-radius: 6px;
+      overflow-wrap: anywhere;
+    }
+
+    .enemy-card h3 {
+      margin: .1rem 0 .4rem 0;
+      font-size: 1.15rem;
+    }
+
+    .enemy-meta {
+      margin: .3rem 0;
+      font-size: .9rem;
+    }
+
+    .talent-list,
+    .weapon-list {
+      margin: .25rem 0 0 1.1rem;
+      padding: 0;
+      font-size: .9rem;
+    }
+
+    .talent-list li,
+    .weapon-list li {
+      margin: .15rem 0;
+      list-style: disc;
+    }
   </style>
 </head>
+
 <body>
-<div id="navContainer"></div>
-<script>
-fetch('nav.html').then(r=>r.text()).then(t=>navContainer.innerHTML=t)
-                 .catch(e=>console.error('nav load',e));
-</script>
+  <div id="navContainer"></div>
+  <script>
+    fetch('nav.html').then(r => r.text()).then(t => navContainer.innerHTML = t)
+      .catch(e => console.error('nav load', e));
+  </script>
 
-<div class="container">
-  <h1>Enemy Generator</h1>
+  <div class="container">
+    <h1>Enemy Generator</h1>
 
-  <div class="section">
-    <button id="genBtn">Generate Enemies</button>
+    <div class="section">
+      <button id="genBtn">Generate Enemies</button>
+    </div>
+
+    <div class="section">
+      <h2>Roster</h2>
+      <div id="enemyOutput" class="enemy-wrap"></div>
+    </div>
   </div>
 
-  <div class="section">
-    <h2>Roster</h2>
-    <div id="enemyOutput" class="enemy-wrap"></div>
-  </div>
-</div>
-
-<script>
-/*────────────────  BASIC RAND HELPERS ────────────────*/
-const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const pick=arr=>arr[rand(0,arr.length-1)];
-function weightedRandom(arr){let t=arr.reduce((s,o)=>s+o.weight,0),r=Math.random()*t;
-  for(const o of arr){if(r<o.weight)return o.value!==undefined?o.value:o;r-=o.weight;}}
-
-/*────────────────  LOAD WEAPON GENERATOR  ─────────────*/
-let weaponLoaded=false;
-function loadWeaponGen(){
-  if(weaponLoaded) return Promise.resolve();
-  return fetch('weapongenerator.html')
-    .then(r=>r.text())
-    .then(html=>{
-      const m=html.match(/<script[^>]*>([\s\S]*?)<\/script>/);
-      if(m) {eval(m[1]); weaponLoaded=true;}
-    })
-    .catch(e=>console.error('weapon load',e));
-}
-
-/*────────────────  TALENT DATA  ───────────────────────*/
-let talentPool=[];   // combat-relevant skill names
-const banned=/cook|music|garden|craft|fish|chef|perform/i;
-const extraSkill   =["Tracking","First-Aid","Demolitions","Interrogation","Pilot", "Running", "Climbing", "Grappling", "Initiative", "Keeping Watch", "Martial Arts"];
-const abilityPool  =[
-  {name:"Jump",desc:"Instantly move to an adjacent zone."},
-  {name:"Charge",desc:"Move up to two zones and make an attack with a (Melee) weapon."},
-  {name:"Suppress",desc:"Force targets in an adjacent or occupied zone to step down their next attack die."},
-  {name:"Overwatch",desc:"If an enemy enters the occupied zone, make an attack against them."},
-  {name:"Cheap Shot",desc:"If an enemy leaves the occupied zone, make an attack against them."}
-];
-const itemPool     =[
-  {name:"Grappling Hook",die:"1d6",note:"once per combat, allows enemy to move up to a non-connected zone within line of sight. Uses positioning move"},
-  {name:"Smoke Canister",die:"1d8",note:"adds 1d8 to defense pool of all creatures in zone deployed in. Lasts for 1 full round. Deployed as a medium move."},
-  {name:"Adaptive Shield",die:"1d6",note:"adds d6 to defense once per round."},
-  {name:"Ammo Box",die:"1d6",note:"Can be looted for 1d6 Ammo at the end of the fight."},
-  {name:"Ration Box",die:"1d4",note:"Can be looted for 1d4 rations at the end of the fight."}
-];
-
-function loadTalents(){
-  if(talentPool.length) return Promise.resolve();
-  return fetch('lifepath_data.json')
-    .then(r=>r.json())
-    .then(j=>{
-      const raw=Object.values(j).flatMap(v=>Array.isArray(v)?v:[]);
-      talentPool=[...new Set([...raw.filter(t=>!banned.test(t)),...extraSkill])]
-                 .map(t=>t.replace(/_/g,' '))
-                 .filter(Boolean);
-    });
-}
-
-/*────────────────  DIFFICULTY TABLE  ─────────────────*/
-const tiers=[
- {label:"Boss",n:1,hp:[20,100],skill:[3,4],defCap:4,wpn:[2,3],tal:[6,10]},
- {label:"Hard",n:2,hp:[15,60], skill:[2,3],defCap:4,wpn:[1,2],tal:[5,8]},
- {label:"Intermediate",n:2,hp:[10,40],skill:[2,2],defCap:3,wpn:[1,2],tal:[3,6]},
- {label:"Easy",n:2,hp:[5,25],  skill:[1,1],defCap:2,wpn:[1,1],tal:[1,4]}
-];
-
-/*────────────────  CORE GENERATORS  ──────────────────*/
-function rollHp([lo,hi]){return Math.max(lo,Math.floor(Math.pow(Math.random(),2.3)*(hi-lo))+lo);}
-function buildDefense(cap){
-  const dieW=[{value:"d6",weight:50},{value:"d4",weight:35},{value:"d8",weight:15}];
-  const arr=Array.from({length:rand(1,cap)},()=>weightedRandom(dieW));
-  return arr.sort((a,b)=>parseInt(b.slice(1))-parseInt(a.slice(1)));
-}
-function skillTalent(name){return {type:"skill",name,die:`1d${pick([4,6,8,10,12])}`}}
-
-function pickTalents([min,max]){
-  const total=rand(min,max), list=[];
-  while(list.length<total){
-    const kind=weightedRandom([{value:"skill",weight:60},{value:"ability",weight:25},{value:"item",weight:15}]);
-    if(kind==="skill"){
-      const name=pick(talentPool);
-      list.push(skillTalent(name));
-    }else if(kind==="ability"){
-      list.push({...pick(abilityPool),type:"ability"});
-    }else{
-      list.push({...pick(itemPool),type:"item"});
+  <script>
+    /*────────────────  BASIC RAND HELPERS ────────────────*/
+    const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+    const pick = arr => arr[rand(0, arr.length - 1)];
+    function weightedRandom(arr) {
+      let t = arr.reduce((s, o) => s + o.weight, 0), r = Math.random() * t;
+      for (const o of arr) { if (r < o.weight) return o.value !== undefined ? o.value : o; r -= o.weight; }
     }
-  }
-  return list;
-}
 
-const persNames=[
-"Vorgath","Selene","Harkan","Ilyra","Kryos","Zerak","Nyss","Rhadon","Azura","Marek",
-"Liora","Kaelen","Virek","Althea","Jorik","Sava","Thorne","Lyrix","Kallen","Seris",
-"Doran","Myka","Riven","Calen","Vexa","Elion","Zareth","Thalia","Revik","Soren",
-"Iskra","Talon","Vanya","Kaida","Orik","Neris","Gavric","Elias","Vael","Rowan",
-"Torin","Ashka","Naevia","Zarek","Lucan","Kairin","Sorrel","Evara","Kelric","Vayen",
-"Brynn","Cassir","Theren","Zayra","Rilith","Jareth","Emric","Malra","Shael","Teryn",
-"Varen","Calyra","Fenric","Orryn","Laziel","Nereth","Alric","Riona","Xerik","Myrr",
-"Lazra","Kethan","Ivara","Drelan","Maelis","Varn","Kirin","Olyx","Auren","Thira",
-"Kovak","Ysolde","Drayen","Lyss","Galric","Zarin","Kaelis","Melrek","Syrin","Veyla",
-"Aeris","Korvan","Zale","Nira","Ashen","Tavik","Rika","Elara","Kaen","Brenna",
-"Corvin","Nyra","Talric","Zephra","Darian","Mireth","Skara","Rovik","Thane","Isen",
-"Keira","Vaelin","Calyx","Neris","Mira","Orlan","Silas","Talia","Karn","Liora",
-"Renrik","Zoren","Alera","Therik","Jorrel","Naia","Halric","Verin","Elira","Cyrik",
-"Tharan","Meira","Orric","Yven","Kael","Saphra","Nerik","Lazrin","Tressa","Zakar",
-"Vaelis","Nyric","Kelra","Olyss","Darven","Shaera","Kareth","Miryel","Orien","Lazra",
-"Valric","Zyra","Kestrin","Elandra","Tovik","Sarrin","Kyran","Elira","Bravik","Narien",
-"Tyrel","Selka","Varek","Isryn","Galen","Darya","Rylin","Fenra","Sorin","Jalric",
-"Mevra","Tiron","Ashan","Xyra","Rivena","Kaelin","Thorne","Kyra","Varen","Alryk",
-"Darion","Nyrel","Liora","Calix","Vestra","Kaen","Orric","Maelin","Zivra","Yorik",
-"Kelth","Irion","Serka","Thyra","Azerik","Lazik","Velan","Eirra","Thalor","Zevra",
-"Koryn","Navra","Thess","Zevik","Marin","Tarn","Elrik","Virel","Teral","Iska",
-"Kelric","Sarev","Ysera","Thessia","Valen","Dravik","Orika","Vaxa","Calen","Kireth",
-"Darik","Sorren","Vaelya","Jarek","Xerra","Lazryn","Thera","Toriel","Valis","Zarik",
-"Yvenne","Mirael","Neril","Thessa","Davin","Maelis","Revin","Evara","Skell","Ashen",
-"Thyric","Kaelan","Orryn","Zelka","Rannis","Velric","Sorek","Naelin","Caldrik","Zephyr",
-"Arven","Nyrr","Lazira","Vesryn","Iral","Torva","Serik","Delya","Mirel","Talos",
-"Kaenra","Ylira","Zeryn","Darven","Oria","Malric","Kelryn","Korrin","Thessa","Naera",
-"Eryk","Vorna","Sytha","Rael","Tylric","Sarith","Myrrin","Kelra","Torik","Valek",
-"Xaric","Kaelis","Jaryn","Eris","Thalara","Nayla","Zolar","Kairis","Lioren","Orrik",
-"Shaelan","Maric","Velka","Nerith","Daren","Lazrin","Elian","Cyran","Yelric","Thressa",
-"Mireen","Jarek","Orla","Dyrik","Tavrin","Zariel","Kovran","Selya","Tharek","Aria",
-"Razin","Vyric","Lioraen","Drelis","Skora","Thylen","Nalara","Vaurik","Zelric","Kyris",
-"Valro","Mirelith","Thena","Shaelis","Torvin","Ylarra","Doreth","Vess","Narik","Isola",
-"Lazriel","Thayla","Orris","Karil","Elrya","Nyral","Soraya","Khalric","Zevek","Tirian"
-];
-const epithets=[
-", the Devourer",", the Unbound",", Iron Warden",", Void Singer",", Storm Fury",
-", Captain",", Gang Leader",", Squad Commander",", Field Operative",", Warlord",
-", Enforcer",", Outrider",", Gunslinger",", Veteran",", Shieldbearer",
-", Watcher",", Bladehand",", Raider",", Executioner",", Saboteur",
-", Bloodied",", Inquisitor",", Pack Alpha",", Bombardier",", Sentinel",
-", Dreadshot",", Vanguard",", Marauder",", Assassin",", Corsair",
-", Incendiary",", Interceptor",", Combat Medic",", Trenchborn",", Killteam Lead",
-", Sniper",", Ironhelm",", Zone Warden",", Shockwave",", Sawbones",
-", Plasma-Born",", Voidwalker",", Tactician",", Evacuator",", Recon Chief",
-", Exo-Specialist",", Tunnelmaster",", Juggernaut",", Quartermaster",", Dock Marshal",
-", Skirmisher",", Convict",", The Wasted",", Deep Tracker",", Barrier Scout",
-", Torchbearer",", Exile",", Shatterpoint",", Subjugator",", Loneblade",
-", Execution Squad",", Garrison Boss",", Nightshade",", Stalker",", Survivor",
-", Lancer",", Death Dealer",", Hound",", Cutter",", Overseer",
-", Slaughterhand",", Urban Hunter",", Spire Agent",", Gatebreaker",", Zone Captain",
-", Blade Marshal",", Cryo-Breaker",", Vault Ripper",", Flayer",", Gunmaster",
-", Firebrand",", Dome Wrecker",", Detonator",", Floodwalker",", Grav-Touched",
-", Drift King",", Skiff Rider",", Perimeter Chief",", Scrapper",", Splicer",
-", Tracker",", Burnout",", the Half-Made",", Wastes Scholar",", Proxy",
-", Glitchborn",", Cyber-Splicer",", the Nameless",", Cloneburnt",", Mind-Shattered",
-", Flamebreather",", Incursionist",", Wallbreaker",", Terminal",", Dockguard",
-", Flagbearer",", Bastion Warden",", Retaliator",", Redmask",", Subnet Butcher",
-", Siege-Captain",", Stray",", Tunnel Crow",", Chainbreaker",", Quiet One",
-", Nullcaster",", Edgewatch",", Circuitbound",", Forgelancer",", Vulture",
-", Witherborn",", Hollow-Eyed",", Blackzone Chief",", Mutineer",", Pit Champion",
-", Hightower Gun",", Grenadier",", Acid Fang",", Pale Flame",", Silent Arrow",
-", Iron Fox",", Hexblade",", Crowsight",", Cutthroat",", Screamer",
-", Longmarcher",", Sand Strider",", Kill Mark",", Orbital Striker",", Bolt Raptor",
-", Riftchild",", the Bleeding",", Drifter",", Outland Skirmisher",", Geargrinder",
-", Hivebreaker",", Ghost",", Night Commander",", Warlord",", Dust Baron",
-", Blade Reaver",", Pale Warden",", Nocturne",", Masked",", the Doomed",
-", Emberclad",", Wildclaw",", Ranged Marshal",", Pack Leader",", Void-Touched",
-", Steelfang",", the Wounded",", the Forgotten",", Cold-Eye",", Fusecaster",
-", Hunter-Killer",", Barricade Breaker",", Ravager",", the Branded",", Lostblade",
-", Steel Vulture",", Carrion Eye",", Winterborn",", Acid-Clad",", Reclaimer",
-", Echo",", Slagmouth",", Killtide",", Red-Eye",", Chainwolf",
-", Zone Reaver",", Flamegutter",", the Fallen",", Dust Stalker",", Scrapskin"
-];
-const pfx=["Heavy","Armored","Rapid","Stealth","Hazard","Elite","Riot","Siege","Recon"];
-const role=["Breacher","Infantry","Gunner","Marksman","Scout","Rifleman","Enforcer","Grenadier","Sentry"];
-const sfx=["Unit","Operative","Drone","Cadre","Specialist","Element", "Grunt", "Corsair", "Henchman"];
+    /*────────────────  LOAD WEAPON GENERATOR  ─────────────*/
+    let weaponLoaded = false;
+    function loadWeaponGen() {
+      if (weaponLoaded) return Promise.resolve();
+      return fetch('weapongenerator.html')
+        .then(r => r.text())
+        .then(html => {
+          const m = html.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+          if (m) { eval(m[1]); weaponLoaded = true; }
+        })
+        .catch(e => console.error('weapon load', e));
+    }
 
-function makeName(e,tier){
-  if(tier.label==="Boss") return `${pick(persNames)} ${pick(epithets)}`;
-  const main=e.weapons[0].name;
-  let r=/Rifle/i.test(main)?"Rifleman":/Blade|Pike/i.test(main)?"Skirmisher":pick(role);
-  const namePattern=rand(1,3);
-  switch(namePattern){
-    case 1:return `${pick(pfx)} ${r}`;
-    case 2:return `${r} ${pick(sfx)}`;
-    default:return `${pick(pfx)} ${r} ${pick(sfx)}`;
-  }
-}
-function describe(e){
-  const bits=[];
-  if(e.hp>40) bits.push("stubbornly resilient");
-  if(e.defense.length>=4) bits.push("heavily armoured");
-  if(parseInt(e.skill)>2) bits.push("highly trained");
-  if(e.talents.some(t=>/Stealth|Ambush/i.test(t.name))) bits.push("prefers ambush tactics");
-  return bits.join(", ");
-}
+    /*────────────────  TALENT DATA  ───────────────────────*/
+    let talentPool = [];   // combat-relevant skill names
+    const banned = /cook|music|garden|craft|fish|chef|perform/i;
+    const extraSkill = ["Tracking", "First-Aid", "Demolitions", "Interrogation", "Pilot", "Running", "Climbing", "Grappling", "Initiative", "Keeping Watch", "Martial Arts"];
+    const abilityPool = [
+      { name: "Jump", desc: "Instantly move to an adjacent zone." },
+      { name: "Charge", desc: "Move up to two zones and make an attack with a (Melee) weapon." },
+      { name: "Suppress", desc: "Force targets in an adjacent or occupied zone to step down their next attack die." },
+      { name: "Overwatch", desc: "If an enemy enters the occupied zone, make an attack against them." },
+      { name: "Cheap Shot", desc: "If an enemy leaves the occupied zone, make an attack against them." }
+    ];
+    const itemPool = [
+      { name: "Grappling Hook", die: "1d6", note: "once per combat, allows enemy to move up to a non-connected zone within line of sight. Uses positioning move" },
+      { name: "Smoke Canister", die: "1d8", note: "adds 1d8 to defense pool of all creatures in zone deployed in. Lasts for 1 full round. Deployed as a medium move." },
+      { name: "Adaptive Shield", die: "1d6", note: "adds d6 to defense once per round." },
+      { name: "Ammo Box", die: "1d6", note: "Can be looted for 1d6 Ammo at the end of the fight." },
+      { name: "Ration Box", die: "1d4", note: "Can be looted for 1d4 rations at the end of the fight." }
+    ];
 
-function createEnemy(tier){
-  const hp=rollHp(tier.hp);
-  const skillDice=rand(tier.skill[0],tier.skill[1]);
-  const obj={
-    hp,
-    skill:`${skillDice}d6`,
-    weapons:Array.from({length:rand(tier.wpn[0],tier.wpn[1])},()=>generateWeapon()),
-    defense:buildDefense(tier.defCap),
-    talents:pickTalents(tier.tal)
-  };
-  obj.name=makeName(obj,tier);
-  obj.desc=describe(obj);
-  return obj;
-}
+    function loadTalents() {
+      if (talentPool.length) return Promise.resolve();
+      return fetch('assets/data/lifepath_data.json')
+        .then(r => r.json())
+        .then(j => {
+          const raw = Object.values(j).flatMap(v => Array.isArray(v) ? v : []);
+          talentPool = [...new Set([...raw.filter(t => !banned.test(t)), ...extraSkill])]
+            .map(t => t.replace(/_/g, ' '))
+            .filter(Boolean);
+        });
+    }
 
-/*────────────────  RENDER  ───────────────────────────*/
-function talentLine(t){
-  if(t.type==="skill")   return `${t.name}: ${t.die}`;
-  if(t.type==="ability") return `${t.name}: ${t.desc}`;
-  return `${t.name}: ${t.die}${t.note?` | ${t.note}`:""}`;
-}
-function weaponLine(w) {
-  return `${w.name} (${w.damage})${w.tagDisplay ? ' — ' + w.tagDisplay : ''}`;
-}
+    /*────────────────  DIFFICULTY TABLE  ─────────────────*/
+    const tiers = [
+      { label: "Boss", n: 1, hp: [20, 100], skill: [3, 4], defCap: 4, wpn: [2, 3], tal: [6, 10] },
+      { label: "Hard", n: 2, hp: [15, 60], skill: [2, 3], defCap: 4, wpn: [1, 2], tal: [5, 8] },
+      { label: "Intermediate", n: 2, hp: [10, 40], skill: [2, 2], defCap: 3, wpn: [1, 2], tal: [3, 6] },
+      { label: "Easy", n: 2, hp: [5, 25], skill: [1, 1], defCap: 2, wpn: [1, 1], tal: [1, 4] }
+    ];
 
-function renderEnemy(e,tier){
-  return `<div class="enemy-card">
+    /*────────────────  CORE GENERATORS  ──────────────────*/
+    function rollHp([lo, hi]) { return Math.max(lo, Math.floor(Math.pow(Math.random(), 2.3) * (hi - lo)) + lo); }
+    function buildDefense(cap) {
+      const dieW = [{ value: "d6", weight: 50 }, { value: "d4", weight: 35 }, { value: "d8", weight: 15 }];
+      const arr = Array.from({ length: rand(1, cap) }, () => weightedRandom(dieW));
+      return arr.sort((a, b) => parseInt(b.slice(1)) - parseInt(a.slice(1)));
+    }
+    function skillTalent(name) { return { type: "skill", name, die: `1d${pick([4, 6, 8, 10, 12])}` } }
+
+    function pickTalents([min, max]) {
+      const total = rand(min, max), list = [];
+      while (list.length < total) {
+        const kind = weightedRandom([{ value: "skill", weight: 60 }, { value: "ability", weight: 25 }, { value: "item", weight: 15 }]);
+        if (kind === "skill") {
+          const name = pick(talentPool);
+          list.push(skillTalent(name));
+        } else if (kind === "ability") {
+          list.push({ ...pick(abilityPool), type: "ability" });
+        } else {
+          list.push({ ...pick(itemPool), type: "item" });
+        }
+      }
+      return list;
+    }
+
+    const persNames = [
+      "Vorgath", "Selene", "Harkan", "Ilyra", "Kryos", "Zerak", "Nyss", "Rhadon", "Azura", "Marek",
+      "Liora", "Kaelen", "Virek", "Althea", "Jorik", "Sava", "Thorne", "Lyrix", "Kallen", "Seris",
+      "Doran", "Myka", "Riven", "Calen", "Vexa", "Elion", "Zareth", "Thalia", "Revik", "Soren",
+      "Iskra", "Talon", "Vanya", "Kaida", "Orik", "Neris", "Gavric", "Elias", "Vael", "Rowan",
+      "Torin", "Ashka", "Naevia", "Zarek", "Lucan", "Kairin", "Sorrel", "Evara", "Kelric", "Vayen",
+      "Brynn", "Cassir", "Theren", "Zayra", "Rilith", "Jareth", "Emric", "Malra", "Shael", "Teryn",
+      "Varen", "Calyra", "Fenric", "Orryn", "Laziel", "Nereth", "Alric", "Riona", "Xerik", "Myrr",
+      "Lazra", "Kethan", "Ivara", "Drelan", "Maelis", "Varn", "Kirin", "Olyx", "Auren", "Thira",
+      "Kovak", "Ysolde", "Drayen", "Lyss", "Galric", "Zarin", "Kaelis", "Melrek", "Syrin", "Veyla",
+      "Aeris", "Korvan", "Zale", "Nira", "Ashen", "Tavik", "Rika", "Elara", "Kaen", "Brenna",
+      "Corvin", "Nyra", "Talric", "Zephra", "Darian", "Mireth", "Skara", "Rovik", "Thane", "Isen",
+      "Keira", "Vaelin", "Calyx", "Neris", "Mira", "Orlan", "Silas", "Talia", "Karn", "Liora",
+      "Renrik", "Zoren", "Alera", "Therik", "Jorrel", "Naia", "Halric", "Verin", "Elira", "Cyrik",
+      "Tharan", "Meira", "Orric", "Yven", "Kael", "Saphra", "Nerik", "Lazrin", "Tressa", "Zakar",
+      "Vaelis", "Nyric", "Kelra", "Olyss", "Darven", "Shaera", "Kareth", "Miryel", "Orien", "Lazra",
+      "Valric", "Zyra", "Kestrin", "Elandra", "Tovik", "Sarrin", "Kyran", "Elira", "Bravik", "Narien",
+      "Tyrel", "Selka", "Varek", "Isryn", "Galen", "Darya", "Rylin", "Fenra", "Sorin", "Jalric",
+      "Mevra", "Tiron", "Ashan", "Xyra", "Rivena", "Kaelin", "Thorne", "Kyra", "Varen", "Alryk",
+      "Darion", "Nyrel", "Liora", "Calix", "Vestra", "Kaen", "Orric", "Maelin", "Zivra", "Yorik",
+      "Kelth", "Irion", "Serka", "Thyra", "Azerik", "Lazik", "Velan", "Eirra", "Thalor", "Zevra",
+      "Koryn", "Navra", "Thess", "Zevik", "Marin", "Tarn", "Elrik", "Virel", "Teral", "Iska",
+      "Kelric", "Sarev", "Ysera", "Thessia", "Valen", "Dravik", "Orika", "Vaxa", "Calen", "Kireth",
+      "Darik", "Sorren", "Vaelya", "Jarek", "Xerra", "Lazryn", "Thera", "Toriel", "Valis", "Zarik",
+      "Yvenne", "Mirael", "Neril", "Thessa", "Davin", "Maelis", "Revin", "Evara", "Skell", "Ashen",
+      "Thyric", "Kaelan", "Orryn", "Zelka", "Rannis", "Velric", "Sorek", "Naelin", "Caldrik", "Zephyr",
+      "Arven", "Nyrr", "Lazira", "Vesryn", "Iral", "Torva", "Serik", "Delya", "Mirel", "Talos",
+      "Kaenra", "Ylira", "Zeryn", "Darven", "Oria", "Malric", "Kelryn", "Korrin", "Thessa", "Naera",
+      "Eryk", "Vorna", "Sytha", "Rael", "Tylric", "Sarith", "Myrrin", "Kelra", "Torik", "Valek",
+      "Xaric", "Kaelis", "Jaryn", "Eris", "Thalara", "Nayla", "Zolar", "Kairis", "Lioren", "Orrik",
+      "Shaelan", "Maric", "Velka", "Nerith", "Daren", "Lazrin", "Elian", "Cyran", "Yelric", "Thressa",
+      "Mireen", "Jarek", "Orla", "Dyrik", "Tavrin", "Zariel", "Kovran", "Selya", "Tharek", "Aria",
+      "Razin", "Vyric", "Lioraen", "Drelis", "Skora", "Thylen", "Nalara", "Vaurik", "Zelric", "Kyris",
+      "Valro", "Mirelith", "Thena", "Shaelis", "Torvin", "Ylarra", "Doreth", "Vess", "Narik", "Isola",
+      "Lazriel", "Thayla", "Orris", "Karil", "Elrya", "Nyral", "Soraya", "Khalric", "Zevek", "Tirian"
+    ];
+    const epithets = [
+      ", the Devourer", ", the Unbound", ", Iron Warden", ", Void Singer", ", Storm Fury",
+      ", Captain", ", Gang Leader", ", Squad Commander", ", Field Operative", ", Warlord",
+      ", Enforcer", ", Outrider", ", Gunslinger", ", Veteran", ", Shieldbearer",
+      ", Watcher", ", Bladehand", ", Raider", ", Executioner", ", Saboteur",
+      ", Bloodied", ", Inquisitor", ", Pack Alpha", ", Bombardier", ", Sentinel",
+      ", Dreadshot", ", Vanguard", ", Marauder", ", Assassin", ", Corsair",
+      ", Incendiary", ", Interceptor", ", Combat Medic", ", Trenchborn", ", Killteam Lead",
+      ", Sniper", ", Ironhelm", ", Zone Warden", ", Shockwave", ", Sawbones",
+      ", Plasma-Born", ", Voidwalker", ", Tactician", ", Evacuator", ", Recon Chief",
+      ", Exo-Specialist", ", Tunnelmaster", ", Juggernaut", ", Quartermaster", ", Dock Marshal",
+      ", Skirmisher", ", Convict", ", The Wasted", ", Deep Tracker", ", Barrier Scout",
+      ", Torchbearer", ", Exile", ", Shatterpoint", ", Subjugator", ", Loneblade",
+      ", Execution Squad", ", Garrison Boss", ", Nightshade", ", Stalker", ", Survivor",
+      ", Lancer", ", Death Dealer", ", Hound", ", Cutter", ", Overseer",
+      ", Slaughterhand", ", Urban Hunter", ", Spire Agent", ", Gatebreaker", ", Zone Captain",
+      ", Blade Marshal", ", Cryo-Breaker", ", Vault Ripper", ", Flayer", ", Gunmaster",
+      ", Firebrand", ", Dome Wrecker", ", Detonator", ", Floodwalker", ", Grav-Touched",
+      ", Drift King", ", Skiff Rider", ", Perimeter Chief", ", Scrapper", ", Splicer",
+      ", Tracker", ", Burnout", ", the Half-Made", ", Wastes Scholar", ", Proxy",
+      ", Glitchborn", ", Cyber-Splicer", ", the Nameless", ", Cloneburnt", ", Mind-Shattered",
+      ", Flamebreather", ", Incursionist", ", Wallbreaker", ", Terminal", ", Dockguard",
+      ", Flagbearer", ", Bastion Warden", ", Retaliator", ", Redmask", ", Subnet Butcher",
+      ", Siege-Captain", ", Stray", ", Tunnel Crow", ", Chainbreaker", ", Quiet One",
+      ", Nullcaster", ", Edgewatch", ", Circuitbound", ", Forgelancer", ", Vulture",
+      ", Witherborn", ", Hollow-Eyed", ", Blackzone Chief", ", Mutineer", ", Pit Champion",
+      ", Hightower Gun", ", Grenadier", ", Acid Fang", ", Pale Flame", ", Silent Arrow",
+      ", Iron Fox", ", Hexblade", ", Crowsight", ", Cutthroat", ", Screamer",
+      ", Longmarcher", ", Sand Strider", ", Kill Mark", ", Orbital Striker", ", Bolt Raptor",
+      ", Riftchild", ", the Bleeding", ", Drifter", ", Outland Skirmisher", ", Geargrinder",
+      ", Hivebreaker", ", Ghost", ", Night Commander", ", Warlord", ", Dust Baron",
+      ", Blade Reaver", ", Pale Warden", ", Nocturne", ", Masked", ", the Doomed",
+      ", Emberclad", ", Wildclaw", ", Ranged Marshal", ", Pack Leader", ", Void-Touched",
+      ", Steelfang", ", the Wounded", ", the Forgotten", ", Cold-Eye", ", Fusecaster",
+      ", Hunter-Killer", ", Barricade Breaker", ", Ravager", ", the Branded", ", Lostblade",
+      ", Steel Vulture", ", Carrion Eye", ", Winterborn", ", Acid-Clad", ", Reclaimer",
+      ", Echo", ", Slagmouth", ", Killtide", ", Red-Eye", ", Chainwolf",
+      ", Zone Reaver", ", Flamegutter", ", the Fallen", ", Dust Stalker", ", Scrapskin"
+    ];
+    const pfx = ["Heavy", "Armored", "Rapid", "Stealth", "Hazard", "Elite", "Riot", "Siege", "Recon"];
+    const role = ["Breacher", "Infantry", "Gunner", "Marksman", "Scout", "Rifleman", "Enforcer", "Grenadier", "Sentry"];
+    const sfx = ["Unit", "Operative", "Drone", "Cadre", "Specialist", "Element", "Grunt", "Corsair", "Henchman"];
+
+    function makeName(e, tier) {
+      if (tier.label === "Boss") return `${pick(persNames)} ${pick(epithets)}`;
+      const main = e.weapons[0].name;
+      let r = /Rifle/i.test(main) ? "Rifleman" : /Blade|Pike/i.test(main) ? "Skirmisher" : pick(role);
+      const namePattern = rand(1, 3);
+      switch (namePattern) {
+        case 1: return `${pick(pfx)} ${r}`;
+        case 2: return `${r} ${pick(sfx)}`;
+        default: return `${pick(pfx)} ${r} ${pick(sfx)}`;
+      }
+    }
+    function describe(e) {
+      const bits = [];
+      if (e.hp > 40) bits.push("stubbornly resilient");
+      if (e.defense.length >= 4) bits.push("heavily armoured");
+      if (parseInt(e.skill) > 2) bits.push("highly trained");
+      if (e.talents.some(t => /Stealth|Ambush/i.test(t.name))) bits.push("prefers ambush tactics");
+      return bits.join(", ");
+    }
+
+    function createEnemy(tier) {
+      const hp = rollHp(tier.hp);
+      const skillDice = rand(tier.skill[0], tier.skill[1]);
+      const obj = {
+        hp,
+        skill: `${skillDice}d6`,
+        weapons: Array.from({ length: rand(tier.wpn[0], tier.wpn[1]) }, () => generateWeapon()),
+        defense: buildDefense(tier.defCap),
+        talents: pickTalents(tier.tal)
+      };
+      obj.name = makeName(obj, tier);
+      obj.desc = describe(obj);
+      return obj;
+    }
+
+    /*────────────────  RENDER  ───────────────────────────*/
+    function talentLine(t) {
+      if (t.type === "skill") return `${t.name}: ${t.die}`;
+      if (t.type === "ability") return `${t.name}: ${t.desc}`;
+      return `${t.name}: ${t.die}${t.note ? ` | ${t.note}` : ""}`;
+    }
+    function weaponLine(w) {
+      return `${w.name} (${w.damage})${w.tagDisplay ? ' — ' + w.tagDisplay : ''}`;
+    }
+
+    function renderEnemy(e, tier) {
+      return `<div class="enemy-card">
     <h3>[${tier.label}] ${e.name}</h3>
     <div class="enemy-meta">
       HP ${e.hp} | Skill ${e.skill} | Defense ${e.defense.join(", ")}
-      ${e.desc?`| ${e.desc}`:""}
+      ${e.desc ? `| ${e.desc}` : ""}
     </div>
     <strong>Weapons:</strong>
-    <ul class="weapon-list">${e.weapons.map(w=>`<li>${weaponLine(w)}</li>`).join("")}</ul>
+    <ul class="weapon-list">${e.weapons.map(w => `<li>${weaponLine(w)}</li>`).join("")}</ul>
     <strong>Talents:</strong>
-    <ul class="talent-list">${e.talents.map(t=>`<li>${talentLine(t)}</li>`).join("")}</ul>
+    <ul class="talent-list">${e.talents.map(t => `<li>${talentLine(t)}</li>`).join("")}</ul>
   </div>`;
-}
+    }
 
-/*────────────────  MASTER GENERATE  ─────────────────*/
-function generateEnemies(){
-  enemyOutput.innerHTML="Generating…";
-  Promise.all([loadWeaponGen(),loadTalents()]).then(()=>{
-    const cards=[];
-    tiers.forEach(t=>{
-      for(let i=0;i<t.n;i++) cards.push(renderEnemy(createEnemy(t),t));
-    });
-    enemyOutput.innerHTML=cards.join("");
-  });
-}
+    /*────────────────  MASTER GENERATE  ─────────────────*/
+    function generateEnemies() {
+      enemyOutput.innerHTML = "Generating…";
+      Promise.all([loadWeaponGen(), loadTalents()]).then(() => {
+        const cards = [];
+        tiers.forEach(t => {
+          for (let i = 0; i < t.n; i++) cards.push(renderEnemy(createEnemy(t), t));
+        });
+        enemyOutput.innerHTML = cards.join("");
+      });
+    }
 
-/*────────────────  INIT  ────────────────────────────*/
-genBtn.addEventListener('click',generateEnemies);
+    /*────────────────  INIT  ────────────────────────────*/
+    genBtn.addEventListener('click', generateEnemies);
 
-  
-</script>
+
+  </script>
   <script type="module">
-   import { generateWeapon } from 'https://hopelesspoetic.com/weapongen.js';
-window.generateWeapon = generateWeapon;
-  document.addEventListener("DOMContentLoaded", () => {
-    const wpn = generateWeapon();
-    console.log(wpn);
-  });
-</script>
+    import { generateWeapon } from './js/weapongen.js';
+    window.generateWeapon = generateWeapon;
+    document.addEventListener("DOMContentLoaded", () => {
+      const wpn = generateWeapon();
+      console.log(wpn);
+    });
+  </script>
 </body>
+
 </html>

@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Astral Axial Combat Tracker</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="css/styles.css" />
   <style>
     /* Container for the entire UI */
     #tracker-controls {
       margin-bottom: 10px;
     }
+
     #tracker-controls button {
       margin-right: 10px;
     }
@@ -21,7 +23,8 @@
       height: 600px;
       background: #1a1a1a;
       border: 1px solid #444;
-      overflow: auto; /* Scrollbars appear if we expand beyond these dimensions */
+      overflow: auto;
+      /* Scrollbars appear if we expand beyond these dimensions */
     }
 
     /* The "canvas" that holds zones, tokens, and the SVG overlay
@@ -30,7 +33,8 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 800px; /* Matches initial outer size */
+      width: 800px;
+      /* Matches initial outer size */
       height: 600px;
     }
 
@@ -43,7 +47,8 @@
       border: 2px solid teal;
       color: #ccc;
       text-align: center;
-      line-height: 120px; /* Vertically centers text */
+      line-height: 120px;
+      /* Vertically centers text */
       cursor: move;
       user-select: none;
       box-sizing: border-box;
@@ -60,6 +65,7 @@
       cursor: move;
       user-select: none;
     }
+
     .token-label {
       display: block;
       text-align: center;
@@ -94,7 +100,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none; /* Let clicks pass through to zones/tokens */
+      pointer-events: none;
+      /* Let clicks pass through to zones/tokens */
     }
 
     /* Resizer handle for both zones & tokens */
@@ -111,16 +118,17 @@
     }
   </style>
 </head>
+
 <body>
-<div id="navContainer"></div>
-<script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
-</script>
+  <div id="navContainer"></div>
+  <script>
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navContainer').innerHTML = data;
+      })
+      .catch(err => console.error('Error loading nav:', err));
+  </script>
 
   <div class="container">
     <h2>Astral Axial Combat Tracker</h2>
@@ -151,7 +159,7 @@
      * Global Variables & References
      *******************************************************/
     const tracker = document.getElementById('combat-tracker');
-    const canvas  = document.getElementById('tracker-canvas');
+    const canvas = document.getElementById('tracker-canvas');
     const svgOverlay = document.getElementById('connection-overlay');
 
     let isLinkMode = false;
@@ -161,7 +169,7 @@
     /*******************************************************
      * Utility Functions
      *******************************************************/
-    function uniqueId(prefix='id') {
+    function uniqueId(prefix = 'id') {
       return prefix + '-' + Math.random().toString(36).substr(2, 9);
     }
 
@@ -172,17 +180,17 @@
       // but we also have to move every child element so that
       // their .style.left/top remain correct in the new coordinate space.
       const oldLeft = parseFloat(canvas.style.left) || 0;
-      const oldTop  = parseFloat(canvas.style.top)  || 0;
+      const oldTop = parseFloat(canvas.style.top) || 0;
       canvas.style.left = (oldLeft + dx) + 'px';
-      canvas.style.top  = (oldTop + dy)  + 'px';
+      canvas.style.top = (oldTop + dy) + 'px';
 
       // Move each zone/token in the opposite direction to keep them in place
       const children = canvas.querySelectorAll('.zone, .token');
       children.forEach(child => {
         let childLeft = parseFloat(child.style.left) || 0;
-        let childTop  = parseFloat(child.style.top)  || 0;
+        let childTop = parseFloat(child.style.top) || 0;
         child.style.left = (childLeft - dx) + 'px';
-        child.style.top  = (childTop - dy) + 'px';
+        child.style.top = (childTop - dy) + 'px';
       });
 
       // We must also update lines
@@ -200,13 +208,13 @@
       let canvasRect = canvas.getBoundingClientRect();
 
       // Where is el relative to the canvas?
-      let elLeft   = rect.left - canvasRect.left;
-      let elTop    = rect.top  - canvasRect.top;
-      let elRight  = elLeft + rect.width;
-      let elBottom = elTop  + rect.height;
+      let elLeft = rect.left - canvasRect.left;
+      let elTop = rect.top - canvasRect.top;
+      let elRight = elLeft + rect.width;
+      let elBottom = elTop + rect.height;
 
       // Current canvas size
-      let canvasWidth  = parseFloat(canvas.style.width);
+      let canvasWidth = parseFloat(canvas.style.width);
       let canvasHeight = parseFloat(canvas.style.height);
 
       // Expand to the right
@@ -262,11 +270,11 @@
 
         let canvasBounds = canvas.getBoundingClientRect();
         let newX = e.clientX - canvasBounds.left - offsetX;
-        let newY = e.clientY - canvasBounds.top  - offsetY;
+        let newY = e.clientY - canvasBounds.top - offsetY;
 
         // Update position
         el.style.left = newX + 'px';
-        el.style.top  = newY + 'px';
+        el.style.top = newY + 'px';
 
         updateConnections(el);
         checkExpandWorkArea(el);
@@ -294,13 +302,13 @@
 
       function startResizing(e) {
         let rect = el.getBoundingClientRect();
-        let newWidth  = e.clientX - rect.left;
+        let newWidth = e.clientX - rect.left;
         let newHeight = e.clientY - rect.top;
         // Minimum sizes
-        newWidth  = Math.max(40, newWidth);
+        newWidth = Math.max(40, newWidth);
         newHeight = Math.max(30, newHeight);
 
-        el.style.width  = newWidth + 'px';
+        el.style.width = newWidth + 'px';
         el.style.height = newHeight + 'px';
         if (el.classList.contains('zone')) {
           // Keep text centered vertically
@@ -352,8 +360,8 @@
       zone.textContent = 'Zone';
 
       // Place near the center of canvas
-      zone.style.left = (canvas.offsetWidth/2 - 100) + 'px';
-      zone.style.top  = (canvas.offsetHeight/2 - 60) + 'px';
+      zone.style.left = (canvas.offsetWidth / 2 - 100) + 'px';
+      zone.style.top = (canvas.offsetHeight / 2 - 60) + 'px';
 
       canvas.appendChild(zone);
       makeDraggable(zone);
@@ -383,8 +391,8 @@
       token.appendChild(labelSpan);
 
       // Place near the center
-      token.style.left = (canvas.offsetWidth/2 - 30) + 'px';
-      token.style.top  = (canvas.offsetHeight/2 - 20) + 'px';
+      token.style.left = (canvas.offsetWidth / 2 - 30) + 'px';
+      token.style.top = (canvas.offsetHeight / 2 - 20) + 'px';
 
       canvas.appendChild(token);
       makeDraggable(token);
@@ -468,7 +476,7 @@
       };
 
       let start = getBorderPoint(zoneA, centerB.x, centerB.y);
-      let end   = getBorderPoint(zoneB, centerA.x, centerA.y);
+      let end = getBorderPoint(zoneB, centerA.x, centerA.y);
 
       line.setAttribute('x1', start.x);
       line.setAttribute('y1', start.y);
@@ -492,20 +500,20 @@
 
       let tValues = [];
       // Edges in local coords
-      let left   = rect.left - canvasRect.left;
-      let right  = left + rect.width;
-      let top    = rect.top  - canvasRect.top;
+      let left = rect.left - canvasRect.left;
+      let right = left + rect.width;
+      let top = rect.top - canvasRect.top;
       let bottom = top + rect.height;
 
       // Solve param for x(t) or y(t) = boundary
       if (dx !== 0) {
-        let tLeft  = (left - zx) / dx;
+        let tLeft = (left - zx) / dx;
         if (tLeft >= 0 && tLeft <= 1) tValues.push(tLeft);
         let tRight = (right - zx) / dx;
         if (tRight >= 0 && tRight <= 1) tValues.push(tRight);
       }
       if (dy !== 0) {
-        let tTop    = (top - zy) / dy;
+        let tTop = (top - zy) / dy;
         if (tTop >= 0 && tTop <= 1) tValues.push(tTop);
         let tBottom = (bottom - zy) / dy;
         if (tBottom >= 0 && tBottom <= 1) tValues.push(tBottom);
@@ -529,4 +537,5 @@
     }
   </script>
 </body>
+
 </html>

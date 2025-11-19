@@ -1,50 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sortable Classless RPG Ability List</title>
   <!-- Link to your external styles.css -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/styles.css" />
   <!-- Override for ability description font (uses Roboto instead of Orbitron) -->
   <style>
     .desc {
       font-family: 'Roboto', sans-serif;
       font-size: 0.9em;
-      line-height: 1.3; 
+      line-height: 1.3;
     }
+
     /* Additional table styles to complement your theme */
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-    th, td {
+
+    th,
+    td {
       border: 1px solid #444;
       padding: 8px;
       vertical-align: top;
     }
+
     th {
       background-color: #262626;
       color: #ccc;
       cursor: pointer;
     }
+
     tr:nth-child(even) {
       background-color: #333;
     }
+
     tr:nth-child(odd) {
       background-color: #2a2a2a;
     }
   </style>
-<div id="navContainer"></div>
-<script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
-</script>
+  <div id="navContainer"></div>
+  <script>
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navContainer').innerHTML = data;
+      })
+      .catch(err => console.error('Error loading nav:', err));
+  </script>
   <script>
     // Simple table sorting function – click a header to sort that column
     function sortTable(n) {
@@ -86,9 +93,10 @@
     }
   </script>
 </head>
+
 <body>
 
-  
+
   <div class="container">
     <h1>Classless RPG Abilities</h1>
     <table id="abilityTable">
@@ -106,7 +114,8 @@
           <td>Ace up the Sleeve</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">If you would roll to overcome, dazzle swindle haggle, or resist peril and you do not add a single Talent die to your dice pool, step up a die in your pool.</td>
+          <td class="desc">If you would roll to overcome, dazzle swindle haggle, or resist peril and you do not add a
+            single Talent die to your dice pool, step up a die in your pool.</td>
         </tr>
         <tr>
           <td>Ad Astra Per Aspera</td>
@@ -118,88 +127,120 @@
           <td>Ask Questions Later</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">If you initiate combat with a creature you were meant to interrogate, question, or speak with, you may ask the GM one of the following questions at the end of combat and receive a useful answer:<br>Why was this creature here?<br>What did this creature want?<br>Why did this creature attack us?<br>Whom does this creature serve?</td>
+          <td class="desc">If you initiate combat with a creature you were meant to interrogate, question, or speak
+            with, you may ask the GM one of the following questions at the end of combat and receive a useful
+            answer:<br>Why was this creature here?<br>What did this creature want?<br>Why did this creature attack
+            us?<br>Whom does this creature serve?</td>
         </tr>
         <tr>
           <td>Apothecary</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you journey planetside you may contest Awareness|Recall, on a success, you may gain 2 Bandages I1d6 (Special, Consumable 1) or 2 Rations (Special, Consumable 1).</td>
+          <td class="desc">When you journey planetside you may contest Awareness|Recall, on a success, you may gain 2
+            Bandages I1d6 (Special, Consumable 1) or 2 Rations (Special, Consumable 1).</td>
         </tr>
         <!-- B Group -->
         <tr>
           <td>Black Market Connections</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you arrive at a settlement, if it has a criminal underground, you may ask the GM one of the following questions and get a truthful if incomplete answer:<br>Who runs the criminal underworld here?<br>What is the main illegal trade?<br>How dangerous is the criminal underworld?<br>Would I be able to find [item] at the black market here?</td>
+          <td class="desc">When you arrive at a settlement, if it has a criminal underground, you may ask the GM one of
+            the following questions and get a truthful if incomplete answer:<br>Who runs the criminal underworld
+            here?<br>What is the main illegal trade?<br>How dangerous is the criminal underworld?<br>Would I be able to
+            find [item] at the black market here?</td>
         </tr>
         <tr>
           <td>Blot out the Sun</td>
           <td>heavy</td>
           <td>encounter</td>
-          <td class="desc">Attack using a far-range or long-range weapon then you may expend an ammo to attack again.</td>
+          <td class="desc">Attack using a far-range or long-range weapon then you may expend an ammo to attack again.
+          </td>
         </tr>
         <tr>
           <td>Blood for the Blood God</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">When you kill an enemy with a (Melee), (Brutal), or (Violent) weapon you may reduce your Strain by 1.</td>
+          <td class="desc">When you kill an enemy with a (Melee), (Brutal), or (Violent) weapon you may reduce your
+            Strain by 1.</td>
         </tr>
         <tr>
           <td>Breaker of War</td>
           <td>medium</td>
           <td>encounter</td>
-          <td class="desc">You may attempt to defuse a hostile situation, contest Presence|Charm. On a success, the GM will choose one of the following outcomes:<br>Confusion is sown among the enemy<br>Discontent stirs among the enemy<br>Defection occurs within the enemy<br>The enemy stands down, albeit with some unease<br>Increase your Luck when one of these occurs.</td>
+          <td class="desc">You may attempt to defuse a hostile situation, contest Presence|Charm. On a success, the GM
+            will choose one of the following outcomes:<br>Confusion is sown among the enemy<br>Discontent stirs among
+            the enemy<br>Defection occurs within the enemy<br>The enemy stands down, albeit with some unease<br>Increase
+            your Luck when one of these occurs.</td>
         </tr>
         <tr>
           <td>Bullet Time</td>
           <td>medium</td>
           <td>recovery</td>
-          <td class="desc">Until your next turn you cannot be the target of an attack. Additionally, if you resist peril during this time, step up every die in your dice pool.</td>
+          <td class="desc">Until your next turn you cannot be the target of an attack. Additionally, if you resist peril
+            during this time, step up every die in your dice pool.</td>
         </tr>
         <tr>
           <td>Bulwark</td>
           <td>medium</td>
           <td>encounter</td>
-          <td class="desc">Declare a creature in the same zone as you. Until the end of the encounter, they may add your armor dice to their defense as long as they are in the same zone as you. When they take damage, you can choose to take half of that damage for them, this damage cannot be reduced.</td>
+          <td class="desc">Declare a creature in the same zone as you. Until the end of the encounter, they may add your
+            armor dice to their defense as long as they are in the same zone as you. When they take damage, you can
+            choose to take half of that damage for them, this damage cannot be reduced.</td>
         </tr>
         <!-- C Group -->
         <tr>
           <td>Called Shot</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">When you succeed an attack with a weapon that has the near-range, long-range, or far-range tags, you may choose 2 of the following:<br>You instantly kill the creature if it has less than 10 health.<br>You may knock a weapon or object out of the targets hand.<br>You can inflict a random wound on the target.<br>You regain usage of this ability, increase your Strain die.</td>
+          <td class="desc">When you succeed an attack with a weapon that has the near-range, long-range, or far-range
+            tags, you may choose 2 of the following:<br>You instantly kill the creature if it has less than 10
+            health.<br>You may knock a weapon or object out of the targets hand.<br>You can inflict a random wound on
+            the target.<br>You regain usage of this ability, increase your Strain die.</td>
         </tr>
         <tr>
           <td>Cheap Shot</td>
           <td>heavy</td>
           <td>encounter</td>
-          <td class="desc">Attack a creature, stepping up 1 die of your choice. If you succeed, choose 2 of the following:<br>Roll 2d6 and add it to your damage total.<br>Gain a surge.<br>Move to an adjacent zone.<br>Knock the target backwards 10 feet.<br>(Melee only) Pilfer an item not being worn or held in the hands of the opponent.</td>
+          <td class="desc">Attack a creature, stepping up 1 die of your choice. If you succeed, choose 2 of the
+            following:<br>Roll 2d6 and add it to your damage total.<br>Gain a surge.<br>Move to an adjacent
+            zone.<br>Knock the target backwards 10 feet.<br>(Melee only) Pilfer an item not being worn or held in the
+            hands of the opponent.</td>
         </tr>
         <tr>
           <td>Cheat Death</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">The next time you would die, you do not, instead suffer a Strain break and set your Strain die to 8. Reset your health to its maximum.</td>
+          <td class="desc">The next time you would die, you do not, instead suffer a Strain break and set your Strain
+            die to 8. Reset your health to its maximum.</td>
         </tr>
         <tr>
           <td>Charming and Open</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">When you speak frankly with someone, you can ask them a question from the list below. They must answer it truthfully, then they may ask you a question from the list (which you must answer truthfully).<br>Whom do you serve?<br>What do you wish I would do?<br>How can I get you to _____?<br>What are you really feeling right now?<br>What do you most desire?</td>
+          <td class="desc">When you speak frankly with someone, you can ask them a question from the list below. They
+            must answer it truthfully, then they may ask you a question from the list (which you must answer
+            truthfully).<br>Whom do you serve?<br>What do you wish I would do?<br>How can I get you to _____?<br>What
+            are you really feeling right now?<br>What do you most desire?</td>
         </tr>
         <tr>
           <td>Companion</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Your companion is _____.<br>Robotic, Organic<br>Your companion has 1d4 in all skills. Additionally, they are ____ (choose 2).<br>Crafty: Increase Tech and Precision by 2<br>Strong: Increase Might and Presence by 2<br>Fast: Increase Awareness and Speed by 2<br>Tough: Increase Fortitude and Will by 2<br>(robotic) Technical: Increase Tech by 3<br>If your companion is nearby and aiding you, gain the following ability: <br>When you contest or attack you may add 1 applicable dice from your companions Skills to your dice pool.</td>
+          <td class="desc">Your companion is _____.<br>Robotic, Organic<br>Your companion has 1d4 in all skills.
+            Additionally, they are ____ (choose 2).<br>Crafty: Increase Tech and Precision by 2<br>Strong: Increase
+            Might and Presence by 2<br>Fast: Increase Awareness and Speed by 2<br>Tough: Increase Fortitude and Will by
+            2<br>(robotic) Technical: Increase Tech by 3<br>If your companion is nearby and aiding you, gain the
+            following ability: <br>When you contest or attack you may add 1 applicable dice from your companions Skills
+            to your dice pool.</td>
         </tr>
         <!-- D Group -->
         <tr>
           <td>Dark Confidant</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You may swap a die of the same size in your dice pool and your opposition's dice pool (any contested roll or GM CR roll) after seeing the results of the roll. When you do this, increase your Strain.</td>
+          <td class="desc">You may swap a die of the same size in your dice pool and your opposition's dice pool (any
+            contested roll or GM CR roll) after seeing the results of the roll. When you do this, increase your Strain.
+          </td>
         </tr>
         <tr>
           <td>Devilish Po</td>
@@ -211,82 +252,107 @@
           <td>Discombobulate</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">Add your Recall and Presence to your dice pool the next time you damage with a melee weapon. You cannot incur complications on this roll.</td>
+          <td class="desc">Add your Recall and Presence to your dice pool the next time you damage with a melee weapon.
+            You cannot incur complications on this roll.</td>
         </tr>
         <tr>
           <td>Dumb Luck</td>
           <td>light</td>
           <td>recovery</td>
-          <td class="desc">If you successfully resist peril, you may gain a surge and regain use of this ability. Alternatively, you may increase your Luck by 1.</td>
+          <td class="desc">If you successfully resist peril, you may gain a surge and regain use of this ability.
+            Alternatively, you may increase your Luck by 1.</td>
         </tr>
         <!-- E Group -->
         <tr>
           <td>Engage! engineer</td>
           <td>engineer</td>
           <td>encounter</td>
-          <td class="desc">You can activate an axial instantaneously, randomly giving 1d4 hardpoint modules on your ship the (Damaged).</td>
+          <td class="desc">You can activate an axial instantaneously, randomly giving 1d4 hardpoint modules on your ship
+            the (Damaged).</td>
         </tr>
         <tr>
           <td>Experienced Explorer</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you gain this ability, choose up to 4 of the below terrains that you do not already have a [terrain] expert Talent for. Gain a Talent called [terrain] expert for each. Your expertise in this talent is a d8.<br>Mountain<br>Desert<br>Tundra<br>Wasteland<br>Jungle<br>Plains<br>Forest<br>Urban<br>Caves<br>Asteroid field<br>Nebula<br>Ocean</td>
+          <td class="desc">When you gain this ability, choose up to 4 of the below terrains that you do not already have
+            a [terrain] expert Talent for. Gain a Talent called [terrain] expert for each. Your expertise in this talent
+            is a
+            d8.<br>Mountain<br>Desert<br>Tundra<br>Wasteland<br>Jungle<br>Plains<br>Forest<br>Urban<br>Caves<br>Asteroid
+            field<br>Nebula<br>Ocean</td>
         </tr>
         <!-- F Group -->
         <tr>
           <td>Forth Eorlingas!</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">If you initiate combat while outnumbered, increase your Luck. Choose another player, they increase their Luck. Choose a different player, they gain a surge. Choose a different player, they double their initiative score for this combat.</td>
+          <td class="desc">If you initiate combat while outnumbered, increase your Luck. Choose another player, they
+            increase their Luck. Choose a different player, they gain a surge. Choose a different player, they double
+            their initiative score for this combat.</td>
         </tr>
         <tr>
           <td>Flash Out</td>
           <td>heavy</td>
           <td>encounter</td>
-          <td class="desc">If you attack with an (Explosive) weapon against an unsuspecting, surprised, or incapacitated target, you may step up all dice in your pool, on a success, step up all dice in your damage pool as well.</td>
+          <td class="desc">If you attack with an (Explosive) weapon against an unsuspecting, surprised, or incapacitated
+            target, you may step up all dice in your pool, on a success, step up all dice in your damage pool as well.
+          </td>
         </tr>
         <tr>
           <td>Flames Of My Desire</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Choose one of the following desires:<br>Pure destruction<br>Power over others<br>Conquest<br>Riches aplenty<br>Fame and glory<br>Esoteric Knowledge<br>Whenever you contest or attack in pursuit of your desire, you may step up the largest and smallest dice in your pool. If the smallest die rolls higher than the highest die, the DM may introduce a complication as a result of your heedless pursuit.</td>
+          <td class="desc">Choose one of the following desires:<br>Pure destruction<br>Power over
+            others<br>Conquest<br>Riches aplenty<br>Fame and glory<br>Esoteric Knowledge<br>Whenever you contest or
+            attack in pursuit of your desire, you may step up the largest and smallest dice in your pool. If the
+            smallest die rolls higher than the highest die, the DM may introduce a complication as a result of your
+            heedless pursuit.</td>
         </tr>
         <tr>
           <td>Focused Training</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you spend a period of more than a week resting, you may decrease up to 2 Skills. For each Skill decreased this way, increase a Skill by 1.</td>
+          <td class="desc">When you spend a period of more than a week resting, you may decrease up to 2 Skills. For
+            each Skill decreased this way, increase a Skill by 1.</td>
         </tr>
         <tr>
           <td>Font of Knowledge</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">If you ask a question or seek knowledge related to a Talent you have, you can choose to have the GM give you a useful or relevant piece of information, if you do, increase your Strain die.</td>
+          <td class="desc">If you ask a question or seek knowledge related to a Talent you have, you can choose to have
+            the GM give you a useful or relevant piece of information, if you do, increase your Strain die.</td>
         </tr>
         <tr>
           <td>Fool me Once</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you fail your second contest or attack in a given encounter, you may instead succeed.</td>
+          <td class="desc">When you fail your second contest or attack in a given encounter, you may instead succeed.
+          </td>
         </tr>
         <tr>
           <td>Frantic Parry</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">When you would be the target of a damage, you may instead lose no health. Increase your Strain by 1.</td>
+          <td class="desc">When you would be the target of a damage, you may instead lose no health. Increase your
+            Strain by 1.</td>
         </tr>
         <!-- G Group -->
         <tr>
           <td>Gatecrasher</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">When you contest Might|Skill to destroy an inanimate obstacle you may step up your Might die. Additionally on a success, choose 2 of the following:<br>It doesn’t take a very long time<br>It doesn’t introduce any complications<br>It doesn’t make an inordinate amount of noise<br>You can fix the thing without significant effort</td>
+          <td class="desc">When you contest Might|Skill to destroy an inanimate obstacle you may step up your Might die.
+            Additionally on a success, choose 2 of the following:<br>It doesn’t take a very long time<br>It doesn’t
+            introduce any complications<br>It doesn’t make an inordinate amount of noise<br>You can fix the thing
+            without significant effort</td>
         </tr>
         <tr>
           <td>Give me Liberty!</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">If you die in defense of your friends, innocents, or a noble cause, everyone in your party increases their Luck. They all gain a surge. Your next character may start with a connection to this character and may possess an item your character died with. The GM will determine how your character acquired this item.</td>
+          <td class="desc">If you die in defense of your friends, innocents, or a noble cause, everyone in your party
+            increases their Luck. They all gain a surge. Your next character may start with a connection to this
+            character and may possess an item your character died with. The GM will determine how your character
+            acquired this item.</td>
         </tr>
         <tr>
           <td>Glancing Blow</td>
@@ -299,19 +365,26 @@
           <td>Heavy on the Saddle</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You can exceed your mass capacity by up to 50 before suffering negative consequences. You may step up 2 dice in your dice pool if you are assigned a “trailblazer” role by a move.</td>
+          <td class="desc">You can exceed your mass capacity by up to 50 before suffering negative consequences. You may
+            step up 2 dice in your dice pool if you are assigned a “trailblazer” role by a move.</td>
         </tr>
         <tr>
           <td>Herald of Law</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">Declare that a creature is breaking the law, step up your Presence and Charm and contest Presence|Charm. On a success, the GM will choose one of the following:<br>The creature will flee you to avoid attention.<br>The creature will become hostile towards you, step up 2 dice next time you attack that creature.<br>The creature will beg and plead, step up 2 dice when you next dazzle, swindle, haggle with that creature.</td>
+          <td class="desc">Declare that a creature is breaking the law, step up your Presence and Charm and contest
+            Presence|Charm. On a success, the GM will choose one of the following:<br>The creature will flee you to
+            avoid attention.<br>The creature will become hostile towards you, step up 2 dice next time you attack that
+            creature.<br>The creature will beg and plead, step up 2 dice when you next dazzle, swindle, haggle with that
+            creature.</td>
         </tr>
         <tr>
           <td>Hondo’s Return</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Whenever you return to an outpost of civilization in triumph, you may step up your Presence and contest Presence|Charm or Presence|Might. On a success, you impress anyone who sees your return, step up a die in your dice pool the next time you dazzle, swindle, haggle with them.</td>
+          <td class="desc">Whenever you return to an outpost of civilization in triumph, you may step up your Presence
+            and contest Presence|Charm or Presence|Might. On a success, you impress anyone who sees your return, step up
+            a die in your dice pool the next time you dazzle, swindle, haggle with them.</td>
         </tr>
         <tr>
           <td>Hotshot pilot move</td>
@@ -324,7 +397,8 @@
           <td>I Am Vengeance</td>
           <td>heavy</td>
           <td>encounter</td>
-          <td class="desc">Attack a target in the same zone as you. Treat your weapon as if it is (Brutal) and (Violent 3) for this attack.</td>
+          <td class="desc">Attack a target in the same zone as you. Treat your weapon as if it is (Brutal) and (Violent
+            3) for this attack.</td>
         </tr>
         <tr>
           <td>Indomitable</td>
@@ -336,53 +410,65 @@
           <td>Iron-Willed</td>
           <td>light</td>
           <td>recovery</td>
-          <td class="desc">When your Strain is 10 and it would be increased beyond that, you may instead reduce your Strain die by 1d4. You can choose to postpone the effect of a Strain break until your next recovery.</td>
+          <td class="desc">When your Strain is 10 and it would be increased beyond that, you may instead reduce your
+            Strain die by 1d4. You can choose to postpone the effect of a Strain break until your next recovery.</td>
         </tr>
         <!-- J Group -->
         <tr>
           <td>Jack Of All Trades</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Whenever you gain a new Talent you may start it at 1d6 instead of 1d4. When you first gain this ability, learn a new Talent.</td>
+          <td class="desc">Whenever you gain a new Talent you may start it at 1d6 instead of 1d4. When you first gain
+            this ability, learn a new Talent.</td>
         </tr>
         <tr>
           <td>Journey Before Destination</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you journey planetside you may write a new bond with one of your companions. Reduce your Strain by 1 when you journey among friends whom you share bonds with.</td>
+          <td class="desc">When you journey planetside you may write a new bond with one of your companions. Reduce your
+            Strain by 1 when you journey among friends whom you share bonds with.</td>
         </tr>
         <tr>
           <td>Juggernaut</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">If every worn armor slot is filled with (Heavy) armor or armor with A1d10 or better as its dice, you may step up all armor dice when you roll defense.</td>
+          <td class="desc">If every worn armor slot is filled with (Heavy) armor or armor with A1d10 or better as its
+            dice, you may step up all armor dice when you roll defense.</td>
         </tr>
         <!-- K Group -->
         <tr>
           <td>Kingly Wit</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you dazzle, swindle, haggle with a creature you have a bond with, step up 1 die in your dice pool for each bond you have with that creature. If you suffer a complication while you dazzle, swindle, haggle with a creature, the GM might give you a bond with that creature.</td>
+          <td class="desc">When you dazzle, swindle, haggle with a creature you have a bond with, step up 1 die in your
+            dice pool for each bond you have with that creature. If you suffer a complication while you dazzle, swindle,
+            haggle with a creature, the GM might give you a bond with that creature.</td>
         </tr>
         <!-- L Group -->
         <tr>
           <td>Lucky Tool</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You have a special tool that carries you through your journey. The tool is _____.<br>Old and beat up<br>Kept clean and shiny<br>Well worn<br>Uniquely decorated<br>Describe the type of tool you have and what it is used for, the tool has a 1d8 die and is (Lucky). If you would step up a die in your dice pool while using this tool, step up two dice.</td>
+          <td class="desc">You have a special tool that carries you through your journey. The tool is _____.<br>Old and
+            beat up<br>Kept clean and shiny<br>Well worn<br>Uniquely decorated<br>Describe the type of tool you have and
+            what it is used for, the tool has a 1d8 die and is (Lucky). If you would step up a die in your dice pool
+            while using this tool, step up two dice.</td>
         </tr>
         <!-- M Group -->
         <tr>
           <td>Melee Master</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Whenever you use (Melee) weapon, you may treat it as if it has the (Potent 1). If it already has (Potent X), it now has (Potent X+1). You cannot drop or be disarmed of your (Melee) weapons against your will so long as you are conscious.</td>
+          <td class="desc">Whenever you use (Melee) weapon, you may treat it as if it has the (Potent 1). If it already
+            has (Potent X), it now has (Potent X+1). You cannot drop or be disarmed of your (Melee) weapons against your
+            will so long as you are conscious.</td>
         </tr>
         <tr>
           <td>Master Quartermaster</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Whenever you contest to help set up camp, manage logistics, or cook you may step up 2 dice in your pool. You cannot incur complications when doing these tasks.</td>
+          <td class="desc">Whenever you contest to help set up camp, manage logistics, or cook you may step up 2 dice in
+            your pool. You cannot incur complications when doing these tasks.</td>
         </tr>
         <tr>
           <td>May The Force Be With You</td>
@@ -394,20 +480,27 @@
           <td>Max Burn</td>
           <td>passive</td>
           <td>encounter</td>
-          <td class="desc">You may expend a fuel to kick your ship's engine into overdrive, doubling your speed modifier until the beginning of your next turn. This can be activated during the merge at the beginning of combat to increase your starting advantage instead.</td>
+          <td class="desc">You may expend a fuel to kick your ship's engine into overdrive, doubling your speed modifier
+            until the beginning of your next turn. This can be activated during the merge at the beginning of combat to
+            increase your starting advantage instead.</td>
         </tr>
         <!-- P Group -->
         <tr>
           <td>Port in the Storm</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Whenever you return to a place you have been before, and you are well regarded, choose 2 of the following:<br>You learn how it has changed since you were last here.<br>You are able to make contact with a useful NPC.<br>You discover a local rumor.<br>You are able to get an audience with a local ruler.</td>
+          <td class="desc">Whenever you return to a place you have been before, and you are well regarded, choose 2 of
+            the following:<br>You learn how it has changed since you were last here.<br>You are able to make contact
+            with a useful NPC.<br>You discover a local rumor.<br>You are able to get an audience with a local ruler.
+          </td>
         </tr>
         <tr>
           <td>Punch God</td>
           <td>medium</td>
           <td>recovery</td>
-          <td class="desc">If you stand defiant in the face of overwhelming odds, existential terror, or a creature far beyond your skills, you may step up all the dice in your dice pool and attack or overcome in opposition to this force. You cannot incur complications on this roll.</td>
+          <td class="desc">If you stand defiant in the face of overwhelming odds, existential terror, or a creature far
+            beyond your skills, you may step up all the dice in your dice pool and attack or overcome in opposition to
+            this force. You cannot incur complications on this roll.</td>
         </tr>
         <tr>
           <td>Push beyond limit</td>
@@ -426,7 +519,8 @@
           <td>Rigid Focus</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">When you roll a dice pool that includes a Talent at 1d12, you may reroll up to 2 dice and use the new results to find your total.</td>
+          <td class="desc">When you roll a dice pool that includes a Talent at 1d12, you may reroll up to 2 dice and use
+            the new results to find your total.</td>
         </tr>
         <tr>
           <td>Rampant Hobbyist</td>
@@ -438,26 +532,31 @@
           <td>Rage Against the Machine</td>
           <td>medium</td>
           <td>encounter</td>
-          <td class="desc">You have mastered putting yourself into a state of murderous rage. You may step all dice in your pool for the remainder of the encounter. At the end of the encounter, increase your Strain die by 2.</td>
+          <td class="desc">You have mastered putting yourself into a state of murderous rage. You may step all dice in
+            your pool for the remainder of the encounter. At the end of the encounter, increase your Strain die by 2.
+          </td>
         </tr>
         <tr>
           <td>Resist and Bite</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">When you are dealt damage by a melee weapon you may choose to instead take no damage and may deal up to half that damage to a target within your zone.</td>
+          <td class="desc">When you are dealt damage by a melee weapon you may choose to instead take no damage and may
+            deal up to half that damage to a target within your zone.</td>
         </tr>
         <tr>
           <td>Rip And Tear</td>
           <td>heavy</td>
           <td>encounter</td>
-          <td class="desc">You may attack a target, if you kill them with your subsequent damage, attack another target. Repeat this until you do not kill a target.</td>
+          <td class="desc">You may attack a target, if you kill them with your subsequent damage, attack another target.
+            Repeat this until you do not kill a target.</td>
         </tr>
         <!-- S Group -->
         <tr>
           <td>Sage Knight</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">If you spend an hour or more in quiet meditation after a battle, you may decrease your Strain. If your Strain is 0, increase your luck.</td>
+          <td class="desc">If you spend an hour or more in quiet meditation after a battle, you may decrease your
+            Strain. If your Strain is 0, increase your luck.</td>
         </tr>
         <tr>
           <td>Second Wind:</td>
@@ -469,7 +568,8 @@
           <td>Setup Strike</td>
           <td>medium</td>
           <td>encounter</td>
-          <td class="desc">Attack an enemy in the same zone as an ally of yours. Step up 2 dice in the pool of the next attack made by an ally in that zone.</td>
+          <td class="desc">Attack an enemy in the same zone as an ally of yours. Step up 2 dice in the pool of the next
+            attack made by an ally in that zone.</td>
         </tr>
         <tr>
           <td>Sheer Spite</td>
@@ -481,7 +581,8 @@
           <td>Shoot First</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">You may choose to have your turn at the top of the turn order when you initiate combat, even if surprised.</td>
+          <td class="desc">You may choose to have your turn at the top of the turn order when you initiate combat, even
+            if surprised.</td>
         </tr>
         <tr>
           <td>Sic Parvis Magna</td>
@@ -493,44 +594,62 @@
           <td>Steal the Moon</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you take this ability, gain a Talent called “heist planning” at expertise 1d8. When you contest to plot a heist, step up a Skill die and “heist planning” . On a success, the GM will give you an additional relevant and useful piece of information relating to the heist you are planning.</td>
+          <td class="desc">When you take this ability, gain a Talent called “heist planning” at expertise 1d8. When you
+            contest to plot a heist, step up a Skill die and “heist planning” . On a success, the GM will give you an
+            additional relevant and useful piece of information relating to the heist you are planning.</td>
         </tr>
         <tr>
           <td>Strafe Lurch</td>
           <td>positioning</td>
           <td>recovery</td>
-          <td class="desc">Move to a zone that is exactly 3 zones away from you. You may attack an enemy in this zone immediately.</td>
+          <td class="desc">Move to a zone that is exactly 3 zones away from you. You may attack an enemy in this zone
+            immediately.</td>
         </tr>
         <tr>
           <td>Strider</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">When you journey planetside or make camp, step up all dice in your next dice pool. Rolls in this pool cannot incur complications.</td>
+          <td class="desc">When you journey planetside or make camp, step up all dice in your next dice pool. Rolls in
+            this pool cannot incur complications.</td>
         </tr>
         <tr>
           <td>Superior Explorer</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you gain this ability, choose up to 2 of the below terrains that you do not already have a [terrain] expert Talent for. Gain a Talent called [terrain] expert for each. Your expertise in this talent is a d8.<br>Mountain<br>Desert<br>Tundra<br>Wasteland<br>Jungle<br>Plains<br>Forest<br>Urban<br>Caves<br>Asteroid field<br>Nebula<br>Ocean<br>You and your group only consume half the normal amount of rations when you journey planetside through a terrain you have a [terrain] expert Talent for.</td>
+          <td class="desc">When you gain this ability, choose up to 2 of the below terrains that you do not already have
+            a [terrain] expert Talent for. Gain a Talent called [terrain] expert for each. Your expertise in this talent
+            is a
+            d8.<br>Mountain<br>Desert<br>Tundra<br>Wasteland<br>Jungle<br>Plains<br>Forest<br>Urban<br>Caves<br>Asteroid
+            field<br>Nebula<br>Ocean<br>You and your group only consume half the normal amount of rations when you
+            journey planetside through a terrain you have a [terrain] expert Talent for.</td>
         </tr>
         <tr>
           <td>Surging Support</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You may use your surges on other players instead of yourself. Whenever you recuperate, gain a surge. You can have 10 surges at a time instead of just 5.</td>
+          <td class="desc">You may use your surges on other players instead of yourself. Whenever you recuperate, gain a
+            surge. You can have 10 surges at a time instead of just 5.</td>
         </tr>
         <tr>
           <td>Seeing Red</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you deal damage, you may increase your Strain. You may add your Strain to your damage total.</td>
+          <td class="desc">When you deal damage, you may increase your Strain. You may add your Strain to your damage
+            total.</td>
         </tr>
         <!-- T Group -->
         <tr>
           <td>Signature Weapon</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You have a weapon that is uniquely you, it is a:<br>Ancient Rifle W1d8 (Ergonomic, Scoped, Far-range, Ammo)<br>Ion Handgun W1d8 (Quick, Ergonomic, Near-range, Energized)<br>Tactical Shotgun W1d10 (Unruly, Ergonomic, Near-range, Ammo)<br>Carbide Shortblade W1d6 (Quick, Ergonomic, Melee, Violent 1)<br>Gyrostabilized Staff W1d8 (Technical, Unruly, Melee, Consistent)<br>It has some unique properties: ____ ____ ____ (choose 3)<br>(Accurate 1)<br>(Piercing 2)<br>(Covering 2)<br>(Suppressed)<br>(Forceful)<br>(Throwable)<br>(Cycling)<br>Additionally, if you lose your signature weapon or it is destroyed, you may create a new one during your next recovery. Upgrading your signature weapon costs half as much as a normal weapon would.</td>
+          <td class="desc">You have a weapon that is uniquely you, it is a:<br>Ancient Rifle W1d8 (Ergonomic, Scoped,
+            Far-range, Ammo)<br>Ion Handgun W1d8 (Quick, Ergonomic, Near-range, Energized)<br>Tactical Shotgun W1d10
+            (Unruly, Ergonomic, Near-range, Ammo)<br>Carbide Shortblade W1d6 (Quick, Ergonomic, Melee, Violent
+            1)<br>Gyrostabilized Staff W1d8 (Technical, Unruly, Melee, Consistent)<br>It has some unique properties:
+            ____ ____ ____ (choose 3)<br>(Accurate 1)<br>(Piercing 2)<br>(Covering
+            2)<br>(Suppressed)<br>(Forceful)<br>(Throwable)<br>(Cycling)<br>Additionally, if you lose your signature
+            weapon or it is destroyed, you may create a new one during your next recovery. Upgrading your signature
+            weapon costs half as much as a normal weapon would.</td>
         </tr>
         <tr>
           <td>Troubadour</td>
@@ -542,43 +661,52 @@
           <td>Tactical Reload</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">If you take an hour or more to examine your weapon, you may choose a tag it has to remove. If you remove a tag in this way, the GM will give you two options for tags. You may add one of the options to your weapon.</td>
+          <td class="desc">If you take an hour or more to examine your weapon, you may choose a tag it has to remove. If
+            you remove a tag in this way, the GM will give you two options for tags. You may add one of the options to
+            your weapon.</td>
         </tr>
         <tr>
           <td>Tricks of the Trade</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">If you contest and roll the maximum value on all dice in your pool, increase a Skill by 1.</td>
+          <td class="desc">If you contest and roll the maximum value on all dice in your pool, increase a Skill by 1.
+          </td>
         </tr>
         <tr>
           <td>The Ability to Speak</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Regardless of whether or not you speak the language, you can get a general idea of what any intelligent creature is trying to say when they speak to you.</td>
+          <td class="desc">Regardless of whether or not you speak the language, you can get a general idea of what any
+            intelligent creature is trying to say when they speak to you.</td>
         </tr>
         <tr>
           <td>The Arcane and Esoteric</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you attempt to acquire information about something puzzling, mysterious, or unknown to you, step up your Recall. You cannot incur complications when you acquire information.</td>
+          <td class="desc">When you attempt to acquire information about something puzzling, mysterious, or unknown to
+            you, step up your Recall. You cannot incur complications when you acquire information.</td>
         </tr>
         <tr>
           <td>The Cake Is A Lie</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Step up a die in your dice pool whenever you attempt to hack, manipulate, or destroy technology that is controlled by artificial intelligence. When you do, reduce your Strain by 1.</td>
+          <td class="desc">Step up a die in your dice pool whenever you attempt to hack, manipulate, or destroy
+            technology that is controlled by artificial intelligence. When you do, reduce your Strain by 1.</td>
         </tr>
         <tr>
           <td>The Great Escape</td>
           <td>medium</td>
           <td>encounter</td>
-          <td class="desc">Ask the GM one of the following questions and receive a useful answer:<br>Where is the nearest route to safety from here?<br>What lies beyond a nearby door?<br>Am I at risk of the threat increasing if I stay here?<br>What is the most dangerous thing here?</td>
+          <td class="desc">Ask the GM one of the following questions and receive a useful answer:<br>Where is the
+            nearest route to safety from here?<br>What lies beyond a nearby door?<br>Am I at risk of the threat
+            increasing if I stay here?<br>What is the most dangerous thing here?</td>
         </tr>
         <tr>
           <td>Tough Cookie</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You can have up to 15 Strain before suffering a Strain break. When you recuperate, reduce your Strain by 1d4.</td>
+          <td class="desc">You can have up to 15 Strain before suffering a Strain break. When you recuperate, reduce
+            your Strain by 1d4.</td>
         </tr>
         <tr>
           <td>Signature Weapon</td>
@@ -607,37 +735,44 @@
           <td>The Ability to Speak</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Regardless of whether or not you speak the language, you can get a general idea of what any intelligent creature is trying to say when they speak to you.</td>
+          <td class="desc">Regardless of whether or not you speak the language, you can get a general idea of what any
+            intelligent creature is trying to say when they speak to you.</td>
         </tr>
         <tr>
           <td>The Arcane and Esoteric</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you attempt to acquire information about something puzzling, mysterious, or unknown to you, step up your Recall. You cannot incur complications when you acquire information.</td>
+          <td class="desc">When you attempt to acquire information about something puzzling, mysterious, or unknown to
+            you, step up your Recall. You cannot incur complications when you acquire information.</td>
         </tr>
         <tr>
           <td>The Cake Is A Lie</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">Step up a die in your dice pool whenever you attempt to hack, manipulate, or destroy technology that is controlled by artificial intelligence. When you do, reduce your Strain by 1.</td>
+          <td class="desc">Step up a die in your dice pool whenever you attempt to hack, manipulate, or destroy
+            technology that is controlled by artificial intelligence. When you do, reduce your Strain by 1.</td>
         </tr>
         <tr>
           <td>The Great Escape</td>
           <td>medium</td>
           <td>encounter</td>
-          <td class="desc">Ask the GM one of the following questions and receive a useful answer:<br>Where is the nearest route to safety from here?<br>What lies beyond a nearby door?<br>Am I at risk of the threat increasing if I stay here?<br>What is the most dangerous thing here?</td>
+          <td class="desc">Ask the GM one of the following questions and receive a useful answer:<br>Where is the
+            nearest route to safety from here?<br>What lies beyond a nearby door?<br>Am I at risk of the threat
+            increasing if I stay here?<br>What is the most dangerous thing here?</td>
         </tr>
         <tr>
           <td>Tough Cookie</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You can have up to 15 Strain before suffering a Strain break. When you recuperate, reduce your Strain by 1d4.</td>
+          <td class="desc">You can have up to 15 Strain before suffering a Strain break. When you recuperate, reduce
+            your Strain by 1d4.</td>
         </tr>
         <tr>
           <td>Tricks of the Trade</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">If you contest and roll the maximum value on all dice in your pool, increase a Skill by 1.</td>
+          <td class="desc">If you contest and roll the maximum value on all dice in your pool, increase a Skill by 1.
+          </td>
         </tr>
         <tr>
           <td>Troubadour</td>
@@ -650,20 +785,24 @@
           <td>Under Pressure</td>
           <td>light</td>
           <td>recovery</td>
-          <td class="desc">If you would increase your Strain, you may decrease it instead. You may add your Strain to your resist peril attempts. Do not subtract Strain when you resist peril.</td>
+          <td class="desc">If you would increase your Strain, you may decrease it instead. You may add your Strain to
+            your resist peril attempts. Do not subtract Strain when you resist peril.</td>
         </tr>
         <tr>
           <td>Unbreakable Mind</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">You may always add your Will die to your Defense pool and any resist peril attempts you make.</td>
+          <td class="desc">You may always add your Will die to your Defense pool and any resist peril attempts you make.
+          </td>
         </tr>
         <!-- V Group -->
         <tr>
           <td>Vacuum Training</td>
           <td>light</td>
           <td>encounter</td>
-          <td class="desc">If you are thrown into the vacuum of space, step up your Fortitude and Will, then contest Fortitude|Will. On a success, you may ignore the adverse effects of the vacuum until the end of the encounter. You take only half damage from phenomena originating from being unprotected in space.</td>
+          <td class="desc">If you are thrown into the vacuum of space, step up your Fortitude and Will, then contest
+            Fortitude|Will. On a success, you may ignore the adverse effects of the vacuum until the end of the
+            encounter. You take only half damage from phenomena originating from being unprotected in space.</td>
         </tr>
         <tr>
           <td>Volta Gloria</td>
@@ -676,28 +815,34 @@
           <td>Wall Jumper</td>
           <td>positioning</td>
           <td>encounter</td>
-          <td class="desc">You may move to a non-adjacent zone so long as there is a wall or nearby wall that you could use to climb up or down to it. You do not need to overcome to get to this new zone.</td>
+          <td class="desc">You may move to a non-adjacent zone so long as there is a wall or nearby wall that you could
+            use to climb up or down to it. You do not need to overcome to get to this new zone.</td>
         </tr>
         <tr>
           <td>Wide Wanderer</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">If you journey planetside or travel through space in a system or planet you have never been to, you may step up a die in your dice pool.</td>
+          <td class="desc">If you journey planetside or travel through space in a system or planet you have never been
+            to, you may step up a die in your dice pool.</td>
         </tr>
         <tr>
           <td>Windstance</td>
           <td>passive</td>
           <td></td>
-          <td class="desc">When you are wearing no armor (items with the A1d_ prefix), you may add your Speed and Awareness to your defense.</td>
+          <td class="desc">When you are wearing no armor (items with the A1d_ prefix), you may add your Speed and
+            Awareness to your defense.</td>
         </tr>
         <tr>
           <td>Would You Kindly?</td>
           <td>passive</td>
           <td>recovery</td>
-          <td class="desc">You can choose to immediately tell if someone is lying to you or is obscuring the truth. If you do, they know you’re on to them. Step up a die in your dice pool next time you would take a move in opposition to them.</td>
+          <td class="desc">You can choose to immediately tell if someone is lying to you or is obscuring the truth. If
+            you do, they know you’re on to them. Step up a die in your dice pool next time you would take a move in
+            opposition to them.</td>
         </tr>
       </tbody>
     </table>
   </div>
 </body>
+
 </html>

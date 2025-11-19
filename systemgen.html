@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Astral Axial System Generator</title>
-    <!-- Link to the external stylesheet -->
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-<div id="navContainer"></div>
-<script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
-</script>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astral Axial System Generator</title>
+  <!-- Link to the external stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <div id="navContainer"></div>
+  <script>
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navContainer').innerHTML = data;
+      })
+      .catch(err => console.error('Error loading nav:', err));
+  </script>
 
 
-    <div class="container">
-      <h1>Astral Axial System Generator</h1>
-      <button onclick="generateSystem()">Generate System</button>
-      <button onclick="downloadSystemInfo()">Download System Info</button>
-      <div id="systemOutput"></div>
-    </div>
-    <div class="art-credit">
-      <a href="https://www.instagram.com/vinny.longbow?igsh=c203czNuMW92MXA3" target="_blank">
-        Art Credit: Vincent Fleetwood
-      </a>
-    </div>
-<script src="systemgen.js"></script>
-   
-  </body>
+  <div class="container">
+    <h1>Astral Axial System Generator</h1>
+    <button onclick="generateSystem()">Generate System</button>
+    <button onclick="downloadSystemInfo()">Download System Info</button>
+    <div id="systemOutput"></div>
+  </div>
+  <div class="art-credit">
+    <a href="https://www.instagram.com/vinny.longbow?igsh=c203czNuMW92MXA3" target="_blank">
+      Art Credit: Vincent Fleetwood
+    </a>
+  </div>
+  <script src="js/systemgen.js"></script>
+
+</body>
+
 </html>

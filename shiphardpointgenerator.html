@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ship Hardpoint Generator</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <div id="navContainer"></div>
 <script>
@@ -15,6 +16,7 @@
     })
     .catch(err => console.error('Error loading nav:', err));
 </script>
+
 <body>
   <div class="container">
     <h1>Ship Hardpoint Generator</h1>
@@ -106,9 +108,9 @@
     const ownerLastNameSuffixes = ["dor", "en", "ix", "ar", "on", "us"];
     function generateStoreOwnerName() {
       let first = ownerFirstNamePrefixes[randomInt(0, ownerFirstNamePrefixes.length - 1)] +
-                  ownerFirstNameSuffixes[randomInt(0, ownerFirstNameSuffixes.length - 1)];
+        ownerFirstNameSuffixes[randomInt(0, ownerFirstNameSuffixes.length - 1)];
       let last = ownerLastNamePrefixes[randomInt(0, ownerLastNamePrefixes.length - 1)] +
-                 ownerLastNameSuffixes[randomInt(0, ownerLastNameSuffixes.length - 1)];
+        ownerLastNameSuffixes[randomInt(0, ownerLastNameSuffixes.length - 1)];
       return "Captain " + first + " " + last;
     }
     // Store name generator
@@ -193,8 +195,8 @@
       document.getElementById("storeName").textContent = generateStoreName();
     }
     // DOM event listener: load external config and attach event listeners once DOM is ready.
-    window.addEventListener("DOMContentLoaded", function() {
-      fetch("shippartdata.json")
+    window.addEventListener("DOMContentLoaded", function () {
+      fetch("assets/data/shippartdata.json")
         .then(response => response.json())
         .then(json => {
           config = json;
@@ -205,4 +207,5 @@
     });
   </script>
 </body>
+
 </html>

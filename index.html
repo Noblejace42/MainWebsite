@@ -310,7 +310,7 @@
       </div>
 
       <div class="card-image">
-        <img src="image/sittingimage.jpg" alt="Emerson Neher"/>
+        <img src="assets/images/sittingimage.jpg" alt="Emerson Neher"/>
       </div>
 
       <div class="contact-card">
@@ -375,7 +375,7 @@
 
 <script>
 // 1. fetch your cleaned corpus
-fetch('emersonmarkovchain.txt')
+fetch('assets/data/emersonmarkovchain.txt')
   .then(r => r.text())
   .then(raw => {
     // carve into 2–6 word snippets
@@ -421,7 +421,7 @@ fetch('emersonmarkovchain.txt')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
 
     // Tile-spawning logic
-    const tilePaths = Array.from({ length: 34 }, (_, i) => `image/${i+4}.jpg`);
+    const tilePaths = Array.from({ length: 34 }, (_, i) => `assets/images/${i+4}.jpg`);
     const tilesContainer = document.querySelector('.tiles-container');
     const tileData = []; let tileLoaded = 0;
     tilePaths.forEach(src => {

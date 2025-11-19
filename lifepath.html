@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Astral Axial Lifepath</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="css/styles.css" />
   <style>
     /* Inline additional styling for layout and talent UI */
     #main-container {
       display: flex;
-      flex-direction: row; 
+      flex-direction: row;
       justify-content: space-between;
     }
+
     #game-content {
       flex: 2;
       margin-right: 20px;
     }
+
     #summary-pane {
       flex: 1;
       background: #262626;
@@ -26,18 +29,23 @@
       overflow-y: auto;
       margin-top: 10px;
     }
+
     .talent-row {
       display: flex;
       align-items: center;
       margin-bottom: 5px;
     }
+
     .talent-name {
       flex: 1;
     }
+
     .talent-controls button {
       margin: 0 5px;
     }
-    .lifepath-btn, .event-btn {
+
+    .lifepath-btn,
+    .event-btn {
       background-color: #444;
       color: #ccc;
       border: 1px solid #555;
@@ -47,13 +55,17 @@
       border-radius: 4px;
       margin: 5px;
     }
-    .lifepath-btn:hover, .event-btn:hover {
+
+    .lifepath-btn:hover,
+    .event-btn:hover {
       background-color: #555;
     }
+
     .disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
+
     .centered-death-screen {
       position: fixed;
       top: 50%;
@@ -66,10 +78,13 @@
       text-align: center;
       z-index: 2000;
     }
+
     /* Monospaced font for Bonds and Items */
-    .bond-card, .item-card {
+    .bond-card,
+    .item-card {
       font-family: "Consolas", "Courier New", monospace;
     }
+
     /* New card container for grouping UI sections */
     .card-container {
       background: #1a1a1a;
@@ -80,18 +95,19 @@
     }
   </style>
 </head>
-<body>
-<div id="navContainer"></div>
-<script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
-</script>
 
- 
+<body>
+  <div id="navContainer"></div>
+  <script>
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navContainer').innerHTML = data;
+      })
+      .catch(err => console.error('Error loading nav:', err));
+  </script>
+
+
   <div id="main-container">
     <div id="game-content"></div>
     <div id="summary-pane">
@@ -186,7 +202,7 @@
       else if (roll < commonProb + intermediateProb) return "intermediate";
       else return "expert";
     }
-    
+
     function generateLifepathOptions() {
       let options = [];
       let attempts = 0;
@@ -212,11 +228,11 @@
           options.push({ pool: chosenPool, job: job });
         }
       }
-      
+
       if (config.settings.wildcardOptionEnabled && randomChance() <= config.settings.wildcardOptionChance) {
         let allPools = Object.keys(config.lifepathPools);
         let randomPool = getRandomElement(allPools);
-        let possibleJobs = config.lifepathPools[randomPool].jobs["common"].filter(j => 
+        let possibleJobs = config.lifepathPools[randomPool].jobs["common"].filter(j =>
           !options.some(opt => opt.job.name === j.name)
         );
         if (possibleJobs.length > 0) {
@@ -245,7 +261,7 @@
       }
       return totals;
     }
-    
+
     function updateSummary() {
       const summaryDiv = document.getElementById("summary-content");
       let html = `
@@ -258,9 +274,9 @@
       `;
 
       // Bonds section with monospaced font
-      let bondsHTML = character.bonds.length 
-          ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>` 
-          : "None";
+      let bondsHTML = character.bonds.length
+        ? `<ol>${character.bonds.map(bond => `<li>${bond}</li>`).join("")}</ol>`
+        : "None";
       html += `
         <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
           <h3>Bonds</h3>
@@ -269,9 +285,9 @@
       `;
 
       // Items section with monospaced font
-      let itemsHTML = character.items.length 
-          ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>` 
-          : "None";
+      let itemsHTML = character.items.length
+        ? `<ol>${character.items.map(item => `<li>${item}</li>`).join("")}</ol>`
+        : "None";
       html += `
         <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
           <h3>Items</h3>
@@ -315,9 +331,9 @@
           let eventObj = poolEvents.find(ev => ev.id === lp.event);
           return eventObj ? eventObj.description : lp.event;
         });
-      let eventsHTML = eventDescriptions.length 
-          ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>` 
-          : "None";
+      let eventsHTML = eventDescriptions.length
+        ? `<ol>${eventDescriptions.map(desc => `<li>${desc}</li>`).join("")}</ol>`
+        : "None";
       html += `
         <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
           <h3>Events</h3>
@@ -367,7 +383,7 @@
         let label = `${opt.job.name} (${opt.pool})`;
         if (opt.wildcard) label += " [Wildcard]";
         btn.textContent = label;
-        btn.onclick = function() {
+        btn.onclick = function () {
           selectLifepath(opt.pool, opt.job);
         };
         contentDiv.appendChild(btn);
@@ -441,7 +457,7 @@
         controls.className = "talent-controls";
         const downBtn = document.createElement("button");
         downBtn.textContent = "▼";
-        downBtn.onclick = function() {
+        downBtn.onclick = function () {
           if (lp.talentAllocations[talent] > 0) {
             lp.talentAllocations[talent]--;
             remainingTalentPoints++;
@@ -455,7 +471,7 @@
         controls.appendChild(levelSpan);
         const upBtn = document.createElement("button");
         upBtn.textContent = "▲";
-        upBtn.onclick = function() {
+        upBtn.onclick = function () {
           let currentAggregate = getTalentAggregate(talent, thisLpIndex);
           if (currentAggregate < config.settings.maxTalentLevel && remainingTalentPoints > 0) {
             lp.talentAllocations[talent]++;
@@ -467,7 +483,7 @@
         row.appendChild(controls);
         container.appendChild(row);
       });
-      document.getElementById("talent-confirm-btn").onclick = function() {
+      document.getElementById("talent-confirm-btn").onclick = function () {
         showEventOptions(lp.pool);
       };
       updateSummary();
@@ -494,50 +510,50 @@
     }
 
     function showEventOptions(pool) {
-  const contentDiv = document.getElementById("game-content");
-  // Clear out existing content
-  contentDiv.innerHTML = "";
+      const contentDiv = document.getElementById("game-content");
+      // Clear out existing content
+      contentDiv.innerHTML = "";
 
-  // Create a container for the event options
-  const container = document.createElement("div");
-  container.classList.add("card-container");
+      // Create a container for the event options
+      const container = document.createElement("div");
+      container.classList.add("card-container");
 
-  // Add a heading
-  const heading = document.createElement("h2");
-  heading.textContent = `${pool} Event Options`;
-  container.appendChild(heading);
+      // Add a heading
+      const heading = document.createElement("h2");
+      heading.textContent = `${pool} Event Options`;
+      container.appendChild(heading);
 
-  // Determine which events array to use
-  const eventKey = "events" + pool.toLowerCase();
-  if (!config[eventKey] || !config[eventKey][pool]) {
-    console.warn("No events defined for pool: " + pool);
-    askContinue();
-    return;
-  }
+      // Determine which events array to use
+      const eventKey = "events" + pool.toLowerCase();
+      if (!config[eventKey] || !config[eventKey][pool]) {
+        console.warn("No events defined for pool: " + pool);
+        askContinue();
+        return;
+      }
 
-  // Randomly select 2 events from the array
-  const eventsArr = config[eventKey][pool];
-  const shuffled = eventsArr.sort(() => 0.5 - Math.random());
-  const selectedEvents = shuffled.slice(0, 2);
+      // Randomly select 2 events from the array
+      const eventsArr = config[eventKey][pool];
+      const shuffled = eventsArr.sort(() => 0.5 - Math.random());
+      const selectedEvents = shuffled.slice(0, 2);
 
-  // For each selected event, create a clickable card
-  selectedEvents.forEach(ev => {
-    const card = document.createElement("div");
-    card.className = "event-card";
-    // Make it look/feel like a button
-    card.style.cursor = "pointer";
-    card.style.margin = "10px 0";
-    // Show the event description
-    card.innerHTML = `<p>${ev.description}</p>`;
-    // Clicking the card selects the event
-    card.onclick = () => selectEvent(ev);
+      // For each selected event, create a clickable card
+      selectedEvents.forEach(ev => {
+        const card = document.createElement("div");
+        card.className = "event-card";
+        // Make it look/feel like a button
+        card.style.cursor = "pointer";
+        card.style.margin = "10px 0";
+        // Show the event description
+        card.innerHTML = `<p>${ev.description}</p>`;
+        // Clicking the card selects the event
+        card.onclick = () => selectEvent(ev);
 
-    container.appendChild(card);
-  });
+        container.appendChild(card);
+      });
 
-  // Finally, add the container to the page
-  contentDiv.appendChild(container);
-}
+      // Finally, add the container to the page
+      contentDiv.appendChild(container);
+    }
 
 
     function selectEvent(ev) {
@@ -606,14 +622,14 @@
       const contBtn = document.createElement("button");
       contBtn.classList.add("lifepath-btn");
       contBtn.textContent = "Continue Lifepath";
-      contBtn.onclick = function() {
+      contBtn.onclick = function () {
         showInitialPoolSelection();
       };
       div.appendChild(contBtn);
       const finishBtn = document.createElement("button");
       finishBtn.classList.add("lifepath-btn");
       finishBtn.textContent = "Finish Lifepath Creation";
-      finishBtn.onclick = function() {
+      finishBtn.onclick = function () {
         displayFinalSummary();
       };
       div.appendChild(finishBtn);
@@ -633,11 +649,11 @@
         </div>
         <div class="summary-section bond-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
           <h3>Bonds</h3>
-          ${ character.bonds.length ? `<ol>${character.bonds.map(b => `<li>${b}</li>`).join("")}</ol>` : "None" }
+          ${character.bonds.length ? `<ol>${character.bonds.map(b => `<li>${b}</li>`).join("")}</ol>` : "None"}
         </div>
         <div class="summary-section item-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px;">
           <h3>Items</h3>
-          ${ character.items.length ? `<ol>${character.items.map(i => `<li>${i}</li>`).join("")}</ol>` : "None" }
+          ${character.items.length ? `<ol>${character.items.map(i => `<li>${i}</li>`).join("")}</ol>` : "None"}
         </div>
         <div class="summary-section" style="background:#2a2a2a; padding:5px; margin-bottom:5px;">
           <h3>Skills</h3>
@@ -671,7 +687,7 @@
       html += `
         <div class="summary-section event-card" style="background:#333; padding:10px; border:1px solid #444; border-radius:4px; margin-bottom:5px;">
           <h3>Events</h3>
-          ${ eventDescriptions.length ? `<ol>${eventDescriptions.map(d => `<li>${d}</li>`).join("")}</ol>` : "None" }
+          ${eventDescriptions.length ? `<ol>${eventDescriptions.map(d => `<li>${d}</li>`).join("")}</ol>` : "None"}
         </div>
       `;
       contentDiv.innerHTML = html;
@@ -715,8 +731,8 @@
       showInitialPoolSelection();
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-      fetch("lifepath_data.json")
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch("assets/data/lifepath_data.json")
         .then(response => response.json())
         .then(data => {
           config = data;
@@ -725,4 +741,5 @@
     });
   </script>
 </body>
+
 </html>
