@@ -724,6 +724,39 @@
       }
     }
 
+    // Initialize and train Markov chain
+    window.markov = new SimpleMarkov();
+
+    fetch('assets/data/emersonmarkovchain.txt')
+      .then(r => r.text())
+      .then(raw => {
+        // Clean text but KEEP punctuation
+        // Remove HTML tags, keep words and punctuation
+        const cleanText = raw
+          .replace(/<[^>]+>/g, '')
+          .replace(/\r\n/g, ' ')
+          .replace(/\n/g, ' ');
+
+        window.markov.train(cleanText);
+
+        // Wire up UI
+        const out = document.getElementById('markovQuote');
+        const btn = document.getElementById('regenerateBtn');
+
+        btn.onclick = () => {
+          out.textContent = window.markov.generate(5, 25);
+        };
+
+        // Generate initial quote
+        out.textContent = window.markov.generate(5, 25);
+      })
+      .catch(err => {
+        console.error('Markov error:', err);
+        document.getElementById('markovQuote').textContent = 'Failed to load wisdom corpus.';
+      });
+
+    // ============================================
+    // THEME TOGGLE
     // ============================================
     document.getElementById('themeToggleBtn')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
