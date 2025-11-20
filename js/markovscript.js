@@ -2,7 +2,7 @@
 
 (async () => {
   /* —————————————————— CONFIG —————————————————— */
-  const TEXT_URL        = 'emersonmarkovchain.txt';  // your corpus
+  const TEXT_URL        = 'emersonmarkovchain.txt';  // corpus
   const ORDERS          = [3, 2, 1];                  // fallback n‑gram depths
   const MAX_SENTENCES   = 4;                          // lines per quote
   const MAX_WORDS_SENT  = 40;                         // words per line
