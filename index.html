@@ -830,7 +830,7 @@
         if (data && data.status === 'ok' && Array.isArray(data.items)) {
           substackStatusEl.textContent = 'Latest posts:';
 
-          data.items.slice(0, 5).forEach(item => {
+          data.items.slice(0, 15).forEach(item => {
             const li = document.createElement('li');
             li.className = 'substack-item';
 
