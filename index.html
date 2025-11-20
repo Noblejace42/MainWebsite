@@ -627,49 +627,95 @@
     // CUSTOM MARKOV CHAIN IMPLEMENTATION
     // ============================================
     class SimpleMarkov {
-      constructor(order = 2) {
-        this.order = order;
-        this.chain = {};
+      constructor() {
+        this.chain2 = {}; // Bigrams
+        this.chain3 = {}; // Trigrams
+        this.starts = []; // Valid sentence starters
       }
 
       train(text) {
-        const words = text.split(/\s+/).filter(w => w.length > 0);
+        // Better tokenization: split words and punctuation
+        // Matches words (including apostrophes) OR punctuation marks
+        const tokens = text.match(/[\w']+|[.,!?;]/g);
+        if (!tokens) return;
 
-        for (let i = 0; i < words.length - this.order; i++) {
-          const key = words.slice(i, i + this.order).join(' ');
-          const next = words[i + this.order];
+        for (let i = 0; i < tokens.length; i++) {
+          const t1 = tokens[i];
+          const t2 = tokens[i + 1];
+          const t3 = tokens[i + 2];
 
-          if (!this.chain[key]) {
-            this.chain[key] = [];
+          // 1. Identify sentence starters
+          // A token is a starter if it's the very first token OR follows a sentence-ending punctuation
+          if (i === 0 || /[.!?]/.test(tokens[i - 1])) {
+            // Only allow if it looks like a word (not punctuation)
+            if (/^[\w']/.test(t1)) {
+              this.starts.push(t1);
+            }
           }
-          this.chain[key].push(next);
+
+          if (!t2) break;
+
+          // 2. Build Bigram Chain (t1 -> t2)
+          if (!this.chain2[t1]) this.chain2[t1] = [];
+          this.chain2[t1].push(t2);
+
+          if (!t3) continue;
+
+          // 3. Build Trigram Chain (t1 t2 -> t3)
+          const key3 = t1 + ' ' + t2;
+          if (!this.chain3[key3]) this.chain3[key3] = [];
+          this.chain3[key3].push(t3);
         }
       }
 
-      generate(minLength = 5, maxLength = 15) {
-        const keys = Object.keys(this.chain);
-        if (keys.length === 0) return "No wisdom available yet...";
+      generate(minLength = 5, maxLength = 25) {
+        if (this.starts.length === 0) return "No wisdom available yet...";
 
-        let key = keys[Math.floor(Math.random() * keys.length)];
-        let result = key.split(' ');
+        // Pick a random valid start word
+        let current = this.starts[Math.floor(Math.random() * this.starts.length)];
+        let result = [current];
 
+        // Generate until punctuation or max length
         while (result.length < maxLength) {
-          const possibilities = this.chain[key];
-          if (!possibilities || possibilities.length === 0) break;
+          const len = result.length;
+          let next = null;
 
-          const next = possibilities[Math.floor(Math.random() * possibilities.length)];
+          // Try Trigram (Backoff Strategy)
+          if (len >= 2) {
+            const key = result[len - 2] + ' ' + result[len - 1];
+            const possibilities = this.chain3[key];
+            if (possibilities && possibilities.length > 0) {
+              next = possibilities[Math.floor(Math.random() * possibilities.length)];
+            }
+          }
+
+          // Fallback to Bigram if no Trigram found
+          if (!next) {
+            const key = result[len - 1];
+            const possibilities = this.chain2[key];
+            if (possibilities && possibilities.length > 0) {
+              next = possibilities[Math.floor(Math.random() * possibilities.length)];
+            }
+          }
+
+          if (!next) break; // Dead end
+
           result.push(next);
 
-          // Update key for next iteration
-          const words = result.slice(-this.order);
-          key = words.join(' ');
+          // Stop if we hit sentence-ending punctuation
+          if (/[.!?]/.test(next) && result.length >= minLength) {
+            break;
+          }
         }
 
-        // Capitalize first letter
-        let sentence = result.join(' ');
+        // Formatting: Join tokens, fixing punctuation spacing
+        let sentence = result.join(' ')
+          .replace(/\s+([.,!?;])/g, '$1'); // Remove space before punctuation
+
+        // Ensure it starts with capital (should already be true from starts list, but safe to enforce)
         sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
 
-        // Add period if not present
+        // Ensure it ends with punctuation
         if (!/[.!?]$/.test(sentence)) {
           sentence += '.';
         }
@@ -678,38 +724,6 @@
       }
     }
 
-    // Initialize and train Markov chain
-    const markov = new SimpleMarkov(2);
-
-    fetch('assets/data/emersonmarkovchain.txt')
-      .then(r => r.text())
-      .then(raw => {
-        // Clean and prepare text
-        const cleanText = raw
-          .replace(/<[^>]+>/g, '')
-          .replace(/[^\w\s.!?]/g, '')
-          .toLowerCase();
-
-        markov.train(cleanText);
-
-        // Wire up UI
-        const out = document.getElementById('markovQuote');
-        const btn = document.getElementById('regenerateBtn');
-
-        btn.onclick = () => {
-          out.textContent = markov.generate(5, 15);
-        };
-
-        // Generate initial quote
-        out.textContent = markov.generate(5, 15);
-      })
-      .catch(err => {
-        console.error('Markov error:', err);
-        document.getElementById('markovQuote').textContent = 'Failed to load wisdom corpus.';
-      });
-
-    // ============================================
-    // THEME TOGGLE
     // ============================================
     document.getElementById('themeToggleBtn')
       .addEventListener('click', () => document.body.classList.toggle('light-mode'));
