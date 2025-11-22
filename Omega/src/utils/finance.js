@@ -23,10 +23,16 @@ export const getStockData = async (ticker) => {
             }
         }
 
+        // Calculate CAGR (Geometric Mean) for Expected Return
+        // Arithmetic mean overstates return for volatile assets due to volatility drag
+        const startPrice = adjClose[0];
+        const endPrice = adjClose[adjClose.length - 1];
+        const cagr = (endPrice / startPrice) - 1; // Simple 1-year return since we fetch 1y range
+
         return {
             ticker,
             returns,
-            meanReturn: mean(returns) * 252, // Annualized
+            meanReturn: cagr, // Use CAGR instead of arithmetic mean
             volatility: std(returns) * Math.sqrt(252), // Annualized
         };
     } catch (error) {
