@@ -4,19 +4,24 @@ import { getStockData } from '../utils/finance';
 const StockInput = ({ onAddStock }) => {
     const [ticker, setTicker] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!ticker.trim()) return;
 
+        setIsLoading(true);
+        setError('');
+
         try {
-            // In a real app, we'd validate against an API here
-            const stockData = getStockData(ticker.toUpperCase());
+            // Fetch real data
+            const stockData = await getStockData(ticker.toUpperCase());
             onAddStock(stockData);
             setTicker('');
-            setError('');
         } catch (err) {
-            setError('Failed to add stock');
+            setError('Failed to add stock. Please check the ticker.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -40,8 +45,9 @@ const StockInput = ({ onAddStock }) => {
                 <button
                     type="submit"
                     className="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-sky-900/30 hover:shadow-sky-500/30 active:scale-95"
+                    disabled={isLoading}
                 >
-                    Add
+                    {isLoading ? 'Adding...' : 'Add'}
                 </button>
             </form>
             {error && <p className="text-red-400 text-sm mt-3 flex items-center gap-1">

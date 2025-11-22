@@ -1,7 +1,42 @@
 import { mean, std, sum } from 'mathjs';
 
-// Mock data generator
-export const getStockData = (ticker) => {
+// Fetch real data from Yahoo Finance via Proxy
+export const getStockData = async (ticker) => {
+    try {
+        // Use allorigins as a CORS proxy
+        const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=1y&interval=1d`)}`);
+
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const data = await response.json();
+        const result = data.chart.result[0];
+
+        if (!result) throw new Error('No data found');
+
+        const adjClose = result.indicators.adjclose[0].adjclose;
+
+        // Calculate daily returns
+        const returns = [];
+        for (let i = 1; i < adjClose.length; i++) {
+            if (adjClose[i] && adjClose[i - 1]) {
+                returns.push((adjClose[i] - adjClose[i - 1]) / adjClose[i - 1]);
+            }
+        }
+
+        return {
+            ticker,
+            returns,
+            meanReturn: mean(returns) * 252, // Annualized
+            volatility: std(returns) * Math.sqrt(252), // Annualized
+        };
+    } catch (error) {
+        console.warn(`Failed to fetch real data for ${ticker}, falling back to mock.`, error);
+        return getMockStockData(ticker);
+    }
+};
+
+// Fallback mock data generator
+const getMockStockData = (ticker) => {
     // Deterministic pseudo-random data based on ticker string
     const seed = ticker.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const returns = Array.from({ length: 252 }, (_, i) => {
