@@ -139,11 +139,12 @@ function generateDay(dayNum, biome, popKey, harshKey, prevWeather) {
                 // Social / Structure
                 if (Math.random() < 0.5) {
                     // Structure
-                    const struct = journeyData.encounters.structures.find(s => checkPop(s.min_pop, popKey) && Math.random() > 0.3) || getRandom(journeyData.encounters.structures);
+                    const struct = getWeightedEncounter(journeyData.encounters.structures, popKey);
                     encounterObj = { type: 'structure', text: `Structure: ${struct.name}` };
                 } else {
                     // NPC
-                    const npc = journeyData.encounters.npcs.find(n => checkPop(n.min_pop, popKey) && Math.random() > 0.3) || getRandom(journeyData.encounters.npcs);
+                    const validNpcs = journeyData.encounters.npcs.filter(n => checkPop(n.min_pop, popKey));
+                    const npc = validNpcs.length > 0 ? getRandom(validNpcs) : getRandom(journeyData.encounters.npcs);
                     encounterObj = { type: 'npc', text: `NPC: ${npc.name}` };
                 }
             }
@@ -271,6 +272,29 @@ function getRandom(arr) {
 function checkPop(minPop, currentPop) {
     const levels = ['desolate', 'sparse', 'moderate', 'dense'];
     return levels.indexOf(currentPop) >= levels.indexOf(minPop);
+}
+
+function getWeightedEncounter(list, popKey) {
+    // Filter by population
+    const validItems = list.filter(item => checkPop(item.min_pop, popKey));
+    if (validItems.length === 0) return getRandom(list); // Fallback
+
+    // Weights: Common=1, Uncommon=3, Rare=5
+    // This makes Rare items 5x more likely to be picked than a specific Common item,
+    // balancing out the fact that there are many more Common items.
+
+    const weightedPool = [];
+    validItems.forEach(item => {
+        let weight = 1;
+        if (item.rarity === 'uncommon') weight = 3;
+        if (item.rarity === 'rare') weight = 5;
+
+        for (let i = 0; i < weight; i++) {
+            weightedPool.push(item);
+        }
+    });
+
+    return getRandom(weightedPool);
 }
 
 // Expose to window

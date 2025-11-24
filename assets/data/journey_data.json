@@ -435,6 +435,36 @@
         "name": "Military Checkpoint",
         "rarity": "uncommon",
         "min_pop": "dense"
+      },
+      {
+        "name": "Abandoned Campsite",
+        "rarity": "common",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Hunter's Blind",
+        "rarity": "common",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Charcoal Burner's Hut",
+        "rarity": "common",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Collapsed Bridge",
+        "rarity": "common",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Wild Berry Thicket",
+        "rarity": "common",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Old Stone Well",
+        "rarity": "common",
+        "min_pop": "sparse"
       }
     ],
     "npcs": [
