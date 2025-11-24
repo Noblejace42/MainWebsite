@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Narrative Oracle | DM Screen</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <div class="nav-brand">Narrative Oracle</div>
+            <div class="nav-links">
+                <a href="index.html">Back to Screen</a>
+            </div>
+        </nav>
+
+        <div style="text-align: center;">
+            <p>Select a focus and consult the threads of fate.</p>
+
+            <div style="margin: 20px 0;">
+                <button class="btn" onclick="setFocus('general')">General</button>
+                <button class="btn" onclick="setFocus('combat')">Combat</button>
+                <button class="btn" onclick="setFocus('social')">Social</button>
+                <button class="btn" onclick="setFocus('weird')">Weird</button>
+            </div>
+
+            <div class="oracle-display" id="oracleDisplay">
+                <div class="oracle-type" id="oracleType">Fate Awaits</div>
+                <div class="oracle-text" id="oracleText">...</div>
+            </div>
+
+            <button class="btn" style="font-size: 1.2rem; padding: 15px 40px;" onclick="consultOracle()">Consult
+                Oracle</button>
+        </div>
+    </div>
+
+    <script>
+        const prompts = {
+            general: [
+                "A sudden change in weather.",
+                "An item breaks or is lost.",
+                "A distant sound draws attention.",
+                "The path is blocked.",
+                "An old enemy resurfaces.",
+                "A secret is revealed.",
+                "Time seems to skip forward.",
+                "A resource is depleted."
+            ],
+            combat: [
+                "Reinforcements arrive.",
+                "The terrain shifts or collapses.",
+                "A third party intervenes.",
+                "A weapon jams or breaks.",
+                "Visibility is obscured.",
+                "The objective changes.",
+                "A monster reveals a new ability.",
+                "Friendly fire incident."
+            ],
+            social: [
+                "A faux pas causes offense.",
+                "A lie is detected.",
+                "An unexpected ally speaks up.",
+                "A bribe is demanded.",
+                "Someone is eavesdropping.",
+                "A reputation precedes them.",
+                "A cultural taboo is violated.",
+                "Emotional leverage is applied."
+            ],
+            weird: [
+                "Gravity fluctuates.",
+                "Shadows move independently.",
+                "A voice speaks from the walls.",
+                "Colors invert for a moment.",
+                "A dead creature twitches.",
+                "The air tastes of copper.",
+                "Geometry becomes non-Euclidean.",
+                "A vision of the future overlays reality."
+            ]
+        };
+
+        let currentFocus = 'general';
+
+        function setFocus(focus) {
+            currentFocus = focus;
+            document.getElementById('oracleType').innerText = focus.toUpperCase() + ' FOCUS';
+            document.querySelectorAll('.btn').forEach(b => b.style.borderColor = '#d4af37');
+            event.target.style.borderColor = '#fff';
+        }
+
+        function consultOracle() {
+            const list = prompts[currentFocus];
+            const result = list[Math.floor(Math.random() * list.length)];
+
+            const display = document.getElementById('oracleDisplay');
+            display.style.opacity = 0;
+
+            setTimeout(() => {
+                document.getElementById('oracleText').innerText = result;
+                display.style.opacity = 1;
+            }, 200);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combat Tracker | DM Screen</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <div class="nav-brand">Combat Tracker</div>
+            <div class="nav-links">
+                <a href="index.html">Back to Screen</a>
+            </div>
+        </nav>
+
+        <div class="tracker-container">
+            <!-- Controls Panel -->
+            <div class="tracker-panel">
+                <h3>Add Combatant</h3>
+                <input type="text" id="nameInput" class="stat-input" placeholder="Name">
+                <input type="number" id="initInput" class="stat-input" placeholder="Initiative">
+                <input type="number" id="hpInput" class="stat-input" placeholder="Max HP">
+                <select id="typeInput" class="stat-input">
+                    <option value="enemy">Enemy</option>
+                    <option value="player">Player</option>
+                    <option value="npc">NPC</option>
+                </select>
+                <button id="addBtn" class="btn" style="width: 100%;">Add to Combat</button>
+
+                <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+
+                <button id="nextTurnBtn" class="btn" style="width: 100%; margin-bottom: 10px;">Next Turn</button>
+                <button id="clearBtn" class="btn"
+                    style="width: 100%; border-color: var(--accent-crimson); color: var(--accent-crimson);">Clear
+                    Encounter</button>
+            </div>
+
+            <!-- List Panel -->
+            <div class="tracker-panel">
+                <h3>Initiative Order</h3>
+                <ul id="combatList" class="combatant-list">
+                    <!-- Items injected by JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="tracker.js"></script>
+</body>
+
+</html>

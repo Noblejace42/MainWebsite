@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Generator | DM Screen</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .journey-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-container {
+            position: relative;
+            margin-top: 40px;
+            padding-left: 20px;
+            border-left: 2px solid var(--accent-gold);
+        }
+
+        .day-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            border-radius: 4px;
+        }
+
+        .day-card::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--accent-gold);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .day-title {
+            font-family: var(--font-header);
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            background: #333;
+            color: #ccc;
+        }
+
+        .tag.weather-positive {
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .tag.weather-neutral {
+            color: #ffeb3b;
+            border: 1px solid #ffeb3b;
+        }
+
+        .tag.weather-negative {
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .encounter-text {
+            color: #e0e0e0;
+            margin-top: 5px;
+        }
+
+        .encounter-combat {
+            color: var(--accent-crimson);
+            font-weight: bold;
+        }
+
+        .encounter-npc {
+            color: #4fc3f7;
+        }
+
+        .encounter-structure {
+            color: #ffb74d;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <div class="nav-brand">Journey Generator</div>
+            <div class="nav-links">
+                <a href="index.html">Back to Screen</a>
+            </div>
+        </nav>
+
+        <div class="card">
+            <h2>Journey Parameters</h2>
+            <div class="journey-controls">
+                <div>
+                    <label>Days</label>
+                    <input type="number" id="daysInput" class="stat-input" value="3" min="1">
+                </div>
+                <div>
+                    <label>Biome</label>
+                    <select id="biomeInput" class="stat-input">
+                        <option value="forest">Forest</option>
+                        <option value="desert">Desert</option>
+                        <option value="mountain">Mountain</option>
+                        <option value="swamp">Swamp</option>
+                        <option value="plains">Plains</option>
+                        <option value="tundra">Tundra</option>
+                        <option value="jungle">Jungle</option>
+                        <option value="underdark">Underdark</option>
+                        <option value="coastal">Coastal</option>
+                        <option value="volcanic">Volcanic</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Population</label>
+                    <select id="popInput" class="stat-input">
+                        <option value="desolate">Desolate</option>
+                        <option value="sparse">Sparse</option>
+                        <option value="moderate" selected>Moderate</option>
+                        <option value="dense">Dense</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Harshness</label>
+                    <select id="harshInput" class="stat-input">
+                        <option value="safe">Safe</option>
+                        <option value="rugged" selected>Rugged</option>
+                        <option value="dangerous">Dangerous</option>
+                        <option value="deadly">Deadly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="generateBtn" class="btn">Generate Journey</button>
+                <button id="appendBtn" class="btn">Append Leg</button>
+                <button id="exportBtn" class="btn" style="margin-left: auto;">Export Log</button>
+            </div>
+        </div>
+
+        <div id="timeline" class="timeline-container">
+            <!-- Journey legs will be injected here -->
+        </div>
+    </div>
+    <script src="journey.js"></script>
+</body>
+
+</html>

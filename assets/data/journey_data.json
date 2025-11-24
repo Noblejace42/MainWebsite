@@ -1,0 +1,533 @@
+{
+  "biomes": {
+    "forest": {
+      "terrain": [
+        "Dense Thicket",
+        "Ancient Grove",
+        "Logging Trail",
+        "Overgrown Ruins",
+        "Sunlit Clearing",
+        "Mossy Boulders",
+        "Rushing Stream",
+        "Fallen Giant Redwood",
+        "Berry Patch",
+        "Wolf Den",
+        "Druidic Circle",
+        "Hollow Tree",
+        "Spider-infested Canopy",
+        "Misty Hollow",
+        "Charred Clearing"
+      ],
+      "weather": [
+        "Canopy Rain",
+        "Stillness",
+        "Dappled Sunlight",
+        "Mist",
+        "Falling Leaves",
+        "Thunder in Distance",
+        "Heavy Downpour",
+        "Humid Heat",
+        "Cool Breeze",
+        "Foggy Morning"
+      ],
+      "danger_mod": 0
+    },
+    "desert": {
+      "terrain": [
+        "Rolling Dunes",
+        "Salt Flats",
+        "Rocky Outcrop",
+        "Hidden Oasis",
+        "Dry Riverbed",
+        "Cactus Field",
+        "Sandstone Arch",
+        "Scorpion Nest",
+        "Mirage-filled Horizon",
+        "Ancient Skeleton",
+        "Glassy Crater",
+        "Dusty Canyon",
+        "Sun-bleached Ruins",
+        "Quicksand Pit",
+        "Wind-sculpted Rocks"
+      ],
+      "weather": [
+        "Sandstorm",
+        "Heat Shimmer",
+        "Dry Wind",
+        "Cloudless Sky",
+        "Cold Night",
+        "Scorching Sun",
+        "Dust Devil",
+        "Sudden Flash Flood",
+        "Static Charge",
+        "Unnatural Silence"
+      ],
+      "danger_mod": 1
+    },
+    "mountain": {
+      "terrain": [
+        "Narrow Pass",
+        "Snowy Peak",
+        "Cliffside Path",
+        "Cave Entrance",
+        "Alpine Meadow",
+        "Glacial Crevasse",
+        "Scree Slope",
+        "Eagle's Nest",
+        "Frozen Waterfall",
+        "Abandoned Mine",
+        "Stone Bridge",
+        "Wind-swept Ridge",
+        "Cloud-covered Summit",
+        "Goat Trail",
+        "Volcanic Vent"
+      ],
+      "weather": [
+        "Blizzard",
+        "High Winds",
+        "Thin Air",
+        "Avalanche Risk",
+        "Clear Vista",
+        "Thunderstorm",
+        "Hail",
+        "Fog Bank",
+        "Piercing Sun",
+        "Snow Flurries"
+      ],
+      "danger_mod": 2
+    },
+    "swamp": {
+      "terrain": [
+        "Murky Water",
+        "Mangrove Roots",
+        "Sinking Mud",
+        "Foggy Islet",
+        "Rotting Logs",
+        "Algae-covered Pool",
+        "Cypress Knees",
+        "Peat Bog",
+        "Snake Pit",
+        "Submerged Ruins",
+        "Floating Lights",
+        "Mosquito Cloud",
+        "Willow Tree",
+        "Beaver Dam",
+        "Fungal Bloom"
+      ],
+      "weather": [
+        "Humid Haze",
+        "Heavy Rain",
+        "Stagnant Air",
+        "Will-o'-Wisps",
+        "Insect Swarm",
+        "Sulfurous Gas",
+        "Drizzle",
+        "Oppressive Heat",
+        "Green Fog",
+        "Sudden Chill"
+      ],
+      "danger_mod": 1
+    },
+    "plains": {
+      "terrain": [
+        "Tall Grass",
+        "Rolling Hills",
+        "River Crossing",
+        "Farmstead",
+        "Open Fields",
+        "Wildflower Meadow",
+        "Grazing Herd",
+        "Lonely Tree",
+        "Wagon Rut",
+        "Stone Wall",
+        "Windmill",
+        "Battlefield Ruins",
+        "Scarecrow",
+        "Burrow Field",
+        "Small Pond"
+      ],
+      "weather": [
+        "Thunderstorm",
+        "Gentle Breeze",
+        "Tornado Warning",
+        "Sunny",
+        "Light Showers",
+        "Rainbow",
+        "Overcast",
+        "Strong Gusts",
+        "Heatwave",
+        "Morning Dew"
+      ],
+      "danger_mod": -1
+    },
+    "tundra": {
+      "terrain": [
+        "Frozen Lake",
+        "Snowy Expanse",
+        "Ice Cave",
+        "Pine Forest",
+        "Hot Springs",
+        "Glacier Edge",
+        "Frozen Waterfall",
+        "Mammoth Bones",
+        "Icy Crag",
+        "Snow Drift",
+        "Aurora Viewpoint",
+        "Seal Hole",
+        "Lichen Patch",
+        "Permafrost Crack",
+        "Igloo Ruins"
+      ],
+      "weather": [
+        "Blizzard",
+        "Aurora Borealis",
+        "Whiteout",
+        "Bitter Cold",
+        "Clear & Crisp",
+        "Ice Fog",
+        "Hailstorm",
+        "Howling Wind",
+        "Snowfall",
+        "Pale Sun"
+      ],
+      "danger_mod": 2
+    },
+    "jungle": {
+      "terrain": [
+        "Vine Curtain",
+        "Giant Ferns",
+        "River Delta",
+        "Canopy Walkway",
+        "Ancient Temple",
+        "Quicksand",
+        "Jaguar Trail",
+        "Orchid Cluster",
+        "Waterfall",
+        "Bamboo Grove",
+        "Monkey Troop",
+        "Insect Mound",
+        "Poisonous Frog Pond",
+        "Overgrown Idol",
+        "Dark Undergrowth"
+      ],
+      "weather": [
+        "Monsoon Rain",
+        "Steam Rising",
+        "Tropical Storm",
+        "Humid Stillness",
+        "Sun Shower",
+        "Thunderclap",
+        "Mist",
+        "Heatwave",
+        "Heavy Dew",
+        "Green Sky"
+      ],
+      "danger_mod": 2
+    },
+    "underdark": {
+      "terrain": [
+        "Bioluminescent Fungi",
+        "Stalactite Forest",
+        "Underground Lake",
+        "Chasm Bridge",
+        "Drow Outpost",
+        "Crystal Cave",
+        "Web-covered Tunnel",
+        "Magma Flow",
+        "Echoing Hall",
+        "Bat Roost",
+        "Slime Pit",
+        "Mushroom Grove",
+        "Ancient Dwarven Rail",
+        "Bottomless Pit",
+        "Obsidian Spire"
+      ],
+      "weather": [
+        "Stale Air",
+        "Sulfur Smell",
+        "Dripping Water",
+        "Earth Tremor",
+        "Magma Heat",
+        "Cold Draft",
+        "Spores in Air",
+        "Echoing Silence",
+        "Gas Leak",
+        "Mana Storm"
+      ],
+      "danger_mod": 3
+    },
+    "coastal": {
+      "terrain": [
+        "Sandy Beach",
+        "Rocky Cliffs",
+        "Tide Pools",
+        "Shipwreck",
+        "Lighthouse",
+        "Coral Reef (Visible)",
+        "Sea Cave",
+        "Driftwood Pile",
+        "Dune Grass",
+        "Fisherman's Hut",
+        "Smuggler's Cove",
+        "Salt Spray",
+        "Crab Colony",
+        "Whale Bones",
+        "Palm Grove"
+      ],
+      "weather": [
+        "Sea Breeze",
+        "Coastal Fog",
+        "Hurricane Warning",
+        "Sunny",
+        "Salt Spray",
+        "Thunderstorm at Sea",
+        "High Tide",
+        "Low Tide",
+        "Overcast",
+        "Gale Force Winds"
+      ],
+      "danger_mod": 0
+    },
+    "volcanic": {
+      "terrain": [
+        "Lava Flow",
+        "Ash Fields",
+        "Obsidian Shards",
+        "Smoking Vent",
+        "Basalt Columns",
+        "Pumice Slope",
+        "Fire Giant Forge",
+        "Sulfur Pool",
+        "Dead Forest",
+        "Magma Tube",
+        "Geyser",
+        "Cinder Cone",
+        "Dragon's Perch",
+        "Glassy Ground",
+        "Heat Cracks"
+      ],
+      "weather": [
+        "Ash Fall",
+        "Toxic Fumes",
+        "Heatwave",
+        "Lightning Storm",
+        "Acid Rain",
+        "Smog",
+        "Tremors",
+        "Eruption Warning",
+        "Dry Heat",
+        "Dark Sky"
+      ],
+      "danger_mod": 3
+    }
+  },
+  "weather": {
+    "positive": [
+      "Clear Skies",
+      "Gentle Breeze",
+      "Unusually Warm",
+      "Starry Night",
+      "Refreshing Rain",
+      "Perfect Visibility",
+      "Double Rainbow",
+      "Golden Hour",
+      "Cool Shade",
+      "Pleasant Humidity"
+    ],
+    "neutral": [
+      "Overcast",
+      "Light Rain",
+      "Fog",
+      "Windy",
+      "Humid",
+      "Variable Clouds",
+      "Drizzle",
+      "Grey Skies",
+      "Misty",
+      "Average Temp"
+    ],
+    "negative": [
+      "Thunderstorm",
+      "Blizzard",
+      "Heatwave",
+      "Hail",
+      "Torrential Downpour",
+      "Gale Force Winds",
+      "Freezing Rain",
+      "Drought Conditions",
+      "Acidic Smog",
+      "Hurricane Force"
+    ]
+  },
+  "encounters": {
+    "structures": [
+      {
+        "name": "Ruined Watchtower",
+        "rarity": "common",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Bustling Inn",
+        "rarity": "uncommon",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Abandoned Shrine",
+        "rarity": "common",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Fortified Outpost",
+        "rarity": "rare",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Lonely Hermit's Hut",
+        "rarity": "uncommon",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Merchant Caravan Camp",
+        "rarity": "uncommon",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Ancient Obelisk",
+        "rarity": "rare",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Wizard's Tower",
+        "rarity": "rare",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Bandit Tollbridge",
+        "rarity": "uncommon",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Ferry Crossing",
+        "rarity": "common",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Burned Farmhouse",
+        "rarity": "common",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Stone Circle",
+        "rarity": "rare",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Hidden Trapdoor",
+        "rarity": "rare",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Roadside Shrine",
+        "rarity": "common",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Military Checkpoint",
+        "rarity": "uncommon",
+        "min_pop": "dense"
+      }
+    ],
+    "npcs": [
+      {
+        "name": "Traveling Merchant",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Pilgrim Group",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Lost Traveler",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Local Hunter",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "King's Messenger",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Band of Mercenaries",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Exiled Noble",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Cartographer",
+        "min_pop": "desolate"
+      },
+      {
+        "name": "Bounty Hunter",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Wandering Bard",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Refugee Family",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Cultist Recruiter",
+        "min_pop": "moderate"
+      },
+      {
+        "name": "Drunken Knight",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Escaped Prisoner",
+        "min_pop": "sparse"
+      },
+      {
+        "name": "Fortune Teller",
+        "min_pop": "moderate"
+      }
+    ],
+    "combat_modifiers": [
+      "Ambush",
+      "Willing to Bargain",
+      "Starving",
+      "Guarding Territory",
+      "Wounded",
+      "Protecting Young",
+      "Fleeing from something bigger",
+      "Asleep",
+      "Distracted",
+      "Setting a Trap",
+      "Controlled by Magic",
+      "Diseased",
+      "Carrying Loot",
+      "Fighting another monster",
+      "Just ate",
+      "Looking for a mate",
+      "Territorial Display",
+      "Mistaken Identity",
+      "Summoned",
+      "Cursed"
+    ],
+    "difficulties": [
+      "Trivial",
+      "Easy",
+      "Medium",
+      "Hard",
+      "Deadly",
+      "Impossible"
+    ]
+  }
+}
