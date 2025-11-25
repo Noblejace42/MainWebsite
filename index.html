@@ -619,43 +619,148 @@
             target="_blank">Favorite Playlist</a></li>
         <li><a href="https://hopelesspoetic.com/weakestlink.html" target="_blank">Weakest&nbsp;Link (MKT4030)</a></li>
         <li><a href="systemgen.html" target="_blank">Astral Axial (Legacy)</a></li>
-        <li><a href="zwerchau/index.html" target="_blank">Zwerchau (Security Consulting)</a></li>
       </ul>
     </div>
   </div>
-  fetch('assets/data/emersonmarkovchain.txt')
-  .then(r => r.text())
-  .then(raw => {
-  // Clean text but KEEP punctuation
-  // Remove HTML tags, keep words and punctuation
-  const cleanText = raw
-  .replace(/<[^>]+>/g, '')
-    .replace(/\r\n/g, ' ')
-    .replace(/\n/g, ' ');
 
-    window.markov.train(cleanText);
+  <script>
+    // ============================================
+    // CUSTOM MARKOV CHAIN IMPLEMENTATION
+    // ============================================
+    class SimpleMarkov {
+      constructor() {
+        this.chain2 = {}; // Bigrams
+        this.chain3 = {}; // Trigrams
+        this.starts = []; // Valid sentence starters
+      }
 
-    // Wire up UI
-    const out = document.getElementById('markovQuote');
-    const btn = document.getElementById('regenerateBtn');
+      train(text) {
+        // Better tokenization: split words and punctuation
+        // Matches words (including apostrophes) OR punctuation marks
+        const tokens = text.match(/[\w']+|[.,!?;]/g);
+        if (!tokens) return;
 
-    btn.onclick = () => {
-    out.textContent = window.markov.generate(5, 25);
-    };
+        for (let i = 0; i < tokens.length; i++) {
+          const t1 = tokens[i];
+          const t2 = tokens[i + 1];
+          const t3 = tokens[i + 2];
 
-    // Generate initial quote
-    out.textContent = window.markov.generate(5, 25);
-    })
-    .catch(err => {
-    console.error('Markov error:', err);
-    document.getElementById('markovQuote').textContent = 'Failed to load wisdom corpus.';
-    });
+          // 1. Identify sentence starters
+          // A token is a starter if it's the very first token OR follows a sentence-ending punctuation
+          if (i === 0 || /[.!?]/.test(tokens[i - 1])) {
+            // Only allow if it looks like a word (not punctuation)
+            if (/^[\w']/.test(t1)) {
+              this.starts.push(t1);
+            }
+          }
+
+          if (!t2) break;
+
+          // 2. Build Bigram Chain (t1 -> t2)
+          if (!this.chain2[t1]) this.chain2[t1] = [];
+          this.chain2[t1].push(t2);
+
+          if (!t3) continue;
+
+          // 3. Build Trigram Chain (t1 t2 -> t3)
+          const key3 = t1 + ' ' + t2;
+          if (!this.chain3[key3]) this.chain3[key3] = [];
+          this.chain3[key3].push(t3);
+        }
+      }
+
+      generate(minLength = 5, maxLength = 25) {
+        if (this.starts.length === 0) return "No wisdom available yet...";
+
+        // Pick a random valid start word
+        let current = this.starts[Math.floor(Math.random() * this.starts.length)];
+        let result = [current];
+
+        // Generate until punctuation or max length
+        while (result.length < maxLength) {
+          const len = result.length;
+          let next = null;
+
+          // Try Trigram (Backoff Strategy)
+          if (len >= 2) {
+            const key = result[len - 2] + ' ' + result[len - 1];
+            const possibilities = this.chain3[key];
+            if (possibilities && possibilities.length > 0) {
+              next = possibilities[Math.floor(Math.random() * possibilities.length)];
+            }
+          }
+
+          // Fallback to Bigram if no Trigram found
+          if (!next) {
+            const key = result[len - 1];
+            const possibilities = this.chain2[key];
+            if (possibilities && possibilities.length > 0) {
+              next = possibilities[Math.floor(Math.random() * possibilities.length)];
+            }
+          }
+
+          if (!next) break; // Dead end
+
+          result.push(next);
+
+          // Stop if we hit sentence-ending punctuation
+          if (/[.!?]/.test(next) && result.length >= minLength) {
+            break;
+          }
+        }
+
+        // Formatting: Join tokens, fixing punctuation spacing
+        let sentence = result.join(' ')
+          .replace(/\s+([.,!?;])/g, '$1'); // Remove space before punctuation
+
+        // Ensure it starts with capital (should already be true from starts list, but safe to enforce)
+        sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+
+        // Ensure it ends with punctuation
+        if (!/[.!?]$/.test(sentence)) {
+          sentence += '.';
+        }
+
+        return sentence;
+      }
+    }
+
+    // Initialize and train Markov chain
+    window.markov = new SimpleMarkov();
+
+    fetch('assets/data/emersonmarkovchain.txt')
+      .then(r => r.text())
+      .then(raw => {
+        // Clean text but KEEP punctuation
+        // Remove HTML tags, keep words and punctuation
+        const cleanText = raw
+          .replace(/<[^>]+>/g, '')
+          .replace(/\r\n/g, ' ')
+          .replace(/\n/g, ' ');
+
+        window.markov.train(cleanText);
+
+        // Wire up UI
+        const out = document.getElementById('markovQuote');
+        const btn = document.getElementById('regenerateBtn');
+
+        btn.onclick = () => {
+          out.textContent = window.markov.generate(5, 25);
+        };
+
+        // Generate initial quote
+        out.textContent = window.markov.generate(5, 25);
+      })
+      .catch(err => {
+        console.error('Markov error:', err);
+        document.getElementById('markovQuote').textContent = 'Failed to load wisdom corpus.';
+      });
 
     // ============================================
     // THEME TOGGLE
     // ============================================
     document.getElementById('themeToggleBtn')
-    .addEventListener('click', () => document.body.classList.toggle('light-mode'));
+      .addEventListener('click', () => document.body.classList.toggle('light-mode'));
 
     // ============================================
     // FLOATING TILES
@@ -666,242 +771,253 @@
     let tileLoaded = 0;
 
     tilePaths.forEach(src => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-    tileData.push({ src, aspect: img.width / img.height || 1 });
-    checkTiles();
-    };
-    img.onerror = checkTiles;
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        tileData.push({ src, aspect: img.width / img.height || 1 });
+        checkTiles();
+      };
+      img.onerror = checkTiles;
     });
 
     function checkTiles() {
-    if (++tileLoaded === tilePaths.length) {
-    spawnTile();
-    setInterval(() => tilesContainer.children.length < 5 && spawnTile(), 2000); } } function spawnTile() { if
-      (!tileData.length) return; const { src, aspect }=tileData[Math.random() * tileData.length | 0]; const
-      el=document.createElement('div'), w=150 + Math.random() * 250, h=w / aspect; el.className='moving-tile' ;
-      el.style.width=w + 'px' ; el.style.height=h + 'px' ; el.style.top=Math.random() * (window.innerHeight - h) + 'px'
-      ; el.style.backgroundImage=`url('${src}')`; el.onanimationend=()=> el.remove();
+      if (++tileLoaded === tilePaths.length) {
+        spawnTile();
+        setInterval(() => tilesContainer.children.length < 5 && spawnTile(), 2000);
+      }
+    }
+
+    function spawnTile() {
+      if (!tileData.length) return;
+      const { src, aspect } = tileData[Math.random() * tileData.length | 0];
+      const el = document.createElement('div'),
+        w = 150 + Math.random() * 250,
+        h = w / aspect;
+      el.className = 'moving-tile';
+      el.style.width = w + 'px';
+      el.style.height = h + 'px';
+      el.style.top = Math.random() * (window.innerHeight - h) + 'px';
+      el.style.backgroundImage = `url('${src}')`;
+      el.onanimationend = () => el.remove();
       tilesContainer.appendChild(el);
-      }
+    }
 
-      // ============================================
-      // MODAL HANDLERS
-      // ============================================
-      const miscModal = document.getElementById('miscModal');
-      document.getElementById('miscBtn').onclick = () => miscModal.classList.remove('hidden');
-      document.getElementById('closeModal').onclick = () => miscModal.classList.add('hidden');
-      miscModal.onclick = e => e.target === miscModal && miscModal.classList.add('hidden');
+    // ============================================
+    // MODAL HANDLERS
+    // ============================================
+    const miscModal = document.getElementById('miscModal');
+    document.getElementById('miscBtn').onclick = () => miscModal.classList.remove('hidden');
+    document.getElementById('closeModal').onclick = () => miscModal.classList.add('hidden');
+    miscModal.onclick = e => e.target === miscModal && miscModal.classList.add('hidden');
 
-      // ============================================
-      // SUBSTACK RSS FEED
-      // ============================================
-      const substackListEl = document.getElementById('substackFeed');
-      const substackStatusEl = document.getElementById('substackStatus');
+    // ============================================
+    // SUBSTACK RSS FEED
+    // ============================================
+    const substackListEl = document.getElementById('substackFeed');
+    const substackStatusEl = document.getElementById('substackStatus');
 
-      async function loadSubstack() {
+    async function loadSubstack() {
       try {
-      substackStatusEl.textContent = 'Loading posts…';
-      const response = await fetch(
-      'https://api.rss2json.com/v1/api.json?rss_url=' +
-      encodeURIComponent('https://emersonneher.substack.com/feed')
-      );
+        substackStatusEl.textContent = 'Loading posts…';
+        const response = await fetch(
+          'https://api.rss2json.com/v1/api.json?rss_url=' +
+          encodeURIComponent('https://emersonneher.substack.com/feed')
+        );
 
-      if (!response.ok) throw new Error('Failed to fetch');
+        if (!response.ok) throw new Error('Failed to fetch');
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data && data.status === 'ok' && Array.isArray(data.items)) {
-      substackStatusEl.textContent = 'Latest posts:';
+        if (data && data.status === 'ok' && Array.isArray(data.items)) {
+          substackStatusEl.textContent = 'Latest posts:';
 
-      data.items.slice(0, 15).forEach(item => {
-      const li = document.createElement('li');
-      li.className = 'substack-item';
+          data.items.slice(0, 15).forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'substack-item';
 
-      const link = document.createElement('a');
-      link.href = item.link;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = item.title;
-      li.appendChild(link);
+            const link = document.createElement('a');
+            link.href = item.link;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = item.title;
+            li.appendChild(link);
 
-      const meta = document.createElement('div');
-      meta.className = 'rss-item-meta';
-      const date = new Date(item.pubDate);
-      meta.textContent = date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-      });
-      li.appendChild(meta);
+            const meta = document.createElement('div');
+            meta.className = 'rss-item-meta';
+            const date = new Date(item.pubDate);
+            meta.textContent = date.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+            li.appendChild(meta);
 
-      // Add excerpt if available
-      if (item.description) {
-      const excerpt = document.createElement('div');
-      excerpt.className = 'rss-item-excerpt';
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.description;
-      const text = tempDiv.textContent || tempDiv.innerText || '';
-      excerpt.textContent = text.substring(0, 150) + (text.length > 150 ? '...' : '');
-      li.appendChild(excerpt);
-      }
+            // Add excerpt if available
+            if (item.description) {
+              const excerpt = document.createElement('div');
+              excerpt.className = 'rss-item-excerpt';
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = item.description;
+              const text = tempDiv.textContent || tempDiv.innerText || '';
+              excerpt.textContent = text.substring(0, 150) + (text.length > 150 ? '...' : '');
+              li.appendChild(excerpt);
+            }
 
-      substackListEl.appendChild(li);
-      });
-      } else {
-      substackStatusEl.textContent = 'No posts available.';
-      }
+            substackListEl.appendChild(li);
+          });
+        } else {
+          substackStatusEl.textContent = 'No posts available.';
+        }
       } catch (e) {
-      console.error('Substack error:', e);
-      substackStatusEl.textContent = 'Failed to load posts.';
+        console.error('Substack error:', e);
+        substackStatusEl.textContent = 'Failed to load posts.';
       }
+    }
+
+    // ============================================
+    // ENHANCED RSS FEED
+    // ============================================
+    const rssListEl = document.getElementById('rssFeed');
+    const rssStatusEl = document.getElementById('rssStatus');
+
+    const rssFeeds = [
+      {
+        label: 'Fintech',
+        url: 'https://www.finextra.com/rss/headlines.aspx?channel=fintech'
+      },
+      {
+        label: 'InfoSec',
+        url: 'https://feeds.feedburner.com/TheHackersNews'
+      },
+      {
+        label: 'World News',
+        url: 'https://apnews.com/index.rss'
+      },
+      {
+        label: 'Cybersecurity',
+        url: 'https://www.schneier.com/blog/atom.xml'
+      },
+      {
+        label: 'RPG Design',
+        url: 'https://www.enworld.org/ewr-porta/index.rss'
+      },
+      {
+        label: 'Tech News',
+        url: 'https://hnrss.org/frontpage'
+      },
+      {
+        label: 'Game Dev',
+        url: 'https://www.gamedeveloper.com/rss.xml'
+      },
+      {
+        label: 'Poetry',
+        url: 'https://feeds.megaphone.fm/the-daily-poem'
+      },
+      {
+        label: 'RPG Theory',
+        url: 'https://thealexandrian.net/feed'
+      },
+      {
+        label: 'DM Advice',
+        url: 'https://slyflourish.com/index.xml'
+      },
+      {
+        label: 'System Design',
+        url: 'http://feeds.feedburner.com/HighScalability'
+      },
+      {
+        label: 'Hank Green',
+        url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCOT2iLov0V7Re7ku_3UBtcQ'
       }
+    ];
 
-      // ============================================
-      // ENHANCED RSS FEED
-      // ============================================
-      const rssListEl = document.getElementById('rssFeed');
-      const rssStatusEl = document.getElementById('rssStatus');
+    const allItems = [];
 
-      const rssFeeds = [
-      {
-      label: 'Fintech',
-      url: 'https://www.finextra.com/rss/headlines.aspx?channel=fintech'
-      },
-      {
-      label: 'InfoSec',
-      url: 'https://feeds.feedburner.com/TheHackersNews'
-      },
-      {
-      label: 'World News',
-      url: 'https://apnews.com/index.rss'
-      },
-      {
-      label: 'Cybersecurity',
-      url: 'https://www.schneier.com/blog/atom.xml'
-      },
-      {
-      label: 'RPG Design',
-      url: 'https://www.enworld.org/ewr-porta/index.rss'
-      },
-      {
-      label: 'Tech News',
-      url: 'https://hnrss.org/frontpage'
-      },
-      {
-      label: 'Game Dev',
-      url: 'https://www.gamedeveloper.com/rss.xml'
-      },
-      {
-      label: 'Poetry',
-      url: 'https://feeds.megaphone.fm/the-daily-poem'
-      },
-      {
-      label: 'RPG Theory',
-      url: 'https://thealexandrian.net/feed'
-      },
-      {
-      label: 'DM Advice',
-      url: 'https://slyflourish.com/index.xml'
-      },
-      {
-      label: 'System Design',
-      url: 'http://feeds.feedburner.com/HighScalability'
-      },
-      {
-      label: 'Hank Green',
-      url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCOT2iLov0V7Re7ku_3UBtcQ'
-      }
-      ];
-
-      const allItems = [];
-
-      function formatDate(d) {
+    function formatDate(d) {
       const date = new Date(d);
       if (isNaN(date.getTime())) return '';
       return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
       });
-      }
+    }
 
-      function renderRSS() {
+    function renderRSS() {
       rssListEl.innerHTML = '';
       if (!allItems.length) {
-      rssStatusEl.textContent = 'No items loaded yet. Try refreshing in a bit.';
-      return;
+        rssStatusEl.textContent = 'No items loaded yet. Try refreshing in a bit.';
+        return;
       }
 
       rssStatusEl.textContent = 'Latest from across my obsessions:';
       allItems
-      .sort((a, b) => (b.pubDate || 0) - (a.pubDate || 0))
-      .slice(0, 20)
-      .forEach(item => {
-      const li = document.createElement('li');
-      li.className = 'rss-item';
+        .sort((a, b) => (b.pubDate || 0) - (a.pubDate || 0))
+        .slice(0, 20)
+        .forEach(item => {
+          const li = document.createElement('li');
+          li.className = 'rss-item';
 
-      const link = document.createElement('a');
-      link.href = item.link;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = item.title;
-      li.appendChild(link);
+          const link = document.createElement('a');
+          link.href = item.link;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = item.title;
+          li.appendChild(link);
 
-      const meta = document.createElement('div');
-      meta.className = 'rss-item-meta';
-      meta.textContent = `${item.label} • ${formatDate(item.pubDateRaw)}`;
-      li.appendChild(meta);
+          const meta = document.createElement('div');
+          meta.className = 'rss-item-meta';
+          meta.textContent = `${item.label} • ${formatDate(item.pubDateRaw)}`;
+          li.appendChild(meta);
 
-      // Add excerpt if available
-      if (item.description) {
-      const excerpt = document.createElement('div');
-      excerpt.className = 'rss-item-excerpt';
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.description;
-      const text = tempDiv.textContent || tempDiv.innerText || '';
-      excerpt.textContent = text.substring(0, 120) + (text.length > 120 ? '...' : '');
-      li.appendChild(excerpt);
-      }
+          // Add excerpt if available
+          if (item.description) {
+            const excerpt = document.createElement('div');
+            excerpt.className = 'rss-item-excerpt';
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = item.description;
+            const text = tempDiv.textContent || tempDiv.innerText || '';
+            excerpt.textContent = text.substring(0, 120) + (text.length > 120 ? '...' : '');
+            li.appendChild(excerpt);
+          }
 
-      rssListEl.appendChild(li);
-      });
-      }
+          rssListEl.appendChild(li);
+        });
+    }
 
-      async function loadRSS() {
+    async function loadRSS() {
       rssStatusEl.textContent = 'Loading latest posts…';
       for (const feed of rssFeeds) {
-      try {
-      const response = await fetch(
-      'https://api.rss2json.com/v1/api.json?rss_url=' +
-      encodeURIComponent(feed.url)
-      );
-      if (!response.ok) continue;
-      const data = await response.json();
-      if (data && data.status === 'ok' && Array.isArray(data.items)) {
-      data.items.slice(0, 5).forEach(item => {
-      allItems.push({
-      label: feed.label,
-      title: item.title,
-      link: item.link,
-      description: item.description || item.content || '',
-      pubDateRaw: item.pubDate,
-      pubDate: new Date(item.pubDate).getTime() || 0
-      });
-      });
-      }
-      } catch (e) {
-      console.error(`Error loading ${feed.label}:`, e);
-      }
+        try {
+          const response = await fetch(
+            'https://api.rss2json.com/v1/api.json?rss_url=' +
+            encodeURIComponent(feed.url)
+          );
+          if (!response.ok) continue;
+          const data = await response.json();
+          if (data && data.status === 'ok' && Array.isArray(data.items)) {
+            data.items.slice(0, 5).forEach(item => {
+              allItems.push({
+                label: feed.label,
+                title: item.title,
+                link: item.link,
+                description: item.description || item.content || '',
+                pubDateRaw: item.pubDate,
+                pubDate: new Date(item.pubDate).getTime() || 0
+              });
+            });
+          }
+        } catch (e) {
+          console.error(`Error loading ${feed.label}:`, e);
+        }
       }
       renderRSS();
-      }
+    }
 
-      // Initialize feeds
-      loadSubstack();
-      loadRSS();
-      </script>
+    // Initialize feeds
+    loadSubstack();
+    loadRSS();
+  </script>
 </body>
 
 </html>
