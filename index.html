@@ -619,6 +619,7 @@
             target="_blank">Favorite Playlist</a></li>
         <li><a href="https://hopelesspoetic.com/weakestlink.html" target="_blank">Weakest&nbsp;Link (MKT4030)</a></li>
         <li><a href="systemgen.html" target="_blank">Astral Axial (Legacy)</a></li>
+        <li><a href="zwerchau/index.html" target="_blank">Zwerchau (Security Consulting)</a></li>
       </ul>
     </div>
   </div>
@@ -635,42 +636,6 @@
       }
 
       train(text) {
-        // Better tokenization: split words and punctuation
-        // Matches words (including apostrophes) OR punctuation marks
-        const tokens = text.match(/[\w']+|[.,!?;]/g);
-        if (!tokens) return;
-
-        for (let i = 0; i < tokens.length; i++) {
-          const t1 = tokens[i];
-          const t2 = tokens[i + 1];
-          const t3 = tokens[i + 2];
-
-          // 1. Identify sentence starters
-          // A token is a starter if it's the very first token OR follows a sentence-ending punctuation
-          if (i === 0 || /[.!?]/.test(tokens[i - 1])) {
-            // Only allow if it looks like a word (not punctuation)
-            if (/^[\w']/.test(t1)) {
-              this.starts.push(t1);
-            }
-          }
-
-          if (!t2) break;
-
-          // 2. Build Bigram Chain (t1 -> t2)
-          if (!this.chain2[t1]) this.chain2[t1] = [];
-          this.chain2[t1].push(t2);
-
-          if (!t3) continue;
-
-          // 3. Build Trigram Chain (t1 t2 -> t3)
-          const key3 = t1 + ' ' + t2;
-          if (!this.chain3[key3]) this.chain3[key3] = [];
-          this.chain3[key3].push(t3);
-        }
-      }
-
-      generate(minLength = 5, maxLength = 25) {
-        if (this.starts.length === 0) return "No wisdom available yet...";
 
         // Pick a random valid start word
         let current = this.starts[Math.floor(Math.random() * this.starts.length)];
@@ -678,10 +643,7 @@
 
         // Generate until punctuation or max length
         while (result.length < maxLength) {
-          const len = result.length;
-          let next = null;
-
-          // Try Trigram (Backoff Strategy)
+          const len = result.length; let next = null; // Try Trigram (Backoff Strategy)
           if (len >= 2) {
             const key = result[len - 2] + ' ' + result[len - 1];
             const possibilities = this.chain3[key];
@@ -785,20 +747,12 @@
         spawnTile();
         setInterval(() => tilesContainer.children.length < 5 && spawnTile(), 2000);
       }
-    }
-
-    function spawnTile() {
-      if (!tileData.length) return;
-      const { src, aspect } = tileData[Math.random() * tileData.length | 0];
-      const el = document.createElement('div'),
-        w = 150 + Math.random() * 250,
-        h = w / aspect;
-      el.className = 'moving-tile';
-      el.style.width = w + 'px';
-      el.style.height = h + 'px';
-      el.style.top = Math.random() * (window.innerHeight - h) + 'px';
-      el.style.backgroundImage = `url('${src}')`;
-      el.onanimationend = () => el.remove();
+    } function spawnTile() {
+      if
+        (!tileData.length) return; const { src, aspect } = tileData[Math.random() * tileData.length | 0]; const
+          el = document.createElement('div'), w = 150 + Math.random() * 250, h = w / aspect; el.className = 'moving-tile'
+        ; el.style.width = w + 'px'; el.style.height = h + 'px'; el.style.top = Math.random() * (window.innerHeight
+          - h) + 'px'; el.style.backgroundImage = `url('${src}')`; el.onanimationend = () => el.remove();
       tilesContainer.appendChild(el);
     }
 

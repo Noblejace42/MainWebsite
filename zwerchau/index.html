@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZWERCHAU | Heterodox Security</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --grid: #111;
+            --text: #e0e0e0;
+            --accent: #00ff41;
+            /* Terminal Green */
+            --accent-dim: rgba(0, 255, 65, 0.2);
+            --alert: #ff3333;
+            --font-mono: 'Courier New', Courier, monospace;
+            --font-sans: 'Arial', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Glitch Effect Keyframes */
+        @keyframes glitch {
+            0% {
+                transform: translate(0)
+            }
+
+            20% {
+                transform: translate(-2px, 2px)
+            }
+
+            40% {
+                transform: translate(-2px, -2px)
+            }
+
+            60% {
+                transform: translate(2px, 2px)
+            }
+
+            80% {
+                transform: translate(2px, -2px)
+            }
+
+            100% {
+                transform: translate(0)
+            }
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        /* UI Elements */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.6;
+        }
+
+        .scan-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 255, 65, 0.1);
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+            z-index: 101;
+        }
+
+        .spotlight {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle 1900px at var(--x, 50%) var(--y, 50%), transparent 10%, rgba(0, 0, 0, 0.85) 100%);
+            z-index: 90;
+        }
+
+        .rerun-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #555;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            cursor: pointer;
+            margin-left: auto;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .rerun-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        canvas#network {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        /* Layout */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--grid);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .logo::before {
+            content: '> ';
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent);
+        }
+
+        section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            padding-top: 80px;
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding-top: 120px;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .subtitle {
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        h1 {
+            font-size: 4rem;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            mix-blend-mode: difference;
+        }
+
+        .glitch-text {
+            position: relative;
+        }
+
+        .glitch-text:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 40px;
+            border-left: 2px solid var(--accent);
+            padding-left: 20px;
+            color: #aaa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-dim);
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid var(--grid);
+            padding: 30px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--grid);
+            -webkit-text-stroke: 1px var(--accent);
+            opacity: 0.5;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Terminal Section */
+        .terminal {
+            background: #000;
+            border: 1px solid #333;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            margin-top: 40px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        .cmd {
+            color: var(--accent);
+        }
+
+        .output {
+            color: #ccc;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--grid);
+            padding: 40px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #555;
+            margin-top: 100px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 20px;
+            }
+
+            nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="scanlines"></div>
+    <div class="scan-bar"></div>
+    <div class="spotlight"></div>
+    <canvas id="network"></canvas>
+
+    <header>
+        <div class="logo">ZWERCHAU</div>
+        <nav>
+            <a href="#mission">Mission</a>
+            <a href="#protocol">Protocol</a>
+            <a href="#intel">Intel</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>
+                <span class="glitch-text">Security for</span><br>
+                <span class="glitch-text">the Heterodox</span>
+            </h1>
+            <div class="subtitle">
+                Specialized red-teaming and embedded consulting for universities, museums, labs, and mixed-use spaces.
+                <br><br>
+                We don't do "guards and cameras". We do pattern analysis and operational choreography.
+            </div>
+            <a href="#contact" class="btn">Initiate Assessment</a>
+        </div>
+
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="dot" style="background:#ff5f56"></div>
+                <div class="dot" style="background:#ffbd2e"></div>
+                <div class="dot" style="background:#27c93f"></div>
+                <button class="rerun-btn" onclick="rerunTerminal()">RERUN</button>
+            </div>
+            <div class="terminal-body">
+                <!-- Content will be typed by JS -->
+            </div>
+        </div>
+    </section>
+
+    <section id="mission">
+        <div class="grid-2">
+            <div class="card">
+                <span class="stat-number">01</span>
+                <h3>The Problem</h3>
+                <p>Generic security models fail in mixed environments. A university dorm is not an office park. A museum
+                    gallery is not a warehouse. Standard "guards and gates" approaches create friction without safety,
+                    leaving specialized institutions vulnerable and their communities alienated.</p>
+            </div>
+            <div class="card">
+                <span class="stat-number">02</span>
+                <h3>The Solution</h3>
+                <p>Zwerchau embeds directly into your environment. We live in the space, observe the flow, and build a
+                    "pattern library" specific to your unique constraints. We prioritize high-leverage operational
+                    changes over expensive hardware overhauls.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="protocol">
+        <h2 style="font-size: 2.5rem; margin-bottom: 40px; color: var(--text);">The Protocol</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Embedded Residencies</h3>
+                <p>We don't just visit for a meeting. We stay on-site for days. We watch how doors are actually used,
+                    how visitors actually flow, and where the real failure points are—at 2 AM, not just 2 PM.</p>
+            </div>
+            <div class="card">
+                <h3>Red Team Assessments</h3>
+                <p>Adversarial simulation designed for open campuses. Can an unauthorized person access the research
+                    lab? Can they walk out with a painting? We test your defenses with realistic, low-impact intrusion
+                    scenarios.</p>
+            </div>
+            <div class="card">
+                <h3>Pattern Libraries</h3>
+                <p>Instead of a generic PDF report, we deliver a reusable library of security patterns tailored to your
+                    specific architecture and culture. Actionable, modular, and designed for your staff.</p>
+            </div>
+            <div class="card">
+                <h3>Operational Choreography</h3>
+                <p>Training for the people who are actually there. RAs, docents, lab techs. We teach them how to
+                    recognize anomalies and respond effectively without disrupting the mission of the institution.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="intel">
+        <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Operator Profile</h2>
+        <div
+            style="border-left: 4px solid var(--accent); padding-left: 20px; background: rgba(255,255,255,0.05); padding: 20px;">
+            <p style="margin-bottom: 15px;"><strong>LEAD OPERATOR:</strong> Emerson Neher</p>
+            <p style="margin-bottom: 15px;"><strong>BACKGROUND:</strong> 2nd year WPI student, Information Systems BS/MS
+            </p>
+            <p>
+                "I live inside one of these environments. I see the trade-offs daily. I speak both 'risk/compliance' and
+                'operations'.
+                Unlike large firms, I can afford to embed deeply for short bursts and iterate a specialized pattern
+                library instead of pushing generic corporate templates."
+            </p>
+        </div>
+    </section>
+
+    <section id="contact" style="text-align: center; margin-top: 50px;">
+        <h2 style="font-size: 3rem; color: var(--accent); margin-bottom: 20px;">SECURE YOUR SPACE</h2>
+        <p style="margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Ready to move beyond checklists? Contact Zwerchau for an initial consultation.
+        </p>
+        <a href="mailto:emersonneher@gmail.com" class="btn" style="font-size: 1.2rem; padding: 20px 40px;">Establish
+            Comms</a>
+    </section>
+
+    <footer>
+        <p>ZWERCHAU SECURITY CONSULTING &copy; 2025</p>
+        <p style="font-size: 0.7rem; color: #333; margin-top: 10px;">ENCRYPTED CONNECTION ESTABLISHED. ALL RIGHTS
+            RESERVED.</p>
+    </footer>
+
+    <script>
+        // Network Animation
+        const canvas = document.getElementById('network');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(0, 255, 65, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Draw connections
+            ctx.strokeStyle = 'rgba(0, 255, 65, 0.1)';
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            resize();
+            initParticles();
+        });
+
+        resize();
+        initParticles();
+        animate();
+
+        // Text Scramble Effect - Automatic
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+
+        const glitchElements = document.querySelectorAll('.glitch-text');
+
+        glitchElements.forEach(element => {
+            // Store original text
+            element.dataset.value = element.innerText;
+
+            const runGlitch = () => {
+                let iteration = 0;
+                const originalText = element.dataset.value;
+
+                // Clear any existing interval for this element
+                if (element.interval) clearInterval(element.interval);
+
+                element.interval = setInterval(() => {
+                    element.innerText = originalText
+                        .split("")
+                        .map((letter, index) => {
+                            if (index < iteration) {
+                                return originalText[index];
+                            }
+                            return letters[Math.floor(Math.random() * letters.length)]
+                        })
+                        .join("");
+
+                    if (iteration >= originalText.length) {
+                        clearInterval(element.interval);
+                        element.innerText = originalText; // Ensure clean finish
+                    }
+
+                    iteration += 1 / 3;
+                }, 30);
+            };
+
+            // Run initially
+            runGlitch();
+
+            // Run every 4 seconds
+            setInterval(runGlitch, 4000);
+        });
+
+        // Spotlight Effect
+        const spotlight = document.querySelector('.spotlight');
+        document.addEventListener('mousemove', e => {
+            spotlight.style.setProperty('--x', e.clientX + 'px');
+            spotlight.style.setProperty('--y', e.clientY + 'px');
+        });
+
+        // Terminal Typing Effect
+        const terminalBody = document.querySelector('.terminal-body');
+        // Clear existing content for typing effect
+        const terminalContent = [
+            { type: 'cmd', text: '> ./analyze_market.sh --target=current_solutions' },
+            { type: 'output', text: 'Loading... [||||||||||] 100%' },
+            { type: 'output', text: 'ANALYSIS COMPLETE:' },
+            { type: 'output', text: '> LARGE FIRMS: Generic. Cookie-cutter. Low-paid staff.' },
+            { type: 'output', text: '> INTEGRATORS: Hardware focused. No operational context.' },
+            { type: 'output', text: '> CONSULTANTS: Compliance heavy. "Checklist" security.' },
+            { type: 'output', text: 'ERROR: NO HETERODOX SPECIALIZATION DETECTED.', color: 'var(--alert)' },
+            { type: 'br' },
+            { type: 'cmd', text: '> ./run_zwerchau_protocol.exe' },
+            { type: 'output', text: 'Initializing embedded residency...' }
+        ];
+
+        let lineIndex = 0;
+        let activeRunId = 0;
+
+        function typeLine(runId) {
+            if (runId !== activeRunId) return;
+            if (lineIndex >= terminalContent.length) return;
+
+            const line = terminalContent[lineIndex];
+
+            if (line.type === 'br') {
+                terminalBody.appendChild(document.createElement('br'));
+                lineIndex++;
+                setTimeout(() => typeLine(runId), 100);
+                return;
+            }
+
+            const el = document.createElement('span');
+            el.className = line.type;
+            if (line.color) el.style.color = line.color;
+            terminalBody.appendChild(el);
+
+            let charIndex = 0;
+            const typeChar = () => {
+                if (runId !== activeRunId) return;
+
+                if (charIndex < line.text.length) {
+                    el.textContent += line.text[charIndex];
+                    charIndex++;
+                    setTimeout(typeChar, 20); // Typing speed
+                } else {
+                    terminalBody.appendChild(document.createElement('br'));
+                    lineIndex++;
+                    setTimeout(() => typeLine(runId), 300); // Delay between lines
+                }
+            };
+
+            typeChar();
+        }
+
+        window.rerunTerminal = function () {
+            activeRunId++; // Invalidate previous run
+            terminalBody.innerHTML = '';
+            lineIndex = 0;
+            typeLine(activeRunId);
+        };
+
+        // Start immediately
+        rerunTerminal();
+    </script>
+</body>
+
+</html>
