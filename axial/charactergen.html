@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axial — Character Generator</title>
+  <meta name="description" content="Step-by-step character generator for the Axial TTRPG: birth traits, lifepaths, talents, aging, and bonds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #050810;
+      --surface: rgba(13, 20, 38, 0.72);
+      --surface-strong: rgba(13, 20, 38, 0.95);
+      --border: rgba(0, 255, 204, 0.22);
+      --border-bright: rgba(0, 255, 204, 0.55);
+      --text: #d7e4e0;
+      --text-dim: #8fa3a0;
+      --accent: #00ffcc;
+      --accent-hover: #00cc99;
+      --accent-alt: #ff4fd8;
+      --glow: rgba(0, 255, 204, 0.35);
+      --glow-soft: rgba(0, 255, 204, 0.12);
+      --danger: #ff6b6b;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .bg-aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 10%, rgba(0, 255, 204, 0.07), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 25%, rgba(255, 79, 216, 0.06), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 100%, rgba(0, 120, 255, 0.06), transparent 65%);
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+    ::selection { background: var(--accent); color: #02110d; }
+
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 6px; }
+
+    /* ===== NAV ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 13px 24px;
+      background: rgba(5, 8, 16, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      font-family: 'Press Start 2P', monospace;
+      font-size: .72em;
+      color: var(--accent);
+      text-shadow: 0 0 14px var(--glow);
+    }
+
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .nav-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .82em;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: all .25s ease;
+    }
+
+    .nav-btn:hover { color: var(--accent); border-color: var(--border); background: var(--glow-soft); }
+
+    /* ===== LAYOUT ===== */
+    .page {
+      position: relative;
+      z-index: 2;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .page > * { min-width: 0; }
+
+    @media (max-width: 980px) {
+      .page { grid-template-columns: 1fr; }
+      .sidebar { position: static !important; order: -1; }
+    }
+
+    /* ===== STEPPER ===== */
+    .stepper {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .8em;
+      font-weight: 600;
+      letter-spacing: .03em;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .25s ease;
+      user-select: none;
+    }
+
+    .step-pill .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      font-size: .85em;
+    }
+
+    .step-pill:hover { border-color: var(--border-bright); color: var(--text); }
+
+    .step-pill.active {
+      color: #02110d;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--glow);
+    }
+
+    .step-pill.active .num { border-color: #02110d; }
+
+    .step-pill.done { color: var(--accent); }
+    .step-pill.done .num { background: var(--glow-soft); border-color: var(--border-bright); }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      color: var(--accent);
+      font-size: 1.25em;
+      margin-bottom: 4px;
+    }
+
+    .card h3 { font-size: 1em; color: var(--accent); margin: 18px 0 8px; }
+
+    .rules-note {
+      font-size: .86em;
+      color: var(--text-dim);
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+
+    .rules-note b { color: var(--text); }
+
+    /* ===== FORM BITS ===== */
+    label.field { display: block; font-size: .82em; font-weight: 600; color: var(--text-dim); margin: 12px 0 5px; letter-spacing: .04em; text-transform: uppercase; }
+
+    input[type=text], textarea, select {
+      width: 100%;
+      background: rgba(2, 6, 14, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: .95em;
+      padding: 10px 12px;
+      transition: border-color .2s;
+    }
+
+    input[type=text]:focus, textarea:focus, select:focus { outline: none; border-color: var(--border-bright); }
+    textarea { resize: vertical; min-height: 64px; }
+    select { cursor: pointer; }
+    select option { background: #0a1020; }
+
+    /* ===== OPTION GRID (birth traits / lifepaths) ===== */
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+      gap: 12px;
+    }
+
+    .opt {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(2, 6, 14, 0.45);
+      padding: 14px;
+      cursor: pointer;
+      transition: all .22s ease;
+    }
+
+    .opt:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+
+    .opt.selected {
+      border-color: var(--accent);
+      background: var(--glow-soft);
+      box-shadow: 0 0 18px var(--glow-soft);
+    }
+
+    .opt .opt-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1em; color: var(--text); margin-bottom: 5px; }
+    .opt.selected .opt-name { color: var(--accent); }
+    .opt .opt-stats { font-size: .78em; color: var(--accent-alt); font-weight: 500; line-height: 1.5; margin-bottom: 6px; }
+    .opt .opt-desc { font-size: .8em; color: var(--text-dim); line-height: 1.45; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: .9em;
+      letter-spacing: .03em;
+      padding: 11px 20px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all .22s ease;
+    }
+
+    .btn:hover { border-color: var(--border-bright); color: var(--accent); transform: translateY(-1px); }
+
+    .btn.glow {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #02110d;
+      box-shadow: 0 0 18px var(--glow);
+    }
+
+    .btn.glow:hover { background: var(--accent-hover); color: #02110d; }
+    .btn.danger { color: var(--danger); border-color: rgba(255, 107, 107, 0.4); }
+    .btn.danger:hover { border-color: var(--danger); }
+    .btn.small { padding: 6px 12px; font-size: .8em; border-radius: 8px; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    .step-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    /* ===== TP ALLOCATION ===== */
+    .pool-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+
+    .pool-chip {
+      font-size: .8em;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(2, 6, 14, 0.5);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .2s ease;
+      user-select: none;
+    }
+
+    .pool-chip:hover { border-color: var(--border-bright); color: var(--text); }
+    .pool-chip.active { border-color: var(--accent); color: var(--accent); background: var(--glow-soft); }
+    .pool-chip.empty { opacity: .45; }
+    .pool-chip .left { color: var(--accent-alt); }
+
+    .talent-cat { margin-bottom: 12px; }
+    .talent-cat-name { font-size: .78em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-alt); margin-bottom: 7px; }
+
+    .talent-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+
+    .talent-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .8em;
+      padding: 5px 8px 5px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(2, 6, 14, 0.5);
+      transition: all .15s ease;
+    }
+
+    .talent-tag.has-level { border-color: var(--border-bright); background: var(--glow-soft); }
+    .talent-tag .lvl { font-weight: 700; color: var(--accent); font-size: .9em; min-width: 26px; text-align: center; }
+    .talent-tag button {
+      width: 21px; height: 21px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--accent);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .95em;
+      line-height: 1;
+      transition: all .15s ease;
+    }
+    .talent-tag button:hover { background: var(--glow-soft); border-color: var(--border-bright); }
+    .talent-tag button:disabled { opacity: .25; cursor: not-allowed; }
+
+    .custom-talent-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .custom-talent-row input { flex: 1 1 160px; }
+    .custom-talent-row select { flex: 0 1 150px; width: auto; }
+
+    /* ===== MAIN LIFEPATH INSTANCES ===== */
+    .lp-instance {
+      border: 1px solid var(--border-bright);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      background: rgba(2, 6, 14, 0.4);
+    }
+
+    .lp-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .lp-head h4 { color: var(--accent); font-size: 1.02em; }
+    .lp-roll { font-size: .82em; color: var(--accent-alt); font-weight: 600; }
+    .lp-roll .dice { font-family: 'Space Grotesk', sans-serif; }
+
+    .choice-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+    .choice-pill {
+      font-size: .8em; font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: all .2s ease;
+    }
+    .choice-pill:hover { border-color: var(--border-bright); color: var(--text); }
+    .choice-pill.selected { border-color: var(--accent); color: var(--accent); background: var(--glow-soft); }
+
+    .power-desc { font-size: .8em; color: var(--text-dim); line-height: 1.5; margin-top: 6px; border-left: 2px solid var(--border-bright); padding-left: 10px; }
+
+    /* ===== BONDS ===== */
+    .bond-row {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 13px;
+      margin-bottom: 11px;
+      background: rgba(2, 6, 14, 0.4);
+    }
+    .bond-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .bond-controls select { flex: 1 1 140px; width: auto; font-size: .85em; }
+    .bond-row textarea { min-height: 48px; font-size: .9em; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: sticky;
+      top: 76px;
+    }
+
+    .sidebar .card { padding: 18px; }
+    .sidebar h3 { margin: 0 0 10px; font-size: .95em; }
+
+    .stat-line { display: flex; justify-content: space-between; font-size: .84em; padding: 4px 0; border-bottom: 1px dashed rgba(0, 255, 204, 0.12); }
+    .stat-line .v { color: var(--accent); font-weight: 600; }
+    .stat-line .v.neg { color: var(--danger); }
+
+    .skill-bars { margin-top: 6px; }
+    .skill-row { display: grid; grid-template-columns: 78px 1fr 38px; align-items: center; gap: 8px; font-size: .78em; padding: 2.5px 0; }
+    .skill-row .die { color: var(--accent); font-weight: 700; text-align: right; }
+    .skill-meter { height: 7px; border-radius: 4px; background: rgba(0, 255, 204, 0.08); overflow: hidden; }
+    .skill-meter span { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent-hover), var(--accent)); transition: width .3s ease; }
+
+    .side-talents { font-size: .78em; line-height: 1.55; color: var(--text-dim); }
+    .side-talents b { color: var(--text); font-weight: 600; }
+
+    .warn { font-size: .78em; color: #ffcf6b; margin-top: 8px; line-height: 1.4; }
+
+    /* ===== SUMMARY ===== */
+    .summary-sheet { background: var(--surface-strong); }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 26px; }
+    @media (max-width: 700px) { .summary-grid { grid-template-columns: 1fr; } }
+
+    .sum-block { margin-bottom: 16px; }
+    .sum-block h3 { margin-top: 0; }
+    .sum-line { font-size: .88em; padding: 3px 0; border-bottom: 1px dashed rgba(0, 255, 204, 0.12); display: flex; justify-content: space-between; gap: 10px; }
+    .sum-line .v { color: var(--accent); font-weight: 600; white-space: nowrap; }
+    .sum-text { font-size: .88em; line-height: 1.55; color: var(--text); }
+    .sum-text em { color: var(--text-dim); }
+
+    .gm-note {
+      border: 1px dashed var(--border-bright);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: .84em;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      body { background: #fff; color: #000; }
+      .navbar, .stepper, .sidebar, .step-actions, .bg-aurora, .no-print { display: none !important; }
+      .page { display: block; padding: 0; max-width: 100%; }
+      .card { background: #fff; border: 1px solid #999; color: #000; backdrop-filter: none; box-shadow: none; }
+      .card h2, .card h3, .sum-line .v, a { color: #000; }
+      .sum-text, .sum-text em, .gm-note, .rules-note { color: #222; }
+      .opt .opt-stats { color: #444; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-aurora"></div>
+
+  <nav class="navbar">
+    <div class="nav-brand">AXIAL // CHARACTER GENERATOR</div>
+    <div class="nav-links">
+      <a href="../index.html" class="nav-btn">← Home</a>
+      <a href="../AxialTTRPG/Axial.pdf" target="_blank" class="nav-btn">Rules PDF</a>
+      <button class="nav-btn" onclick="resetAll()">Start Over</button>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- Stepper -->
+    <div class="stepper" id="stepper"></div>
+
+    <!-- Main column -->
+    <main id="main"></main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar"></aside>
+  </div>
+
+  <script>
+    'use strict';
+
+    // ==========================================================
+    // GAME DATA — transcribed from the Axial rulebook (alpha)
+    // ==========================================================
+    const SKILLS = ['Agility', 'Artifice', 'Charm', 'Fortitude', 'Intellect', 'Might', 'Presence', 'Precision', 'Resolve', 'Sense'];
+    const DIE_OF = { 1: 'd4', 2: 'd6', 3: 'd8', 4: 'd10', 5: 'd12' };
+    const DIE_SIZE = { 1: 4, 2: 6, 3: 8, 4: 10, 5: 12 };
+    const CATS = ['Knowledge', 'Combat', 'Practical', 'Athletics', 'Social'];
+
+    const TALENTS = {
+      Knowledge: ['Agriculture', 'Anthrohistorics', 'Architecture', 'Astronomy', 'Biology', 'Chemistry', 'Computer Science', 'Criminology', 'Economics', 'Engineering', 'Geography', 'Geology', 'History', 'Law', 'Linguistics', 'Literature', 'Mathematics', 'Medicine', 'Meteorology', 'Music', 'Philosophy', 'Physics', 'Politics', 'Psychology', 'Tactics', 'Logistics', 'Materials', 'Accounting', 'Arcana'],
+      Combat: ['Natural', 'Longblade', 'Polearm', 'Shortblade', 'Bludgeon', 'Shield', 'Sling', 'Handgun', 'Shotgun', 'Rifle', 'Emitter', 'Grenade', 'Mass Driver', 'Tethered-Impact', 'Artillery', 'Grappling', 'Gunnery', 'Piloting', 'Driving'],
+      Practical: ['Alchemy', 'Animal Handling', 'Appraisal', 'Smithing', 'Construction', 'Cartography', 'Cooking', 'Hacking', 'Engineering', 'Electronics', 'Farming', 'Fishing', 'Fine Crafting', 'Tracking', 'Lockpicking', 'Mining', 'Navigation', 'Robotics', 'Sailing', 'Scouting', 'Siegecraft', 'Stealth', 'Tailoring', 'Vehicle Repair', 'Bushcraft', 'Artistry', 'Sleight of Hand', 'Disguise', 'Woodworking', 'Explosives'],
+      Athletics: ['Running', 'Jumping', 'Climbing', 'Swimming', 'Acrobatics', 'Strength Training', 'Riding'],
+      Social: ['Leadership', 'Persuasion', 'Deception', 'Intimidation', 'Insight', 'Negotiation', 'Streetwise', 'Interrogation']
+    };
+
+    const BIRTH_TRAITS = {
+      Hale: { skills: { Might: 1, Agility: 1 }, desc: 'You were born a bit stronger than the average person.' },
+      Thoughtful: { skills: { Intellect: 1, Artifice: 1 }, desc: 'You were born rather pensive.' },
+      Keen: { skills: { Sense: 1, Precision: 1 }, desc: 'You were born always deeply concentrated.' },
+      Tough: { skills: { Fortitude: 1, Resolve: 1 }, desc: 'You were born ready for punishment.' },
+      Social: { skills: { Charm: 1, Presence: 1 }, desc: 'You were born chatty and forceful.' }
+    };
+
+    // TP pools: { n, cats: [...] } — points in multi-category pools may be split freely
+    const EARLY_LIFEPATHS = {
+      Dire: {
+        skills: { Might: 1, Fortitude: 1, Agility: 1, Resolve: 1, Sense: 1 },
+        supplies: 8, wealth: 1,
+        pools: [
+          { n: 5, cats: ['Practical'] },
+          { n: 4, cats: ['Athletics'] },
+          { n: 4, cats: ['Combat'] },
+          { n: 2, cats: ['Social', 'Knowledge'] }
+        ],
+        desc: 'Whether you had to fight for your survival or you simply had a hard and punishing life, it taught you strength in many practical and physical ways.'
+      },
+      Tough: {
+        skills: { Might: 1, Fortitude: 1, Artifice: 1, Resolve: 1, Precision: 1 },
+        supplies: 6, wealth: 2,
+        pools: [
+          { n: 9, cats: ['Practical', 'Combat'] },
+          { n: 2, cats: ['Athletics'] },
+          { n: 2, cats: ['Knowledge'] },
+          { n: 2, cats: ['Social'] }
+        ],
+        desc: 'Your life was characterized by struggle, but you found moments to rise above and it reflects in your talents.'
+      },
+      Secure: {
+        skills: { Agility: 1, Sense: 1, Charm: 1, Presence: 1, Intellect: 1 },
+        supplies: 4, wealth: 3,
+        pools: CATS.map(c => ({ n: 3, cats: [c] })),
+        desc: 'Your life wasn’t characterized by struggle, but you did have to work for what you got. You became excellent at many important skills.'
+      },
+      Comfy: {
+        skills: { Artifice: 1, Precision: 1, Charm: 1, Presence: 1, Intellect: 1 },
+        supplies: 2, wealth: 4,
+        pools: [
+          { n: 8, cats: ['Social', 'Knowledge'] },
+          { n: 5, cats: ['Combat', 'Athletics'] },
+          { n: 2, cats: ['Practical'] }
+        ],
+        desc: 'Your life never had much difficulty but it allowed you to practice the more finer aspects of existence aplenty.'
+      }
+    };
+
+    const POWERS = {
+      'The Ability to Speak': 'Passive. Regardless of whether or not you speak the language, you can get a general idea of what any intelligent communication is trying to say. If you contest to translate, interpret, or similarly interact with an intelligent creature, step up all your dice.',
+      'Kingly Wit': 'Passive. If you suffer a complication while you negotiate with a creature, the GM might give you a bond with that creature instead. Whenever you gain a new bond, gain a surge.'
+    };
+
+    // skillChoice: array of alternatives (player picks one), skills: always applied
+    const MAIN_LIFEPATHS = {
+      Academic: { skills: { Intellect: 1 }, pools: [{ n: 5, cats: ['Knowledge'] }, { n: 2, cats: ['Practical'] }] },
+      Noble: { skills: { Presence: 1 }, pools: [{ n: 3, cats: ['Social'] }, { n: 3, cats: ['Combat'] }, { n: 1, cats: ['Knowledge'] }] },
+      Merchant: { skills: { Charm: 1 }, pools: [{ n: 4, cats: ['Social'] }, { n: 3, cats: ['Practical'] }] },
+      Soldier: { skills: { Might: 1, Fortitude: 1 }, pools: [{ n: 4, cats: ['Combat'] }, { n: 1, cats: ['Athletics'] }] },
+      Outlander: { skills: { Sense: 1 }, pools: [{ n: 5, cats: ['Combat', 'Practical', 'Athletics'] }, { n: 2, cats: ['Knowledge'] }] },
+      Diplomat: { skills: { Presence: 1, Charm: 1 }, pools: [], power: ['The Ability to Speak', 'Kingly Wit'] },
+      Artisan: { skillChoice: ['Artifice', 'Precision'], pools: [{ n: 5, cats: ['Practical'] }, { n: 2, cats: ['Knowledge'] }] },
+      Laborer: { skillChoice: ['Might', 'Agility'], pools: [{ n: 3, cats: ['Practical'] }, { n: 3, cats: ['Athletics'] }, { n: 1, cats: CATS }] },
+      Criminal: { skills: { Agility: 1, Precision: 1 }, pools: [{ n: 3, cats: ['Practical'] }, { n: 2, cats: ['Combat', 'Athletics'] }] },
+      Performer: { skills: {}, pools: [{ n: 10, cats: CATS }] }
+    };
+
+    const BOND_TEMPLATES = {
+      Favor: [
+        'Should ____ require assistance, I’ll ____.',
+        'If ____ reaches out, I’ll ____.',
+        'For ____, I’m prepared to ____.',
+        'When ____ needs support, I’ll ____.',
+        'Upon ____’s request, I’ll ____.'
+      ],
+      Friend: [
+        'I promise ____, I’ll ____.',
+        'I owe ____, I’ll ____.',
+        'For ____, I’ll always ____.',
+        'Whenever ____ needs me, I’ll ____.',
+        'Don’t worry, ____, I’ll ____.'
+      ],
+      Foe: [
+        'If ____ ever betrays me, I’ll ____.',
+        'No one will protect ____ when I ____.',
+        'When ____ crosses me, I’ll ____.',
+        'I vow to hunt ____ until I ____.',
+        'I’ll make ____ wish they’d never ____.'
+      ]
+    };
+
+    // ==========================================================
+    // STATE
+    // ==========================================================
+    const blankState = () => ({
+      step: 0,
+      name: '', pronouns: '', concept: '',
+      birth: null,
+      early: null,
+      earlyAlloc: [],          // [{pool, cat, talent}]
+      earlyActivePool: 0,
+      mains: [],               // [{key, years, skillChoice, power, alloc:[], activePool}]
+      bonds: [],               // [{type, text}]
+      customTalents: { Knowledge: [], Combat: [], Practical: [], Athletics: [], Social: [] }
+    });
+
+    let S = blankState();
+
+    const STEPS = ['Identity', 'Birth Trait', 'Early Lifepath', 'Main Lifepaths', 'Bonds', 'Summary'];
+
+    function resetAll() {
+      if (confirm('Start over? All progress will be lost.')) {
+        S = blankState();
+        render();
+      }
+    }
+
+    // ==========================================================
+    // DERIVED STATS
+    // ==========================================================
+    function computeSkills() {
+      const sk = {}; SKILLS.forEach(s => sk[s] = 1);
+      let lost = [];
+      const bump = (name, src) => {
+        if (sk[name] >= 5) { lost.push(`${name} +1 from ${src} (already d12)`); }
+        else sk[name]++;
+      };
+      if (S.birth) Object.entries(BIRTH_TRAITS[S.birth].skills).forEach(([k, v]) => { for (let i = 0; i < v; i++) bump(k, S.birth + ' birth trait'); });
+      if (S.early) Object.entries(EARLY_LIFEPATHS[S.early].skills).forEach(([k, v]) => { for (let i = 0; i < v; i++) bump(k, S.early + ' lifepath'); });
+      S.mains.forEach(m => {
+        const def = MAIN_LIFEPATHS[m.key];
+        if (def.skills) Object.entries(def.skills).forEach(([k, v]) => { for (let i = 0; i < v; i++) bump(k, m.key); });
+        if (def.skillChoice && m.skillChoice) bump(m.skillChoice, m.key);
+      });
+      return { skills: sk, lost };
+    }
+
+    function allAllocs() {
+      return S.earlyAlloc.concat(...S.mains.map(m => m.alloc));
+    }
+
+    function computeTalents() {
+      const t = {}; // "cat|name" -> level
+      allAllocs().forEach(r => {
+        const key = r.cat + '|' + r.talent;
+        t[key] = (t[key] || 0) + 1;
+      });
+      return t;
+    }
+
+    function talentLevel(cat, name) {
+      return computeTalents()[cat + '|' + name] || 0;
+    }
+
+    function computeAge() {
+      if (!S.early) return null;
+      return 20 + S.mains.reduce((a, m) => a + m.years[0] + m.years[1], 0);
+    }
+
+    function computeHealth(skills) {
+      // Health = 10 + Fortitude die size + Resolve die size, −2 per full 5 years over age 35
+      const base = 10 + DIE_SIZE[skills.Fortitude] + DIE_SIZE[skills.Resolve];
+      const age = computeAge();
+      const agePenalty = age ? Math.floor(Math.max(0, age - 35) / 5) * 2 : 0;
+      return { health: base - agePenalty, base, agePenalty };
+    }
+
+    function poolSpent(allocList, poolIdx) {
+      return allocList.filter(r => r.pool === poolIdx).length;
+    }
+
+    function unspentTP() {
+      let total = 0;
+      if (S.early) EARLY_LIFEPATHS[S.early].pools.forEach((p, i) => total += p.n - poolSpent(S.earlyAlloc, i));
+      S.mains.forEach(m => MAIN_LIFEPATHS[m.key].pools.forEach((p, i) => total += p.n - poolSpent(m.alloc, i)));
+      return total;
+    }
+
+    function talentsOf(cat) {
+      return TALENTS[cat].concat(S.customTalents[cat]);
+    }
+
+    const d6 = () => 1 + Math.floor(Math.random() * 6);
+
+    // ==========================================================
+    // RENDERING
+    // ==========================================================
+    const $main = document.getElementById('main');
+    const $side = document.getElementById('sidebar');
+    const $stepper = document.getElementById('stepper');
+
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    function render() {
+      renderStepper();
+      renderStep();
+      renderSidebar();
+    }
+
+    function go(step) {
+      S.step = Math.max(0, Math.min(STEPS.length - 1, step));
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderStepper() {
+      $stepper.innerHTML = STEPS.map((name, i) => `
+        <div class="step-pill ${i === S.step ? 'active' : ''} ${i < S.step ? 'done' : ''}" onclick="go(${i})">
+          <span class="num">${i < S.step ? '✓' : i + 1}</span>${name}
+        </div>`).join('');
+    }
+
+    // ---------- TP allocation widget (shared by early + main lifepaths) ----------
+    // ownerKey: 'early' or main index
+    function tpWidget(pools, allocList, activePool, ownerKey) {
+      if (!pools.length) return '';
+      const chips = pools.map((p, i) => {
+        const left = p.n - poolSpent(allocList, i);
+        return `<span class="pool-chip ${i === activePool ? 'active' : ''} ${left === 0 ? 'empty' : ''}"
+          onclick="setActivePool('${ownerKey}', ${i})">${p.n} TP — ${p.cats.join(' / ')} <span class="left">(${left} left)</span></span>`;
+      }).join('');
+
+      const pool = pools[activePool] || pools[0];
+      const left = pool ? pool.n - poolSpent(allocList, pools.indexOf(pool)) : 0;
+
+      const cats = pool ? pool.cats : [];
+      const catBlocks = cats.map(cat => {
+        const tags = talentsOf(cat).map(t => {
+          const lvl = talentLevel(cat, t);
+          const minusOk = allocList.some(r => r.cat === cat && r.talent === t);
+          return `<span class="talent-tag ${lvl ? 'has-level' : ''}">
+            ${esc(t)}
+            <span class="lvl">${lvl ? DIE_OF[lvl] : '—'}</span>
+            <button onclick="tpMinus('${ownerKey}','${cat}','${esc(t)}')" ${minusOk ? '' : 'disabled'}>−</button>
+            <button onclick="tpPlus('${ownerKey}','${cat}','${esc(t)}')" ${left > 0 && lvl < 5 ? '' : 'disabled'}>+</button>
+          </span>`;
+        }).join('');
+        return `<div class="talent-cat"><div class="talent-cat-name">${cat}</div><div class="talent-grid">${tags}</div></div>`;
+      }).join('');
+
+      return `
+        <h3>Spend Talent Points</h3>
+        <p class="rules-note">1 TP buys a new Talent at <b>1d4</b> or raises an existing Talent one level (max d12). Select a pool, then click <b>+</b> on talents in its allowed categories. You can also invent a new Talent with your GM's blessing below.</p>
+        <div class="pool-chips">${chips}</div>
+        ${catBlocks}
+        <div class="custom-talent-row no-print">
+          <input type="text" id="ct-name-${ownerKey}" placeholder="Custom talent name (GM approved)" />
+          <select id="ct-cat-${ownerKey}">${CATS.map(c => `<option>${c}</option>`).join('')}</select>
+          <button class="btn small" onclick="addCustomTalent('${ownerKey}')">Add Talent</button>
+        </div>`;
+    }
+
+    function getOwner(ownerKey) {
+      if (ownerKey === 'early') {
+        return { pools: EARLY_LIFEPATHS[S.early].pools, alloc: S.earlyAlloc, get activePool() { return S.earlyActivePool; }, set activePool(v) { S.earlyActivePool = v; } };
+      }
+      const m = S.mains[Number(ownerKey)];
+      return { pools: MAIN_LIFEPATHS[m.key].pools, alloc: m.alloc, get activePool() { return m.activePool; }, set activePool(v) { m.activePool = v; } };
+    }
+
+    function setActivePool(ownerKey, i) { getOwner(ownerKey).activePool = i; render(); }
+
+    function tpPlus(ownerKey, cat, talent) {
+      const o = getOwner(ownerKey);
+      const i = o.activePool;
+      const pool = o.pools[i];
+      if (!pool || !pool.cats.includes(cat)) return;
+      if (pool.n - poolSpent(o.alloc, i) <= 0) return;
+      if (talentLevel(cat, talent) >= 5) return;
+      o.alloc.push({ pool: i, cat, talent });
+      render();
+    }
+
+    function tpMinus(ownerKey, cat, talent) {
+      const o = getOwner(ownerKey);
+      for (let i = o.alloc.length - 1; i >= 0; i--) {
+        if (o.alloc[i].cat === cat && o.alloc[i].talent === talent) { o.alloc.splice(i, 1); break; }
+      }
+      render();
+    }
+
+    function addCustomTalent(ownerKey) {
+      const name = document.getElementById('ct-name-' + ownerKey).value.trim();
+      const cat = document.getElementById('ct-cat-' + ownerKey).value;
+      if (!name) return;
+      const exists = talentsOf(cat).some(t => t.toLowerCase() === name.toLowerCase());
+      if (!exists) S.customTalents[cat].push(name);
+      render();
+    }
+
+    // ---------- Steps ----------
+    function renderStep() {
+      switch (S.step) {
+        case 0: return renderIdentity();
+        case 1: return renderBirth();
+        case 2: return renderEarly();
+        case 3: return renderMains();
+        case 4: return renderBonds();
+        case 5: return renderSummary();
+      }
+    }
+
+    function navButtons(backOk, nextOk, nextLabel) {
+      return `<div class="step-actions">
+        <button class="btn" ${backOk ? '' : 'disabled'} onclick="go(S.step-1)">← Back</button>
+        <button class="btn glow" ${nextOk ? '' : 'disabled'} onclick="go(S.step+1)">${nextLabel || 'Next →'}</button>
+      </div>`;
+    }
+
+    function renderIdentity() {
+      $main.innerHTML = `
+        <div class="card">
+          <h2>Who Are You?</h2>
+          <p class="rules-note">Every Axial character begins the same way: all ten Skills at <b>level 1 (1d4)</b>, then a <b>birth trait</b>, an <b>early lifepath</b>, and any number of <b>main lifepaths</b> — each adding 2d6 years to your age. This generator walks you through each step and tracks your sheet as you go.</p>
+          <label class="field">Character Name</label>
+          <input type="text" id="f-name" value="${esc(S.name)}" placeholder="e.g. Vex Calloway" />
+          <label class="field">Pronouns</label>
+          <input type="text" id="f-pronouns" value="${esc(S.pronouns)}" placeholder="e.g. they/them" />
+          <label class="field">Concept / Notes</label>
+          <textarea id="f-concept" placeholder="A disgraced stellar cartographer with a debt to the wrong people...">${esc(S.concept)}</textarea>
+          ${navButtons(false, true)}
+        </div>`;
+      document.getElementById('f-name').oninput = e => { S.name = e.target.value; renderSidebar(); };
+      document.getElementById('f-pronouns').oninput = e => { S.pronouns = e.target.value; };
+      document.getElementById('f-concept').oninput = e => { S.concept = e.target.value; };
+    }
+
+    function renderBirth() {
+      const opts = Object.entries(BIRTH_TRAITS).map(([k, v]) => `
+        <div class="opt ${S.birth === k ? 'selected' : ''}" onclick="S.birth='${k}';render()">
+          <div class="opt-name">${k}</div>
+          <div class="opt-stats">${Object.entries(v.skills).map(([s, n]) => `${s} +${n}`).join(', ')}</div>
+          <div class="opt-desc">${v.desc}</div>
+        </div>`).join('');
+      $main.innerHTML = `
+        <div class="card">
+          <h2>Birth Trait</h2>
+          <p class="rules-note">Choose one. Your birth trait raises two Skills by one level each.</p>
+          <div class="option-grid">${opts}</div>
+          ${navButtons(true, !!S.birth)}
+        </div>`;
+    }
+
+    function renderEarly() {
+      const opts = Object.entries(EARLY_LIFEPATHS).map(([k, v]) => `
+        <div class="opt ${S.early === k ? 'selected' : ''}" onclick="pickEarly('${k}')">
+          <div class="opt-name">${k}</div>
+          <div class="opt-stats">
+            ${Object.entries(v.skills).map(([s, n]) => `${s} +${n}`).join(', ')}<br/>
+            Supplies +${v.supplies}, Wealth +${v.wealth}<br/>
+            ${v.pools.map(p => `${p.n}TP ${p.cats.join('/')}`).join(' · ')}
+          </div>
+          <div class="opt-desc">${v.desc}</div>
+        </div>`).join('');
+
+      $main.innerHTML = `
+        <div class="card">
+          <h2>Early Lifepath</h2>
+          <p class="rules-note">Choose one. Your early lifepath covers your first twenty years — it raises five Skills, sets your starting <b>Supplies</b> and <b>Wealth</b>, and grants <b>Talent Points</b> by category. After this step your age is set to <b>20</b>.</p>
+          <div class="option-grid">${opts}</div>
+          ${S.early ? tpWidget(EARLY_LIFEPATHS[S.early].pools, S.earlyAlloc, S.earlyActivePool, 'early') : ''}
+          ${navButtons(true, !!S.early)}
+        </div>`;
+    }
+
+    function pickEarly(k) {
+      if (S.early !== k) { S.early = k; S.earlyAlloc = []; S.earlyActivePool = 0; }
+      render();
+    }
+
+    function renderMains() {
+      const instances = S.mains.map((m, idx) => {
+        const def = MAIN_LIFEPATHS[m.key];
+        let extras = '';
+        if (def.skillChoice) {
+          extras += `<div class="choice-row">${def.skillChoice.map(s =>
+            `<span class="choice-pill ${m.skillChoice === s ? 'selected' : ''}" onclick="S.mains[${idx}].skillChoice='${s}';render()">${s} +1</span>`).join('')}</div>`;
+        }
+        if (def.power) {
+          extras += `<div class="choice-row">${def.power.map(p =>
+            `<span class="choice-pill ${m.power === p ? 'selected' : ''}" onclick="S.mains[${idx}].power='${esc(p)}';render()">${p}</span>`).join('')}</div>`;
+          if (m.power) extras += `<div class="power-desc"><b>${esc(m.power)}:</b> ${POWERS[m.power]}</div>`;
+        }
+        return `<div class="lp-instance">
+          <div class="lp-head">
+            <h4>${idx + 1}. ${m.key}</h4>
+            <span class="lp-roll">2d6 → <span class="dice">${m.years[0]} + ${m.years[1]} = +${m.years[0] + m.years[1]} years</span></span>
+            <button class="btn small danger" onclick="removeMain(${idx})">Remove</button>
+          </div>
+          ${describeMain(m.key)}
+          ${extras}
+          ${tpWidget(def.pools, m.alloc, m.activePool, String(idx))}
+        </div>`;
+      }).join('');
+
+      const addOpts = Object.keys(MAIN_LIFEPATHS).map(k =>
+        `<div class="opt" onclick="addMain('${k}')">
+          <div class="opt-name">+ ${k}</div>
+          <div class="opt-stats">${mainStatsLine(k)}</div>
+        </div>`).join('');
+
+      const mainsOk = S.mains.every(m => {
+        const def = MAIN_LIFEPATHS[m.key];
+        if (def.skillChoice && !m.skillChoice) return false;
+        if (def.power && !m.power) return false;
+        return true;
+      });
+
+      $main.innerHTML = `
+        <div class="card">
+          <h2>Main Lifepaths</h2>
+          <p class="rules-note">Take <b>any number</b> of main lifepaths — including the same one more than once. Each adds <b>2d6 years</b> (auto-rolled) to your age. Watch out: health drops by <b>2 per full 5 years over age 35</b>, so a long life of experience comes at a cost.</p>
+          ${instances || '<p class="rules-note"><em>No main lifepaths yet — your character is a fresh-faced 20-year-old. Add one below, or continue if that’s the plan.</em></p>'}
+          <h3>Add a Lifepath</h3>
+          <div class="option-grid">${addOpts}</div>
+          ${navButtons(true, mainsOk)}
+        </div>`;
+    }
+
+    function mainStatsLine(k) {
+      const def = MAIN_LIFEPATHS[k];
+      const bits = [];
+      if (def.skills && Object.keys(def.skills).length) bits.push(Object.entries(def.skills).map(([s, n]) => `${s} +${n}`).join(', '));
+      if (def.skillChoice) bits.push(def.skillChoice.join(' or ') + ' +1');
+      if (def.pools.length) bits.push(def.pools.map(p => `${p.n}TP ${p.cats.length === 5 ? 'any' : p.cats.join('/')}`).join(' · '));
+      if (def.power) bits.push('Gain a power');
+      return bits.join('<br/>');
+    }
+
+    function describeMain(k) {
+      return `<p class="rules-note" style="margin-bottom:6px">${mainStatsLine(k)}</p>`;
+    }
+
+    function addMain(key) {
+      S.mains.push({ key, years: [d6(), d6()], skillChoice: null, power: null, alloc: [], activePool: 0 });
+      render();
+    }
+
+    function removeMain(idx) {
+      S.mains.splice(idx, 1);
+      render();
+    }
+
+    function renderBonds() {
+      const rows = S.bonds.map((b, i) => `
+        <div class="bond-row">
+          <div class="bond-controls">
+            <select onchange="S.bonds[${i}].type=this.value;render()">
+              ${Object.keys(BOND_TEMPLATES).map(t => `<option ${b.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+            </select>
+            <select onchange="if(this.value){S.bonds[${i}].text=this.value;render()}">
+              <option value="">Use a template…</option>
+              ${BOND_TEMPLATES[b.type].map(t => `<option>${esc(t)}</option>`).join('')}
+            </select>
+            <button class="btn small danger" onclick="S.bonds.splice(${i},1);render()">Remove</button>
+          </div>
+          <textarea oninput="S.bonds[${i}].text=this.value" placeholder="Write the bond, filling in the blanks...">${esc(b.text)}</textarea>
+        </div>`).join('');
+
+      $main.innerHTML = `
+        <div class="card">
+          <h2>Bonds</h2>
+          <p class="rules-note">Bonds are connections between characters: <b>Favors</b>, <b>Friends</b>, and <b>Foes</b>. To finish character creation, write one bond for <b>each member of your party</b> plus one for <b>an important NPC from your backstory</b>. Use the fill-in-the-blank templates or write your own.</p>
+          ${rows || '<p class="rules-note"><em>No bonds yet.</em></p>'}
+          <button class="btn" onclick="S.bonds.push({type:'Friend',text:''});render()">+ Add Bond</button>
+          ${navButtons(true, true, 'Finish →')}
+        </div>`;
+    }
+
+    function renderSummary() {
+      const { skills, lost } = computeSkills();
+      const talents = computeTalents();
+      const age = computeAge() || 20;
+      const hp = computeHealth(skills);
+      const supplies = S.early ? EARLY_LIFEPATHS[S.early].supplies : 0;
+      const wealth = S.early ? EARLY_LIFEPATHS[S.early].wealth : 0;
+      const powers = S.mains.filter(m => m.power).map(m => m.power);
+      const unspent = unspentTP();
+
+      const skillLines = SKILLS.map(s => `<div class="sum-line"><span>${s}</span><span class="v">${DIE_OF[skills[s]]}</span></div>`).join('');
+
+      const talentsByCat = CATS.map(cat => {
+        const items = Object.entries(talents)
+          .filter(([k]) => k.startsWith(cat + '|'))
+          .map(([k, lvl]) => `<div class="sum-line"><span>${esc(k.split('|')[1])}</span><span class="v">${DIE_OF[lvl]}</span></div>`)
+          .join('');
+        return items ? `<div class="sum-block"><h3>${cat}</h3>${items}</div>` : '';
+      }).join('');
+
+      const lifeStory = [
+        S.birth ? `Born <b>${S.birth}</b>` : null,
+        S.early ? `raised <b>${S.early}</b>` : null,
+        ...S.mains.map(m => `${m.key} (+${m.years[0] + m.years[1]} yrs)`)
+      ].filter(Boolean).join(' → ');
+
+      const bonds = S.bonds.filter(b => b.text.trim()).map(b =>
+        `<div class="sum-line"><span class="sum-text"><em>[${b.type}]</em> ${esc(b.text)}</span></div>`).join('');
+
+      $main.innerHTML = `
+        <div class="card summary-sheet">
+          <h2>${esc(S.name) || 'Unnamed Character'}</h2>
+          <p class="rules-note">${esc(S.pronouns)}${S.pronouns && S.concept ? ' — ' : ''}${esc(S.concept)}</p>
+          <p class="sum-text" style="margin-bottom:14px">${lifeStory || '<em>No lifepaths chosen.</em>'}</p>
+
+          ${unspent > 0 ? `<p class="warn no-print">⚠ You still have ${unspent} unspent Talent Point${unspent > 1 ? 's' : ''}. Go back and spend ${unspent > 1 ? 'them' : 'it'}, or note ${unspent > 1 ? 'them' : 'it'} for your GM.</p>` : ''}
+          ${lost.length ? `<p class="warn no-print">⚠ Lost (over d12 cap): ${lost.join('; ')}</p>` : ''}
+
+          <div class="summary-grid">
+            <div>
+              <div class="sum-block">
+                <h3>Vitals</h3>
+                <div class="sum-line"><span>Age</span><span class="v">${age}</span></div>
+                <div class="sum-line"><span>Health</span><span class="v">${hp.health}</span></div>
+                ${hp.agePenalty ? `<div class="sum-line"><span style="color:var(--text-dim)">&nbsp;&nbsp;(base ${hp.base}, age −${hp.agePenalty})</span><span></span></div>` : ''}
+                <div class="sum-line"><span>Strain</span><span class="v">0 / 10</span></div>
+                <div class="sum-line"><span>Supplies</span><span class="v">${supplies}</span></div>
+                <div class="sum-line"><span>Wealth</span><span class="v">${wealth}</span></div>
+                <div class="sum-line"><span>Surges</span><span class="v">0 / 5</span></div>
+                <div class="sum-line"><span>Max Encumbrance</span><span class="v">${5 * (DIE_SIZE[skills.Fortitude] + DIE_SIZE[skills.Might] + DIE_SIZE[skills.Resolve])} mass</span></div>
+              </div>
+              <div class="sum-block">
+                <h3>Skills</h3>
+                ${skillLines}
+              </div>
+            </div>
+            <div>
+              ${talentsByCat || '<div class="sum-block"><h3>Talents</h3><p class="sum-text"><em>None.</em></p></div>'}
+              ${powers.length ? `<div class="sum-block"><h3>Powers</h3>${powers.map(p => `<p class="sum-text" style="margin-bottom:8px"><b>${esc(p)}</b> — ${POWERS[p]}</p>`).join('')}</div>` : ''}
+            </div>
+          </div>
+
+          ${bonds ? `<div class="sum-block"><h3>Bonds</h3>${bonds}</div>` : ''}
+
+          <div class="gm-note">
+            <b>Starting gear:</b> choose a starting object package from a setting module, or work with your GM to determine the items your character would start with. Don't forget: weapons need both hands free unless (Quick), and your Supplies can become gear from the table in section 5.1.
+          </div>
+
+          <div class="step-actions no-print">
+            <button class="btn" onclick="go(S.step-1)">← Back</button>
+            <button class="btn glow" onclick="window.print()">🖨 Print / Save</button>
+          </div>
+        </div>`;
+    }
+
+    // ---------- Sidebar ----------
+    function renderSidebar() {
+      const { skills } = computeSkills();
+      const talents = computeTalents();
+      const age = computeAge();
+      const hp = computeHealth(skills);
+      const unspent = unspentTP();
+
+      const bars = SKILLS.map(s => `
+        <div class="skill-row">
+          <span>${s}</span>
+          <div class="skill-meter"><span style="width:${skills[s] * 20}%"></span></div>
+          <span class="die">${DIE_OF[skills[s]]}</span>
+        </div>`).join('');
+
+      const tList = CATS.map(cat => {
+        const items = Object.entries(talents)
+          .filter(([k]) => k.startsWith(cat + '|'))
+          .map(([k, lvl]) => `${esc(k.split('|')[1])} <b>${DIE_OF[lvl]}</b>`);
+        return items.length ? `<div><b>${cat}:</b> ${items.join(', ')}</div>` : '';
+      }).join('');
+
+      $side.innerHTML = `
+        <div class="card">
+          <h3>${esc(S.name) || 'New Character'}</h3>
+          <div class="stat-line"><span>Age</span><span class="v">${age === null ? '—' : age}</span></div>
+          <div class="stat-line"><span>Health</span><span class="v">${hp.health}${hp.agePenalty ? ` <span class="neg">(−${hp.agePenalty} age)</span>` : ''}</span></div>
+          <div class="stat-line"><span>Supplies</span><span class="v">${S.early ? EARLY_LIFEPATHS[S.early].supplies : '—'}</span></div>
+          <div class="stat-line"><span>Wealth</span><span class="v">${S.early ? EARLY_LIFEPATHS[S.early].wealth : '—'}</span></div>
+          <div class="stat-line"><span>Unspent TP</span><span class="v ${unspent ? 'neg' : ''}">${unspent}</span></div>
+          <div class="skill-bars">${bars}</div>
+          ${tList ? `<h3 style="margin-top:14px">Talents</h3><div class="side-talents">${tList}</div>` : ''}
+        </div>`;
+    }
+
+    render();
+  </script>
+</body>
+
+</html>
