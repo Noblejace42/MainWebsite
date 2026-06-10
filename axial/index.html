@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axial TTRPG — Hub</title>
+  <meta name="description"
+    content="Axial is a minimalist, genre-agnostic tabletop RPG by Emerson Neher. Read the rules, build characters, and forge gear." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #050810;
+      --surface: rgba(13, 20, 38, 0.72);
+      --border: rgba(0, 255, 204, 0.22);
+      --border-bright: rgba(0, 255, 204, 0.55);
+      --text: #d7e4e0;
+      --text-dim: #8fa3a0;
+      --accent: #00ffcc;
+      --accent-hover: #00cc99;
+      --accent-alt: #ff4fd8;
+      --glow: rgba(0, 255, 204, 0.35);
+      --glow-soft: rgba(0, 255, 204, 0.12);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    a { color: var(--accent); text-decoration: none; transition: color .2s; }
+    a:hover { color: var(--accent-hover); }
+    ::selection { background: var(--accent); color: #02110d; }
+
+    #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    .bg-aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 10%, rgba(0, 255, 204, 0.07), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 25%, rgba(255, 79, 216, 0.06), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 100%, rgba(0, 120, 255, 0.06), transparent 65%);
+    }
+
+    /* ===== NAV ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 14px 28px;
+      background: rgba(5, 8, 16, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      font-family: 'Press Start 2P', monospace;
+      font-size: .75em;
+      color: var(--accent);
+      text-shadow: 0 0 14px var(--glow);
+    }
+
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .nav-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .85em;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text);
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 14px;
+      transition: all .25s ease;
+    }
+
+    .nav-btn:hover { color: var(--accent); border-color: var(--border); background: var(--glow-soft); }
+
+    /* ===== PAGE ===== */
+    .page {
+      position: relative;
+      z-index: 2;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px 70px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 64px 0 44px;
+    }
+
+    .hero-kicker {
+      font-family: 'Press Start 2P', monospace;
+      font-size: .6em;
+      color: var(--accent-alt);
+      letter-spacing: .12em;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.6em, 6vw, 4em);
+      letter-spacing: -0.02em;
+      background: linear-gradient(100deg, var(--text) 10%, var(--accent) 55%, var(--accent-alt) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 14px;
+    }
+
+    .hero p {
+      max-width: 640px;
+      margin: 0 auto 10px;
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-size: 1.02em;
+    }
+
+    .hero p b { color: var(--text); }
+
+    .alpha-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 16px;
+      font-size: .8em;
+      font-weight: 600;
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: var(--glow-soft);
+      border-radius: 999px;
+      padding: 7px 14px;
+    }
+
+    .alpha-chip .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--glow);
+    }
+
+    /* ===== TOOL GRID ===== */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      margin-top: 12px;
+    }
+
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 24px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+      position: relative;
+      overflow: hidden;
+      color: var(--text);
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--border-bright);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35), 0 0 24px var(--glow-soft);
+      color: var(--text);
+    }
+
+    .tool-card:hover::before { opacity: 1; }
+
+    .tool-icon { font-size: 1.9em; }
+    .tool-card h3 { color: var(--accent); font-size: 1.15em; }
+    .tool-card p { font-size: .88em; color: var(--text-dim); line-height: 1.55; }
+
+    .tool-cta {
+      margin-top: auto;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: .85em;
+      letter-spacing: .04em;
+      color: var(--accent);
+    }
+
+    /* ===== LEGACY ===== */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin: 48px 0 18px;
+    }
+
+    .section-header h2 { font-size: 1.15em; color: var(--text); white-space: nowrap; }
+
+    .section-header .rule {
+      height: 1px;
+      flex-grow: 1;
+      background: linear-gradient(90deg, var(--border-bright), transparent);
+    }
+
+    .legacy-list { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .legacy-link {
+      font-size: .85em;
+      font-weight: 500;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 16px;
+      transition: all .25s ease;
+    }
+
+    .legacy-link:hover { color: var(--accent); border-color: var(--border-bright); background: var(--glow-soft); }
+
+    .footer {
+      margin-top: 56px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: .8em;
+      color: var(--text-dim);
+    }
+
+    .footer .pixel {
+      font-family: 'Press Start 2P', monospace;
+      font-size: .75em;
+      color: var(--accent);
+      opacity: .7;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="starfield"></canvas>
+  <div class="bg-aurora"></div>
+
+  <nav class="navbar">
+    <div class="nav-brand">AXIAL // HUB</div>
+    <div class="nav-links">
+      <a href="../index.html" class="nav-btn">← Home</a>
+      <a href="../AxialTTRPG/Axial.pdf" target="_blank" class="nav-btn">Rules PDF</a>
+      <a href="../dm-screen/index.html" class="nav-btn">DM Screen</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <header class="hero">
+      <div class="hero-kicker">&gt; A GENRE-AGNOSTIC TTRPG</div>
+      <h1>Axial</h1>
+      <p>
+        A minimalist roleplaying system built as a <b>universal base engine</b> — ten skills, a flexible
+        dice-pool contest system, and modular objects that work in any setting, from mud-and-steel
+        medieval drama to void-rated sci-fi salvage runs.
+      </p>
+      <span class="alpha-chip"><span class="dot"></span>Alpha — feedback welcome</span>
+    </header>
+
+    <div class="tool-grid">
+      <a class="tool-card" href="../AxialTTRPG/Axial.pdf" target="_blank">
+        <span class="tool-icon">📖</span>
+        <h3>The Rules</h3>
+        <p>The full Axial rulebook: core contests, objects and tags, character creation, powers, combat, and GM tools. Everything else on this page is built from it.</p>
+        <span class="tool-cta">Read the PDF →</span>
+      </a>
+
+      <a class="tool-card" href="charactergen.html">
+        <span class="tool-icon">🧬</span>
+        <h3>Character Generator</h3>
+        <p>Step-by-step character creation: birth traits, lifepaths, talent points, aging, bonds, and a printable summary sheet.</p>
+        <span class="tool-cta">Build a character →</span>
+      </a>
+
+      <a class="tool-card" href="geargen.html">
+        <span class="tool-icon">⚒</span>
+        <h3>Gear Forge</h3>
+        <p>Generate weapons, tools, and wearables in the official object struct — medieval, fantasy, modern, and sci-fi, from crude salvage to legendary relics. Batch rolls or a custom forge wizard.</p>
+        <span class="tool-cta">Forge gear →</span>
+      </a>
+
+      <a class="tool-card" href="axialcharactersheet.html">
+        <span class="tool-icon">📋</span>
+        <h3>Character Sheet</h3>
+        <p>A digital character sheet with tag tooltips, inventory structs, sticky notes, and JSON save/load. Pairs with the Gear Forge's exports.</p>
+        <span class="tool-cta">Open the sheet →</span>
+      </a>
+    </div>
+
+    <div class="section-header">
+      <h2>Legacy &amp; Experiments</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="legacy-list">
+      <a class="legacy-link" href="../systemgen.html">Astral Axial — System Generator</a>
+      <a class="legacy-link" href="../weapongenerator.html">Astral Axial — Weapon Generator</a>
+      <a class="legacy-link" href="../enemygen.html">Astral Axial — Enemy Generator</a>
+      <a class="legacy-link" href="../combat_tracker.html">Combat Tracker</a>
+    </div>
+
+    <footer class="footer">
+      <span class="pixel">AXIAL // EMERSON NEHER</span>
+      <span>Game design &amp; tools — <a href="mailto:emersonneher@gmail.com">emersonneher@gmail.com</a></span>
+    </footer>
+  </div>
+
+  <script>
+    // Starfield (same as the main landing page)
+    (function () {
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      let w, h;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function resize() {
+        w = canvas.width = document.documentElement.clientWidth;
+        h = canvas.height = window.innerHeight;
+        const count = Math.min(220, Math.floor((w * h) / 9000));
+        stars = Array.from({ length: count }, () => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.4 + 0.3,
+          speed: Math.random() * 0.18 + 0.03,
+          tw: Math.random() * Math.PI * 2,
+          twSpeed: Math.random() * 0.04 + 0.008
+        }));
+      }
+
+      function tick() {
+        ctx.clearRect(0, 0, w, h);
+        for (const s of stars) {
+          s.tw += s.twSpeed;
+          s.y -= s.speed;
+          if (s.y < -2) { s.y = h + 2; s.x = Math.random() * w; }
+          const alpha = 0.25 + Math.abs(Math.sin(s.tw)) * 0.55;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0, 255, 204, ${alpha})`;
+          ctx.fill();
+        }
+        if (!reduced) requestAnimationFrame(tick);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      tick();
+    })();
+  </script>
+</body>
+
+</html>

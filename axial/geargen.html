@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axial — Gear Forge</title>
+  <meta name="description"
+    content="Weapon, tool, and wearable generator for the Axial TTRPG. Medieval, fantasy, modern, and sci-fi gear built to the official object struct." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #050810;
+      --surface: rgba(13, 20, 38, 0.72);
+      --surface-strong: rgba(13, 20, 38, 0.95);
+      --border: rgba(0, 255, 204, 0.22);
+      --border-bright: rgba(0, 255, 204, 0.55);
+      --text: #d7e4e0;
+      --text-dim: #8fa3a0;
+      --accent: #00ffcc;
+      --accent-hover: #00cc99;
+      --accent-alt: #ff4fd8;
+      --glow: rgba(0, 255, 204, 0.35);
+      --glow-soft: rgba(0, 255, 204, 0.12);
+      --danger: #ff6b6b;
+      --gold: #ffd166;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .bg-aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 10%, rgba(0, 255, 204, 0.07), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 25%, rgba(255, 79, 216, 0.06), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 100%, rgba(0, 120, 255, 0.06), transparent 65%);
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+    ::selection { background: var(--accent); color: #02110d; }
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 6px; }
+
+    /* ===== NAV ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 13px 24px;
+      background: rgba(5, 8, 16, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      font-family: 'Press Start 2P', monospace;
+      font-size: .72em;
+      color: var(--accent);
+      text-shadow: 0 0 14px var(--glow);
+    }
+
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .nav-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .82em;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: all .25s ease;
+    }
+
+    .nav-btn:hover { color: var(--accent); border-color: var(--border); background: var(--glow-soft); }
+
+    /* ===== LAYOUT ===== */
+    .page {
+      position: relative;
+      z-index: 2;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      margin-bottom: 20px;
+    }
+
+    .card h2 { color: var(--accent); font-size: 1.25em; margin-bottom: 4px; }
+    .rules-note { font-size: .86em; color: var(--text-dim); line-height: 1.55; margin-bottom: 14px; }
+    .rules-note b { color: var(--text); }
+
+    /* ===== MODE TABS ===== */
+    .mode-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+
+    .mode-tab {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .88em;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .25s ease;
+      user-select: none;
+    }
+
+    .mode-tab:hover { border-color: var(--border-bright); color: var(--text); }
+
+    .mode-tab.active {
+      color: #02110d;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--glow);
+    }
+
+    /* ===== FILTERS ===== */
+    .filter-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .filter-label {
+      font-size: .74em;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent-alt);
+    }
+
+    select {
+      background: rgba(2, 6, 14, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: .92em;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: border-color .2s;
+      min-width: 150px;
+    }
+
+    select:focus { outline: none; border-color: var(--border-bright); }
+    select option { background: #0a1020; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: .9em;
+      letter-spacing: .03em;
+      padding: 11px 20px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all .22s ease;
+    }
+
+    .btn:hover { border-color: var(--border-bright); color: var(--accent); transform: translateY(-1px); }
+
+    .btn.glow {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #02110d;
+      box-shadow: 0 0 18px var(--glow);
+    }
+
+    .btn.glow:hover { background: var(--accent-hover); color: #02110d; }
+    .btn.small { padding: 6px 12px; font-size: .78em; border-radius: 8px; }
+    .btn.locked-btn { color: var(--gold); border-color: rgba(255, 209, 102, 0.5); }
+
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+    /* ===== CHOICE PILLS (Forge wizard) ===== */
+    .pill-row { display: flex; gap: 7px; flex-wrap: wrap; margin: 6px 0 14px; }
+
+    .pill {
+      font-size: .8em;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(2, 6, 14, 0.5);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all .2s ease;
+      user-select: none;
+    }
+
+    .pill:hover { border-color: var(--border-bright); color: var(--text); }
+    .pill.selected { border-color: var(--accent); color: var(--accent); background: var(--glow-soft); }
+
+    .forge-step-label {
+      font-size: .76em;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent-alt);
+      margin-top: 4px;
+    }
+
+    /* ===== RESULTS ===== */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 520px) { .results-grid { grid-template-columns: 1fr; } }
+
+    .item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color .25s ease, box-shadow .25s ease;
+      min-width: 0;
+    }
+
+    .item-card:hover { border-color: var(--border-bright); }
+    .item-card.locked { border-color: rgba(255, 209, 102, 0.55); box-shadow: 0 0 16px rgba(255, 209, 102, 0.12); }
+
+    .item-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .item-name { font-size: 1.08em; font-weight: 700; color: var(--accent); line-height: 1.3; }
+    .item-card.locked .item-name { color: var(--gold); }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .chip {
+      font-size: .7em;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .chip.tier-crude { color: #9aa5a3; }
+    .chip.tier-standard { color: var(--text); }
+    .chip.tier-fine { color: var(--accent); border-color: var(--border-bright); }
+    .chip.tier-masterwork { color: var(--accent-alt); border-color: rgba(255, 79, 216, 0.5); }
+    .chip.tier-legendary { color: var(--gold); border-color: rgba(255, 209, 102, 0.55); text-shadow: 0 0 8px rgba(255, 209, 102, 0.4); }
+
+    .item-desc { font-size: .85em; color: var(--text); line-height: 1.5; }
+    .item-quirk { font-size: .8em; color: var(--accent-alt); line-height: 1.45; }
+    .item-quirk::before { content: '✦ '; }
+
+    .struct-box {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78em;
+      line-height: 1.6;
+      background: rgba(2, 6, 14, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      overflow-wrap: anywhere;
+      color: var(--text);
+    }
+
+    .struct-box .tag { border-bottom: 1px dotted var(--text-dim); cursor: help; }
+    .struct-box .special-line { display: block; margin-top: 5px; color: var(--text-dim); }
+
+    .item-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: auto; }
+
+    .empty-note {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: .9em;
+      padding: 30px 0;
+      grid-column: 1 / -1;
+    }
+
+    .copy-flash { color: var(--accent) !important; border-color: var(--accent) !important; }
+
+    .hidden { display: none !important; }
+
+    .count-line { font-size: .8em; color: var(--text-dim); margin-top: 12px; }
+  </style>
+</head>
+
+<body>
+  <div class="bg-aurora"></div>
+
+  <nav class="navbar">
+    <div class="nav-brand">AXIAL // GEAR FORGE</div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-btn">← Axial Hub</a>
+      <a href="charactergen.html" class="nav-btn">Character Gen</a>
+      <a href="../AxialTTRPG/Axial.pdf" target="_blank" class="nav-btn">Rules PDF</a>
+      <a href="../index.html" class="nav-btn">Home</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <div class="card">
+      <h2>Gear Forge</h2>
+      <p class="rules-note">
+        Generates <b>weapons</b>, <b>tools</b>, and <b>wearables</b> for Axial using the official object struct:
+        <b>Name | type, subtype | Object Dice | (Skills, Range, Universal) | (Core, Extra) | Mass</b>.
+        Every item is rules-legal — hover any tag for its rules text. Quality is a balance filter applied
+        <i>before</i> generation, so a Crude batch and a Legendary batch are both fair for their tier.
+      </p>
+
+      <div class="mode-tabs">
+        <span class="mode-tab active" id="tab-quick" onclick="setMode('quick')">⚡ Quick Generate</span>
+        <span class="mode-tab" id="tab-forge" onclick="setMode('forge')">🔨 Forge (Custom)</span>
+      </div>
+
+      <!-- QUICK MODE FILTERS -->
+      <div id="quick-panel">
+        <div class="filter-row">
+          <div class="filter-group">
+            <span class="filter-label">Era</span>
+            <select id="q-era">
+              <option value="any">Any (mixed)</option>
+              <option value="medieval">⚔ Medieval</option>
+              <option value="fantasy">✨ Fantasy</option>
+              <option value="modern">⛭ Modern</option>
+              <option value="scifi">☄ Sci-Fi</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Item Type</span>
+            <select id="q-type">
+              <option value="any">Any (mixed)</option>
+              <option value="weapon">🗡 Weapons</option>
+              <option value="tool">🪛 Tools</option>
+              <option value="wearable">🛡 Wearables</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Quality</span>
+            <select id="q-tier">
+              <option value="random">Random (weighted)</option>
+              <option value="crude">Crude</option>
+              <option value="standard">Standard</option>
+              <option value="fine">Fine</option>
+              <option value="masterwork">Masterwork</option>
+              <option value="legendary">Legendary</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Batch</span>
+            <select id="q-count">
+              <option value="1">1 item</option>
+              <option value="3">3 items</option>
+              <option value="5" selected>5 items</option>
+              <option value="10">10 items</option>
+              <option value="20">20 items</option>
+            </select>
+          </div>
+          <button class="btn glow" onclick="quickGenerate()">⚡ Generate</button>
+        </div>
+        <p class="rules-note" style="margin: 12px 0 0;">
+          🔒 Locked items survive regeneration. Reroll keeps an item's era, type, and quality.
+        </p>
+      </div>
+
+      <!-- FORGE MODE -->
+      <div id="forge-panel" class="hidden">
+        <div class="forge-step-label">1 · Era</div>
+        <div class="pill-row" id="f-era"></div>
+        <div class="forge-step-label">2 · Type</div>
+        <div class="pill-row" id="f-type"></div>
+        <div class="forge-step-label">3 · Subtype</div>
+        <div class="pill-row" id="f-sub"></div>
+        <div class="forge-step-label">4 · Quality</div>
+        <div class="pill-row" id="f-tier"></div>
+        <div class="toolbar">
+          <button class="btn glow" onclick="forgeGenerate()">🔨 Forge Item</button>
+          <button class="btn" onclick="forgeSurprise()">🎲 Surprise Me</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card" id="results-card" style="display:none">
+      <h2 id="results-title">Forged Gear</h2>
+      <div class="toolbar" style="margin: 4px 0 16px;">
+        <button class="btn small" onclick="copyAll(this)">⧉ Copy All Structs</button>
+        <button class="btn small" onclick="exportJSON()">⬇ Export JSON</button>
+        <button class="btn small" onclick="clearAll()">✕ Clear (keeps locked)</button>
+      </div>
+      <div class="results-grid" id="results"></div>
+      <div class="count-line" id="count-line"></div>
+    </div>
+
+  </div>
+
+  <script src="geardata.js"></script>
+  <script>
+    'use strict';
+
+    // ==========================================================
+    // RNG + helpers
+    // ==========================================================
+    const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const chance = p => Math.random() < p;
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    function weightedPick(weights) {
+      const entries = Object.entries(weights).filter(([, w]) => w > 0);
+      const total = entries.reduce((a, [, w]) => a + w, 0);
+      let r = Math.random() * total;
+      for (const [k, w] of entries) { r -= w; if (r <= 0) return k; }
+      return entries[entries.length - 1][0];
+    }
+
+    // die helpers — DIE_STEPS = [4,6,8,10,12]
+    const dieIdx = size => DIE_STEPS.indexOf(size);
+    const stepDown = (size, n) => DIE_STEPS[Math.max(0, dieIdx(size) - n)];
+
+    function rollDieInRange(lo, hi, cap) {
+      const opts = DIE_STEPS.filter(d => d >= lo && d <= hi && (!cap || d <= cap));
+      return opts.length ? pick(opts) : Math.min(lo, cap || lo);
+    }
+
+    const CRUDE_PREFIXES = ['Rusty', 'Cracked', 'Bent', 'Makeshift', 'Patched', 'Salvaged', 'Splintered', 'Crude'];
+
+    const TIER_SENTENCES = {
+      crude: ['Ugly, but it works — mostly.', 'It has clearly been repaired by someone who hated it.', 'Cheap make, heavier hand.', 'Whoever made this was in a hurry.'],
+      standard: ['Honest, dependable make.', 'Unremarkable, in the way good equipment often is.', 'It does exactly what it looks like it does.', 'Standard issue, standard results.'],
+      fine: ['Fine craftsmanship shows in every line of it.', 'The work of a maker who cared.', 'Well-made and better kept.', 'Quality you can feel in the first second of holding it.'],
+      masterwork: ['A masterwork — you can feel the intent in it.', 'Craft like this gets passed down, not sold.', 'Flawless work from a master’s hand.', 'There may be a dozen like it. There may be none.'],
+      legendary: ['There are stories about this. Some of them are true.', 'It has a name, and it has earned it.', 'Objects like this find their owners, not the other way around.', 'Museums, kings, and worse have all wanted this.']
+    };
+
+    // X values that scale with tier
+    function tierX(tierKey, max) {
+      const ranges = { crude: [1, 1], standard: [1, 1], fine: [1, 2], masterwork: [2, 3], legendary: [2, 4] };
+      const [a, b] = ranges[tierKey];
+      return Math.min(ri(a, b), max || 99);
+    }
+
+    // Resolve a tag template like "Violent X" into concrete text
+    function resolveTag(tag, ctx) {
+      const t = ctx.tierKey;
+      switch (tag) {
+        case 'Violent X': return 'Violent ' + tierX(t, 3);
+        case 'Piercing X': return 'Piercing ' + tierX(t, 3);
+        case 'Flaming X': return 'Flaming ' + tierX(t, 3);
+        case 'Poisoned X': return 'Poisoned ' + tierX(t, 3);
+        case 'Shredding X': return 'Shredding ' + tierX(t, 2);
+        case 'Covering X': return 'Covering ' + tierX(t, 2);
+        case 'Consistent X': return 'Consistent ' + tierX(t, 2);
+        case 'Toughness X': return 'Toughness ' + tierX(t, 3);
+        case 'Shielding X': return 'Shielding ' + tierX(t, 2);
+        case 'Supporting X': return 'Supporting ' + (tierX(t, 4) * 3);
+        case 'Resistant X': return 'Resistant ' + pick(CONDITIONS[ctx.era]);
+        case 'Reload X': return 'Reload ' + ri(1, 2);
+        case 'Charging X': return 'Charging ' + ri(2, 4);
+        case 'Consumable X': return 'Consumable ' + ri(2, 4);
+        default: return tag;
+      }
+    }
+
+    const baseOf = tag => tag.replace(/\s+\d+$/, ' X').replace(/\|.+$/, '|X');
+
+    // Tooltip lookup: exact → numeric→X → pipe→X → "Word X" → "Word 1dX"
+    function tagTip(tag) {
+      if (TAG_INFO[tag]) return TAG_INFO[tag];
+      const numX = tag.replace(/\d+/, 'X');
+      if (TAG_INFO[numX]) return TAG_INFO[numX];
+      const dX = tag.replace(/1d\d+/, '1dX');
+      if (TAG_INFO[dX]) return TAG_INFO[dX];
+      if (tag.includes('|')) {
+        const piped = tag.split('|')[0] + '|X';
+        if (TAG_INFO[piped]) return TAG_INFO[piped];
+      }
+      const firstWord = tag.split(' ')[0] + ' X';
+      if (TAG_INFO[firstWord]) return TAG_INFO[firstWord];
+      return '';
+    }
+
+    // ==========================================================
+    // NAME / FLAVOR BUILDERS
+    // ==========================================================
+    function buildName(noun, era, tierKey, mats) {
+      const mat = pick(mats || MATERIALS[era]);
+      const pre = pick(PREFIXES[era]);
+      const org = pick(ORIGINS[era]);
+      switch (tierKey) {
+        case 'crude': return `${pick(CRUDE_PREFIXES)} ${noun}`;
+        case 'standard': return chance(.5) ? `${mat} ${noun}` : `${pre} ${noun}`;
+        case 'fine': return chance(.5) ? `${mat} ${noun} ${org}` : `${pre} ${mat} ${noun}`;
+        case 'masterwork': return chance(.6) ? `${pre} ${mat} ${noun} ${org}` : `${mat} ${noun} ${org}`;
+        case 'legendary': return `${pick(LEGEND_NAMES)}, the ${pre} ${noun}`;
+      }
+    }
+
+    function buildFlavor(item) {
+      const era = item.era, tierKey = item.tierKey;
+      item.desc = `${pick(TIER_SENTENCES[tierKey])} ${pick(DETAILS[era])}`;
+      const quirkChance = { crude: .2, standard: .2, fine: .35, masterwork: .6, legendary: 1 }[tierKey];
+      item.quirk = chance(quirkChance) ? pick(QUIRKS.universal.concat(QUIRKS[era])) : null;
+    }
+
+    // ==========================================================
+    // GENERATORS
+    // ==========================================================
+    function rollTier(tierKey) {
+      return tierKey === 'random' ? weightedPick(TIER_WEIGHTS) : tierKey;
+    }
+
+    function rollEra(era) {
+      return era === 'any' ? pick(Object.keys(ERAS)) : era;
+    }
+
+    function rollType(type) {
+      return type === 'any' ? weightedPick({ weapon: 4.5, tool: 3, wearable: 2.5 }) : type;
+    }
+
+    // ---- shared stat block from tier ----
+    function rollStats(tierKey, arch) {
+      const T = TIERS[tierKey];
+      let pot = ri(T.pot[0], T.pot[1]);
+      if (arch && arch.potCap) pot = Math.min(pot, arch.potCap);
+      const die = rollDieInRange(T.die[0], T.die[1], arch && arch.dieCap);
+      const acc = ri(T.acc[0], T.acc[1]);
+      return { pot, die, acc };
+    }
+
+    function addUnique(list, tag) {
+      if (!list.some(x => baseOf(x) === baseOf(tag))) list.push(tag);
+    }
+
+    // ---- WEAPON ----
+    function generateWeapon(era, tierKey) {
+      const subtype = weightedPick(ERA_WEAPON_WEIGHTS[era]);
+      const arch = WEAPONS[subtype];
+      const T = TIERS[tierKey];
+      const ctx = { era, tierKey };
+
+      const { pot, die, acc } = rollStats(tierKey, arch);
+      const skills = pick(arch.skills);
+      const range = pick(arch.range);
+
+      const universal = [];
+      const core = arch.core.map(t => resolveTag(t, ctx));
+      const extras = [];
+
+      // emitter-style weapons charge between recoveries
+      if (arch.chargingBase && chance(.6)) addUnique(universal, resolveTag('Charging X', ctx));
+
+      // extra tags from the archetype pool, gated by era
+      const pool = arch.extras.filter(t => !TAG_ERA_GATE[t.split(' ')[0]] || TAG_ERA_GATE[t.split(' ')[0]].includes(era));
+      if (arch.alwaysExtra) addUnique(extras, resolveTag(arch.alwaysExtra, ctx));
+      let nExtras = ri(T.extras[0], T.extras[1]);
+      let guard = 0;
+      while (extras.length < nExtras && pool.length && guard++ < 30) {
+        addUnique(extras, resolveTag(pick(pool), ctx));
+      }
+
+      // drawback
+      let finalAcc = acc;
+      if (chance(T.drawback)) {
+        const isRanged = range !== 'Melee';
+        const opts = ['Dangerous'];
+        if (isRanged && !core.some(t => t.startsWith('Reload'))) opts.push('Reload X');
+        if (core.includes('Energized') || universal.some(t => t.startsWith('Charging'))) opts.push('Charging X');
+        if (chance(.3)) opts.push('acc');
+        const d = pick(opts);
+        if (d === 'acc') finalAcc = Math.max(-2, finalAcc - ri(1, 2));
+        else if (d === 'Reload X') core.push(resolveTag('Reload X', ctx));
+        else if (d === 'Charging X') addUnique(universal, resolveTag('Charging X', ctx));
+        else addUnique(universal, 'Dangerous');
+      }
+
+      // requirement tag, keyed to the weapon's primary skill
+      let req = null;
+      if (chance(T.req)) {
+        req = `${REQ_TAG_OF[skills[0]]} 1d${Math.max(6, stepDown(die, 1))}`;
+      }
+
+      if (chance(T.ornate)) addUnique(universal, 'Ornate');
+      if (chance(T.consistent)) addUnique(extras, resolveTag('Consistent X', ctx));
+
+      // shields double as wearables
+      if (arch.multipurpose) {
+        addUnique(universal, `Multipurpose|${arch.multipurpose}`);
+        addUnique(extras, resolveTag(pick(arch.mpTags), ctx));
+      }
+
+      // special ability
+      let special = null;
+      if (arch.trapSpecial) special = TRAP_SPECIAL;
+      else if (chance(T.special)) special = pick(SPECIALS.weapon);
+      if (special) addUnique(universal, 'Special');
+
+      const mass = Math.max(1, arch.mass + (pot >= 4 ? 1 : 0) + ri(-1, 0));
+      const noun = pick(arch.names[era]);
+
+      const item = {
+        kind: 'weapon', era, tierKey, subtype,
+        name: buildName(noun, era, tierKey, arch.mat === 'wood' ? MATERIALS_WOOD[era] : null),
+        pot, die, acc: finalAcc, skills, range, req,
+        universal, core, extras, mass, special
+      };
+      buildFlavor(item);
+      return item;
+    }
+
+    // ---- WEARABLE ----
+    function generateWearable(era, tierKey) {
+      const slot = weightedPick(Object.fromEntries(Object.entries(WEARABLES).map(([k, v]) => [k, v.weight])));
+      const tmpl = pick(WEARABLES[slot].items[era]);
+      const T = TIERS[tierKey];
+      const ctx = { era, tierKey };
+
+      const { pot, die, acc } = rollStats(tierKey, { potCap: tmpl.cls === 'adorn' ? 2 : 3, dieCap: tmpl.cls === 'adorn' ? 8 : 12 });
+
+      const universal = [];
+      const core = [];
+      const extras = [];
+
+      if (tmpl.implanted || (era === 'scifi' && tmpl.cls === 'adorn' && chance(.3))) core.push('Implanted');
+      else if (tmpl.cls === 'adorn' || slot === 'trinket') core.push('Adornment');
+      if (tmpl.cls === 'gear') core.push('Gear');
+
+      const fallback = { armor: ['Toughness X', 'Shielding X', 'Protective'], gear: ['Resistant X', 'Supporting X'], adorn: ['Resistant X'] }[tmpl.cls];
+      const pool = (tmpl.extras.length ? tmpl.extras : fallback).concat(chance(.3) ? fallback : []);
+      let nExtras = ri(T.extras[0], T.extras[1]);
+      if (tmpl.cls === 'armor') nExtras = Math.max(1, nExtras); // armor always protects somehow
+      let guard = 0;
+      while (extras.length < nExtras && pool.length && guard++ < 30) {
+        addUnique(extras, resolveTag(pick(pool), ctx));
+      }
+
+      if (chance(T.drawback)) addUnique(universal, pick(['Dangerous', resolveTag('Consumable X', ctx)]));
+      if (chance(T.ornate) || slot === 'trinket' && chance(.4)) addUnique(universal, 'Ornate');
+      if (chance(T.consistent)) addUnique(extras, resolveTag('Consistent X', ctx));
+
+      let special = null;
+      if (chance(T.special)) special = pick(SPECIALS.wearable);
+      if (special) addUnique(universal, 'Special');
+
+      const slotMass = { head: 2, neck: 1, shoulder: 2, back: 2, chest: 4, belt: 1, arms: 2, legs: 2, feet: 1, trinket: 1 };
+      const mass = tmpl.cls === 'adorn' ? 1 : Math.max(1, slotMass[slot] + (tmpl.cls === 'armor' && pot >= 4 ? 1 : 0));
+
+      const item = {
+        kind: 'wearable', era, tierKey, subtype: slot,
+        name: buildName(tmpl.n, era, tierKey),
+        pot, die, acc, skills: tmpl.skills.slice(), range: null, req: null,
+        universal, core, extras, mass, special
+      };
+      // trinket names read better without materials at low tiers
+      if (slot === 'trinket' && (tierKey === 'crude' || tierKey === 'standard')) item.name = tmpl.n;
+      buildFlavor(item);
+      return item;
+    }
+
+    // ---- TOOL ----
+    function generateTool(era, tierKey) {
+      const candidates = TOOLS.filter(t => (!t.eras || t.eras.includes(era)) && t.names[era]);
+      const tool = pick(candidates);
+      const T = TIERS[tierKey];
+      const ctx = { era, tierKey };
+
+      const { pot, die, acc } = rollStats(tierKey, { potCap: 3, dieCap: 10 });
+
+      const universal = [];
+      const core = [`Aid|${tool.talent}`];
+      const extras = [];
+
+      if (tool.consumable) {
+        const uses = { crude: 1, standard: 2, fine: 3, masterwork: 4, legendary: 5 }[tierKey];
+        addUnique(universal, `Consumable ${uses}`);
+      }
+
+      // simple kits can be improvised from Supplies (rules 5.1)
+      if ((tierKey === 'crude' || tierKey === 'standard') && tool.mass <= 2) {
+        const cost = Math.max(1, Math.min(5, Math.round(tool.mass / 2 + dieIdx(die))));
+        core.push(`Supplies ${cost}`);
+      }
+
+      if (chance(T.consistent)) addUnique(extras, resolveTag('Consistent X', ctx));
+      if (chance(T.ornate)) addUnique(universal, 'Ornate');
+      if (chance(T.drawback)) addUnique(universal, 'Dangerous');
+
+      let special = null;
+      if (chance(T.special)) special = pick(SPECIALS.tool);
+      if (special) addUnique(universal, 'Special');
+
+      const mass = Math.max(1, tool.mass + ri(-1, 0));
+      const noun = tool.names[era];
+
+      const item = {
+        kind: 'tool', era, tierKey, subtype: null,
+        name: tierKey === 'crude' ? `${pick(CRUDE_PREFIXES)} ${noun}` :
+          tierKey === 'fine' || tierKey === 'masterwork' ? (chance(.5) ? `${noun} ${pick(ORIGINS[era])}` : `${pick(PREFIXES[era])} ${noun}`) :
+            tierKey === 'legendary' ? `${pick(LEGEND_NAMES)}, the ${noun}` : noun,
+        pot, die, acc, skills: tool.skills.slice(), range: null, req: null,
+        universal, core, extras, mass, special
+      };
+      buildFlavor(item);
+      return item;
+    }
+
+    function generateItem(params) {
+      const era = rollEra(params.era);
+      const tierKey = rollTier(params.tier);
+      const type = rollType(params.type);
+      const item = type === 'weapon' ? generateWeapon(era, tierKey)
+        : type === 'tool' ? generateTool(era, tierKey)
+          : generateWearable(era, tierKey);
+      item.params = params;
+      return item;
+    }
+
+    // ==========================================================
+    // STRUCT RENDERING
+    // ==========================================================
+    function diceStr(item) {
+      return `${item.pot}d${item.die}${item.acc > 0 ? '+' + item.acc : item.acc < 0 ? item.acc : ''}`;
+    }
+
+    function structParts(item) {
+      const typePart = item.subtype ? `${item.kind}, ${item.subtype}` : item.kind;
+      const g1 = [...item.skills];
+      if (item.range) g1.push(item.range);
+      if (item.req) g1.push(item.req);
+      g1.push(...item.universal);
+      const g2 = [...item.core, ...item.extras];
+      const parts = [item.name, typePart, diceStr(item)];
+      if (g1.length) parts.push(`(${g1.join(', ')})`);
+      if (g2.length) parts.push(`(${g2.join(', ')})`);
+      parts.push(`${item.mass} Mass`);
+      return parts;
+    }
+
+    function structText(item) {
+      let s = structParts(item).join(' | ');
+      if (item.special) s += `\n- ${item.special}`;
+      return s;
+    }
+
+    function structHTML(item) {
+      let s = esc(structParts(item).join(' | '));
+      s = s.replace(/\(([^)]+)\)/g, (m, inner) => {
+        const tags = inner.split(', ').map(t => {
+          const tip = tagTip(t);
+          return tip ? `<span class="tag" title="${esc(tip)}">${t}</span>` : t;
+        });
+        return `(${tags.join(', ')})`;
+      });
+      if (item.special) s += `<span class="special-line">- ${esc(item.special)}</span>`;
+      return s;
+    }
+
+    // Character-sheet-compatible JSON shape
+    function toSheetObject(item) {
+      return {
+        name: item.name,
+        type: item.kind,
+        subtype: item.subtype || '',
+        count: item.pot,
+        size: 'd' + item.die,
+        modifier: item.acc,
+        skillTags: item.skills.concat(item.req ? [item.req] : [], item.universal),
+        rangeTag: item.range || '',
+        coreExtraTags: item.core.concat(item.extras),
+        special: item.special || '',
+        mass: item.mass,
+        // flavor (ignored by the sheet, kept for reference)
+        era: item.era, quality: TIERS[item.tierKey].label,
+        description: item.desc, quirk: item.quirk || ''
+      };
+    }
+
+    // ==========================================================
+    // STATE + UI
+    // ==========================================================
+    let items = []; // [{item, locked}]
+    let mode = 'quick';
+
+    const $results = document.getElementById('results');
+    const $resultsCard = document.getElementById('results-card');
+    const $countLine = document.getElementById('count-line');
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById('tab-quick').classList.toggle('active', m === 'quick');
+      document.getElementById('tab-forge').classList.toggle('active', m === 'forge');
+      document.getElementById('quick-panel').classList.toggle('hidden', m !== 'quick');
+      document.getElementById('forge-panel').classList.toggle('hidden', m !== 'forge');
+    }
+
+    function quickGenerate() {
+      const params = {
+        era: document.getElementById('q-era').value,
+        type: document.getElementById('q-type').value,
+        tier: document.getElementById('q-tier').value
+      };
+      const n = +document.getElementById('q-count').value;
+      items = items.filter(e => e.locked);
+      for (let i = 0; i < n; i++) items.push({ item: generateItem(params), locked: false });
+      renderResults();
+    }
+
+    function rerollItem(idx) {
+      const e = items[idx];
+      // forge items remember their exact subtype constraints
+      e.item = e.item.forgeParams ? forgeItemFrom(e.item.forgeParams) : generateItem(e.item.params);
+      renderResults();
+    }
+
+    function toggleLock(idx) {
+      items[idx].locked = !items[idx].locked;
+      renderResults();
+    }
+
+    function removeItem(idx) {
+      items.splice(idx, 1);
+      renderResults();
+    }
+
+    function clearAll() {
+      items = items.filter(e => e.locked);
+      renderResults();
+    }
+
+    function copyText(text, btn) {
+      const done = () => {
+        if (!btn) return;
+        btn.classList.add('copy-flash');
+        const old = btn.textContent;
+        btn.textContent = '✓ Copied';
+        setTimeout(() => { btn.classList.remove('copy-flash'); btn.textContent = old; }, 1100);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+      } else fallbackCopy(text, done);
+    }
+
+    function fallbackCopy(text, done) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+      ta.remove();
+      done();
+    }
+
+    function copyStruct(idx, btn) {
+      copyText(structText(items[idx].item), btn);
+    }
+
+    function copyAll(btn) {
+      if (!items.length) return;
+      copyText(items.map(e => structText(e.item)).join('\n\n'), btn);
+    }
+
+    function exportJSON() {
+      if (!items.length) return;
+      const data = items.map(e => toSheetObject(e.item));
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'axial_gear.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function renderResults() {
+      $resultsCard.style.display = items.length ? '' : 'none';
+      $results.innerHTML = items.map((e, i) => {
+        const it = e.item;
+        const tier = TIERS[it.tierKey];
+        return `<div class="item-card ${e.locked ? 'locked' : ''}">
+          <div class="item-head">
+            <div class="item-name">${esc(it.name)}</div>
+          </div>
+          <div class="chip-row">
+            <span class="chip tier-${it.tierKey}">${tier.label}</span>
+            <span class="chip">${ERAS[it.era].icon} ${ERAS[it.era].label}</span>
+            <span class="chip">${TYPES[it.kind].icon} ${it.subtype ? esc(it.subtype) : TYPES[it.kind].label}</span>
+            <span class="chip">${diceStr(it)}</span>
+            <span class="chip">${it.mass} mass</span>
+          </div>
+          <div class="item-desc">${esc(it.desc)}</div>
+          ${it.quirk ? `<div class="item-quirk">${esc(it.quirk)}</div>` : ''}
+          <div class="struct-box">${structHTML(it)}</div>
+          <div class="item-actions">
+            <button class="btn small" onclick="rerollItem(${i})">↻ Reroll</button>
+            <button class="btn small ${e.locked ? 'locked-btn' : ''}" onclick="toggleLock(${i})">${e.locked ? '🔓 Unlock' : '🔒 Lock'}</button>
+            <button class="btn small" onclick="copyStruct(${i}, this)">⧉ Struct</button>
+            <button class="btn small" onclick="removeItem(${i})">✕</button>
+          </div>
+        </div>`;
+      }).join('') || '<div class="empty-note">Nothing forged yet.</div>';
+      const locked = items.filter(e => e.locked).length;
+      $countLine.textContent = `${items.length} item${items.length === 1 ? '' : 's'}${locked ? ` · ${locked} locked` : ''}`;
+    }
+
+    // ==========================================================
+    // FORGE (custom) MODE
+    // ==========================================================
+    const forge = { era: 'medieval', type: 'weapon', sub: 'random', tier: 'random' };
+
+    function forgePills(containerId, options, current, onPick) {
+      document.getElementById(containerId).innerHTML = options.map(o =>
+        `<span class="pill ${o.value === current ? 'selected' : ''}" onclick="${onPick}('${o.value.replace(/'/g, "\\'")}')">${o.label}</span>`
+      ).join('');
+    }
+
+    function renderForge() {
+      forgePills('f-era', Object.entries(ERAS).map(([k, v]) => ({ value: k, label: `${v.icon} ${v.label}` })), forge.era, 'setForgeEra');
+      forgePills('f-type', Object.entries(TYPES).map(([k, v]) => ({ value: k, label: `${v.icon} ${v.label}` })), forge.type, 'setForgeType');
+      forgePills('f-sub', forgeSubOptions(), forge.sub, 'setForgeSub');
+      forgePills('f-tier', [{ value: 'random', label: '🎲 Random' }].concat(Object.entries(TIERS).map(([k, v]) => ({ value: k, label: v.label }))), forge.tier, 'setForgeTier');
+    }
+
+    function forgeSubOptions() {
+      const opts = [{ value: 'random', label: '🎲 Random' }];
+      if (forge.type === 'weapon') {
+        Object.keys(ERA_WEAPON_WEIGHTS[forge.era]).forEach(s => {
+          const ex = WEAPONS[s].names[forge.era];
+          if (ex) opts.push({ value: s, label: `${s} (${ex[0]})` });
+        });
+      } else if (forge.type === 'tool') {
+        TOOLS.filter(t => (!t.eras || t.eras.includes(forge.era)) && t.names[forge.era])
+          .forEach(t => opts.push({ value: t.talent, label: `${t.talent} (${t.names[forge.era]})` }));
+      } else {
+        Object.keys(WEARABLES).forEach(s => opts.push({ value: s, label: s }));
+      }
+      return opts;
+    }
+
+    function setForgeEra(v) { forge.era = v; forge.sub = 'random'; renderForge(); }
+    function setForgeType(v) { forge.type = v; forge.sub = 'random'; renderForge(); }
+    function setForgeSub(v) { forge.sub = v; renderForge(); }
+    function setForgeTier(v) { forge.tier = v; renderForge(); }
+
+    // Generate honoring a pinned subtype by rejection-sampling the era pools
+    function forgeItemFrom(fp) {
+      const tierKey = rollTier(fp.tier);
+      let item;
+      if (fp.sub === 'random') {
+        item = fp.type === 'weapon' ? generateWeapon(fp.era, tierKey)
+          : fp.type === 'tool' ? generateTool(fp.era, tierKey)
+            : generateWearable(fp.era, tierKey);
+      } else if (fp.type === 'weapon') {
+        let guard = 0;
+        do { item = generateWeapon(fp.era, tierKey); } while (item.subtype !== fp.sub && guard++ < 400);
+        if (item.subtype !== fp.sub) item = null;
+      } else if (fp.type === 'tool') {
+        let guard = 0;
+        do { item = generateTool(fp.era, tierKey); } while (!item.core.includes('Aid|' + fp.sub) && guard++ < 400);
+      } else {
+        let guard = 0;
+        do { item = generateWearable(fp.era, tierKey); } while (item.subtype !== fp.sub && guard++ < 400);
+      }
+      if (!item) item = generateItem({ era: fp.era, type: fp.type, tier: fp.tier });
+      item.params = { era: fp.era, type: fp.type, tier: fp.tier };
+      item.forgeParams = fp;
+      return item;
+    }
+
+    function forgeGenerate() {
+      const fp = { ...forge };
+      items.unshift({ item: forgeItemFrom(fp), locked: false });
+      renderResults();
+      $resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function forgeSurprise() {
+      forge.era = pick(Object.keys(ERAS));
+      forge.type = pick(Object.keys(TYPES));
+      forge.sub = 'random';
+      forge.tier = 'random';
+      renderForge();
+      forgeGenerate();
+    }
+
+    renderForge();
+  </script>
+</body>
+
+</html>
