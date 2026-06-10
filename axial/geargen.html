@@ -353,8 +353,8 @@
       </p>
 
       <div class="mode-tabs">
-        <span class="mode-tab active" id="tab-quick" onclick="setMode('quick')">⚡ Quick Generate</span>
-        <span class="mode-tab" id="tab-forge" onclick="setMode('forge')">🔨 Forge (Custom)</span>
+        <span class="mode-tab active" id="tab-quick" onclick="setMode('quick')">Quick Generate</span>
+        <span class="mode-tab" id="tab-forge" onclick="setMode('forge')">Forge (Custom)</span>
       </div>
 
       <!-- QUICK MODE FILTERS -->
@@ -364,19 +364,19 @@
             <span class="filter-label">Era</span>
             <select id="q-era">
               <option value="any">Any (mixed)</option>
-              <option value="medieval">⚔ Medieval</option>
-              <option value="fantasy">✨ Fantasy</option>
-              <option value="modern">⛭ Modern</option>
-              <option value="scifi">☄ Sci-Fi</option>
+              <option value="medieval">Medieval</option>
+              <option value="fantasy">Fantasy</option>
+              <option value="modern">Modern</option>
+              <option value="scifi">Sci-Fi</option>
             </select>
           </div>
           <div class="filter-group">
             <span class="filter-label">Item Type</span>
             <select id="q-type">
               <option value="any">Any (mixed)</option>
-              <option value="weapon">🗡 Weapons</option>
-              <option value="tool">🪛 Tools</option>
-              <option value="wearable">🛡 Wearables</option>
+              <option value="weapon">Weapons</option>
+              <option value="tool">Tools</option>
+              <option value="wearable">Wearables</option>
             </select>
           </div>
           <div class="filter-group">
@@ -400,10 +400,10 @@
               <option value="20">20 items</option>
             </select>
           </div>
-          <button class="btn glow" onclick="quickGenerate()">⚡ Generate</button>
+          <button class="btn glow" onclick="quickGenerate()">Generate</button>
         </div>
         <p class="rules-note" style="margin: 12px 0 0;">
-          🔒 Locked items survive regeneration. Reroll keeps an item's era, type, and quality.
+          Locked items survive regeneration. Reroll keeps an item's era, type, and quality.
         </p>
       </div>
 
@@ -418,8 +418,8 @@
         <div class="forge-step-label">4 · Quality</div>
         <div class="pill-row" id="f-tier"></div>
         <div class="toolbar">
-          <button class="btn glow" onclick="forgeGenerate()">🔨 Forge Item</button>
-          <button class="btn" onclick="forgeSurprise()">🎲 Surprise Me</button>
+          <button class="btn glow" onclick="forgeGenerate()">Forge Item</button>
+          <button class="btn" onclick="forgeSurprise()">Surprise Me</button>
         </div>
       </div>
     </div>
@@ -429,7 +429,7 @@
       <h2 id="results-title">Forged Gear</h2>
       <div class="toolbar" style="margin: 4px 0 16px;">
         <button class="btn small" onclick="copyAll(this)">⧉ Copy All Structs</button>
-        <button class="btn small" onclick="exportJSON()">⬇ Export JSON</button>
+        <button class="btn small" onclick="exportJSON()">Export JSON</button>
         <button class="btn small" onclick="clearAll()">✕ Clear (keeps locked)</button>
       </div>
       <div class="results-grid" id="results"></div>
@@ -467,14 +467,64 @@
       return opts.length ? pick(opts) : Math.min(lo, cap || lo);
     }
 
-    const CRUDE_PREFIXES = ['Rusty', 'Cracked', 'Bent', 'Makeshift', 'Patched', 'Salvaged', 'Splintered', 'Crude'];
+    const CRUDE_PREFIXES = [
+      'Rusty', 'Cracked', 'Bent', 'Makeshift', 'Patched', 'Salvaged', 'Splintered', 'Crude',
+      'Chipped', 'Warped', 'Mismatched', 'Scrap-Built', 'Half-Finished', 'Re-Riveted', 'Wobbly',
+      'Corroded', 'Third-Hand', 'Jury-Rigged', 'Battered', 'Gouged', 'Taped-Up', 'Wire-Bound',
+      'Sun-Bleached', 'Water-Stained', 'Moth-Eaten', 'Apprentice-Made'
+    ];
 
     const TIER_SENTENCES = {
-      crude: ['Ugly, but it works — mostly.', 'It has clearly been repaired by someone who hated it.', 'Cheap make, heavier hand.', 'Whoever made this was in a hurry.'],
-      standard: ['Honest, dependable make.', 'Unremarkable, in the way good equipment often is.', 'It does exactly what it looks like it does.', 'Standard issue, standard results.'],
-      fine: ['Fine craftsmanship shows in every line of it.', 'The work of a maker who cared.', 'Well-made and better kept.', 'Quality you can feel in the first second of holding it.'],
-      masterwork: ['A masterwork — you can feel the intent in it.', 'Craft like this gets passed down, not sold.', 'Flawless work from a master’s hand.', 'There may be a dozen like it. There may be none.'],
-      legendary: ['There are stories about this. Some of them are true.', 'It has a name, and it has earned it.', 'Objects like this find their owners, not the other way around.', 'Museums, kings, and worse have all wanted this.']
+      crude: [
+        'Ugly, but it works — mostly.',
+        'It has clearly been repaired by someone who hated it.',
+        'Cheap make, heavier hand.',
+        'Whoever made this was in a hurry.',
+        'Every part of it is a replacement for a better part.',
+        'It asks very little of its owner, and delivers about the same.',
+        'Built from what was on hand, by someone with somewhere else to be.',
+        'It works on the second try, reliably.'
+      ],
+      standard: [
+        'Honest, dependable make.',
+        'Unremarkable, in the way good equipment often is.',
+        'It does exactly what it looks like it does.',
+        'Standard issue, standard results.',
+        'Nothing about it will surprise you, which is the point.',
+        'Ten thousand like it were made; this one was kept.',
+        'A working tool, owned by working people.',
+        'It earns no compliments and no complaints.'
+      ],
+      fine: [
+        'Fine craftsmanship shows in every line of it.',
+        'The work of a maker who cared.',
+        'Well-made and better kept.',
+        'Quality you can feel in the first second of holding it.',
+        'Someone paid extra for this, and got their money’s worth.',
+        'The tolerances are tighter than they needed to be.',
+        'Made to order, for someone with good taste and steady hands.',
+        'The kind of work a maker signs.'
+      ],
+      masterwork: [
+        'A masterwork — you can feel the intent in it.',
+        'Craft like this gets passed down, not sold.',
+        'Flawless work from a master’s hand.',
+        'There may be a dozen like it. There may be none.',
+        'The maker kept it for years before parting with it.',
+        'Apprentices were brought in just to watch it being made.',
+        'Every decision in it was made twice and checked three times.',
+        'It makes its owner slightly better than they are.'
+      ],
+      legendary: [
+        'There are stories about this. Some of them are true.',
+        'It has a name, and it has earned it.',
+        'Objects like this find their owners, not the other way around.',
+        'Museums, kings, and worse have all wanted this.',
+        'It has outlived everyone who ever claimed to own it.',
+        'Histories disagree about everything except that it exists.',
+        'People who know what it is go quiet around it.',
+        'It has been lost more times than it has been sold.'
+      ]
     };
 
     // X values that scale with tier
@@ -927,8 +977,8 @@
           </div>
           <div class="chip-row">
             <span class="chip tier-${it.tierKey}">${tier.label}</span>
-            <span class="chip">${ERAS[it.era].icon} ${ERAS[it.era].label}</span>
-            <span class="chip">${TYPES[it.kind].icon} ${it.subtype ? esc(it.subtype) : TYPES[it.kind].label}</span>
+            <span class="chip">${ERAS[it.era].label}</span>
+            <span class="chip">${it.subtype ? esc(it.subtype) : TYPES[it.kind].label}</span>
             <span class="chip">${diceStr(it)}</span>
             <span class="chip">${it.mass} mass</span>
           </div>
@@ -937,7 +987,7 @@
           <div class="struct-box">${structHTML(it)}</div>
           <div class="item-actions">
             <button class="btn small" onclick="rerollItem(${i})">↻ Reroll</button>
-            <button class="btn small ${e.locked ? 'locked-btn' : ''}" onclick="toggleLock(${i})">${e.locked ? '🔓 Unlock' : '🔒 Lock'}</button>
+            <button class="btn small ${e.locked ? 'locked-btn' : ''}" onclick="toggleLock(${i})">${e.locked ? 'Unlock' : 'Lock'}</button>
             <button class="btn small" onclick="copyStruct(${i}, this)">⧉ Struct</button>
             <button class="btn small" onclick="removeItem(${i})">✕</button>
           </div>
@@ -959,14 +1009,14 @@
     }
 
     function renderForge() {
-      forgePills('f-era', Object.entries(ERAS).map(([k, v]) => ({ value: k, label: `${v.icon} ${v.label}` })), forge.era, 'setForgeEra');
-      forgePills('f-type', Object.entries(TYPES).map(([k, v]) => ({ value: k, label: `${v.icon} ${v.label}` })), forge.type, 'setForgeType');
+      forgePills('f-era', Object.entries(ERAS).map(([k, v]) => ({ value: k, label: v.label })), forge.era, 'setForgeEra');
+      forgePills('f-type', Object.entries(TYPES).map(([k, v]) => ({ value: k, label: v.label })), forge.type, 'setForgeType');
       forgePills('f-sub', forgeSubOptions(), forge.sub, 'setForgeSub');
-      forgePills('f-tier', [{ value: 'random', label: '🎲 Random' }].concat(Object.entries(TIERS).map(([k, v]) => ({ value: k, label: v.label }))), forge.tier, 'setForgeTier');
+      forgePills('f-tier', [{ value: 'random', label: 'Random' }].concat(Object.entries(TIERS).map(([k, v]) => ({ value: k, label: v.label }))), forge.tier, 'setForgeTier');
     }
 
     function forgeSubOptions() {
-      const opts = [{ value: 'random', label: '🎲 Random' }];
+      const opts = [{ value: 'random', label: 'Random' }];
       if (forge.type === 'weapon') {
         Object.keys(ERA_WEAPON_WEIGHTS[forge.era]).forEach(s => {
           const ex = WEAPONS[s].names[forge.era];
