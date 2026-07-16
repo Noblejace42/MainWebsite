@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent vs. Buy Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --buy: #3b82f6;
+            --buy-dim: rgba(59,130,246,0.15);
+            --rent: #ef4444;
+            --rent-dim: rgba(239,68,68,0.15);
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #293548;
+            --border: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* ── Header ── */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.75rem;
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+        header p { color: var(--muted); font-size: 0.8rem; }
+        .back-link {
+            margin-left: auto;
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        /* ── Layout ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 1.25rem;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 1.25rem;
+            align-items: start;
+        }
+        @media (max-width: 860px) {
+            .layout { grid-template-columns: 1fr; }
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.125rem;
+            margin-bottom: 1rem;
+        }
+        .card:last-child { margin-bottom: 0; }
+
+        .card-label {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 0.875rem;
+        }
+
+        /* ── Inputs ── */
+        .field { margin-bottom: 0.75rem; }
+        .field:last-child { margin-bottom: 0; }
+        .field label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 0.3rem;
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            transition: border-color 0.15s;
+        }
+        .input-row:focus-within { border-color: var(--accent); }
+        .adorn {
+            padding: 0 0.5rem;
+            color: var(--muted);
+            font-size: 0.8125rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .adorn-left { border-right: 1px solid var(--border); }
+        .adorn-right { border-left: 1px solid var(--border); }
+        input[type="number"] {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 0.875rem;
+            padding: 0.45rem 0.5rem;
+            width: 100%;
+            min-width: 0;
+            outline: none;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { opacity: 0.3; }
+
+        /* ── Results panel ── */
+        .results { display: flex; flex-direction: column; gap: 1rem; }
+
+        /* ── Summary grid ── */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+        @media (max-width: 1100px) {
+            .summary { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .summary { grid-template-columns: 1fr; }
+        }
+
+        .metric {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.875rem 1rem;
+            border-top-width: 3px;
+        }
+        .metric.buy-metric { border-top-color: var(--buy); }
+        .metric.rent-metric { border-top-color: var(--rent); }
+        .metric.neutral-metric { border-top-color: var(--accent); }
+
+        .metric-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 0.375rem;
+        }
+        .metric-value { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+        .metric-sub { font-size: 0.6875rem; color: var(--muted); margin-top: 0.35rem; }
+
+        /* ── Chart card ── */
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.125rem;
+        }
+        .chart-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .chart-sub {
+            font-size: 0.6875rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+        canvas { max-height: 300px; }
+
+        /* ── Table ── */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table-header {
+            padding: 0.875rem 1.125rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        thead th {
+            padding: 0.5rem 0.875rem;
+            text-align: right;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        thead th:first-child { text-align: left; }
+        tbody td {
+            padding: 0.45rem 0.875rem;
+            text-align: right;
+            color: var(--muted);
+            border-bottom: 1px solid rgba(51,65,85,0.5);
+            white-space: nowrap;
+        }
+        tbody td:first-child { text-align: left; color: var(--text); font-weight: 500; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: rgba(255,255,255,0.025); }
+
+        .row-buy td { color: #86efac !important; }
+        .row-buy td:first-child { color: var(--text) !important; }
+        .row-rent td { color: #fca5a5 !important; }
+        .row-rent td:first-child { color: var(--text) !important; }
+        .row-break { background: rgba(56,189,248,0.06) !important; }
+        .row-break td { color: var(--accent) !important; font-weight: 600; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.45rem;
+            border-radius: 99px;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .badge-buy  { background: rgba(59,130,246,0.2);  color: #93c5fd; }
+        .badge-rent { background: rgba(239,68,68,0.2);   color: #fca5a5; }
+        .badge-tie  { background: rgba(56,189,248,0.2);  color: #7dd3fc; }
+
+        /* ── Methodology note ── */
+        .note {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.125rem;
+            font-size: 0.7rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+        .note strong { color: var(--text); }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Rent vs. Buy Calculator</h1>
+    <p>True financial cost comparison — net of equity, investment returns, and transaction costs</p>
+    <a class="back-link" href="index.html">← Back to portfolio</a>
+</header>
+
+<div class="layout">
+
+    <!-- ── Inputs ── -->
+    <div class="inputs-col">
+
+        <div class="card">
+            <div class="card-label">Property</div>
+
+            <div class="field">
+                <label>Home size</label>
+                <div class="input-row">
+                    <input type="number" id="sqft" value="1500" min="100" step="50">
+                    <span class="adorn adorn-right">sq ft</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Purchase price per sq ft</label>
+                <div class="input-row">
+                    <span class="adorn adorn-left">$</span>
+                    <input type="number" id="buyPpsf" value="250" min="1" step="5">
+                    <span class="adorn adorn-right">/ sq ft</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Rental price per sq ft / month</label>
+                <div class="input-row">
+                    <span class="adorn adorn-left">$</span>
+                    <input type="number" id="rentPpsf" value="1.50" min="0.01" step="0.05">
+                    <span class="adorn adorn-right">/ sq ft / mo</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Purchase Costs</div>
+
+            <div class="field">
+                <label>Down payment</label>
+                <div class="input-row">
+                    <input type="number" id="downPct" value="20" min="0" max="100" step="1">
+                    <span class="adorn adorn-right">%</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>30-year mortgage interest rate</label>
+                <div class="input-row">
+                    <input type="number" id="mortgageRate" value="6.8" min="0.1" max="30" step="0.05">
+                    <span class="adorn adorn-right">% / year</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Annual property tax</label>
+                <div class="input-row">
+                    <input type="number" id="propTaxRate" value="1.2" min="0" max="5" step="0.05">
+                    <span class="adorn adorn-right">% of home value</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Annual maintenance &amp; repairs</label>
+                <div class="input-row">
+                    <input type="number" id="maintRate" value="1.0" min="0" max="10" step="0.1">
+                    <span class="adorn adorn-right">% of home value</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Purchase closing costs (legal, title, underwriting)</label>
+                <div class="input-row">
+                    <input type="number" id="closingRate" value="3.0" min="0" max="10" step="0.1">
+                    <span class="adorn adorn-right">% of purchase price</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Selling / brokerage cost at exit</label>
+                <div class="input-row">
+                    <input type="number" id="sellingRate" value="5.5" min="0" max="15" step="0.1">
+                    <span class="adorn adorn-right">% of sale price</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Growth &amp; Returns</div>
+
+            <div class="field">
+                <label>Annual home appreciation</label>
+                <div class="input-row">
+                    <input type="number" id="appreciationRate" value="3.0" min="-10" max="20" step="0.1">
+                    <span class="adorn adorn-right">% / year</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Annual rent increase</label>
+                <div class="input-row">
+                    <input type="number" id="rentIncRate" value="3.0" min="-10" max="20" step="0.1">
+                    <span class="adorn adorn-right">% / year</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Investment return on saved capital (opportunity cost)</label>
+                <div class="input-row">
+                    <input type="number" id="investReturn" value="7.0" min="0" max="30" step="0.1">
+                    <span class="adorn adorn-right">% / year</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Analysis Window</div>
+
+            <div class="field">
+                <label>Time horizon</label>
+                <div class="input-row">
+                    <input type="number" id="years" value="15" min="1" max="30" step="1">
+                    <span class="adorn adorn-right">years</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /inputs-col -->
+
+    <!-- ── Results ── -->
+    <div class="results">
+
+        <div class="summary" id="summaryGrid"></div>
+
+        <div class="chart-card">
+            <div class="chart-title">Cumulative Net Cost Over Time</div>
+            <div class="chart-sub">Lower is better. Negative values mean you came out ahead financially.</div>
+            <canvas id="chart"></canvas>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">Year-by-Year Breakdown</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Mo. Rent</th>
+                            <th>Mo. Buy Cost</th>
+                            <th>Home Value</th>
+                            <th>Equity</th>
+                            <th>Net Cost — Buy</th>
+                            <th>Net Cost — Rent</th>
+                            <th>Advantage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>Methodology.</strong>
+            Both the buyer and renter begin with the same capital (down payment + closing costs).
+            The renter invests that capital at the specified return rate, plus any monthly savings when
+            renting costs less than buying (if buying is more expensive per month, the renter invests the
+            difference; if renting is more expensive, the renter draws from the portfolio).
+            <strong>Net cost to buy</strong> = all cash paid out (down payment, closing costs, full mortgage
+            payments, property taxes, maintenance) minus net sale proceeds (home value × (1 − selling rate)
+            − remaining mortgage balance). Property taxes and maintenance are recalculated each year
+            against the current appreciated home value.
+            <strong>Net cost to rent</strong> = cumulative rent paid, minus investment portfolio gains above
+            the initial capital deployed. When net cost to buy &lt; net cost to rent, owning has become the
+            more efficient use of capital over the chosen horizon.
+        </div>
+
+    </div><!-- /results -->
+</div><!-- /layout -->
+
+<script>
+let chartInst = null;
+
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function fmtDollar(n) {
+    const abs = Math.abs(n);
+    const sign = n < 0 ? '−$' : '$';
+    if (abs >= 1e6) return sign + (abs / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e3) return sign + (abs / 1e3).toFixed(1) + 'K';
+    return sign + Math.round(abs).toLocaleString('en-US');
+}
+
+function fmtFull(n) {
+    return (n < 0 ? '−$' : '$') + Math.round(Math.abs(n)).toLocaleString('en-US');
+}
+
+function monthlyPayment(principal, annualRate, nMonths) {
+    const r = annualRate / 100 / 12;
+    if (r < 1e-9) return principal / nMonths;
+    return principal * r * Math.pow(1 + r, nMonths) / (Math.pow(1 + r, nMonths) - 1);
+}
+
+function remainingBalance(principal, annualRate, nMonths, paymentsMade) {
+    const r = annualRate / 100 / 12;
+    if (r < 1e-9) return Math.max(0, principal - (principal / nMonths) * paymentsMade);
+    const M = monthlyPayment(principal, annualRate, nMonths);
+    return principal * Math.pow(1 + r, paymentsMade) - M * (Math.pow(1 + r, paymentsMade) - 1) / r;
+}
+
+function calculate() {
+    const sqft         = v('sqft');
+    const buyPpsf      = v('buyPpsf');
+    const rentPpsf     = v('rentPpsf');
+    const downPct      = v('downPct');
+    const mortRate     = v('mortgageRate');
+    const propTaxRate  = v('propTaxRate');
+    const maintRate    = v('maintRate');
+    const closingRate  = v('closingRate');
+    const sellingRate  = v('sellingRate');
+    const appRate      = v('appreciationRate');
+    const rentIncRate  = v('rentIncRate');
+    const invReturn    = v('investReturn');
+    const years        = Math.max(1, Math.min(30, Math.round(v('years'))));
+
+    const homePrice   = sqft * buyPpsf;
+    const downPayment = homePrice * downPct / 100;
+    const loanAmount  = homePrice - downPayment;
+    const closing     = homePrice * closingRate / 100;
+    const upfront     = downPayment + closing;
+    const baseRent    = sqft * rentPpsf;
+    const mortMo      = monthlyPayment(loanAmount, mortRate, 360);
+
+    const mApp  = Math.pow(1 + appRate      / 100, 1 / 12) - 1;
+    const mRent = Math.pow(1 + rentIncRate   / 100, 1 / 12) - 1;
+    const mInv  = Math.pow(1 + invReturn    / 100, 1 / 12) - 1;
+
+    let homeValue  = homePrice;
+    let rent       = baseRent;
+    let portfolio  = upfront;
+    let cumMort    = 0;
+    let cumTaxMnt  = 0;
+    let cumRent    = 0;
+
+    const yearData = [];
+
+    for (let mo = 1; mo <= years * 12; mo++) {
+        const tax      = homeValue * propTaxRate / 100 / 12;
+        const maint    = homeValue * maintRate   / 100 / 12;
+        const buyTotal = mortMo + tax + maint;
+
+        cumMort   += mortMo;
+        cumTaxMnt += tax + maint;
+        cumRent   += rent;
+
+        portfolio *= (1 + mInv);
+        portfolio += (buyTotal - rent);
+
+        homeValue *= (1 + mApp);
+        rent      *= (1 + mRent);
+
+        if (mo % 12 === 0) {
+            const yr      = mo / 12;
+            const mortBal = Math.max(0, remainingBalance(loanAmount, mortRate, 360, mo));
+            const salePrc = homeValue * (1 - sellingRate / 100) - mortBal;
+            const equity  = homeValue - mortBal;
+
+            // Net cost: all cash out minus asset received
+            const buyNetCost  = upfront + cumMort + cumTaxMnt - salePrc;
+            // Net cost: rent paid minus portfolio gains above initial capital
+            const rentNetCost = cumRent - (portfolio - upfront);
+
+            // Start-of-year monthly values for display
+            const hvSOY    = homeValue / Math.pow(1 + mApp, 12);
+            const buyMoSOY = mortMo + hvSOY * propTaxRate / 100 / 12 + hvSOY * maintRate / 100 / 12;
+            const rentSOY  = rent / Math.pow(1 + mRent, 12);
+
+            yearData.push({ yr, homeValue, mortBal, equity, salePrc,
+                            buyNetCost, rentNetCost, buyMoSOY, rentSOY, portfolio });
+        }
+    }
+
+    renderSummary(yearData, upfront, baseRent, homePrice, mortMo, propTaxRate, maintRate, years);
+    renderChart(yearData);
+    renderTable(yearData);
+}
+
+function breakevenYear(data) {
+    for (const d of data) {
+        if (d.buyNetCost <= d.rentNetCost) return d.yr;
+    }
+    return null;
+}
+
+function renderSummary(data, upfront, baseRent, homePrice, mortMo, propTaxRate, maintRate, years) {
+    const last        = data[data.length - 1];
+    const be          = breakevenYear(data);
+    const initBuyMo   = mortMo + homePrice * propTaxRate / 100 / 12 + homePrice * maintRate / 100 / 12;
+
+    document.getElementById('summaryGrid').innerHTML = `
+        <div class="metric buy-metric">
+            <div class="metric-label">Initial Monthly — Buy</div>
+            <div class="metric-value">${fmtFull(initBuyMo)}</div>
+            <div class="metric-sub">Mortgage + property tax + maintenance</div>
+        </div>
+        <div class="metric rent-metric">
+            <div class="metric-label">Initial Monthly — Rent</div>
+            <div class="metric-value">${fmtFull(baseRent)}</div>
+            <div class="metric-sub">Base monthly rent</div>
+        </div>
+        <div class="metric neutral-metric">
+            <div class="metric-label">Upfront to Buy</div>
+            <div class="metric-value">${fmtDollar(upfront)}</div>
+            <div class="metric-sub">Down payment + closing costs</div>
+        </div>
+        <div class="metric neutral-metric">
+            <div class="metric-label">Breakeven Point</div>
+            <div class="metric-value">${be ? 'Year ' + be : 'Beyond horizon'}</div>
+            <div class="metric-sub">When buying becomes the cheaper net option</div>
+        </div>
+        <div class="metric buy-metric">
+            <div class="metric-label">Net Cost at Year ${years} — Buy</div>
+            <div class="metric-value">${fmtDollar(last.buyNetCost)}</div>
+            <div class="metric-sub">${last.buyNetCost < 0 ? 'Net gain after equity' : 'Net cost after equity'}</div>
+        </div>
+        <div class="metric rent-metric">
+            <div class="metric-label">Net Cost at Year ${years} — Rent</div>
+            <div class="metric-value">${fmtDollar(last.rentNetCost)}</div>
+            <div class="metric-sub">${last.rentNetCost < 0 ? 'Net gain (portfolio > rent paid)' : 'Net cost after portfolio gains'}</div>
+        </div>
+    `;
+}
+
+function renderChart(data) {
+    if (chartInst) { chartInst.destroy(); chartInst = null; }
+    const ctx = document.getElementById('chart').getContext('2d');
+    chartInst = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => `Yr ${d.yr}`),
+            datasets: [
+                {
+                    label: 'Buy — net cost',
+                    data: data.map(d => Math.round(d.buyNetCost)),
+                    borderColor: '#3b82f6',
+                    borderWidth: 2.5,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    tension: 0.35,
+                    fill: false,
+                },
+                {
+                    label: 'Rent — net cost',
+                    data: data.map(d => Math.round(d.rentNetCost)),
+                    borderColor: '#ef4444',
+                    borderWidth: 2.5,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    tension: 0.35,
+                    fill: false,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 16 } },
+                tooltip: {
+                    callbacks: { label: ctx => `  ${ctx.dataset.label}: ${fmtDollar(ctx.raw)}` }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#64748b', maxTicksLimit: 12 },
+                    grid: { color: 'rgba(51,65,85,0.6)' }
+                },
+                y: {
+                    ticks: { color: '#64748b', callback: v => fmtDollar(v) },
+                    grid: { color: 'rgba(51,65,85,0.6)' }
+                }
+            }
+        }
+    });
+}
+
+function renderTable(data) {
+    const be = breakevenYear(data);
+    document.getElementById('tbody').innerHTML = data.map(d => {
+        const buyWins = d.buyNetCost < d.rentNetCost;
+        const isBreak = d.yr === be;
+        const diff    = Math.abs(d.buyNetCost - d.rentNetCost);
+        let rowCls, badge;
+        if (isBreak) {
+            rowCls = 'row-break';
+            badge  = `<span class="badge badge-tie">Breakeven</span>`;
+        } else if (buyWins) {
+            rowCls = 'row-buy';
+            badge  = `<span class="badge badge-buy">Buy +${fmtDollar(diff)}</span>`;
+        } else {
+            rowCls = 'row-rent';
+            badge  = `<span class="badge badge-rent">Rent +${fmtDollar(diff)}</span>`;
+        }
+        return `<tr class="${rowCls}">
+            <td>Year ${d.yr}</td>
+            <td>${fmtFull(d.rentSOY)}</td>
+            <td>${fmtFull(d.buyMoSOY)}</td>
+            <td>${fmtDollar(d.homeValue)}</td>
+            <td>${fmtDollar(d.equity)}</td>
+            <td>${fmtDollar(d.buyNetCost)}</td>
+            <td>${fmtDollar(d.rentNetCost)}</td>
+            <td>${badge}</td>
+        </tr>`;
+    }).join('');
+}
+
+document.querySelectorAll('input[type="number"]').forEach(el => {
+    el.addEventListener('input', calculate);
+});
+
+calculate();
+</script>
+</body>
+</html>
