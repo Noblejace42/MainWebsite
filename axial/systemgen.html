@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A sparse-world science fiction system generator for Axial. Survey planets, small habitats, orbital traffic and the infrastructure that keeps them alive.">
+  <title>Axial — System Survey</title>
+  <link rel="stylesheet" href="systemgen.css">
+  <script src="systemdata.js" defer></script>
+  <script src="systemgen.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#controls">Skip to generator</a>
+  <nav class="navbar" aria-label="Axial tools">
+    <a class="brand" href="index.html">AXIAL <span>// SYSTEM SURVEY</span></a>
+    <div class="nav-links"><a href="index.html">Axial Hub</a><a href="geargen.html">Gear Forge</a><a href="charactergen.html">Character Gen</a><a href="../AxialTTRPG/Axial.pdf" target="_blank" rel="noopener">Rules ↗</a></div>
+  </nav>
+  <main>
+    <header class="hero">
+      <div><span class="eyebrow">Field instruments / 03</span><h1>Between the<br><em>inhabited places.</em></h1><p>A few pressure hulls. An overdue freighter. A long way home.<br>Generate the worlds, people and working infrastructure of a sparsely inhabited system.</p></div>
+      <div class="hero-mark" aria-hidden="true"><div class="ring one"></div><div class="ring two"></div><div class="ring three"></div><div class="core"></div><span class="marker a"></span><span class="marker b"></span><span class="mark-label">LOCAL VOLUME<br>PASSIVE SURVEY</span></div>
+    </header>
+    <div class="workspace">
+      <aside class="control-panel">
+        <form id="controls">
+          <div class="panel-heading"><span class="eyebrow">01 / Survey parameters</span><h2>Shape the system</h2></div>
+          <label>System role<select name="preset"><option value="random">Unspecified</option><option value="frontier">Frontier</option><option value="extraction">Extraction</option><option value="industrial">Industrial</option><option value="trade">Transit stop</option><option value="research">Research</option><option value="military">Picket system</option><option value="agricultural">Agricultural</option><option value="failed">Failed colony</option><option value="contested">Contested</option><option value="uninhabited">Uninhabited</option></select></label>
+          <p class="help" id="preset-note">Role changes livelihoods, not population scale.</p>
+          <div class="form-row"><label>Planets<select name="planets"><option value="">Random</option><option value="0">0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label><label>Settlements<select name="settlements"><option value="">Random</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label></div>
+          <label>Population per occupied site<select name="population"><option value="sparse">Sparse · 12–200</option><option value="tiny">Isolated crews · 4–32</option><option value="established">Established · 100–900</option></select></label>
+          <label>Survey seed<input name="seed" maxlength="100" placeholder="Leave blank for a new seed" autocomplete="off" spellcheck="false"></label>
+          <p class="help">Same seed + same parameters = same initial survey. Save JSON to preserve subsequent edits.</p>
+          <details class="customize"><summary>Refine the survey <span>+</span></summary><div>
+            <label>System name<input name="name" maxlength="100" placeholder="Generate a designation"></label>
+            <label>Stellar configuration<select name="star"><option value="random">Random</option><option value="single">Single star</option><option value="binary">Wide binary</option><option value="trinary">Wide triple</option></select></label>
+            <label>Settlement placement<select name="placement"><option value="mixed">Mixed</option><option value="surface">Surface only</option><option value="orbital">Orbital only</option></select></label>
+            <label>Infrastructure<select name="development"><option value="random">Random</option><option value="basic">Basic / improvised</option><option value="maintained">Maintained</option><option value="specialist">Specialist equipment</option></select></label>
+            <label>Operating conditions<select name="danger"><option value="quiet">Quiet</option><option value="strained">Strained</option><option value="dangerous">Dangerous</option></select></label>
+            <label>Visiting traffic<select name="traffic"><option value="none">None</option><option value="sparse" selected>Sparse</option><option value="normal">Occasional calls</option><option value="busy">Busy by local standards</option></select></label>
+            <label>Security presence<select name="military"><option value="none">None</option><option value="light" selected>Light</option><option value="substantial">Reinforced</option></select></label>
+            <label>Asteroid belt<select name="belt"><option value="random">Random</option><option value="none">None mapped</option><option value="barren">Low yield</option><option value="rich">Resource bearing</option></select></label>
+            <label>Guarantee a feature<select name="required"><option value="">No requirement</option><option value="temperate">Temperate world</option><option value="station">Staffed orbital habitat</option><option value="depot">Staffed propellant depot</option></select></label>
+          </div></details>
+          <button class="primary" type="submit">Generate survey <span>↗</span></button>
+          <button class="secondary" type="button" id="new-seed">New seed & generate</button>
+          <button class="secondary" type="button" id="reroll-unlocked">Reroll unlocked records</button>
+          <p class="help">Rerolls use this dossier's original parameters. Locked worlds include their settlements and orbit.</p>
+          <button class="text-button" type="button" id="reset-controls">Reset parameters</button>
+        </form>
+        <div class="design-note"><span class="eyebrow">A sparse-world baseline</span><p>Usually one or two small settlements. Ships are workplaces, not scenery. Most orbits are quiet.</p><p>Temperatures are rough equilibrium estimates. These are playable survey records, not an orbital simulation.</p></div>
+      </aside>
+      <section class="results" aria-label="Generated system">
+        <div id="status" role="status" aria-live="polite">Preparing the survey…</div>
+        <div class="toolbar"><span class="eyebrow">Dossier tools</span><div><button id="export-json" disabled>Save JSON</button><label class="file-button" for="load-file">Load JSON<input id="load-file" type="file" accept=".json,application/json"></label><button id="export-text" disabled>Text</button><button id="print" disabled>Print</button></div></div>
+        <div id="dossier" hidden>
+          <section class="overview"><span class="eyebrow" id="seed-label"></span><h2 id="system-title"></h2><div id="summary" class="metrics"></div><div id="stellar" class="stellar"></div><div class="strip-label"><span class="eyebrow">Primary orbital sequence</span><span>Ordered by distance · not to scale</span></div><div id="orbit-strip" class="orbit-strip"></div><p id="system-notes" class="field-note"></p><div id="system-edit"></div></section>
+          <div class="section-heading"><span class="eyebrow">02 / Planetary records</span><span>Surface & orbit</span></div>
+          <div id="worlds"></div>
+          <div class="section-heading"><span class="eyebrow">03 / Beyond the planets</span><span>System infrastructure</span></div>
+          <section id="deep-space" class="deep-space"></section>
+          <section class="connection"><span class="eyebrow">Co-axial navigation / approach record</span><p id="navigation"></p></section>
+          <section class="connection"><span class="eyebrow">Logistics / dependencies</span><p id="connections"></p></section>
+          <p class="survey-footnote">Resident counts exclude visiting crews. Empty facilities have no certified services. Physical values are illustrative estimates; local surveys and transit windows take precedence.</p>
+        </div>
+      </section>
+    </div>
+    <footer><span>AXIAL / EMERSON NEHER</span><span>Small places. Long distances.</span></footer>
+  </main>
+</body>
+</html>
