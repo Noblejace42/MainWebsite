@@ -27,7 +27,7 @@ function check(input) {
     if(input.placement==='surface') assert.equal(x.location,'surface');
     if(input.placement==='orbital') assert.equal(x.location,'orbital');
     if(x.location==='surface') assert.ok(!['gas','greenhouse'].includes(s.bodies.find(b=>b.id===x.bodyId).type));
-    if(x.population){const [lo,hi]=input.population==='tiny'?[4,32]:input.population==='established'?[100,900]:[12,200];assert.ok(x.population>=lo&&x.population<=hi,'resident range');assert.ok(!x.power.startsWith('Offline'),'occupied sites need power');}
+    if(x.population){const [lo,hi]=input.population==='tiny'?[4,32]:input.population==='established'?[1500,15000]:[100,15000];assert.ok(x.population>=lo&&x.population<=hi,'resident range');assert.ok(!x.power.startsWith('Offline'),'occupied sites need power');}
     else {assert.equal(x.services.length,0);assert.equal(x.guards,0);}
     seen.add(x.facility);
   }
@@ -58,3 +58,18 @@ assert.equal(next.notes,original.notes);
 assert.equal(next.revision,original.revision+1);
 assert.equal(JSON.stringify(next),JSON.stringify(G.rerollUnlocked(original)),'saved revision rerolls reproducibly');
 console.log('Lock preservation, notes, and reroll reproducibility passed.');
+let typical=0, empty=0;
+for(let i=0;i<2000;i++) {
+  const s=G.generate({seed:'population-audit-'+i});
+  const total=s.settlements.reduce((n,x)=>n+x.population,0);
+  assert.ok(total<=150000);
+  if(total===0) empty++;
+  if(total>=100&&total<=5000) typical++;
+  for(const x of s.settlements) {
+    assert.ok(Number.isInteger(x.population)&&x.guards<=x.population);
+    if(x.population>500) assert.ok(x.habitat.includes('residential sectors')&&x.power.includes('MW'));
+  }
+}
+assert.ok(typical>1400,'a clear majority of systems must have 100–5,000 residents');
+assert.ok(empty>0,'uninhabited systems remain possible');
+console.log({populationAudit:2000,typical,empty});

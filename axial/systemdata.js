@@ -334,4 +334,26 @@ globalThis.SystemTables = {
     guild: ['Technical guild', 'Senior technician'],
     port: ['Independent port authority', 'Harbor master']
   });
+  globalThis.SystemTables.conditions.push(
+    'A condenser bank is being rebuilt; water-intensive work follows a rotating schedule.',
+    'A pressure-door recall has stranded replacement seals at the next port.',
+    'A reactor inspection has shifted industrial loads onto the night allocation.',
+    'The seed bank has lost one refrigeration circuit; volunteers are moving the collection.',
+    'A failed weighbridge has made the last three ore shipments impossible to reconcile.',
+    'A newly surveyed ice seam lies beneath the approach corridor.',
+    'A vibration fault limits the centrifuge to half speed until its bearings arrive.',
+    'Two habitat sectors disagree over who pays for the shared radiator overhaul.',
+    'A medical evacuation has left the machine shop without its only certified inspector.',
+    'An old cargo manifest suggests that the missing spare pump never left its origin.',
+    'An exterior survey found unexpected fatigue around a docking collar.',
+    'A postponed resupply has made fresh food a shared weekly meal.'
+  );
+  globalThis.SystemTables.quiet.push(
+    'Residents trade small greenhouse harvests after the weekly maintenance shift.',
+    'The school uses a retired navigation display to teach orbital mechanics.',
+    'A new batch of locally made seals has passed its pressure tests.',
+    'The observatory shares its quiet hours with residents on the night shift.',
+    'A retired tug has become a community workshop, with its tanks drained and certified.',
+    'The annual inventory has found enough spare bearings for another service interval.'
+  );
 })();

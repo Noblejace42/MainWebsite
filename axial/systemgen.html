@@ -27,7 +27,7 @@
           <label>System role<select name="preset"><option value="random">Unspecified</option><option value="frontier">Frontier</option><option value="extraction">Extraction</option><option value="industrial">Industrial</option><option value="trade">Transit stop</option><option value="research">Research</option><option value="military">Picket system</option><option value="agricultural">Agricultural</option><option value="failed">Failed colony</option><option value="contested">Contested</option><option value="uninhabited">Uninhabited</option></select></label>
           <p class="help" id="preset-note">Role changes livelihoods, not population scale.</p>
           <div class="form-row"><label>Planets<select name="planets"><option value="">Random</option><option value="0">0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label><label>Settlements<select name="settlements"><option value="">Random</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label></div>
-          <label>Population per occupied site<select name="population"><option value="sparse">Sparse · 12–200</option><option value="tiny">Isolated crews · 4–32</option><option value="established">Established · 100–900</option></select></label>
+          <label>Settlement scale<select name="population"><option value="sparse">Sparse · 12–200</option><option value="tiny">Isolated crews · 4–32</option><option value="established">Established · 100–900</option></select></label>
           <label>Survey seed<input name="seed" maxlength="100" placeholder="Leave blank for a new seed" autocomplete="off" spellcheck="false"></label>
           <p class="help">Same seed + same parameters = same initial survey. Save JSON to preserve subsequent edits.</p>
           <details class="customize"><summary>Refine the survey <span>+</span></summary><div>
@@ -47,7 +47,7 @@
           <p class="help">Rerolls use this dossier's original parameters. Locked worlds include their settlements and orbit.</p>
           <button class="text-button" type="button" id="reset-controls">Reset parameters</button>
         </form>
-        <div class="design-note"><span class="eyebrow">A sparse-world baseline</span><p>Usually one or two small settlements. Ships are workplaces, not scenery. Most orbits are quiet.</p><p>Temperatures are rough equilibrium estimates. These are playable survey records, not an orbital simulation.</p></div>
+        <div class="design-note"><span class="eyebrow">A sparse-world baseline</span><p>Most systems have hundreds to a few thousand residents; established systems can reach 150,000 across ten settlements. Ships are workplaces, not scenery. Most orbits are quiet.</p><p>Temperatures are rough equilibrium estimates. These are playable survey records, not an orbital simulation.</p></div>
       </aside>
       <section class="results" aria-label="Generated system">
         <div id="status" role="status" aria-live="polite">Preparing the survey…</div>
