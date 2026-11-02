@@ -1,7 +1,7 @@
 /* Authored setting tables. Physical values are illustrative survey estimates. */
 globalThis.SystemTables = {
   presets: {
-    random: ['Unspecified', 'Let the survey find its own character.'],
+    random: ['Unspecified', 'Random system role.'],
     frontier: ['Frontier', 'Small habitats at the edge of a thin supply network.'],
     extraction: ['Extraction', 'Ore, ice and the people who keep the machinery running.'],
     industrial: ['Industrial', 'A few specialist workshops; every imported bearing matters.'],
@@ -357,3 +357,67 @@ globalThis.SystemTables = {
     'The annual inventory has found enough spare bearings for another service interval.'
   );
 })();
+SystemTables.structures = {
+ mining:['Ore sorter','Assay laboratory','Core archive','Crusher shed','Excavator garage','Concentrate silo'],
+ fuel:['Electrolysis plant','Cryogenic tank farm','Transfer manifold','Pump house','Pressure-test bay','Fuel laboratory'],
+ workshop:['Machine shop','Welding bay','Parts warehouse','Tool crib','Pump test stand','Maintenance hangar'],
+ trade:['Bonded warehouse','Cargo terminal','Customs office','Freight exchange','Passenger lounge','Container yard'],
+ research:['Sample laboratory','Instrument workshop','Clean room','Core repository','Data center','Isolation laboratory'],
+ military:['Command bunker','Sensor array','Armory','Barracks','Inspection berth','Training range'],
+ agriculture:['Hydroponic greenhouse','Algae bioreactor','Seed bank','Grain store','Food drying plant','Composting plant'],
+ iceworks:['Ice processing plant','Meltwater reservoir','Drill garage','Cold store','Filtration plant','Brine separator'],
+ recycling:['Scrap sorting yard','Reclamation furnace','Polymer recycling line','Water recovery plant','Salvaged parts depot','Waste treatment plant'],
+ ceramics:['Kiln hall','Clay processing shed','Refractory workshop','Insulator factory','Glazing line','Aggregate store'],
+ fabrication:['Precision machine shop','Metrology laboratory','Casting hall','Assembly bay','Stock warehouse','Electronics workshop'],
+ observatory:['Telescope array','Detector laboratory','Tracking station','Timing reference vault','Data archive','Optics workshop'],
+ quarantine:['Isolation ward','Decontamination lock','Medical laboratory','Incinerator','Observation room','Pharmacy'],
+ archive:['Records vault','Data recovery laboratory','Reading room','Backup server hall','Conservation workshop','Document store'],
+ waystation:['Landing pad','Passenger shelter','Refueling point','Cargo shed','Clinic','Repair bay'],
+ construction:['Materials yard','Prefab assembly hall','Heavy equipment garage','Survey office','Concrete plant','Workers hostel'],
+ salvage:['Salvage yard','Dismantling bay','Tow control station','Parts market','Inspection hangar','Hazardous materials store'],
+ comms:['Relay mast','Transceiver hall','Antenna workshop','Message archive','Timing station','Cable exchange'],
+ medical:['Clinic','Surgical suite','Rehabilitation ward','Pharmacy','Diagnostic laboratory','Ambulance bay'],
+ survey:['Mapping office','Sample store','Instrument depot','Rover garage','Beacon workshop','Cartographic archive']
+};
+SystemTables.commonStructures=['Community hall','Public kitchen','Schoolroom','Medical station','General store','Water cistern','Emergency shelter','Communications office','Repair shed','Cold storage','Battery room','Fire station','Laundry','Market hall','Exercise room','Transit shelter'];
+
+// Physical output is separate from the services offered by each installation.
+SystemTables.goods = {
+mining:'iron concentrate|nickel concentrate|copper concentrate|titanium minerals|chromite|silicate aggregate|cobalt concentrate|manganese oxides|magnesium salts|sulfide concentrate',
+fuel:'purified water|liquid oxygen|liquid hydrogen|methane propellant|nitrogen gas|compressed argon|electrolysis membranes|cryogenic valve assemblies',
+workshop:'refurbished pumps|machined brackets|pressure-tested pipework|replacement bearings|valve bodies|motor windings|hydraulic cylinders|seal kits|heat exchangers',
+trade:'packaged food|certified alloy stock|industrial lubricants|spare valves|insulation panels|pressure fittings|electrical cable|filter cartridges|sealed medical kits',
+research:'calibration standards|sample canisters|detector housings|reference minerals|laboratory glassware|sensor probes|sterile culture media|optical mounts',
+military:'refurbished radio sets|armored panels|field battery packs|replacement optics|pressure-suit parts|sealed ration packs|sensor masts|cable harnesses',
+agriculture:'dried pulses|algal protein|seed cultures|potatoes|mushrooms|grain flour|vegetable oil|dried fruit|nutrient concentrate|fibrous crop residue',
+ceramics:'refractory bricks|ceramic bearings|electrical insulators|silica tiles|abrasive grit|alumina sleeves|heat shields|filter ceramics|kiln furniture',
+medical:'sterile dressings|saline bags|surgical instrument kits|splints|prosthetic sockets|diagnostic cartridges|sterilized tubing|disinfectant',
+comms:'antenna elements|fiber-optic cable|radio modules|timing oscillators|waveguides|signal amplifiers|connector sets|laser terminal optics',
+salvage:'recovered copper|refurbished thrusters|reclaimed hull plates|tested batteries|salvaged avionics|pressure doors|reactor shielding blocks|reconditioned airlocks',
+observatory:'polished mirrors|optical coatings|detector mounts|cryogenic dewars|precision clock modules|tracking motors|vacuum windows|spectrometer gratings',
+archive:'archival storage media|printed technical manuals|etched ceramic records|restored data drives|document sleeves|dry-gas cartridges|sealed storage cases|reader spare parts',
+recycling:'recovered copper|distilled solvents|polymer pellets|reprocessed aluminum|recovered lithium salts|glass cullet|steel billets|reclaimed rubber|purified process water',
+iceworks:'purified water|oxygen feedstock|ammonia solution|nitrogen gas|carbon dioxide|methanol feedstock|deuterium-enriched water|industrial brine',
+fabrication:'sensor housings|vacuum flanges|instrument mounts|custom pump rotors|precision gears|actuator screws|turbine blades|heat exchanger cores|ceramic-metal seals',
+waystation:'packaged provisions|water reserves|emergency shelter kits|pressure-suit patches|recharged battery packs|refurbished tools|air filter cartridges|medical kits',
+quarantine:'sterilized containers|decontamination solution|protective coveralls|filter cartridges|sterile sample kits|autoclave liners|sealed waste drums|test reagents',
+survey:'mineral samples|drill cores|survey beacons|sample containers|seismic sensor housings|instrument tripods|refurbished drill heads|reference rock sets',
+construction:'pressure modules|structural beams|radiator panels|airlock frames|foundation anchors|shielding blocks|prefabricated ducting|window assemblies|cable trays'
+};
+for(const [key,value] of Object.entries(SystemTables.goods)) SystemTables.purposes[key].exports=value.split('|');
+SystemTables.productionBuildings={trade:'Repacking warehouse',research:'Instrument workshop',military:'Equipment refurbishment shop',medical:'Medical supply workshop',comms:'Electronics workshop',observatory:'Optics workshop',archive:'Archival media workshop',waystation:'Supply refurbishment workshop',quarantine:'Sterile supply workshop',survey:'Survey equipment workshop'};
+SystemTables.siteNames.push(...'Aster|Bramble|Culvert|Dovetail|Eastwell|Fallow|Gasket|Hearth|Inlet|Juniper|Kiln|Lattice|Marl|Northcut|Outfall|Peregrine|Quarry|Rivet|Sill|Tamarack|Underbank|Vane|Weir|Yarrow|Zinc|Anvil|Bellows|Crossing|Drywell|Eastgate|Firth|Granary|Highbank|Ironwood|Jetty|Kingswell|Lowford|Mooring|Needle|Overlook|Pilings|Redbank|Spar|Turner|Union|Westhaven|Whitewater|Windlass'.split('|'));
+SystemTables.names.push(...'Adra|Belen|Cetus|Damar|Erid|Fenna|Garon|Hesta|Ivara|Joren|Kelso|Leto|Marden|Neris|Ossa|Pella|Rana|Saros|Tavia|Ulen|Varda|Wendel|Ymir|Zora'.split('|'));
+Object.assign(SystemTables.presets,{refining:['Refining','Bulk chemical and metal processing.'],shipyard:['Shipyard','Repair and construction of small vessels.'],power:['Power generation','Reactor servicing and electrical equipment.'],resettled:['Resettled colony','Reoccupied infrastructure and new construction.'],storage:['Storage system','Warehouses, reserves, and long-term storage.'],enclave:['Independent enclave','Small self-governing communities.']});
+const moreTerrain={rock:'Overlapping crater chains|Blocky talus below a fault scarp|Collapsed lava tubes|Boulder fields surrounding a fresh impact|Regolith ponds in shallow hollows|Rubble-filled grabens',desert:'Gypsum dunes|Terraced canyon floors|Eroded volcanic plugs|Braided dry riverbeds|Collapsed salt domes|Fine dust over ancient lake sediment',ice:'Fractured nitrogen frost|Cryovolcanic ridges|Buried brine lenses|Folded glacial scarps|Dark organic-rich ice|Ice cliffs along an impact basin',temperate:'Flooded continental rifts|Glacial outwash plains|Karst uplands|Tidal mudflats|Inland salt seas|Basalt islands and shallow shelves',greenhouse:'Fresh lava flows|Shield volcano chains|Basalt tesserae|Sulfur-rich vents|Pressure-fractured uplands|Buried impact rings',gas:'Polar cyclone clusters|Sheared equatorial bands|Methane haze layers|Bright convective plumes|Thin dusty rings|Long-lived anticyclonic storms'};
+for(const [k,v] of Object.entries(moreTerrain)) SystemTables.bodies[k].terrain.push(...v.split('|'));
+const extraResources={rock:'platinum-group inclusions|vanadium minerals|phosphate nodules|zirconium minerals|feldspar|ilmenite',desert:'borates|gypsum|potash|lithium-bearing brine|silica sand|copper oxides',ice:'methane ice|nitrogen ice|carbon dioxide ice|clathrate deposits|sulfate brines|water-ammonia mixtures',temperate:'phosphate beds|bauxite|silica deposits|magnetite sands|limestone|evaporite salts',greenhouse:'sulfur dioxide|metal sulfides|iron oxides|silica-rich ash|atmospheric nitrogen|copper sulfides',gas:'methane|ammonia|water vapor|neon traces|argon traces|deuterium-bearing hydrogen'};
+for(const [k,v] of Object.entries(extraResources)) SystemTables.bodies[k].resources.push(...v.split('|'));
+for(const [key,base,label,terrain,resources] of [
+ ['iron','rock','Iron-rich rocky world',['Exposed metallic ridges','Dense impact melt sheets','Dark plains above a shallow mantle'],['iron-nickel alloy','cobalt-bearing metal','chromite']],
+ ['volcanic','rock','Volcanic rocky world',['Active basalt fissures','Layered ash plains','Young lava channels'],['sulfur','basalt aggregate','metal sulfides']],
+ ['salt','desert','Salt-basin world',['Polygonal salt crusts','Brine pools beneath translucent salt','Gypsum ridges'],['potash','lithium-bearing brine','industrial salts']],
+ ['tundra','temperate','Cold terrestrial world',['Permafrost plateaus','Seasonal melt channels','Glacially scoured bedrock'],['ground ice','iron minerals','glacial aggregate']],
+ ['ocean','temperate','Ocean world',['Basalt archipelagos','Deep ocean basins','Submerged volcanic ridges'],['seawater salts','subsea sulfides','dissolved magnesium']],
+ ['carbon','ice','Carbon-rich ice world',['Dark organic crust over ice','Methane frost basins','Hydrocarbon-stained crater rims'],['hydrocarbon feedstock','water ice','nitrogen compounds']]
+]) SystemTables.bodies[key]={...SystemTables.bodies[base],label,terrain,resources};

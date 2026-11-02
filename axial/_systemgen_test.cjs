@@ -30,6 +30,17 @@ function check(input) {
     if(x.population){const [lo,hi]=input.population==='tiny'?[4,32]:input.population==='established'?[1500,15000]:[100,15000];assert.ok(x.population>=lo&&x.population<=hi,'resident range');assert.ok(!x.power.startsWith('Offline'),'occupied sites need power');}
     else {assert.equal(x.services.length,0);assert.equal(x.guards,0);}
     seen.add(x.facility);
+    assert.ok(x.structures.length>=3 && x.structures.length<=5);
+    assert.equal(new Set(x.structures).size,x.structures.length);
+    assert.equal(new Set(x.exports).size,x.exports.length);
+    for(const item of x.exports) assert.ok(T.purposes[x.purpose].exports.includes(item),'exports come from physical goods tables');
+    for(const item of [...x.exports,...x.structures]) assert.ok(text.includes(item),'text export includes complete lists');
+    for(const item of [x.power,x.support,x.issue,...x.services]) assert.ok(text.includes(item),'text export preserves infrastructure and service descriptions');
+    assert.equal(x.defenses.personnel,x.guards);
+    assert.equal(x.defenses.soldiers+x.defenses.fleetCrew,x.guards);
+    assert.equal(x.defenses.fleetCrew,x.defenses.patrolCutters*8);
+    if(x.location==='orbital') assert.equal(x.defenses.armoredVehicles,0);
+    if(!x.population) assert.equal(x.exports.length,0);
   }
   return s;
 }
