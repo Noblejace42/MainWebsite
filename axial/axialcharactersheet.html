@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Character Sheet · Axial</title>
   <link rel="stylesheet" href="character-sheet.css">
+  <link rel="stylesheet" href="google-docs-export.css">
   <script src="geardata.js" defer></script>
   <script src="character-data.js" defer></script>
   <script src="powerdata.js" defer></script>
+  <script src="power-text.js" defer></script>
   <script src="character-export.js" defer></script>
+  <script src="google-docs-export.js" defer></script>
   <script src="character-sheet.js" defer></script>
 </head>
 <body>
@@ -37,7 +40,7 @@
           <label>Pronouns<input id="pronouns"></label>
           <label>Player<input id="player"></label>
           <label>Age<input id="age" type="number" min="0" value="20"></label>
-          <label class="wide">Concept<input id="concept"></label>
+          <label class="wide">Concept<textarea id="concept" rows="2"></textarea></label>
         </div>
         <details>
           <summary>Lifepaths &amp; starting gear</summary>
@@ -45,7 +48,7 @@
             <label>Birth trait<input id="birth"></label>
             <label>Early lifepath<input id="early"></label>
             <label>Starting kit<input id="kit"></label>
-            <label class="wide">Main lifepaths <span class="hint">One per line, including years.</span><textarea id="mains" rows="2"></textarea></label>
+            <label class="wide">Main lifepaths <span class="hint">One per line, including years and any skill or power choices.</span><textarea id="mains" rows="3" placeholder="Navigator · 6 years"></textarea></label>
           </div>
         </details>
       </section>
@@ -124,6 +127,7 @@
         <button type="button" id="addStickyBtn">New sticky note</button>
       </section>
       <footer class="actions">
+        <button type="button" id="docsBtn">Google Docs</button>
         <button type="button" id="wordBtn">Download Word sheet</button>
         <button type="button" id="printBtn">Print / Save PDF</button>
       </footer>
@@ -131,7 +135,7 @@
   </main>
   <template id="talent-row">
     <div class="entry">
-      <label>Talent<input class="talent-name"></label>
+      <label>Talent<input class="talent-name" list="talent-suggestions"></label>
       <label>Category<select class="category"><option value="">Unspecified</option><option>Knowledge</option><option>Combat</option><option>Practical</option><option>Athletics</option><option>Social</option></select></label>
       <label>Die<select class="die"></select></label>
       <button type="button" class="remove">Remove</button>
@@ -145,5 +149,6 @@
       <button type="button" class="remove">Remove</button>
     </div>
   </template>
+  <datalist id="talent-suggestions"></datalist>
 </body>
 </html>

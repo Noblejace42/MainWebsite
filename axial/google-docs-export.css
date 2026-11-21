@@ -1,0 +1,27 @@
+.axial-docs-dialog {
+  color-scheme: dark;
+  color: #e4eeea;
+  background: #101b25;
+  border: 1px solid #41615e;
+  border-radius: 14px;
+  width: min(38rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: clamp(1rem, 4vw, 1.6rem);
+  font: 1rem/1.5 "Inter", "Segoe UI", sans-serif;
+}
+.axial-docs-dialog::backdrop { background: #020810ca; }
+.axial-docs-dialog .docs-heading { display: flex; justify-content: space-between; align-items: start; gap: 1rem; }
+.axial-docs-dialog h2 { margin: 0; color: #a1ecd5; font-size: 1.3rem; }
+.axial-docs-dialog p { margin: .75rem 0; }
+.axial-docs-dialog .docs-steps { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; }
+.axial-docs-dialog button, .axial-docs-dialog .docs-link {
+  color: #e4eeea; background: #1d3339; border: 1px solid #54746e;
+  border-radius: 7px; padding: .5rem .8rem; font: 600 .9rem/1.4 "Inter", "Segoe UI", sans-serif;
+  text-decoration: none; cursor: pointer;
+}
+.axial-docs-dialog .docs-copy { color: #09241b; background: #88e0bd; border-color: #88e0bd; }
+.axial-docs-dialog .docs-status:empty { display: none; }
+.axial-docs-dialog .docs-status { color: #c2dccf; font-size: .92rem; }
+.axial-docs-dialog .docs-preview { margin: .7rem 0; padding: .8rem; max-height: 12rem; overflow: auto; color: #17221f; background: white; color-scheme: light; }
+.axial-docs-dialog [hidden] { display: none; }

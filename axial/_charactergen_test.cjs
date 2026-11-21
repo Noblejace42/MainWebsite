@@ -35,6 +35,15 @@ for (const kits of Object.values(rules.kits)) {
   for (const kit of Object.values(kits)) assert.ok(kit.every(item => /\d+ Mass$/.test(item)));
 }
 assert.equal(run('Object.keys(MAIN_LIFEPATHS).length'), 15);
+const richText = context.AxialPowerText;
+const cheapShot = context.AXIAL_POWER_LIBRARY.find(p => p.name === 'Cheap Shot');
+const effect = richText.html(cheapShot);
+assert.match(effect, /<p><em>Attack<\/em> a creature/);
+assert.equal((effect.match(/<li>/g) || []).length, 4);
+assert.equal((effect.match(/<ul\b/g) || []).length, 1);
+assert.equal(richText.blocks(cheapShot)[1].marker, '-');
+assert.equal(richText.html({name: cheapShot.name, description: cheapShot.description}), effect);
+assert.match(richText.html({name: 'Custom', description: '<a>\n- First\n- Second'}), /&lt;a&gt;<\/p><ul[^>]*><li>First<\/li><li>Second/);
 assert.equal(rules.health(6, 8, 39).health, 24);
 assert.equal(rules.health(6, 8, 40).health, 22);
 assert.equal(rules.health(4, 4, 100).health, 0);

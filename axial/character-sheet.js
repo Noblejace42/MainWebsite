@@ -15,6 +15,8 @@
   const dieName = d => dice.find(die => die === String(d).replace(/^1d/, 'd').toLowerCase()) || 'd4';
   const side = name => Number(dieName(value(name)).slice(1));
   const tags = text => String(text || '').split(',').map(s => s.trim()).filter(Boolean);
+  const rowSources = new WeakMap();
+  const activeEditors = new Map();
   let powers = [];
   let inventory = [];
   let sourceCharacter = {};
@@ -66,14 +68,24 @@
 
   function addTalent(t = {}) {
     const row = addRow('talent-row', 'talents');
-    row.querySelector('.talent-name').value = t.name || '';
-    row.querySelector('.category').value = t.category || '';
+    rowSources.set(row,t);
+    const name = row.querySelector('.talent-name');
+    const category = row.querySelector('.category');
+    name.value = t.name || '';
+    category.value = t.category || '';
+    name.addEventListener('change', () => {
+      if (category.value) return;
+      const matches = Object.entries(AxialCharacterRules.talents).filter(([,names]) =>
+        names.some(talent => talent.toLowerCase() === name.value.trim().toLowerCase()));
+      if (matches.length === 1) category.value = matches[0][0];
+    });
     populate(row.querySelector('.die'), dice, dieName(t.die));
     return row;
   }
 
   function addBond(b = {}) {
     const row = addRow('bond-row', 'bonds');
+    rowSources.set(row,b);
     row.querySelector('.type').value = b.type ?? 'Favor';
     row.querySelector('.target').value = b.target || '';
     row.querySelector('.text').value = b.text || '';
@@ -95,42 +107,73 @@
     return [p.scope, titleCase(String(p.type || '')), p.cooldown, p.speed].filter(v => v !== '' && v != null).join(' · ');
   }
 
-  function showEditor(id, label) {
+  function closeEditor(id) {
+    activeEditors.get(id)?.node.remove();
+    activeEditors.delete(id);
+  }
+
+  function showEditor(id, label, entry) {
+    const pending = activeEditors.get(id);
+    if (pending?.dirty && !pending.commit()) return null;
+    closeEditor(id);
     const editor = el('div', null, 'editor');
     editor.setAttribute('role','group');
     editor.setAttribute('aria-label',label);
-    byId(id).replaceChildren(editor);
+    const row = entry();
+    if (row) row.after(editor);
+    else byId(id).replaceChildren(editor);
+    const state = {node:editor,dirty:false};
+    editor.addEventListener('input',() => { state.dirty = true; });
+    editor.addEventListener('change',() => { state.dirty = true; });
+    activeEditors.set(id,state);
     return editor;
   }
 
   function finishEditor(editor, save) {
+    const [id, state] = [...activeEditors].find(([, editorState]) => editorState.node === editor);
+    state.commit = () => {
+      const fields = editor.querySelectorAll('input,select,textarea');
+      if (![...fields].every(field => field.reportValidity())) return false;
+      save();
+      return !editor.isConnected;
+    };
     const actions = el('div', null, 'actions');
-    actions.append(button('Save', save), button('Cancel', () => editor.remove()));
+    actions.append(button('Save', state.commit), button('Cancel', () => closeEditor(id)));
     editor.append(actions);
     editor.querySelector('input,select,textarea')?.focus();
   }
 
   function editPower(index, raw = false) {
+    const editor = showEditor('power-editor', 'Power editor', () => index == null ? null : byId('powers').querySelectorAll('.entry')[index]);
+    if (!editor) return;
+    activeEditors.get('power-editor').reopen = {kind:'power',index,mode:raw};
     const p = index == null ? {} : powers[index];
-    const editor = showEditor('power-editor', 'Power editor');
     const commit = next => {
       if (index == null) powers.push(next);
       else powers[index] = next;
-      editor.remove();
+      closeEditor('power-editor');
       renderPowers();
     };
     if (raw || p.raw) {
       const text = inputField(editor, 'Power text', p.raw || '', 'textarea');
+      text.required = true;
       finishEditor(editor, () => {
         if (text.value.trim()) commit({raw:text.value.trim()});
       });
       return;
     }
     const library = window.AXIAL_POWER_LIBRARY || [];
-    const picker = inputField(editor, 'Rulebook power', 'Custom power', null, ['Custom power', ...library.map(item => item.name)]);
+    const picker = inputField(editor, 'Rulebook power', 'Custom power', null, ['Custom power']);
+    for (const type of ['Move','Passive']) {
+      const group = el('optgroup');
+      group.label = type === 'Move' ? 'Moves' : 'Passives';
+      library.filter(p => p.type === type).sort((a,b) => a.name.localeCompare(b.name)).forEach(p => group.append(new Option(p.name,p.name)));
+      picker.append(group);
+    }
     const fields = el('div',null,'fields');
     editor.append(fields);
     const name = inputField(fields, 'Name', p.name);
+    name.required = true;
     const type = inputField(fields, 'Type', titleCase(String(p.type || 'Move')), null, ['Move', 'Passive']);
     const cooldown = inputField(fields, 'Cooldown', String(p.cooldown ?? ''), null, ['', 'At-will', 'Encounter', 'Recovery']);
     const speed = inputField(fields, 'Combat speed', String(p.speed ?? ''), null, ['', 'Free', 'Light action', 'Medium action', 'Heavy action', 'Movement action']);
@@ -171,11 +214,15 @@
       const reading = el('div',null,'reading');
       if (p.raw) reading.append(el('p', p.raw, 'description'));
       else {
-        reading.append(el('h3', p.name), el('small', powerMeta(p)), el('p', p.description, 'description'));
+        const effect = AxialPowerText.render(p);
+        effect.classList.add('power-effect');
+        const meta = el('small',null,'power-meta');
+        meta.append(el('em',powerMeta(p)));
+        reading.append(el('h3', p.name), meta, effect);
         if (p.choice) reading.append(el('p', 'Choice: ' + p.choice));
       }
       row.append(reading,button('Edit', () => editPower(i)),button('Remove', () => {
-        byId('power-editor').replaceChildren();
+        closeEditor('power-editor');
         powers.splice(i,1);
         renderPowers();
       },'remove'));
@@ -230,17 +277,45 @@
     return fragment;
   }
 
+  function objectFields(object) {
+    // Forge entries include separate fields. Kit items and pasted structs can use the abbreviated syntax.
+    if (object.name && object.type != null && !object.raw) return {...object};
+    const [first,...special] = objectStruct(object).split(/\r?\n/);
+    const [name,...parts] = first.split(/\s+\|\s+/);
+    if (!name || !parts.length) return null;
+    const fields = {name,type:'',subtype:'',skillTags:[],coreExtraTags:[],special:special.join('\n'),mass:null};
+    const groups = [];
+    for (const part of parts) {
+      const roll = part.match(/^(\d+)d(4|6|8|10|12)([+-]\d+)?$/i);
+      const mass = part.match(/^(\d+(?:\.\d+)?)\s+mass$/i);
+      const type = part.match(/^(weapon|wearable|tool|attachment|material)(?:,\s*(.+))?$/i);
+      if (roll) Object.assign(fields,{count:Number(roll[1]),size:'d' + roll[2],modifier:Number(roll[3] || 0)});
+      else if (mass) fields.mass = Number(mass[1]);
+      else if (type) Object.assign(fields,{type:type[1].toLowerCase(),subtype:type[2] || ''});
+      else if (part.startsWith('(') && part.endsWith(')')) groups.push(tags(part.slice(1,-1)));
+      else return null;
+    }
+    if (groups.length > 2) return null;
+    if (groups.length === 2) [fields.skillTags,fields.coreExtraTags] = groups;
+    else if (groups.length) fields[groups[0].some(tag => skills.includes(tag) || /-range$|^Melee$/i.test(tag)) ? 'skillTags' : 'coreExtraTags'] = groups[0];
+    return fields;
+  }
+
   function editObject(index, structured = false) {
+    const editor = showEditor('object-editor','Inventory editor',() => index == null ? null : byId('objects').querySelectorAll('.entry')[index]);
+    if (!editor) return;
+    activeEditors.get('object-editor').reopen = {kind:'object',index,mode:structured};
     const o = index == null ? {} : inventory[index];
-    const editor = showEditor('object-editor','Inventory editor');
+    const fieldsFromObject = index == null ? {} : objectFields(o);
     const commit = next => {
       if (index == null) inventory.push(next);
       else inventory[index] = next;
-      editor.remove();
+      closeEditor('object-editor');
       renderObjects();
     };
-    if (!structured) {
+    if (!structured || !fieldsFromObject) {
       const raw = inputField(editor, 'Object struct or description', objectStruct(o), 'textarea');
+      raw.required = true;
       raw.placeholder = 'Grenade Charge | 1 Mass';
       const listedMass = raw.value.match(/\|\s*(\d+(?:\.\d+)?)\s+mass\b/i);
       const override = o.mass != null && (!listedMass || Number(o.mass) !== Number(listedMass[1])) ? o.mass : '';
@@ -248,7 +323,12 @@
       carried.min = 0;
       finishEditor(editor, () => {
         if (!raw.value.trim()) { raw.focus(); return; }
-        const next = raw.value.trim() === objectStruct(o) ? {...o} : {raw:raw.value.trim(), equipped:!!o.equipped};
+        const next = {...o};
+        if (raw.value.trim() !== objectStruct(o)) {
+          next.raw = raw.value.trim();
+          delete next.struct;
+          delete next.mass;
+        }
         if (carried.value !== '') next.mass = Math.max(0,Number(carried.value) || 0);
         else if (override !== '') {
           if (next.raw || next.struct) delete next.mass;
@@ -260,22 +340,31 @@
     }
     const fields = el('div',null,'fields');
     editor.append(fields);
-    const name = inputField(fields,'Name','');
-    const type = inputField(fields,'Type','',null,['','tool','weapon','wearable','attachment','material']);
-    const subtype = inputField(fields,'Subtype','');
-    const count = inputField(fields,'Potency','','number');
-    const size = inputField(fields,'Object die','',null,['',...dice]);
-    const modifier = inputField(fields,'Accuracy','','number');
-    const primary = inputField(fields,'Skill, range and universal tags','');
-    const secondary = inputField(fields,'Core and extra tags','');
-    const special = inputField(fields,'Special effect','','textarea');
-    const mass = inputField(fields,'Mass','','number');
+    const f = fieldsFromObject;
+    const name = inputField(fields,'Name',f.name);
+    name.required = true;
+    const type = inputField(fields,'Type',f.type || '',null,['','tool','weapon','wearable','attachment','material']);
+    const subtype = inputField(fields,'Subtype',f.subtype);
+    const count = inputField(fields,'Potency',f.count || '','number');
+    const size = inputField(fields,'Object die',f.size || '',null,['',...dice]);
+    const modifier = inputField(fields,'Accuracy',f.modifier ?? '','number');
+    const primary = inputField(fields,'Skill, range and universal tags',[...list(f.skillTags),f.rangeTag].filter(Boolean).join(', '));
+    const secondary = inputField(fields,'Core and extra tags',list(f.coreExtraTags).join(', '));
+    const special = inputField(fields,'Special effect',f.special,'textarea');
+    const mass = inputField(fields,'Mass',o.mass ?? f.mass,'number');
     count.min = mass.min = 0;
+    mass.step = 'any';
     finishEditor(editor, () => {
       if (!name.value.trim()) { name.focus(); return; }
-      commit({name:name.value.trim(), type:type.value, subtype:subtype.value.trim(), count:Number(count.value) || (size.value ? 1 : 0),
-        size:size.value, modifier:Number(modifier.value) || 0, skillTags:tags(primary.value), coreExtraTags:tags(secondary.value),
-        mass:mass.value === '' ? null : Number(mass.value), special:special.value.trim()});
+      const common = tags(primary.value);
+      const range = common.find(tag => /^(Melee|Near-range|Long-range|Far-range)$/i.test(tag));
+      const result = {...o,name:name.value.trim(), type:type.value, subtype:subtype.value.trim(), count:Number(count.value) || (size.value ? 1 : 0),
+        size:size.value, modifier:Number(modifier.value) || 0, skillTags:common.filter(tag => tag !== range), rangeTag:range || '',
+        coreExtraTags:tags(secondary.value), mass:mass.value === '' ? null : Number(mass.value), special:special.value.trim()};
+      delete result.raw;
+      delete result.struct;
+      result.struct = objectStruct(result);
+      commit(result);
     });
   }
 
@@ -296,8 +385,8 @@
       checkbox.addEventListener('change', () => { o.equipped = checkbox.checked; updateVitals(); });
       const equip = el('label',null,'equip');
       equip.append(checkbox, 'Equipped');
-      row.append(reading,equip,button('Edit',() => editObject(i)),button('Remove',() => {
-        byId('object-editor').replaceChildren();
+      row.append(reading,equip,button('Edit',() => editObject(i,true)),button('Remove',() => {
+        closeEditor('object-editor');
         inventory.splice(i,1);
         renderObjects();
       },'remove'));
@@ -374,7 +463,7 @@
   function collectSheet() {
     const identity = Object.fromEntries(['name','pronouns','player','concept','birth','early','kit'].map(id => [id,value(id)]));
     Object.assign(identity,{age:number('age'),xp:number('xp'),mainLifepaths:value('mains')});
-    const bonds = [...byId('bonds').children].map(row => ({
+    const bonds = [...byId('bonds').children].map(row => ({...rowSources.get(row),
       type:row.querySelector('.type').value, target:row.querySelector('.target').value,
       text:row.querySelector('.text').value
     })).filter(b => b.text.trim() || b.target.trim());
@@ -387,7 +476,7 @@
         health:[number('healthCurrent'),number('healthMax')], enc:[inventoryMass() + number('supplies') + number('otherMass'),capacity() + number('capacityAdjustment')],
         otherMass:number('otherMass'), capacityAdjustment:number('capacityAdjustment'), wounds:number('wounds'), scars:number('scars')
       },
-      talents:[...byId('talents').children].map(row => ({name:row.querySelector('.talent-name').value.trim(),
+      talents:[...byId('talents').children].map(row => ({...rowSources.get(row),name:row.querySelector('.talent-name').value.trim(),
         category:row.querySelector('.category').value, die:row.querySelector('.die').value})).filter(t => t.name),
       conditions:value('conditions'), injuryNotes:value('injuryNotes'), powers, inventory,
       notesA:value('notesA'),notesB:value('notesB'),
@@ -496,7 +585,7 @@
     byId('bonds').replaceChildren();
     const bonds = d.bonds || (i.bonds ? [{type:'',text:String(i.bonds)}] : []);
     bonds.forEach(addBond);
-    byId('power-editor').replaceChildren(); byId('object-editor').replaceChildren();
+    closeEditor('power-editor'); closeEditor('object-editor');
     renderPowers(); renderObjects();
     document.querySelectorAll('.sticky').forEach(el => el.remove());
     list(d.stickies).forEach(createSticky);
@@ -509,6 +598,9 @@
       const data = JSON.parse(await file.text());
       if (Array.isArray(data)) {
         const added = normalizeItems(data);
+        const editor = activeEditors.get('object-editor');
+        if (editor?.dirty && !editor.commit()) throw new Error('Finish the open inventory entry first.');
+        closeEditor('object-editor');
         inventory.push(...added);
         renderObjects();
         status('Added ' + added.length + ' inventory item' + (added.length === 1 ? '.' : 's.'));
@@ -523,6 +615,8 @@
   }
 
   byId('sheet').addEventListener('submit',e => e.preventDefault());
+  const talentNames = [...new Set(Object.values(AxialCharacterRules.talents).flat())].sort();
+  byId('talent-suggestions').replaceChildren(...talentNames.map(talent => new Option(talent,talent)));
   byId('sheet').addEventListener('input',updateVitals);
   for (const id of ['Fortitude','Resolve','age']) byId(id).addEventListener('change',adjustHealthForBuildChange);
   byId('add-talent').onclick = () => addTalent().querySelector('input').focus();
@@ -532,15 +626,60 @@
   byId('add-object').onclick = () => editObject(null,true);
   byId('paste-object').onclick = () => editObject(null);
   byId('addStickyBtn').onclick = () => createSticky().focus();
-  byId('saveBtn').onclick = downloadSheet;
+  function finishEdits(action) {
+    for (const editor of [...activeEditors.values()]) {
+      if (editor.commit && !editor.commit()) {
+        status('Finish the open entry or cancel it before exporting.');
+        return;
+      }
+    }
+    action();
+  }
+  byId('saveBtn').onclick = () => finishEdits(downloadSheet);
   byId('loadBtn').onclick = () => byId('fileInput').click();
   byId('fileInput').onchange = loadFile;
-  byId('wordBtn').onclick = () => window.AxialCharacterExport.word(printableSheet());
-  byId('printBtn').onclick = () => window.AxialCharacterExport.print(printableSheet());
+  byId('docsBtn').onclick = () => finishEdits(() => window.AxialGoogleDocs.open(printableSheet()));
+  byId('wordBtn').onclick = () => finishEdits(() => window.AxialCharacterExport.word(printableSheet()));
+  byId('printBtn').onclick = () => finishEdits(() => window.AxialCharacterExport.print(printableSheet()));
 
   previousBaseHealth = initialHealth();
   set('healthCurrent',previousBaseHealth); set('healthMax',previousBaseHealth);
   updateVitals();
+  // Keep a refresh on this history entry separate from a newly opened generator result.
+  try {
+    const id = history.state?.axialSheetId || crypto.randomUUID();
+    history.replaceState({...history.state,axialSheetId:id},'');
+    const sessionKey = 'axial.digital-sheet.' + id;
+    const saved = sessionStorage.getItem(sessionKey);
+    if (saved) {
+      const draft = JSON.parse(saved);
+      applyCharacter(draft.sheet || draft);
+      for (const entry of list(draft.editors)) {
+        if (entry.kind === 'object') editObject(entry.index,entry.mode);
+        else if (entry.kind === 'power') editPower(entry.index,entry.mode);
+        else continue;
+        const state = activeEditors.get(entry.kind + '-editor');
+        const fields = state.node.querySelectorAll('input,select,textarea');
+        if (fields.length !== entry.values.length) continue;
+        fields.forEach((input,i) => {
+          input.value = entry.values[i];
+          if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
+        });
+        state.dirty = true;
+      }
+      status('Restored the character you were editing in this tab.');
+    }
+    window.addEventListener('pagehide',() => {
+      try {
+        const editors = [...activeEditors.values()].filter(state => state.dirty).map(state => ({
+          ...state.reopen,values:[...state.node.querySelectorAll('input,select,textarea')].map(input => input.value)
+        }));
+        sessionStorage.setItem(sessionKey,JSON.stringify({sheet:collectSheet(),editors}));
+      }
+      catch { /* Save JSON remains available when browser storage is full or disabled. */ }
+    });
+    if (saved) return;
+  } catch { /* The sheet also works without a browser-session draft. */ }
   if (new URLSearchParams(location.search).get('from') === 'generator') {
     try {
       const handoff = sessionStorage.getItem('axial.generator.sheet.v1');

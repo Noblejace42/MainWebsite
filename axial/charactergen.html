@@ -7,6 +7,7 @@
   <title>Axial — Character Generator</title>
   <meta name="description" content="Build an Axial character with lifepaths, starting gear, powers and bonds. Download a Word sheet or print to PDF." />
   <link rel="stylesheet" href="power-picker.css" />
+  <link rel="stylesheet" href="google-docs-export.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -380,6 +381,9 @@
     .choice-pill.selected { border-color: var(--accent); color: var(--accent); background: var(--glow-soft); }
 
     .power-desc { font-size: .8em; color: var(--text-dim); line-height: 1.5; margin-top: 6px; border-left: 2px solid var(--border-bright); padding-left: 10px; }
+    .power-rules { line-height: 1.55; }
+    .power-rules > * + * { margin-top: .45em; }
+    .power-rules ul, .power-rules ol { padding-left: 1.5em; }
 
     /* ===== BONDS ===== */
     .bond-row {
@@ -490,8 +494,10 @@
 
   <script src="character-data.js"></script>
   <script src="powerdata.js"></script>
+  <script src="power-text.js"></script>
   <script src="power-picker.js"></script>
   <script src="character-export.js"></script>
+  <script src="google-docs-export.js"></script>
   <script>
     'use strict';
 
@@ -888,7 +894,8 @@
         if (def.power) {
           extras += `<div class="choice-row">${def.power.map(p =>
             `<button type="button" class="choice-pill ${m.power === p ? 'selected' : ''}" onclick="S.mains[${idx}].power='${esc(p)}';render()">${p}</button>`).join('')}</div>`;
-          if (m.power) extras += `<div class="power-desc"><b>${esc(m.power)}:</b> ${esc(AxialPowerPicker.find(m.power)?.description || '')}</div>`;
+          if (m.power) extras += `<div class="power-desc"><strong>${esc(m.power)}</strong> <em>Passive</em>
+            <div class="power-rules">${AxialPowerText.html(AxialPowerPicker.find(m.power))}</div></div>`;
         }
         return `<div class="lp-instance">
           <div class="lp-head">
@@ -1073,15 +1080,16 @@
         <div class="export-actions no-print">
           <button id="word-export" class="btn glow">Download Word</button>
           <button id="pdf-export" class="btn">Print / Save PDF</button>
+          <button id="docs-export" class="btn">Export to Google Docs</button>
           <button class="btn" onclick="openDigitalSheet()">Open digital sheet</button>
         </div>
-        <p class="rules-note no-print" id="export-status" role="status">The Word file can also be opened in Google Docs.</p>
+        <p class="rules-note no-print" id="export-status" role="status"></p>
         <div class="summary-grid"><div><h3>Vitals</h3>${formatRows(Object.entries(sheet.vitals))}</div>
         <div><h3>Skills</h3>${formatRows(Object.entries(sheet.skills))}</div></div>
         <h3>Talents</h3>${sheet.talents.length ? formatRows(sheet.talents.map(t => [`${t.name} · ${t.category}`,t.die])) : '<p class="sum-text">None recorded.</p>'}
         <h3>Powers</h3>${sheet.powers.length ? sheet.powers.map(p => `<div class="sum-block"><b>${esc(p.name)}</b>
-          <span class="rules-note">${[p.type,p.cooldown,p.speed].filter(Boolean).map(esc).join(' · ')}</span>
-          <p class="sum-text multiline">${esc(p.description)}</p>${p.choice ? `<p class="sum-text">${esc(p.choice)}</p>` : ''}</div>`).join('') : '<p class="sum-text">None recorded.</p>'}
+          <em class="rules-note">${[p.type, p.cooldown, p.speed].filter(Boolean).map(esc).join(' · ')}</em>
+          <div class="sum-text power-rules">${AxialPowerText.html(p)}</div>${p.choice ? `<p class="sum-text">${esc(p.choice)}</p>` : ''}</div>`).join('') : '<p class="sum-text">None recorded.</p>'}
         <h3>Bonds</h3>${sheet.bonds.length ? sheet.bonds.map(b => `<p class="sum-text"><b>${esc(b.type)}</b> · ${esc(b.text)}</p>`).join('') : '<p class="sum-text">None recorded.</p>'}
         <h3>Gear${sheet.kit ? ` · ${esc(sheet.kit)}` : ''}</h3>${gearList(sheet.gear) || '<p class="sum-text">None recorded.</p>'}
         ${sheet.notes ? `<h3>Notes</h3><p class="sum-text multiline">${esc(sheet.notes)}</p>` : ''}
@@ -1089,6 +1097,7 @@
       </section>`;
       document.getElementById('word-export').onclick = () => AxialCharacterExport.word(getCharacterSheet());
       document.getElementById('pdf-export').onclick = () => AxialCharacterExport.print(getCharacterSheet());
+      document.getElementById('docs-export').onclick = () => AxialGoogleDocs.open(getCharacterSheet());
     }
 
     // ---------- Sidebar ----------

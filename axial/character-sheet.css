@@ -36,6 +36,11 @@ details[open] > summary { margin-bottom:.6rem; }
 .reading p,.reading h3 { margin:0; overflow-wrap:anywhere; }
 .reading h3 { font-size:1rem; }
 .reading .description { white-space:pre-wrap; }
+.power-effect { margin-top:.35rem; }
+.power-effect ul,.power-effect ol { margin:.25rem 0; padding-left:1.4rem; }
+.power-effect p + p { margin-top:.3rem; }
+.power-meta { margin-top:.1rem; }
+.entries .editor { margin:0; }
 .reading small { display:block; color:var(--dim); }
 .entry .equip { flex:0 1 auto; display:flex; flex-direction:row; align-items:center; }
 .equip input { width:auto; }

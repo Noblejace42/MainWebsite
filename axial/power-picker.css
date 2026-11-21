@@ -30,6 +30,24 @@
 .power-entry-title { display: grid; gap: .2rem; }
 .power-entry-title strong { font-family: 'Space Grotesk', sans-serif; }
 .power-entry-title small, .power-match-count { color: var(--text-dim); font-size: .85rem; }
+.power-benefit { font-size: .93rem; line-height: 1.45; color: var(--text); }
+.power-result {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: .6rem;
+  border-bottom: 1px solid var(--border);
+}
+.power-result[hidden] { display: none; }
+.power-result > .power-entry { border-bottom: 0; min-width: 0; }
+.power-result > .btn, .power-result > .power-on-sheet { align-self: start; margin-block-start: .65rem; }
+.power-on-sheet { color: var(--accent); font-size: .82rem; padding-block: .3rem; }
+.power-pager { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; margin-block: .65rem 1.15rem; }
+.power-pager .power-match-count { margin-right: auto; }
+.power-group > .btn { margin-block: .65rem; }
+.power-group > div .power-result:last-child { border-bottom: 0; }
+.power-description > :is(p,ul,ol) + :is(p,ul,ol) { margin-block-start: .55rem; }
+.power-description :is(ul,ol) { padding-left: 1.4rem; }
 .power-entry-badge, .power-match { color: var(--accent); font-size: .85rem; }
 .power-entry-badge, .power-group > summary > span { margin-left: auto; }
 .power-description {
