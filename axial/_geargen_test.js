@@ -31,14 +31,14 @@ if (scripts.length !== 1) throw new Error('Expected exactly 1 inline script, got
 // the bits the test needs.
 const exported = (0, eval)(dataSrc + '\n' + scripts[0] + `
 ;({ generateItem, structText, tagTip, toSheetObject, forgeItemFrom, WEAPONS, ERA_WEAPON_WEIGHTS, WEARABLES, TOOLS,
-   quickGenerate, forgeGenerate, renderResults, copyAll, clearAll, setMode, items: () => items });
+   quickGenerate, forgeGenerate, renderResults, copyAll, clearAll, setMode, addSupplyItem, supplyItem, SUPPLY_OBJECTS, items: () => items });
 `);
 const { generateItem, structText, tagTip, toSheetObject, forgeItemFrom, WEAPONS, ERA_WEAPON_WEIGHTS, WEARABLES, TOOLS,
-  quickGenerate, forgeGenerate, renderResults, copyAll, clearAll, setMode, items: getItems } = exported;
+  quickGenerate, forgeGenerate, renderResults, copyAll, clearAll, setMode, addSupplyItem, supplyItem, SUPPLY_OBJECTS, items: getItems } = exported;
 
 // --- stress test ---
 const eras = ['medieval', 'fantasy', 'modern', 'scifi', 'any'];
-const types = ['weapon', 'tool', 'wearable', 'any'];
+const types = ['weapon', 'tool', 'wearable', 'attachment', 'any'];
 const tiers = ['crude', 'standard', 'fine', 'masterwork', 'legendary', 'random'];
 
 let n = 0, structSamples = [];
@@ -49,14 +49,15 @@ for (const era of eras) for (const type of types) for (const tier of tiers) {
     const item = generateItem({ era, type, tier });
     n++;
     if (!item.name || /undefined|NaN|null/.test(item.name)) fail('bad name', item);
-    if (![4, 6, 8, 10, 12].includes(item.die)) fail('bad die', item);
-    if (item.pot < 1 || item.pot > 5) fail('bad potency', item);
+    if (item.kind !== 'attachment' && ![4, 6, 8, 10, 12].includes(item.die)) fail('bad die', item);
+    if (item.kind !== 'attachment' && (item.pot < 1 || item.pot > 5)) fail('bad potency', item);
     if (item.mass < 1) fail('bad mass', item);
-    if (!['weapon', 'tool', 'wearable'].includes(item.kind)) fail('bad kind', item);
+    if (!types.includes(item.kind)) fail('bad kind', item);
     if (item.kind === 'weapon' && !item.range) fail('weapon missing range', item);
     if (item.kind === 'weapon' && !WEAPONS[item.subtype].names[item.era]) fail('subtype unavailable in era', item);
     if (item.kind === 'tool' && !item.core.some(t => t.startsWith('Aid|'))) fail('tool missing Aid', item);
-    if (!item.skills.length) fail('no skill tags', item);
+    if (item.kind !== 'attachment' && !item.skills.length) fail('no skill tags', item);
+    if (item.kind === 'attachment' && (item.die || !item.extras.length)) fail('bad attachment', item);
     if (!item.desc) fail('no description', item);
     const s = structText(item);
     if (/undefined|NaN|\[object/.test(s)) fail('bad struct: ' + s, item);
@@ -66,7 +67,7 @@ for (const era of eras) for (const type of types) for (const tier of tiers) {
       if (!tagTip(tag)) fail('no tooltip for tag "' + tag + '" in: ' + s, item);
     }
     const sheet = toSheetObject(item);
-    if (!sheet.name || !sheet.size) fail('bad sheet object', item);
+    if (sheet.struct !== s || !sheet.name || (item.die && !sheet.size)) fail('bad sheet object', item);
     if (structSamples.length < 24 && Math.random() < .03) structSamples.push(s.replace('\n', ' '));
   }
 }
@@ -88,6 +89,11 @@ for (const era of ['medieval', 'fantasy', 'modern', 'scifi']) {
     n++;
     if (!item.core.includes('Aid|' + t.talent)) fail(`forge tool pin failed: ${t.talent}`, item);
   }
+  for (const mount of ['Permanent', 'Removable']) {
+    const item = forgeItemFrom({ era, type: 'attachment', sub: mount, tier: 'random' });
+    n++;
+    if (!item.core.includes(mount)) fail('wrong attachment mount', item);
+  }
 }
 
 // UI code paths
@@ -104,6 +110,15 @@ if (getItems().length !== 11) fail('forgeGenerate did not add an item');
 copyAll({ classList: { add() { }, remove() { } }, textContent: '' });
 clearAll();
 if (getItems().length !== 0) fail('clearAll left unlocked items');
+for (const [i, entry] of SUPPLY_OBJECTS.entries()) {
+  $('supply-choice').value = String(i);
+  addSupplyItem();
+  const item = getItems()[0].item;
+  if (item.name !== entry.name || !item.fixed || item.supplyCost !== entry.cost) fail('bad supplies item', item);
+  if (toSheetObject(item).struct !== structText(supplyItem(entry))) fail('supplies export mismatch', item);
+}
+if (structText(getItems()[0].item) !== 'Glass Bottle | 1 Mass') fail('abbreviated object gained optional fields');
+if (/undefined|NaN|0dnull/.test(els.results.innerHTML)) fail('bad supply card');
 
 console.log(`OK — ${n} items generated with no failures. UI paths OK.\n\nSample structs:`);
 structSamples.forEach(s => console.log('  ' + s));

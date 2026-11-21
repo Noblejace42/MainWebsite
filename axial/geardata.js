@@ -54,11 +54,11 @@ const TAG_INFO = {
   'Piercing X': 'Ignores X damage reduction (from any source, typically (Toughness X) wearables) when you attack.',
   'Cycling': 'You can expend 1 ammo when you attack to step up all dice in your pool.',
   'Efficient': 'This weapon has a 50% chance to not consume ammo when it would consume ammo.',
-  'Volatile': 'When you contest or attack with this weapon, step up all dice in your pool. Then roll the weapon die and lose that much health.',
+  'Volatile': 'When you contest or attack with this weapon, step up all dice in your pool. Then roll the stepped-up weapon die and lose that much health.',
   'Shredding X': 'Remove the X smallest wearable/object dice from the defend pool of an opponent defending against this weapon.',
   'Covering X': 'When you attack, that creature and its nearby allies step down X dice on their next ranged attack.',
   'Suppressed': 'Makes little to no noise. Cannot be heard through closed doors/windows or by creatures over 2 zones away.',
-  'Explosive': 'Roll your attack against each creature in the target zone; deal damage to each upon successful resolution.',
+  'Explosive': 'Use the same attack roll against every creature in the target zone. Deal damage to each on a success. The GM may allow Resist Peril to avoid the attack.',
   'Brutal': 'When you attack, also attack the closest creature to the contested creature with the same roll.',
   'Violent X': 'When you attack, count an additional X dice from your attack pool when calculating your total.',
   'Flaming X': 'On a successful attack, hit targets become enflamed X.',
@@ -75,8 +75,19 @@ const TAG_INFO = {
   'Supporting X': 'Increases your encumbrance capacity by X mass.',
   // Tool tags
   'Aid|X': 'Can always contribute its object die to a dice pool if a die for Talent X is also in that pool. Step up the die of Talent X.',
-  'Supplies X': 'This tool can be created by reducing your Supplies by X. The created tool does not have (Supplies X).'
+  'Supplies X': 'Outside combat, spend X Supplies to create this tool. The created tool loses the Supplies tag.',
+  'Removable': 'A heavy action removes this attachment and its added tags. An object may have one removable attachment at a time.',
+  'Permanent': 'Once installed, this attachment cannot be removed.',
+  'X Made': 'This attachment fits only objects of the specified subtype.'
 };
+
+function axialGearTagTip(tag) {
+  const label = String(tag).trim();
+  const keys = [label, label.replace(/1d\d+$/, '1dX'), label.replace(/\|.+$/, '|X'),
+    label.replace(/\s+.+$/, ' X'), label.replace(/^.+ Made$/i, 'X Made')];
+  const key = keys.find(value => Object.hasOwn(TAG_INFO, value));
+  return key ? TAG_INFO[key] : '';
+}
 
 // Requirement tag per skill (for "(Complex 1d8)"-style gates)
 const REQ_TAG_OF = {
@@ -1061,5 +1072,29 @@ const ERAS = {
 const TYPES = {
   weapon: { label: 'Weapon' },
   tool: { label: 'Tool' },
-  wearable: { label: 'Wearable' }
+  wearable: { label: 'Wearable' },
+  attachment: { label: 'Attachment' }
 };
+
+// Attachment tags transfer to the host. Blank subtype fits any object.
+const ATTACHMENTS = [
+  { subtype: '', mount: 'Removable', grants: 'Ornate', names: ['Heraldic Badge', 'Enamel Sigil', 'Engraved Emblem', 'Holographic Crest'] },
+  { subtype: '', mount: 'Permanent', grants: 'Consistent X', names: ['Maker’s Inlay', 'Steadying Rune', 'Precision Fitting', 'Calibration Lattice'] },
+  { subtype: 'chest', mount: 'Removable', grants: 'Toughness X', names: ['Quilted Liner', 'Stoneweave Liner', 'Vest Insert', 'Impact Liner'] },
+  { subtype: 'back', mount: 'Permanent', grants: 'Supporting X', names: ['Pack Frame', 'Willowbone Frame', 'Load Frame', 'Load-Bearing Spine'] },
+  { subtype: 'head', mount: 'Removable', grants: 'Protective', names: ['Padded Coif', 'Warding Veil', 'Helmet Liner', 'Ablative Shell'] },
+  { subtype: 'feet', mount: 'Permanent', grants: 'Resistant X', names: ['Reinforced Soles', 'Warded Soles', 'Insulated Soles', 'Protective Boot Seals'] }
+];
+
+// Section 5.1. A missing type or die is intentional in an abbreviated struct.
+const SUPPLY_OBJECTS = [
+  { name: 'Ration', cost: 2, tags: ['Consumable 1', 'Special'], mass: 1, special: 'Feeds an average adventuring party for one day.' },
+  { name: '50ft Rope Coil', cost: 1, type: 'tool', die: 6, tags: ['Consistent 1'], core: ['Aid|Climbing'], mass: 2 },
+  { name: 'Bandages', cost: 1, type: 'tool', die: 4, core: ['Aid|Medicine', 'Consumable 1'], mass: 1 },
+  { name: 'Camp Gear', cost: 3, type: 'tool', die: 6, tags: ['Consumable 3'], core: ['Aid|Bushcraft', 'Aid|Fishing'], mass: 5 },
+  { name: 'Torch', cost: 1, type: 'tool', die: 4, tags: ['Consumable 1', 'Special'], special: 'Provides light for one encounter or three hours.', mass: 1 },
+  { name: 'Tarp', cost: 1, type: 'tool', die: 6, mass: 1 },
+  { name: '10ft Telescoping Pole', cost: 2, type: 'tool', die: 6, mass: 1 },
+  { name: 'Ammo', cost: 3, tags: ['Special'], special: 'Represents standard ammunition. Weapons with Ammo or Loading require ammunition to use. Complications can expend extra ammo.', mass: 1 },
+  { name: 'Glass Bottle', cost: 1, mass: 1 }
+];

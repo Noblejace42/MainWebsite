@@ -13,7 +13,7 @@
   <a class="skip-link" href="#controls">Skip to generator</a>
   <nav class="navbar" aria-label="Axial tools">
     <a class="brand" href="index.html">AXIAL <span>// SYSTEM SURVEY</span></a>
-    <div class="nav-links"><a href="index.html">Axial Hub</a><a href="geargen.html">Gear Forge</a><a href="charactergen.html">Character Gen</a><a href="../AxialTTRPG/Axial.pdf" target="_blank" rel="noopener">Rules ↗</a></div>
+    <div class="nav-links"><a href="index.html">Axial Hub</a><a href="geargen.html">Gear Forge</a><a href="charactergen.html">Character Gen</a><a href="https://docs.google.com/document/d/1FDHUbisK-Rg0hwTEnfX1re6PS7ADPhH-DNK_3v_LgIE/edit?usp=sharing" target="_blank" rel="noopener">Current rules ↗</a></div>
   </nav>
   <main>
     <header class="hero"><div><h1>Axial System Generator</h1><p>Generate planets, settlements, resources, and fleets.</p></div></header>
@@ -55,7 +55,17 @@
           <div id="worlds"></div>
           <div class="section-heading"><span class="eyebrow">Other locations</span><span>System infrastructure</span></div>
           <section id="deep-space" class="deep-space"></section>
-          <section class="connection"><span class="eyebrow">Co-axial navigation / approach record</span><p id="navigation"></p></section>
+          <section class="connection" aria-labelledby="route-heading">
+            <h3 id="route-heading">Axial routes</h3>
+            <p id="navigation"></p>
+            <div class="table-scroll" role="region" aria-label="Known outbound routes" tabindex="0">
+              <table id="route-table" class="register-table" aria-label="Known outbound routes">
+                <thead><tr><th scope="col">Destination</th><th scope="col">Route</th><th scope="col">Expected travel</th><th scope="col">Navigator CR</th><th scope="col">Drive (skip Fuel)</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <details class="technical-details"><summary>Travel roles and provisions</summary><div id="travel-rules"></div></details>
+          </section>
           <section class="connection"><span class="eyebrow">Logistics / dependencies</span><p id="connections"></p></section>
           <p class="survey-footnote">Resident counts exclude visiting crews. Empty facilities have no certified services. Physical values are illustrative estimates; local surveys and transit windows take precedence.</p>
         </div>

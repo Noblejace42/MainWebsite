@@ -53,6 +53,36 @@ for(const input of [{planets:'0',placement:'surface'},{planets:'0',required:'tem
 for(const corrupt of [s=>s.bodies[0].type='__proto__',s=>s.bodies[0].type='constructor',s=>s.settlements[0].bodyId='missing',s=>s.settlements[0].facility={},s=>s.settlements[0].purpose='toString',s=>s.bodies.push(s.bodies[0]),s=>s.version=99]) {const s=G.generate({planets:'2',settlements:'1',seed:'corrupt'});corrupt(s);assert.throws(()=>G.validate(s),'reject invalid imported data');}
 console.log(JSON.stringify({checked,meanResidents:people/1000,peakDefaultResidents:peak,uniqueFacilitiesSeen:seen.size,content:{purposes:Object.keys(T.purposes).length,facilities:Object.values(T.purposes).reduce((a,p)=>a+p.facilities.length,0),situations:T.conditions.length+T.quiet.length+T.abandoned.length,remote:T.remote.length,fleetActivities:Object.values(T.fleets).reduce((a,f)=>a+f.activities.length,0)}},null,2));
 const original=G.generate({seed:'locks',planets:'3',settlements:'5',traffic:'busy'});
+const routeCR = {A: 5, B: 10, C: 15};
+const compatibleDrives = {A: 'Core (1), Pillar (2), Spike (3)', B: 'Pillar (2), Spike (3)', C: 'Spike (3)'};
+const routesSeen = new Set();
+for (let i = 0; i < 100; i++) {
+  const s = G.generate({seed: 'route-audit-' + i, traffic: 'busy'});
+  const text = G.toText(s);
+  for (const route of s.routes) {
+    assert.notEqual(route.destination, s.name);
+    assert.ok(text.includes(route.destination));
+    assert.ok(text.includes('Navigator CR: ' + (route.unstable ? '20+' : routeCR[route.type])));
+    assert.ok(text.includes('Drive (skip Fuel): ' + compatibleDrives[route.type]));
+    routesSeen.add(route.unstable ? 'unstable' : route.type);
+  }
+  for (const fleet of [...s.transit, ...s.bodies.flatMap(body => body.orbit)]) {
+    assert.ok(T.fleets[fleet.kind].hulls.includes(fleet.hull));
+    assert.ok(fleet.crew <= fleet.count * T.shipHulls[fleet.hull].crew);
+    assert.ok(text.includes('Standard hull, per ship: ' + fleet.hull));
+  }
+}
+assert.deepEqual([...routesSeen].sort(), ['A', 'B', 'C', 'unstable']);
+const legacy = JSON.parse(JSON.stringify(original));
+delete legacy.routes;
+delete legacy.transit[0].hull;
+const legacyCrew = legacy.transit[0].crew;
+G.validate(legacy);
+assert.equal(JSON.stringify(legacy.routes), JSON.stringify(original.routes));
+assert.equal(legacy.transit[0].crew, legacyCrew);
+assert.ok(G.toText(legacy).includes(legacy.transit[0].name));
+legacy.routes[0].type = 'D';
+assert.throws(() => G.validate(legacy), /route chart/);
 original.bodies[0].locked=true;
 original.bodies[1].orbit[0].locked=true;
 original.settlements[0].locked=true;

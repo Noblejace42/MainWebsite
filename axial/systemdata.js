@@ -298,8 +298,23 @@ globalThis.SystemTables = {
     '{a} and {b} disagree over responsibility for maintaining a shared beacon.',
     '{a} is considering consolidation with {b}; the savings would come at the cost of independence.'
   ];
+  // Section 8, Ship Hulls. A vessel's description is independent of its rules hull.
+  t.shipHulls = {
+    'Light Shuttle': {health: 16, hardpoints: 3, utility: 8, speed: 3, class: 'Light', crew: 6, advanced: 3},
+    'Free Merchant': {health: 28, hardpoints: 5, utility: 12, speed: 3, class: 'Light', crew: 8, advanced: 4},
+    Voyager: {health: 16, hardpoints: 5, utility: 10, speed: 4, class: 'Light', crew: 4, advanced: 4},
+    'Light Freighter': {health: 28, hardpoints: 3, utility: 16, speed: 2, class: 'Medium', crew: 8, advanced: 6},
+    Gunship: {health: 36, hardpoints: 6, utility: 10, speed: 2, class: 'Medium', crew: 12, advanced: 6},
+    Corvette: {health: 60, hardpoints: 9, utility: 18, speed: 1, class: 'Medium', crew: 20, advanced: 7}
+  };
+  t.fleets.cargo.hulls = ['Light Freighter', 'Free Merchant'];
+  t.fleets.survey.hulls = ['Voyager', 'Free Merchant', 'Light Shuttle'];
+  t.fleets.patrol.hulls = ['Gunship', 'Corvette'];
+  t.fleets.salvage.hulls = ['Free Merchant', 'Light Freighter'];
+  t.fleets.transit.hulls = ['Light Shuttle', 'Light Freighter', 'Free Merchant'];
+
   t.navigation = [
-    'The co-axial approach is well surveyed, but the latest timing solution arrived by courier.',
+    'The Axial approach is well surveyed, but the latest timing solution arrived by courier.',
     'A skip-route beacon is in backup mode. Incoming crews are advised to verify its clock independently.',
     'The departure corridor is clear. No vessel is scheduled to carry outbound messages this rotation.',
     'Recent arrivals report a small, consistent offset from the published skip solution. The survey office has issued a correction.',
@@ -314,7 +329,7 @@ globalThis.SystemTables = {
     'The safest transit corridor leads to an inconvenient transfer point well beyond the inhabited sites.',
     'A remote relay is carrying traffic advisories while the primary beacon undergoes repair.',
     'The last arrival brought a new set of approach charts; validation is underway.',
-    'A transport cooperative keeps its own co-axial route record and shares it only with contributing crews.',
+    'A transport cooperative keeps its own Axial route record and shares it only with contributing crews.',
     'A minor debris crossing has shifted the preferred assembly area away from the main beacon.',
     'A scheduled navigation outage is posted. The nearest replacement clock is several calls away.',
     'The local approach remains open, but outbound pilots are advised to carry additional independent fixes.',

@@ -48,7 +48,15 @@
     const kind = q.weighted([['cargo', 6], ['survey', 3], ['salvage', 2], ['transit', 2], ['patrol', o.military === 'none' ? 0 : o.military === 'substantial' ? 5 : 1]]);
     const table = T.fleets[kind];
     const count = q.weighted([[1, 12], [2, 3], [3, 1]]);
-    return {id, kind, name: `${q.pick(T.names)} ${table.label}`, count, vessel: q.pick(table.ships), crew: count * q.int(3, 12), affiliation: kind === 'patrol' ? 'Local service contract' : q.pick(['Independent operator', 'Chartered cooperative', 'Private concession', 'Inter-system contract']), activity: q.pick(table.activities), disposition: o.danger === 'dangerous' ? q.pick(['Wary', 'Distressed', 'Hostile']) : q.pick(['Routine', 'Wary', 'Routine']), locked: false};
+    const name = `${q.pick(T.names)} ${table.label}`;
+    const vessel = q.pick(table.ships);
+    const hull = roll(rng(name + ':' + vessel)).pick(table.hulls);
+    const crew = count * q.int(1, T.shipHulls[hull].crew);
+    return {id, kind, name, count, vessel, hull, crew, affiliation: kind === 'patrol' ? 'Local service contract' : q.pick(['Independent operator', 'Chartered cooperative', 'Private concession', 'Inter-system contract']), activity: q.pick(table.activities), disposition: o.danger === 'dangerous' ? q.pick(['Wary', 'Distressed', 'Hostile']) : q.pick(['Routine', 'Wary', 'Routine']), locked: false};
+  }
+  function hullSummary(name) {
+    const h = T.shipHulls[name];
+    return `${name} (${h.class}) · Health ${h.health} · Hardpoints ${h.hardpoints} · Utility ${h.utility} · Speed ${h.speed} · Crew capacity ${h.crew} · Advanced ${h.advanced}`;
   }
   function makeOrbit(q, o, prefix) {
     const n = o.traffic === 'none' ? 0 : o.traffic === 'sparse' ? q.weighted([[0, 8], [1, 2]]) : o.traffic === 'normal' ? q.weighted([[0, 3], [1, 5], [2, 1]]) : q.int(1, 3);
@@ -119,17 +127,21 @@
     const belt = o.belt === 'random' ? q.weighted([['none', 4], ['barren', 3], ['rich', 3]]) : o.belt;
     const remotePool = [...T.remote];
     const remote = Array.from({length: q.int(1, 3)}, (_, i) => { const t = remotePool.splice(q.int(0, remotePool.length - 1), 1)[0]; return {id: `r${i}`, name: t[0], description: t[1], type: t[2]}; });
-    return {version: VERSION, seed: o.seed || 'axial', options: o, name, star, bodies, settlements, transit: makeOrbit(q, o, 'deep'), belt, remote, notes: '', revision: 0};
+    const seed = o.seed || 'axial';
+    return {version: VERSION, seed, options: o, name, star, bodies, settlements, transit: makeOrbit(q, o, 'deep'), belt, remote, routes: chartRoutes(seed, name), notes: '', revision: 0};
   }
   function validate(s) {
     if (!s || s.version !== VERSION) throw Error('This file is not a version 1 Axial system dossier.');
     const text = (x, max = 2000) => typeof x === 'string' && x.length <= max;
     const num = (x, max = 1e6) => Number.isFinite(x) && x >= 0 && x <= max;
     const arr = (x, max) => Array.isArray(x) && x.length <= max;
-    const fleet = f => f && text(f.id, 100) && Object.hasOwn(T.fleets, f.kind) && ['name', 'vessel', 'affiliation', 'activity', 'disposition'].every(k => text(f[k])) && Number.isInteger(f.count) && f.count > 0 && f.count <= 10 && num(f.crew) && typeof f.locked === 'boolean';
+    const fleet = f => f && text(f.id, 100) && Object.hasOwn(T.fleets, f.kind) && ['name', 'vessel', 'affiliation', 'activity', 'disposition'].every(k => text(f[k])) && Number.isInteger(f.count) && f.count > 0 && f.count <= 10 && num(f.crew) && (f.hull === undefined || Object.hasOwn(T.shipHulls, f.hull)) && typeof f.locked === 'boolean';
     if (!s.options || typeof s.options !== 'object' || Array.isArray(s.options)) throw Error('The dossier is missing its generation parameters.');
     s.options = options(s.options);
     if (!text(s.name, 100) || !text(s.seed, 100) || !text(s.notes) || !Number.isInteger(s.revision) || s.revision < 0 || !s.star || !text(s.star.name) || !text(s.star.type) || !text(s.star.note) || !text(s.star.companions) || !['single', 'binary', 'trinary'].includes(s.star.configuration) || !num(s.star.mass, 10) || s.star.mass <= 0 || !num(s.star.luminosity, 100) || !arr(s.bodies, 8) || !arr(s.settlements, 10) || !arr(s.transit, 12) || !arr(s.remote, 10) || !['none', 'barren', 'rich'].includes(s.belt)) throw Error('The dossier has invalid or missing fields.');
+    // Earlier version 1 dossiers contain the seed and approach notes but no route chart.
+    if (s.routes === undefined) s.routes = chartRoutes(s.seed, s.name);
+    if (!arr(s.routes, 12) || !s.routes.every(route => route && text(route.destination, 100) && Object.hasOwn(routeRules, route.type) && typeof route.unstable === 'boolean' && Number.isInteger(route.days) && route.days > 0 && route.days <= 999)) throw Error('Invalid Axial route chart.');
     const ids = new Set();
     for (const b of s.bodies) {
       if (!b || !text(b.id, 100) || ids.has(b.id) || !text(b.name, 100) || !Object.hasOwn(T.bodies, b.type) || !['au', 'period', 'temperature', 'moons'].every(k => num(b[k])) || !(b.gravity === null || num(b.gravity, 100)) || !text(b.terrain) || !text(b.resource) || !text(b.notes) || typeof b.locked !== 'boolean' || !arr(b.orbit, 12) || !b.orbit.every(fleet)) throw Error('Invalid planetary record.');
@@ -164,18 +176,59 @@
       lines.push('','  INFRASTRUCTURE');field('Habitat',x.habitat || '', '  ');field('Power',x.power,'  ');field('Stores',x.support,'  ');field('Facility',x.facility || T.purposes[x.purpose].facility,'  ');list('Available services',x.services);
       field('Locked',x.locked?'Yes':'No','  ');if(x.notes)field('Notes',x.notes,'  ');
     };
-    const fleet=f=>{heading('VISITING FLEET: '+f.name,2);for(const [k,v] of [['Vessel',f.vessel],['Hulls',f.count],['Transient crew',f.crew],['Affiliation',f.affiliation],['Disposition',f.disposition],['Activity',f.activity],['Locked',f.locked?'Yes':'No']])field(k,v,'  ');};
+    const fleet=f=>{heading('VISITING FLEET: '+f.name,2);for(const [k,v] of [['Vessel',f.vessel],['Hulls',f.count],['Transient crew',f.crew],['Affiliation',f.affiliation],['Disposition',f.disposition],['Activity',f.activity],['Locked',f.locked?'Yes':'No']])field(k,v,'  ');if(f.hull)field('Standard hull, per ship',hullSummary(f.hull),'  ');};
     heading('AXIAL SYSTEM: '+s.name);field('Seed',s.seed);field('Version / revision',s.version+' / '+s.revision);field('System role',T.presets[s.options.preset][0]);field('Residents',s.settlements.reduce((n,x)=>n+x.population,0).toLocaleString('en-US')+' (visiting crews excluded)');field('Belt',s.belt);
     heading('PRIMARY STAR',2);field('Star',s.star.name+' / '+s.star.type);field('Configuration',s.star.configuration);field('Mass',s.star.mass+' solar masses');field('Luminosity',s.star.luminosity+' solar luminosities');field('Description',s.star.note);if(s.star.companions)field('Companions',s.star.companions);if(s.notes)field('System notes',s.notes);
     for(const b of s.bodies){const t=T.bodies[b.type];heading('WORLD: '+b.name+' / '+t.label);for(const [k,v] of [['Orbit',b.au+' AU'],['Period',b.period+' Earth years'],['Equilibrium temperature',b.temperature+' K (not surface temperature)'],['Gravity',b.gravity===null?'No solid surface':b.gravity+' g'],['Atmosphere',t.air],['Terrain',b.terrain],['Resource',b.resource],['Surveyed moons',b.moons],['Environment',t.note],['Locked',b.locked?'Yes':'No']])field(k,v);if(b.notes)field('Notes',b.notes);
       for(const location of ['surface','orbital']){heading(location==='surface'?'SURFACE':'ORBIT',2);const sites=s.settlements.filter(x=>x.bodyId===b.id&&x.location===location);sites.forEach(site);if(!sites.length)lines.push('  No settlements.');if(location==='orbital'){b.orbit.forEach(fleet);if(!b.orbit.length)lines.push('  No visiting ships.');}}
     }
     heading('OTHER LOCATIONS');s.settlements.filter(x=>x.bodyId===null).forEach(site);s.transit.forEach(fleet);s.remote.forEach(r=>{heading(r.name,2);field('Type',r.type);field('Description',r.description);});
-    heading('NAVIGATION');lines.push(navigation(s));heading('LOGISTICS');lines.push(connection(s));
+    heading('AXIAL ROUTES');lines.push(navigation(s));
+    for (const route of s.routes || chartRoutes(s.seed, s.name)) {
+      heading(route.destination, 2);
+      for (const [k, v] of routeFacts(route)) field(k, v);
+    }
+    lines.push('', ...travelNotes);
+    heading('LOGISTICS');lines.push(connection(s));
     heading('GENERATION SETTINGS',2);for(const [k,v] of Object.entries(s.options))field(k,v===''?'Random / unspecified':v);
     return lines.join('\n').trim()+'\n';
   }
   function navigation(s) { return roll(rng(s.seed + ':navigation')).pick(T.navigation); }
+  const routeRules = {
+    A: {cr: 5, drives: 'Core (1), Pillar (2), Spike (3)'},
+    B: {cr: 10, drives: 'Pillar (2), Spike (3)'},
+    C: {cr: 15, drives: 'Spike (3)'}
+  };
+  const travelNotes = [
+    'A travel leg allows up to one skip. Budget 1 Fuel for local travel plus the chosen drive’s skip cost, and one ration per party per day. Scale provisions for larger crews. A docked ship adds 1 Fuel to a skip. Count Fuel already spent to escape combat toward the same skip.',
+    'The pilot maneuvers using the cockpit’s Skills, the engineer contests Artifice | Intellect, and the navigator contests Sense | Artifice for a skip. A character may fill multiple roles, rolling each separately. On local journeys the GM sets the navigation difficulty.',
+    'A failed pilot roll can delay the journey or expose the ship to danger. On an engineering failure, spend 1d4 extra Fuel or damage a random undamaged hardpoint. If Fuel is short, take the damage. If there is no eligible hardpoint, the GM assigns an equivalent failure. A failed skip navigation roll still makes the jump, with a consequence chosen by the GM.'
+  ];
+  function chartRoutes(seed, systemName) {
+    const q = roll(rng(seed + ':routes'));
+    const count = q.int(1, 3);
+    const destinations = [...T.names];
+    return Array.from({length: count}, () => {
+      const base = destinations.splice(q.int(0, destinations.length - 1), 1)[0];
+      const number = q.int(10, 98);
+      const destination = base + ' ' + number;
+      return {
+        destination: destination === systemName ? base + ' ' + (number + 1) : destination,
+        type: q.pick(Object.keys(routeRules)),
+        unstable: q.chance(.12),
+        days: q.int(1, 10)
+      };
+    });
+  }
+  function routeFacts(route) {
+    const rules = routeRules[route.type];
+    return [
+      ['Route', 'Type ' + route.type + (route.unstable ? ' (unstable)' : '')],
+      ['Expected travel', route.days + (route.days === 1 ? ' day' : ' days')],
+      ['Navigator CR', route.unstable ? '20+' : rules.cr],
+      ['Drive (skip Fuel)', rules.drives]
+    ];
+  }
   function rerollUnlocked(original) {
     const s = clone(original), q = roll(rng(`${s.seed}:unlocked:${s.revision}`));
     const lockedWorlds = new Set(s.bodies.filter(b => b.locked).map(b => b.id));
@@ -218,7 +271,7 @@
   function facts(pairs) { return `<table class="record-table"><tbody>${pairs.map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table>`; }
   function action(label, act, id, extra = '') { return `<button type="button" class="small" data-action="${act}" data-id="${esc(id)}" ${extra}>${label}</button>`; }
   function editFields(item, kind) { return `<details class="edit-fields"><summary>Edit name & field notes</summary><label>Name<input maxlength="100" data-edit="name" data-kind="${kind}" data-id="${esc(item.id || '')}" value="${esc(item.name)}"></label><label>Field notes<textarea maxlength="2000" data-edit="notes" data-kind="${kind}" data-id="${esc(item.id || '')}">${esc(item.notes)}</textarea></label></details>`; }
-  function fleetHTML(f, host) { return `<article class="fleet"><div class="record-head"><div><span class="eyebrow">${esc(f.disposition)} · ${esc(f.affiliation)}</span><h4>${esc(f.name)}</h4></div><span class="count">${f.count} <small>hull${f.count > 1 ? 's' : ''}</small></span></div><p>${f.count} × ${esc(f.vessel)} · ${f.crew} transient crew</p><p class="muted">${esc(f.activity)}</p><div class="actions">${action(f.locked ? 'Unlock' : 'Lock', 'lock-fleet', f.id, `data-host="${esc(host)}" aria-pressed="${f.locked}"`)}${action('Reroll', 'reroll-fleet', f.id, `data-host="${esc(host)}"`)}${action('Remove', 'remove-fleet', f.id, `data-host="${esc(host)}"`)}</div></article>`; }
+  function fleetHTML(f, host) { return `<article class="fleet"><div class="record-head"><div><span class="eyebrow">${esc(f.disposition)} · ${esc(f.affiliation)}</span><h4>${esc(f.name)}</h4></div><span class="count">${f.count} <small>hull${f.count > 1 ? 's' : ''}</small></span></div><p>${f.count} × ${esc(f.vessel)} · ${f.crew} transient crew</p><p class="muted">${esc(f.activity)}</p>${f.hull ? `<details class="technical-details"><summary>Standard hull per ship</summary><p>${esc(hullSummary(f.hull))}</p></details>` : ''}<div class="actions">${action(f.locked ? 'Unlock' : 'Lock', 'lock-fleet', f.id, `data-host="${esc(host)}" aria-pressed="${f.locked}"`)}${action('Reroll', 'reroll-fleet', f.id, `data-host="${esc(host)}"`)}${action('Remove', 'remove-fleet', f.id, `data-host="${esc(host)}"`)}</div></article>`; }
   function siteHTML(s) {
     const p = T.purposes[s.purpose]; completeSite(s);
     return `<article class="site" id="site-${esc(s.id)}"><div class="record-head"><h4>${esc(s.name)} ${s.locked ? '<span class="lock-tag">LOCKED</span>' : ''}</h4><span class="site-pop">${fmt(s.population)} residents</span></div>${facts([
@@ -258,6 +311,10 @@
     $('deep-space').innerHTML = orbitHTML(null) + `<div class="remote-grid"><article class="remote"><span class="eyebrow">Material survey</span><h4>${system.belt === 'none' ? 'No mapped belt' : system.belt === 'rich' ? 'Resource-bearing belt' : 'Low-yield debris belt'}</h4><p>${system.belt === 'rich' ? 'Water-bearing bodies and metal-rich fragments. Assay results are patchy; accessibility determines value.' : system.belt === 'barren' ? 'Dispersed, low-grade material. No proven commercial extraction site.' : 'No continuous asteroid belt is recorded in this survey.'}</p></article>${system.remote.map(r => `<article class="remote"><span class="eyebrow">${esc(r.type)}</span><h4>${esc(r.name)}</h4><p>${esc(r.description)}</p></article>`).join('')}</div>`;
     $('connections').textContent = connection(system);
     $('navigation').textContent = navigation(system);
+    $('route-table').tBodies[0].innerHTML = system.routes.map(route => '<tr><th scope="row">' + esc(route.destination) + '</th>' +
+      routeFacts(route).map(([, value]) => '<td>' + esc(value) + '</td>').join('') + '</tr>').join('') ||
+      '<tr><td colspan="5">No charted routes.</td></tr>';
+    $('travel-rules').innerHTML = travelNotes.map(note => '<p>' + esc(note) + '</p>').join('');
     $('export-json').disabled = $('export-text').disabled = $('print').disabled = false;
   }
   function saveRender(message) { validate(system); render(); announce(message); persist(); }

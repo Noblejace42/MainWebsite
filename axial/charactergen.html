@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Axial — Character Generator</title>
-  <meta name="description" content="Step-by-step character generator for the Axial TTRPG: birth traits, lifepaths, talents, aging, and bonds." />
+  <meta name="description" content="Build an Axial character with lifepaths, starting gear, powers and bonds. Download a Word sheet or print to PDF." />
+  <link rel="stylesheet" href="power-picker.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -120,7 +121,7 @@
 
     @media (max-width: 980px) {
       .page { grid-template-columns: 1fr; }
-      .sidebar { position: static !important; order: -1; }
+      .sidebar { position: static !important; }
     }
 
     /* ===== STEPPER ===== */
@@ -231,6 +232,8 @@
     }
 
     .opt {
+      text-align: left;
+      font: inherit;
       border: 1px solid var(--border);
       border-radius: 12px;
       background: rgba(2, 6, 14, 0.45);
@@ -422,7 +425,17 @@
     .sum-block { margin-bottom: 16px; }
     .sum-block h3 { margin-top: 0; }
     .sum-line { font-size: .88em; padding: 3px 0; border-bottom: 1px dashed rgba(0, 255, 204, 0.12); display: flex; justify-content: space-between; gap: 10px; }
-    .sum-line .v { color: var(--accent); font-weight: 600; white-space: nowrap; }
+    .sum-line .v { color: var(--accent); font-weight: 600; }
+    .opt .opt-name, .opt .opt-stats, .opt .opt-desc { display: block; }
+    .choice-pill { background: var(--surface); font-family: inherit; }
+    .kit-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
+    .gear-list { list-style: none; padding: 0; margin: 12px 0; }
+    .gear-list li { border-bottom: 1px solid var(--border); padding: 8px 0; }
+    .gear-list li small { display: block; color: var(--text-dim); margin-top: 3px; overflow-wrap: anywhere; }
+    .export-actions { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0; }
+    .sum-text, .opt, .summary-sheet, .side-talents { overflow-wrap: anywhere; }
+    .sum-text.multiline { white-space: pre-wrap; }
+    .card :focus-visible, .stepper :focus-visible { outline: 2px solid var(--accent-alt); outline-offset: 3px; }
     .sum-text { font-size: .88em; line-height: 1.55; color: var(--text); }
     .sum-text em { color: var(--text-dim); }
 
@@ -458,7 +471,7 @@
       <a href="index.html" class="nav-btn">← Axial Hub</a>
       <a href="geargen.html" class="nav-btn">Gear Forge</a>
       <a href="systemgen.html" class="nav-btn">System Survey</a>
-      <a href="../AxialTTRPG/Axial.pdf" target="_blank" class="nav-btn">Rules PDF</a>
+      <a href="https://docs.google.com/document/d/1FDHUbisK-Rg0hwTEnfX1re6PS7ADPhH-DNK_3v_LgIE/edit?usp=sharing" target="_blank" rel="noopener" class="nav-btn">Rulebook</a>
       <button class="nav-btn" onclick="resetAll()">Start Over</button>
     </div>
   </nav>
@@ -475,6 +488,10 @@
     <aside class="sidebar" id="sidebar"></aside>
   </div>
 
+  <script src="character-data.js"></script>
+  <script src="powerdata.js"></script>
+  <script src="power-picker.js"></script>
+  <script src="character-export.js"></script>
   <script>
     'use strict';
 
@@ -486,13 +503,7 @@
     const DIE_SIZE = { 1: 4, 2: 6, 3: 8, 4: 10, 5: 12 };
     const CATS = ['Knowledge', 'Combat', 'Practical', 'Athletics', 'Social'];
 
-    const TALENTS = {
-      Knowledge: ['Agriculture', 'Anthrohistorics', 'Architecture', 'Astronomy', 'Biology', 'Chemistry', 'Computer Science', 'Criminology', 'Economics', 'Engineering', 'Geography', 'Geology', 'History', 'Law', 'Linguistics', 'Literature', 'Mathematics', 'Medicine', 'Meteorology', 'Music', 'Philosophy', 'Physics', 'Politics', 'Psychology', 'Tactics', 'Logistics', 'Materials', 'Accounting', 'Arcana'],
-      Combat: ['Natural', 'Longblade', 'Polearm', 'Shortblade', 'Bludgeon', 'Shield', 'Sling', 'Handgun', 'Shotgun', 'Rifle', 'Emitter', 'Grenade', 'Mass Driver', 'Tethered-Impact', 'Artillery', 'Grappling', 'Gunnery', 'Piloting', 'Driving'],
-      Practical: ['Alchemy', 'Animal Handling', 'Appraisal', 'Smithing', 'Construction', 'Cartography', 'Cooking', 'Hacking', 'Engineering', 'Electronics', 'Farming', 'Fishing', 'Fine Crafting', 'Tracking', 'Lockpicking', 'Mining', 'Navigation', 'Robotics', 'Sailing', 'Scouting', 'Siegecraft', 'Stealth', 'Tailoring', 'Vehicle Repair', 'Bushcraft', 'Artistry', 'Sleight of Hand', 'Disguise', 'Woodworking', 'Explosives'],
-      Athletics: ['Running', 'Jumping', 'Climbing', 'Swimming', 'Acrobatics', 'Strength Training', 'Riding'],
-      Social: ['Leadership', 'Persuasion', 'Deception', 'Intimidation', 'Insight', 'Negotiation', 'Streetwise', 'Interrogation']
-    };
+    const TALENTS = AxialCharacterRules.talents;
 
     const BIRTH_TRAITS = {
       Hale: { skills: { Might: 1, Agility: 1 }, desc: 'You were born a bit stronger than the average person.' },
@@ -544,11 +555,6 @@
       }
     };
 
-    const POWERS = {
-      'The Ability to Speak': 'Passive. Regardless of whether or not you speak the language, you can get a general idea of what any intelligent communication is trying to say. If you contest to translate, interpret, or similarly interact with an intelligent creature, step up all your dice.',
-      'Kingly Wit': 'Passive. If you suffer a complication while you negotiate with a creature, the GM might give you a bond with that creature instead. Whenever you gain a new bond, gain a surge.'
-    };
-
     // skillChoice: array of alternatives (player picks one), skills: always applied
     const MAIN_LIFEPATHS = {
       Academic: { skills: { Intellect: 1 }, pools: [{ n: 5, cats: ['Knowledge'] }, { n: 2, cats: ['Practical'] }] },
@@ -560,32 +566,15 @@
       Artisan: { skillChoice: ['Artifice', 'Precision'], pools: [{ n: 5, cats: ['Practical'] }, { n: 2, cats: ['Knowledge'] }] },
       Laborer: { skillChoice: ['Might', 'Agility'], pools: [{ n: 3, cats: ['Practical'] }, { n: 3, cats: ['Athletics'] }, { n: 1, cats: CATS }] },
       Criminal: { skills: { Agility: 1, Precision: 1 }, pools: [{ n: 3, cats: ['Practical'] }, { n: 2, cats: ['Combat', 'Athletics'] }] },
-      Performer: { skills: {}, pools: [{ n: 10, cats: CATS }] }
+      Performer: { skills: {}, pools: [{ n: 10, cats: CATS }] },
+      Medic: { skills: { Precision: 1 }, pools: [{ n: 4, cats: ['Practical'] }, { n: 3, cats: ['Knowledge'] }] },
+      Navigator: { skills: { Sense: 1 }, pools: [{ n: 3, cats: ['Knowledge'] }, { n: 3, cats: ['Practical'] }, { n: 1, cats: ['Athletics'] }] },
+      Investigator: { skills: { Intellect: 1 }, pools: [{ n: 3, cats: ['Knowledge'] }, { n: 3, cats: ['Social'] }, { n: 1, cats: ['Practical'] }] },
+      Salvager: { skillChoice: ['Artifice', 'Fortitude'], pools: [{ n: 4, cats: ['Practical'] }, { n: 2, cats: ['Athletics'] }, { n: 1, cats: ['Knowledge'] }] },
+      Organizer: { skillChoice: ['Charm', 'Resolve'], pools: [{ n: 4, cats: ['Social'] }, { n: 2, cats: ['Practical'] }, { n: 1, cats: ['Knowledge'] }] }
     };
 
-    const BOND_TEMPLATES = {
-      Favor: [
-        'Should ____ require assistance, I’ll ____.',
-        'If ____ reaches out, I’ll ____.',
-        'For ____, I’m prepared to ____.',
-        'When ____ needs support, I’ll ____.',
-        'Upon ____’s request, I’ll ____.'
-      ],
-      Friend: [
-        'I promise ____, I’ll ____.',
-        'I owe ____, I’ll ____.',
-        'For ____, I’ll always ____.',
-        'Whenever ____ needs me, I’ll ____.',
-        'Don’t worry, ____, I’ll ____.'
-      ],
-      Foe: [
-        'If ____ ever betrays me, I’ll ____.',
-        'No one will protect ____ when I ____.',
-        'When ____ crosses me, I’ll ____.',
-        'I vow to hunt ____ until I ____.',
-        'I’ll make ____ wish they’d never ____.'
-      ]
-    };
+
 
     // ==========================================================
     // STATE
@@ -598,13 +587,25 @@
       earlyAlloc: [],          // [{pool, cat, talent}]
       earlyActivePool: 0,
       mains: [],               // [{key, years, skillChoice, power, alloc:[], activePool}]
-      bonds: [],               // [{type, text}]
+      setting: '', kit: '', extraGear: '',
+      powers: [], bonds: [],
       customTalents: { Knowledge: [], Combat: [], Practical: [], Athletics: [], Social: [] }
     });
 
+    const draftKey = 'axial.generator.draft.v1';
     let S = blankState();
+    try {
+      const draft = JSON.parse(sessionStorage.getItem(draftKey));
+      if (draft) Object.assign(S, draft);
+    } catch { /* A new build also works when storage is unavailable. */ }
 
-    const STEPS = ['Identity', 'Birth Trait', 'Early Lifepath', 'Main Lifepaths', 'Bonds', 'Summary'];
+    function saveDraft() {
+      try { sessionStorage.setItem(draftKey, JSON.stringify(S)); } catch { /* Storage is optional. */ }
+    }
+    document.addEventListener('input', saveDraft);
+    document.addEventListener('change', saveDraft);
+
+    const STEPS = ['Identity', 'Birth Trait', 'Early Lifepath', 'Main Lifepaths', 'Starting Gear', 'Powers & Bonds', 'Character Sheet'];
 
     function resetAll() {
       if (confirm('Start over? All progress will be lost.')) {
@@ -637,7 +638,7 @@
       return S.earlyAlloc.concat(...S.mains.map(m => m.alloc));
     }
 
-    function computeTalents() {
+    function allocatedTalents() {
       const t = {}; // "cat|name" -> level
       allAllocs().forEach(r => {
         const key = r.cat + '|' + r.talent;
@@ -646,8 +647,21 @@
       return t;
     }
 
+    function grantedNames() {
+      return S.mains.map(m => m.power).filter(Boolean);
+    }
+
+    function computeTalents() {
+      const result = allocatedTalents();
+      const grants = AxialPowerPicker.talentGrants(S, grantedNames());
+      for (const [name, level] of Object.entries(grants)) {
+        result[name] = Math.max(result[name] || 0, level);
+      }
+      return result;
+    }
+
     function talentLevel(cat, name) {
-      return computeTalents()[cat + '|' + name] || 0;
+      return allocatedTalents()[cat + '|' + name] || 0;
     }
 
     function computeAge() {
@@ -656,11 +670,7 @@
     }
 
     function computeHealth(skills) {
-      // Health = 10 + Fortitude die size + Resolve die size, −2 per full 5 years over age 35
-      const base = 10 + DIE_SIZE[skills.Fortitude] + DIE_SIZE[skills.Resolve];
-      const age = computeAge();
-      const agePenalty = age ? Math.floor(Math.max(0, age - 35) / 5) * 2 : 0;
-      return { health: base - agePenalty, base, agePenalty };
+      return AxialCharacterRules.health(DIE_SIZE[skills.Fortitude], DIE_SIZE[skills.Resolve], computeAge() || 20);
     }
 
     function poolSpent(allocList, poolIdx) {
@@ -703,9 +713,9 @@
 
     function renderStepper() {
       $stepper.innerHTML = STEPS.map((name, i) => `
-        <div class="step-pill ${i === S.step ? 'active' : ''} ${i < S.step ? 'done' : ''}" onclick="go(${i})">
+        <button type="button" aria-current="${i === S.step ? 'step' : 'false'}" class="step-pill ${i === S.step ? 'active' : ''} ${i < S.step ? 'done' : ''}" onclick="go(${i})">
           <span class="num">${i < S.step ? '✓' : i + 1}</span>${name}
-        </div>`).join('');
+        </button>`).join('');
     }
 
     // ---------- TP allocation widget (shared by early + main lifepaths) ----------
@@ -714,8 +724,8 @@
       if (!pools.length) return '';
       const chips = pools.map((p, i) => {
         const left = p.n - poolSpent(allocList, i);
-        return `<span class="pool-chip ${i === activePool ? 'active' : ''} ${left === 0 ? 'empty' : ''}"
-          onclick="setActivePool('${ownerKey}', ${i})">${p.n} TP — ${p.cats.join(' / ')} <span class="left">(${left} left)</span></span>`;
+        return `<button type="button" aria-pressed="${i === activePool}" class="pool-chip ${i === activePool ? 'active' : ''} ${left === 0 ? 'empty' : ''}"
+          onclick="setActivePool('${ownerKey}', ${i})">${p.n} TP — ${p.cats.join(' / ')} <span class="left">(${left} left)</span></button>`;
       }).join('');
 
       const pool = pools[activePool] || pools[0];
@@ -725,12 +735,12 @@
       const catBlocks = cats.map(cat => {
         const tags = talentsOf(cat).map(t => {
           const lvl = talentLevel(cat, t);
-          const minusOk = allocList.some(r => r.cat === cat && r.talent === t);
+          const minusOk = allocList.some(r => r.pool === activePool && r.cat === cat && r.talent === t);
           return `<span class="talent-tag ${lvl ? 'has-level' : ''}">
             ${esc(t)}
             <span class="lvl">${lvl ? DIE_OF[lvl] : '—'}</span>
-            <button onclick="tpMinus('${ownerKey}','${cat}','${esc(t)}')" ${minusOk ? '' : 'disabled'}>−</button>
-            <button onclick="tpPlus('${ownerKey}','${cat}','${esc(t)}')" ${left > 0 && lvl < 5 ? '' : 'disabled'}>+</button>
+            <button aria-label="Remove one point from ${esc(t)}" data-talent="${esc(t)}" onclick="tpMinus('${ownerKey}','${cat}',this.dataset.talent)" ${minusOk ? '' : 'disabled'}>−</button>
+            <button aria-label="Add one point to ${esc(t)}" data-talent="${esc(t)}" onclick="tpPlus('${ownerKey}','${cat}',this.dataset.talent)" ${left > 0 && lvl < 5 ? '' : 'disabled'}>+</button>
           </span>`;
         }).join('');
         return `<div class="talent-cat"><div class="talent-cat-name">${cat}</div><div class="talent-grid">${tags}</div></div>`;
@@ -742,8 +752,8 @@
         <div class="pool-chips">${chips}</div>
         ${catBlocks}
         <div class="custom-talent-row no-print">
-          <input type="text" id="ct-name-${ownerKey}" placeholder="Custom talent name (GM approved)" />
-          <select id="ct-cat-${ownerKey}">${CATS.map(c => `<option>${c}</option>`).join('')}</select>
+          <input type="text" aria-label="Custom talent name" id="ct-name-${ownerKey}" placeholder="Custom talent name (GM approved)" />
+          <select aria-label="Custom talent category" id="ct-cat-${ownerKey}">${cats.map(c => `<option>${c}</option>`).join('')}</select>
           <button class="btn small" onclick="addCustomTalent('${ownerKey}')">Add Talent</button>
         </div>`;
     }
@@ -772,7 +782,7 @@
     function tpMinus(ownerKey, cat, talent) {
       const o = getOwner(ownerKey);
       for (let i = o.alloc.length - 1; i >= 0; i--) {
-        if (o.alloc[i].cat === cat && o.alloc[i].talent === talent) { o.alloc.splice(i, 1); break; }
+        if (o.alloc[i].pool === o.activePool && o.alloc[i].cat === cat && o.alloc[i].talent === talent) { o.alloc.splice(i, 1); break; }
       }
       render();
     }
@@ -793,8 +803,9 @@
         case 1: return renderBirth();
         case 2: return renderEarly();
         case 3: return renderMains();
-        case 4: return renderBonds();
-        case 5: return renderSummary();
+        case 4: return renderGear();
+        case 5: return renderPowersAndBonds();
+        case 6: return renderSummary();
       }
     }
 
@@ -810,11 +821,11 @@
         <div class="card">
           <h2>Who Are You?</h2>
           <p class="rules-note">Every Axial character begins the same way: all ten Skills at <b>level 1 (1d4)</b>, then a <b>birth trait</b>, an <b>early lifepath</b>, and any number of <b>main lifepaths</b> — each adding 2d6 years to your age. This generator walks you through each step and tracks your sheet as you go.</p>
-          <label class="field">Character Name</label>
+          <label class="field" for="f-name">Character Name</label>
           <input type="text" id="f-name" value="${esc(S.name)}" placeholder="e.g. Vex Calloway" />
-          <label class="field">Pronouns</label>
+          <label class="field" for="f-pronouns">Pronouns</label>
           <input type="text" id="f-pronouns" value="${esc(S.pronouns)}" placeholder="e.g. they/them" />
-          <label class="field">Concept / Notes</label>
+          <label class="field" for="f-concept">Concept / Notes</label>
           <textarea id="f-concept" placeholder="A disgraced stellar cartographer with a debt to the wrong people...">${esc(S.concept)}</textarea>
           ${navButtons(false, true)}
         </div>`;
@@ -825,11 +836,11 @@
 
     function renderBirth() {
       const opts = Object.entries(BIRTH_TRAITS).map(([k, v]) => `
-        <div class="opt ${S.birth === k ? 'selected' : ''}" onclick="S.birth='${k}';render()">
-          <div class="opt-name">${k}</div>
-          <div class="opt-stats">${Object.entries(v.skills).map(([s, n]) => `${s} +${n}`).join(', ')}</div>
-          <div class="opt-desc">${v.desc}</div>
-        </div>`).join('');
+        <button type="button" aria-pressed="${S.birth === k}" class="opt ${S.birth === k ? 'selected' : ''}" onclick="S.birth='${k}';render()">
+          <span class="opt-name">${k}</span>
+          <span class="opt-stats">${Object.entries(v.skills).map(([s, n]) => `${s} +${n}`).join(', ')}</span>
+          <span class="opt-desc">${v.desc}</span>
+        </button>`).join('');
       $main.innerHTML = `
         <div class="card">
           <h2>Birth Trait</h2>
@@ -841,15 +852,15 @@
 
     function renderEarly() {
       const opts = Object.entries(EARLY_LIFEPATHS).map(([k, v]) => `
-        <div class="opt ${S.early === k ? 'selected' : ''}" onclick="pickEarly('${k}')">
-          <div class="opt-name">${k}</div>
-          <div class="opt-stats">
+        <button type="button" aria-pressed="${S.early === k}" class="opt ${S.early === k ? 'selected' : ''}" onclick="pickEarly('${k}')">
+          <span class="opt-name">${k}</span>
+          <span class="opt-stats">
             ${Object.entries(v.skills).map(([s, n]) => `${s} +${n}`).join(', ')}<br/>
             Supplies +${v.supplies}, Wealth +${v.wealth}<br/>
             ${v.pools.map(p => `${p.n}TP ${p.cats.join('/')}`).join(' · ')}
-          </div>
-          <div class="opt-desc">${v.desc}</div>
-        </div>`).join('');
+          </span>
+          <span class="opt-desc">${v.desc}</span>
+        </button>`).join('');
 
       $main.innerHTML = `
         <div class="card">
@@ -872,12 +883,12 @@
         let extras = '';
         if (def.skillChoice) {
           extras += `<div class="choice-row">${def.skillChoice.map(s =>
-            `<span class="choice-pill ${m.skillChoice === s ? 'selected' : ''}" onclick="S.mains[${idx}].skillChoice='${s}';render()">${s} +1</span>`).join('')}</div>`;
+            `<button type="button" class="choice-pill ${m.skillChoice === s ? 'selected' : ''}" onclick="S.mains[${idx}].skillChoice='${s}';render()">${s} +1</button>`).join('')}</div>`;
         }
         if (def.power) {
           extras += `<div class="choice-row">${def.power.map(p =>
-            `<span class="choice-pill ${m.power === p ? 'selected' : ''}" onclick="S.mains[${idx}].power='${esc(p)}';render()">${p}</span>`).join('')}</div>`;
-          if (m.power) extras += `<div class="power-desc"><b>${esc(m.power)}:</b> ${POWERS[m.power]}</div>`;
+            `<button type="button" class="choice-pill ${m.power === p ? 'selected' : ''}" onclick="S.mains[${idx}].power='${esc(p)}';render()">${p}</button>`).join('')}</div>`;
+          if (m.power) extras += `<div class="power-desc"><b>${esc(m.power)}:</b> ${esc(AxialPowerPicker.find(m.power)?.description || '')}</div>`;
         }
         return `<div class="lp-instance">
           <div class="lp-head">
@@ -892,10 +903,10 @@
       }).join('');
 
       const addOpts = Object.keys(MAIN_LIFEPATHS).map(k =>
-        `<div class="opt" onclick="addMain('${k}')">
-          <div class="opt-name">+ ${k}</div>
-          <div class="opt-stats">${mainStatsLine(k)}</div>
-        </div>`).join('');
+        `<button type="button" class="opt" onclick="addMain('${k}')">
+          <span class="opt-name">+ ${k}</span>
+          <span class="opt-stats">${mainStatsLine(k)}</span>
+        </button>`).join('');
 
       const mainsOk = S.mains.every(m => {
         const def = MAIN_LIFEPATHS[m.key];
@@ -907,7 +918,7 @@
       $main.innerHTML = `
         <div class="card">
           <h2>Main Lifepaths</h2>
-          <p class="rules-note">Take <b>any number</b> of main lifepaths — including the same one more than once. Each adds <b>2d6 years</b> (auto-rolled) to your age. Watch out: health drops by <b>2 per full 5 years over age 35</b>, so a long life of experience comes at a cost.</p>
+          <p class="rules-note">Take <b>any number</b> of main lifepaths — including the same one more than once. Each adds <b>2d6 years</b> (auto-rolled) to your age. Starting Health is <b>10 + the maximum face of each of your Fortitude and Resolve dice</b>. Subtract 2 for every full five years over age 35.</p>
           ${instances || '<p class="rules-note"><em>No main lifepaths yet — your character is a fresh-faced 20-year-old. Add one below, or continue if that’s the plan.</em></p>'}
           <h3>Add a Lifepath</h3>
           <div class="option-grid">${addOpts}</div>
@@ -939,109 +950,150 @@
       render();
     }
 
-    function renderBonds() {
-      const rows = S.bonds.map((b, i) => `
-        <div class="bond-row">
-          <div class="bond-controls">
-            <select onchange="S.bonds[${i}].type=this.value;render()">
-              ${Object.keys(BOND_TEMPLATES).map(t => `<option ${b.type === t ? 'selected' : ''}>${t}</option>`).join('')}
-            </select>
-            <select onchange="if(this.value){S.bonds[${i}].text=this.value;render()}">
-              <option value="">Use a template…</option>
-              ${BOND_TEMPLATES[b.type].map(t => `<option>${esc(t)}</option>`).join('')}
-            </select>
-            <button class="btn small danger" onclick="S.bonds.splice(${i},1);render()">Remove</button>
-          </div>
-          <textarea oninput="S.bonds[${i}].text=this.value" placeholder="Write the bond, filling in the blanks...">${esc(b.text)}</textarea>
-        </div>`).join('');
+    function gearItems() {
+      const kit = AxialCharacterRules.kits[S.setting]?.[S.kit] || [];
+      const extras = S.extraGear.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      return kit.concat(extras);
+    }
 
-      $main.innerHTML = `
-        <div class="card">
-          <h2>Bonds</h2>
-          <p class="rules-note">Bonds are connections between characters: <b>Favors</b>, <b>Friends</b>, and <b>Foes</b>. To finish character creation, write one bond for <b>each member of your party</b> plus one for <b>an important NPC from your backstory</b>. Use the fill-in-the-blank templates or write your own.</p>
-          ${rows || '<p class="rules-note"><em>No bonds yet.</em></p>'}
-          <button class="btn" onclick="S.bonds.push({type:'Friend',text:''});render()">+ Add Bond</button>
-          ${navButtons(true, true, 'Finish →')}
-        </div>`;
+    function gearList(items) {
+      if (!items.length) return '';
+      return `<ul class="gear-list">${items.map(item => {
+        const i = item.indexOf('|');
+        const name = i < 0 ? item : item.slice(0, i).trim();
+        return `<li><strong>${esc(name)}</strong>${i < 0 ? '' : `<small>${esc(item.slice(i + 1).trim())}</small>`}</li>`;
+      }).join('')}</ul>`;
+    }
+
+    function renderGear() {
+      const kits = AxialCharacterRules.kits;
+      const choices = Object.keys(kits[S.setting] || {});
+      $main.innerHTML = `<div class="card">
+        <h2>Starting Gear</h2>
+        <p class="rules-note">Choose a package from your setting, or enter the equipment you agreed on with your GM. Each item goes on your sheet with its full struct.</p>
+        <div class="kit-fields">
+          <div><label class="field" for="gear-setting">Setting</label>
+          <select id="gear-setting"><option value="">Choose a setting</option>
+          ${Object.keys(kits).concat('GM-defined gear').map(s => `<option${S.setting === s ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
+          ${choices.length ? `<div><label class="field" for="gear-kit">Starting package</label>
+          <select id="gear-kit"><option value="">Choose a package</option>${choices.map(k => `<option${S.kit === k ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></div>` : ''}
+        </div>
+        ${gearList(kits[S.setting]?.[S.kit] || [])}
+        <label class="field" for="extra-gear">${choices.length ? 'Additional equipment' : 'Equipment'}</label>
+        <p id="gear-help" class="rules-note">Enter one item per line. Include its mass to count it toward encumbrance.</p>
+        <textarea id="extra-gear" aria-describedby="gear-help" placeholder="Field journal | 1 Mass">${esc(S.extraGear)}</textarea>
+        ${navButtons(true, true)}
+      </div>`;
+      document.getElementById('gear-setting').onchange = e => { S.setting = e.target.value; S.kit = ''; render(); };
+      if (choices.length) document.getElementById('gear-kit').onchange = e => { S.kit = e.target.value; render(); };
+      document.getElementById('extra-gear').oninput = e => { S.extraGear = e.target.value; renderSidebar(); };
+    }
+
+    function renderPowersAndBonds() {
+      $main.innerHTML = `<section class="card"><h2>Powers</h2><div id="power-picker"></div></section>
+        <section class="card"><h2>Bonds</h2><div id="bond-picker"></div></section>${navButtons(true, true, 'Review sheet')}`;
+      AxialPowerPicker.mount(document.getElementById('power-picker'), {
+        state: S, skills: computeSkills().skills, talents: allocatedTalents(),
+        granted: grantedNames(), gear: gearItems(), kit: S.kit,
+        talentCatalog: Object.fromEntries(CATS.map(cat => [cat, talentsOf(cat)])), onChange: renderSidebar
+      });
+      AxialPowerPicker.mountBonds(document.getElementById('bond-picker'), S, renderSidebar);
+    }
+
+    function getCharacterSheet() {
+      const {skills} = computeSkills();
+      const age = computeAge();
+      const hp = computeHealth(skills);
+      const gear = gearItems();
+      const powers = AxialPowerPicker.selected(S, grantedNames());
+      const supplies = EARLY_LIFEPATHS[S.early]?.supplies || 0;
+      const wealth = EARLY_LIFEPATHS[S.early]?.wealth || 0;
+      const maxMass = 5 * (DIE_SIZE[skills.Fortitude] + DIE_SIZE[skills.Might] + DIE_SIZE[skills.Resolve]);
+      const masses = gear.map(g => g.match(/\b(\d+(?:\.\d+)?)\s+mass\s*$/i));
+      const knownMass = masses.reduce((sum, m) => sum + (m ? Number(m[1]) : 0), supplies);
+      const surgeCap = powers.some(p => p.name === 'Surging Support') ? 10 : 5;
+      const vitals = {
+        Health: `${hp.health} / ${hp.health}`, Strain: '0 / 10', Surges: `0 / ${surgeCap}`,
+        Supplies: supplies, Wealth: wealth, XP: 0, Wounds: 0, Scars: 0,
+        Encumbrance: `${knownMass} / ${maxMass}`
+      };
+      const unspent = unspentTP();
+      if (unspent) vitals['Unspent TP'] = unspent;
+      const notes = [];
+      if (masses.some(m => !m)) notes.push('Encumbrance includes only equipment with a listed mass. Add the remaining item mass during play.');
+      const remaining = [];
+      const poolNotes = (name, pools, alloc) => pools.forEach((pool, i) => {
+        const count = pool.n - poolSpent(alloc, i);
+        if (count) remaining.push(`${name}: ${count} ${pool.cats.join('/')} TP`);
+      });
+      if (S.early) poolNotes(S.early, EARLY_LIFEPATHS[S.early].pools, S.earlyAlloc);
+      S.mains.forEach((m,i) => poolNotes(`${m.key} ${i + 1}`, MAIN_LIFEPATHS[m.key].pools, m.alloc));
+      if (remaining.length) notes.push('Unspent talent pools — ' + remaining.join('; '));
+      if (hp.health === 0) notes.push('Maximum Health has reached zero. This character dies under §5.3.');
+      const talents = Object.entries(computeTalents()).map(([key, level]) => {
+        const i = key.indexOf('|');
+        return { category: key.slice(0, i), name: key.slice(i + 1), die: DIE_OF[level] };
+      });
+      return {
+        name: S.name, pronouns: S.pronouns, concept: S.concept, age, birth: S.birth || '', early: S.early || '',
+        mains: S.mains.map(m => ({ key: m.key, years: m.years[0] + m.years[1], skillChoice: m.skillChoice, power: m.power })),
+        skills: Object.fromEntries(SKILLS.map(k => [k, DIE_OF[skills[k]]])), talents, vitals,
+        kit: S.kit ? `${S.setting} / ${S.kit}` : S.setting === 'GM-defined gear' ? S.setting : '', gear, powers,
+        bonds: S.bonds.filter(b => b.text.trim()).map(b => ({...b})), notes: notes.join('\n')
+      };
+    }
+
+    function openDigitalSheet() {
+      try {
+        sessionStorage.setItem('axial.generator.sheet.v1', JSON.stringify(getCharacterSheet()));
+        location.assign('axialcharactersheet.html?from=generator');
+      } catch {
+        document.getElementById('export-status').textContent = 'The digital sheet needs session storage. Enable it or use the Word or PDF export.';
+      }
     }
 
     function renderSummary() {
-      const { skills, lost } = computeSkills();
-      const talents = computeTalents();
-      const age = computeAge() || 20;
-      const hp = computeHealth(skills);
-      const supplies = S.early ? EARLY_LIFEPATHS[S.early].supplies : 0;
-      const wealth = S.early ? EARLY_LIFEPATHS[S.early].wealth : 0;
-      const powers = S.mains.filter(m => m.power).map(m => m.power);
-      const unspent = unspentTP();
-
-      const skillLines = SKILLS.map(s => `<div class="sum-line"><span>${s}</span><span class="v">${DIE_OF[skills[s]]}</span></div>`).join('');
-
-      const talentsByCat = CATS.map(cat => {
-        const items = Object.entries(talents)
-          .filter(([k]) => k.startsWith(cat + '|'))
-          .map(([k, lvl]) => `<div class="sum-line"><span>${esc(k.split('|')[1])}</span><span class="v">${DIE_OF[lvl]}</span></div>`)
-          .join('');
-        return items ? `<div class="sum-block"><h3>${cat}</h3>${items}</div>` : '';
-      }).join('');
-
-      const lifeStory = [
-        S.birth ? `Born <b>${S.birth}</b>` : null,
-        S.early ? `raised <b>${S.early}</b>` : null,
-        ...S.mains.map(m => `${m.key} (+${m.years[0] + m.years[1]} yrs)`)
-      ].filter(Boolean).join(' → ');
-
-      const bonds = S.bonds.filter(b => b.text.trim()).map(b =>
-        `<div class="sum-line"><span class="sum-text"><em>[${b.type}]</em> ${esc(b.text)}</span></div>`).join('');
-
-      $main.innerHTML = `
-        <div class="card summary-sheet">
-          <h2>${esc(S.name) || 'Unnamed Character'}</h2>
-          <p class="rules-note">${esc(S.pronouns)}${S.pronouns && S.concept ? ' — ' : ''}${esc(S.concept)}</p>
-          <p class="sum-text" style="margin-bottom:14px">${lifeStory || '<em>No lifepaths chosen.</em>'}</p>
-
-          ${unspent > 0 ? `<p class="warn no-print">⚠ You still have ${unspent} unspent Talent Point${unspent > 1 ? 's' : ''}. Go back and spend ${unspent > 1 ? 'them' : 'it'}, or note ${unspent > 1 ? 'them' : 'it'} for your GM.</p>` : ''}
-          ${lost.length ? `<p class="warn no-print">⚠ Lost (over d12 cap): ${lost.join('; ')}</p>` : ''}
-
-          <div class="summary-grid">
-            <div>
-              <div class="sum-block">
-                <h3>Vitals</h3>
-                <div class="sum-line"><span>Age</span><span class="v">${age}</span></div>
-                <div class="sum-line"><span>Health</span><span class="v">${hp.health}</span></div>
-                ${hp.agePenalty ? `<div class="sum-line"><span style="color:var(--text-dim)">&nbsp;&nbsp;(base ${hp.base}, age −${hp.agePenalty})</span><span></span></div>` : ''}
-                <div class="sum-line"><span>Strain</span><span class="v">0 / 10</span></div>
-                <div class="sum-line"><span>Supplies</span><span class="v">${supplies}</span></div>
-                <div class="sum-line"><span>Wealth</span><span class="v">${wealth}</span></div>
-                <div class="sum-line"><span>Surges</span><span class="v">0 / 5</span></div>
-                <div class="sum-line"><span>Max Encumbrance</span><span class="v">${5 * (DIE_SIZE[skills.Fortitude] + DIE_SIZE[skills.Might] + DIE_SIZE[skills.Resolve])} mass</span></div>
-              </div>
-              <div class="sum-block">
-                <h3>Skills</h3>
-                ${skillLines}
-              </div>
-            </div>
-            <div>
-              ${talentsByCat || '<div class="sum-block"><h3>Talents</h3><p class="sum-text"><em>None.</em></p></div>'}
-              ${powers.length ? `<div class="sum-block"><h3>Powers</h3>${powers.map(p => `<p class="sum-text" style="margin-bottom:8px"><b>${esc(p)}</b> — ${POWERS[p]}</p>`).join('')}</div>` : ''}
-            </div>
-          </div>
-
-          ${bonds ? `<div class="sum-block"><h3>Bonds</h3>${bonds}</div>` : ''}
-
-          <div class="gm-note">
-            <b>Starting gear:</b> choose a starting object package from a setting module, or work with your GM to determine the items your character would start with. Don't forget: weapons need both hands free unless (Quick), and your Supplies can become gear from the table in section 5.1.
-          </div>
-
-          <div class="step-actions no-print">
-            <button class="btn" onclick="go(S.step-1)">← Back</button>
-            <button class="btn glow" onclick="window.print()">Print / Save</button>
-          </div>
-        </div>`;
+      const sheet = getCharacterSheet();
+      const formatRows = entries => entries.map(([label,value]) => `<div class="sum-line"><span>${esc(label)}</span><b class="v">${esc(value)}</b></div>`).join('');
+      const missing = [];
+      if (!S.birth) missing.push('a birth trait');
+      if (!S.early) missing.push('an early lifepath');
+      if (S.mains.some(m => (MAIN_LIFEPATHS[m.key].skillChoice && !m.skillChoice) || (MAIN_LIFEPATHS[m.key].power && !m.power))) missing.push('a lifepath choice');
+      if (!sheet.gear.length) missing.push('starting gear');
+      if (!sheet.bonds.length) missing.push('party and backstory bonds');
+      const lifepaths = [S.birth, S.early, ...sheet.mains.map(m => `${m.key} (+${m.years} years${m.skillChoice ? `, ${m.skillChoice} +1` : ''})`)].filter(Boolean).join(' → ');
+      const {lost} = computeSkills();
+      $main.innerHTML = `<section class="card summary-sheet">
+        <h2>${esc(sheet.name) || 'Unnamed Character'}</h2>
+        <p class="rules-note">${[sheet.pronouns, sheet.age ? `Age ${sheet.age}` : ''].filter(Boolean).map(esc).join(' · ')}</p>
+        ${sheet.concept ? `<p class="sum-text multiline">${esc(sheet.concept)}</p>` : ''}
+        <p class="sum-text">${esc(lifepaths)}</p>
+        ${missing.length ? `<p class="warn">Still to fill in: ${missing.join(', ')}.</p>` : ''}
+        ${lost.length ? `<p class="warn">At the d12 skill cap: ${esc(lost.join('; '))}.</p>` : ''}
+        <div class="export-actions no-print">
+          <button id="word-export" class="btn glow">Download Word</button>
+          <button id="pdf-export" class="btn">Print / Save PDF</button>
+          <button class="btn" onclick="openDigitalSheet()">Open digital sheet</button>
+        </div>
+        <p class="rules-note no-print" id="export-status" role="status">The Word file can also be opened in Google Docs.</p>
+        <div class="summary-grid"><div><h3>Vitals</h3>${formatRows(Object.entries(sheet.vitals))}</div>
+        <div><h3>Skills</h3>${formatRows(Object.entries(sheet.skills))}</div></div>
+        <h3>Talents</h3>${sheet.talents.length ? formatRows(sheet.talents.map(t => [`${t.name} · ${t.category}`,t.die])) : '<p class="sum-text">None recorded.</p>'}
+        <h3>Powers</h3>${sheet.powers.length ? sheet.powers.map(p => `<div class="sum-block"><b>${esc(p.name)}</b>
+          <span class="rules-note">${[p.type,p.cooldown,p.speed].filter(Boolean).map(esc).join(' · ')}</span>
+          <p class="sum-text multiline">${esc(p.description)}</p>${p.choice ? `<p class="sum-text">${esc(p.choice)}</p>` : ''}</div>`).join('') : '<p class="sum-text">None recorded.</p>'}
+        <h3>Bonds</h3>${sheet.bonds.length ? sheet.bonds.map(b => `<p class="sum-text"><b>${esc(b.type)}</b> · ${esc(b.text)}</p>`).join('') : '<p class="sum-text">None recorded.</p>'}
+        <h3>Gear${sheet.kit ? ` · ${esc(sheet.kit)}` : ''}</h3>${gearList(sheet.gear) || '<p class="sum-text">None recorded.</p>'}
+        ${sheet.notes ? `<h3>Notes</h3><p class="sum-text multiline">${esc(sheet.notes)}</p>` : ''}
+        <div class="step-actions no-print"><button class="btn" onclick="go(S.step-1)">Back to powers &amp; bonds</button></div>
+      </section>`;
+      document.getElementById('word-export').onclick = () => AxialCharacterExport.word(getCharacterSheet());
+      document.getElementById('pdf-export').onclick = () => AxialCharacterExport.print(getCharacterSheet());
     }
 
     // ---------- Sidebar ----------
     function renderSidebar() {
+      saveDraft();
       const { skills } = computeSkills();
       const talents = computeTalents();
       const age = computeAge();
@@ -1058,7 +1110,7 @@
       const tList = CATS.map(cat => {
         const items = Object.entries(talents)
           .filter(([k]) => k.startsWith(cat + '|'))
-          .map(([k, lvl]) => `${esc(k.split('|')[1])} <b>${DIE_OF[lvl]}</b>`);
+          .map(([k, lvl]) => `${esc(k.slice(k.indexOf('|') + 1))} <b>${DIE_OF[lvl]}</b>`);
         return items.length ? `<div><b>${cat}:</b> ${items.join(', ')}</div>` : '';
       }).join('');
 

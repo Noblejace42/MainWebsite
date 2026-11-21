@@ -126,6 +126,10 @@
     .card h2 { color: var(--accent); font-size: 1.25em; margin-bottom: 4px; }
     .rules-note { font-size: .86em; color: var(--text-dim); line-height: 1.55; margin-bottom: 14px; }
     .rules-note b { color: var(--text); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+    .tag-details { font-size: .88em; line-height: 1.55; }
+    .tag-details dt { font-weight: 600; margin-top: .45em; }
+    .tag-details dd { color: var(--text-dim); }
 
     /* ===== MODE TABS ===== */
     .mode-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
@@ -337,7 +341,7 @@
       <a href="index.html" class="nav-btn">← Axial Hub</a>
       <a href="charactergen.html" class="nav-btn">Character Gen</a>
       <a href="systemgen.html" class="nav-btn">System Survey</a>
-      <a href="../AxialTTRPG/Axial.pdf" target="_blank" class="nav-btn">Rules PDF</a>
+      <a href="https://docs.google.com/document/d/1FDHUbisK-Rg0hwTEnfX1re6PS7ADPhH-DNK_3v_LgIE/edit?usp=sharing" target="_blank" rel="noopener" class="nav-btn">Rulebook</a>
       <a href="../index.html" class="nav-btn">Home</a>
     </div>
   </nav>
@@ -347,22 +351,30 @@
     <div class="card">
       <h2>Gear Forge</h2>
       <p class="rules-note">
-        Generates <b>weapons</b>, <b>tools</b>, and <b>wearables</b> for Axial using the official object struct:
-        <b>Name | type, subtype | Object Dice | (Skills, Range, Universal) | (Core, Extra) | Mass</b>.
-        Every item is rules-legal — hover any tag for its rules text. Quality is a balance filter applied
-        <i>before</i> generation, so a Crude batch and a Legendary batch are both fair for their tier.
+        Generate weapons, tools, wearables, and attachments, or choose an item from the rulebook’s Supplies table.
+        Copy a struct for play or export your items for the <a href="axialcharactersheet.html">character sheet</a>.
       </p>
+      <details class="tag-details" style="margin-bottom: 16px">
+        <summary>Using gear in play</summary>
+        <dl>
+          <dt>Object dice</dt><dd>In 3d8+1, roll three d8s and add 1 to the contest total. Simple items may list only a name and mass. Use exactly two Skill dice in a contest, justifying any skills the object leaves open. The second 1 rolled causes a complication, as does each additional 1.</dd>
+          <dt>Weapons</dt><dd>A weapon takes two free hands unless it has Quick. Its range tag determines which zones it can reach.</dd>
+          <dt>Wearables</dt><dd>Equipping one takes a heavy move, or a medium move for a trinket. Equip one per subtype, except up to five trinkets. Equipped wearables contribute to Defend unless tagged Gear.</dd>
+          <dt>Tools</dt><dd>Add a tool’s dice when you can justify its relevance. An Aid tag steps up the named Talent and lets the tool contribute whenever that Talent is in the pool.</dd>
+          <dt>Attachments</dt><dd>Attach to a compatible object to grant the listed effects. Add matching numeric tag values together. The GM decides whether a conflicting tag overrides the original or prevents attachment.</dd>
+        </dl>
+      </details>
 
       <div class="mode-tabs">
-        <span class="mode-tab active" id="tab-quick" onclick="setMode('quick')">Quick Generate</span>
-        <span class="mode-tab" id="tab-forge" onclick="setMode('forge')">Forge (Custom)</span>
+        <button class="mode-tab active" id="tab-quick" onclick="setMode('quick')">Quick Generate</button>
+        <button class="mode-tab" id="tab-forge" onclick="setMode('forge')">Forge (Custom)</button>
       </div>
 
       <!-- QUICK MODE FILTERS -->
       <div id="quick-panel">
         <div class="filter-row">
           <div class="filter-group">
-            <span class="filter-label">Era</span>
+            <label for="q-era" class="filter-label">Era</label>
             <select id="q-era">
               <option value="any">Any (mixed)</option>
               <option value="medieval">Medieval</option>
@@ -372,16 +384,17 @@
             </select>
           </div>
           <div class="filter-group">
-            <span class="filter-label">Item Type</span>
+            <label for="q-type" class="filter-label">Item Type</label>
             <select id="q-type">
               <option value="any">Any (mixed)</option>
               <option value="weapon">Weapons</option>
               <option value="tool">Tools</option>
               <option value="wearable">Wearables</option>
+              <option value="attachment">Attachments</option>
             </select>
           </div>
           <div class="filter-group">
-            <span class="filter-label">Quality</span>
+            <label for="q-tier" class="filter-label">Quality</label>
             <select id="q-tier">
               <option value="random">Random (weighted)</option>
               <option value="crude">Crude</option>
@@ -392,7 +405,7 @@
             </select>
           </div>
           <div class="filter-group">
-            <span class="filter-label">Batch</span>
+            <label for="q-count" class="filter-label">Batch</label>
             <select id="q-count">
               <option value="1">1 item</option>
               <option value="3">3 items</option>
@@ -424,6 +437,15 @@
         </div>
       </div>
     </div>
+
+    <details class="card">
+      <summary>Supplies exchange</summary>
+      <p class="rules-note" style="margin-top: 14px">Outside combat, spend the listed Supplies to create an object. The GM can approve other small items. Choose one to add its struct to your results.</p>
+      <div class="filter-row">
+        <label class="filter-group"><span class="filter-label">Object and cost</span><select id="supply-choice"></select></label>
+        <button class="btn" onclick="addSupplyItem()">Add item</button>
+      </div>
+    </details>
 
     <!-- RESULTS -->
     <div class="card" id="results-card" style="display:none">
@@ -559,21 +581,7 @@
 
     const baseOf = tag => tag.replace(/\s+\d+$/, ' X').replace(/\|.+$/, '|X');
 
-    // Tooltip lookup: exact → numeric→X → pipe→X → "Word X" → "Word 1dX"
-    function tagTip(tag) {
-      if (TAG_INFO[tag]) return TAG_INFO[tag];
-      const numX = tag.replace(/\d+/, 'X');
-      if (TAG_INFO[numX]) return TAG_INFO[numX];
-      const dX = tag.replace(/1d\d+/, '1dX');
-      if (TAG_INFO[dX]) return TAG_INFO[dX];
-      if (tag.includes('|')) {
-        const piped = tag.split('|')[0] + '|X';
-        if (TAG_INFO[piped]) return TAG_INFO[piped];
-      }
-      const firstWord = tag.split(' ')[0] + ' X';
-      if (TAG_INFO[firstWord]) return TAG_INFO[firstWord];
-      return '';
-    }
+    const tagTip = axialGearTagTip;
 
     // ==========================================================
     // NAME / FLAVOR BUILDERS
@@ -610,7 +618,7 @@
     }
 
     function rollType(type) {
-      return type === 'any' ? weightedPick({ weapon: 4.5, tool: 3, wearable: 2.5 }) : type;
+      return type === 'any' ? weightedPick({ weapon: 4.5, tool: 3, wearable: 2.5, attachment: 1 }) : type;
     }
 
     // ---- shared stat block from tier ----
@@ -628,8 +636,7 @@
     }
 
     // ---- WEAPON ----
-    function generateWeapon(era, tierKey) {
-      const subtype = weightedPick(ERA_WEAPON_WEIGHTS[era]);
+    function generateWeapon(era, tierKey, subtype = weightedPick(ERA_WEAPON_WEIGHTS[era])) {
       const arch = WEAPONS[subtype];
       const T = TIERS[tierKey];
       const ctx = { era, tierKey };
@@ -639,7 +646,11 @@
       const range = pick(arch.range);
 
       const universal = [];
-      const core = arch.core.map(t => resolveTag(t, ctx));
+      const core = [];
+      for (const tag of arch.core) {
+        const group = tag.startsWith('Consumable ') ? universal : core;
+        group.push(resolveTag(tag, ctx));
+      }
       const extras = [];
 
       // emitter-style weapons charge between recoveries
@@ -676,7 +687,9 @@
       }
 
       if (chance(T.ornate)) addUnique(universal, 'Ornate');
-      if (chance(T.consistent)) addUnique(extras, resolveTag('Consistent X', ctx));
+      const consistent = extras.findIndex(t => t.startsWith('Consistent '));
+      if (consistent >= 0) universal.push(...extras.splice(consistent, 1));
+      if (chance(T.consistent)) addUnique(universal, resolveTag('Consistent X', ctx));
 
       // shields double as wearables
       if (arch.multipurpose) {
@@ -704,8 +717,8 @@
     }
 
     // ---- WEARABLE ----
-    function generateWearable(era, tierKey) {
-      const slot = weightedPick(Object.fromEntries(Object.entries(WEARABLES).map(([k, v]) => [k, v.weight])));
+    function generateWearable(era, tierKey, pinnedSlot) {
+      const slot = pinnedSlot || weightedPick(Object.fromEntries(Object.entries(WEARABLES).map(([k, v]) => [k, v.weight])));
       const tmpl = pick(WEARABLES[slot].items[era]);
       const T = TIERS[tierKey];
       const ctx = { era, tierKey };
@@ -731,7 +744,7 @@
 
       if (chance(T.drawback)) addUnique(universal, pick(['Dangerous', resolveTag('Consumable X', ctx)]));
       if (chance(T.ornate) || slot === 'trinket' && chance(.4)) addUnique(universal, 'Ornate');
-      if (chance(T.consistent)) addUnique(extras, resolveTag('Consistent X', ctx));
+      if (chance(T.consistent)) addUnique(universal, resolveTag('Consistent X', ctx));
 
       let special = null;
       if (chance(T.special)) special = pick(SPECIALS.wearable);
@@ -753,8 +766,8 @@
     }
 
     // ---- TOOL ----
-    function generateTool(era, tierKey) {
-      const candidates = TOOLS.filter(t => (!t.eras || t.eras.includes(era)) && t.names[era]);
+    function generateTool(era, tierKey, talent) {
+      const candidates = TOOLS.filter(t => t.names[era] && (!talent || t.talent === talent));
       const tool = pick(candidates);
       const T = TIERS[tierKey];
       const ctx = { era, tierKey };
@@ -776,7 +789,7 @@
         core.push(`Supplies ${cost}`);
       }
 
-      if (chance(T.consistent)) addUnique(extras, resolveTag('Consistent X', ctx));
+      if (chance(T.consistent)) addUnique(universal, resolveTag('Consistent X', ctx));
       if (chance(T.ornate)) addUnique(universal, 'Ornate');
       if (chance(T.drawback)) addUnique(universal, 'Dangerous');
 
@@ -799,15 +812,48 @@
       return item;
     }
 
+    function generateAttachment(era, tierKey, mount) {
+      const options = ATTACHMENTS.filter(a => !mount || a.mount === mount);
+      const attachment = pick(options);
+      const ctx = { era, tierKey };
+      const noun = attachment.names[['medieval', 'fantasy', 'modern', 'scifi'].indexOf(era)];
+      const core = [attachment.mount];
+      if (attachment.subtype) core.push(attachment.subtype + ' Made');
+      const item = {
+        kind: 'attachment', era, tierKey, subtype: attachment.subtype,
+        name: buildName(noun, era, tierKey), die: null, pot: 0, acc: 0, skills: [],
+        universal: [], core, extras: [resolveTag(attachment.grants, ctx)], mass: 1,
+        range: null, req: null, special: null
+      };
+      const target = attachment.subtype ? 'an object of the ' + attachment.subtype + ' subtype' : 'any object';
+      item.desc = 'Fits ' + target + '. Adds ' + item.extras[0] + ' while attached. Matching numeric tags add together. The GM resolves conflicting tags.';
+      return item;
+    }
+
+    const generators = { weapon: generateWeapon, wearable: generateWearable, tool: generateTool, attachment: generateAttachment };
+
     function generateItem(params) {
       const era = rollEra(params.era);
       const tierKey = rollTier(params.tier);
       const type = rollType(params.type);
-      const item = type === 'weapon' ? generateWeapon(era, tierKey)
-        : type === 'tool' ? generateTool(era, tierKey)
-          : generateWearable(era, tierKey);
-      item.params = params;
+      const item = generators[type](era, tierKey);
+      item.params = { era, type, tier: tierKey };
       return item;
+    }
+
+    function supplyItem(entry) {
+      return {
+        name: entry.name, kind: 'tool', omitType: !entry.type, subtype: '', skills: [], fixed: true,
+        pot: entry.die ? 1 : 0, die: entry.die || null, acc: 0, range: null, req: null,
+        universal: entry.tags || [], core: entry.core || [], extras: [], mass: entry.mass,
+        special: entry.special || '', supplyCost: entry.cost, desc: ''
+      };
+    }
+
+    function addSupplyItem() {
+      const entry = SUPPLY_OBJECTS[Number(document.getElementById('supply-choice').value)];
+      items.unshift({ item: supplyItem(entry), locked: false });
+      renderResults();
     }
 
     // ==========================================================
@@ -824,7 +870,9 @@
       if (item.req) g1.push(item.req);
       g1.push(...item.universal);
       const g2 = [...item.core, ...item.extras];
-      const parts = [item.name, typePart, diceStr(item)];
+      const parts = [item.name];
+      if (!item.omitType) parts.push(typePart);
+      if (item.die) parts.push(diceStr(item));
       if (g1.length) parts.push(`(${g1.join(', ')})`);
       if (g2.length) parts.push(`(${g2.join(', ')})`);
       parts.push(`${item.mass} Mass`);
@@ -850,6 +898,13 @@
       return s;
     }
 
+    function tagDetails(item) {
+      const tags = [...item.skills, item.range, item.req, ...item.universal, ...item.core, ...item.extras].filter(Boolean);
+      if (!tags.length) return '';
+      const definitions = tags.map(tag => `<dt>${esc(tag)}</dt><dd>${esc(tagTip(tag))}</dd>`).join('');
+      return `<details class="tag-details"><summary>Tag rules</summary><dl>${definitions}</dl></details>`;
+    }
+
     // Character-sheet-compatible JSON shape
     function toSheetObject(item) {
       return {
@@ -857,7 +912,7 @@
         type: item.kind,
         subtype: item.subtype || '',
         count: item.pot,
-        size: 'd' + item.die,
+        size: item.die ? 'd' + item.die : '',
         modifier: item.acc,
         skillTags: item.skills.concat(item.req ? [item.req] : [], item.universal),
         rangeTag: item.range || '',
@@ -865,7 +920,8 @@
         special: item.special || '',
         mass: item.mass,
         // flavor (ignored by the sheet, kept for reference)
-        era: item.era, quality: TIERS[item.tierKey].label,
+        struct: structText(item),
+        era: item.era || '', quality: TIERS[item.tierKey]?.label || '',
         description: item.desc, quirk: item.quirk || ''
       };
     }
@@ -977,17 +1033,17 @@
             <div class="item-name">${esc(it.name)}</div>
           </div>
           <div class="chip-row">
-            <span class="chip tier-${it.tierKey}">${tier.label}</span>
-            <span class="chip">${ERAS[it.era].label}</span>
+            ${tier ? `<span class="chip tier-${it.tierKey}">${tier.label}</span><span class="chip">${ERAS[it.era].label}</span>` : `<span class="chip">${it.supplyCost} Supplies</span>`}
             <span class="chip">${it.subtype ? esc(it.subtype) : TYPES[it.kind].label}</span>
-            <span class="chip">${diceStr(it)}</span>
+            ${it.die ? `<span class="chip">${diceStr(it)}</span>` : ''}
             <span class="chip">${it.mass} mass</span>
           </div>
-          <div class="item-desc">${esc(it.desc)}</div>
+          ${it.desc ? `<div class="item-desc">${esc(it.desc)}</div>` : ''}
           ${it.quirk ? `<div class="item-quirk">${esc(it.quirk)}</div>` : ''}
           <div class="struct-box">${structHTML(it)}</div>
+          ${tagDetails(it)}
           <div class="item-actions">
-            <button class="btn small" onclick="rerollItem(${i})">↻ Reroll</button>
+            ${it.fixed ? '' : `<button class="btn small" onclick="rerollItem(${i})">Reroll</button>`}
             <button class="btn small ${e.locked ? 'locked-btn' : ''}" onclick="toggleLock(${i})">${e.locked ? 'Unlock' : 'Lock'}</button>
             <button class="btn small" onclick="copyStruct(${i}, this)">⧉ Struct</button>
             <button class="btn small" onclick="removeItem(${i})">✕</button>
@@ -1005,7 +1061,7 @@
 
     function forgePills(containerId, options, current, onPick) {
       document.getElementById(containerId).innerHTML = options.map(o =>
-        `<span class="pill ${o.value === current ? 'selected' : ''}" onclick="${onPick}('${o.value.replace(/'/g, "\\'")}')">${o.label}</span>`
+        `<button type="button" class="pill ${o.value === current ? 'selected' : ''}" aria-pressed="${o.value === current}" onclick="${onPick}('${esc(o.value.replace(/'/g, "\\'"))}')">${esc(o.label)}</button>`
       ).join('');
     }
 
@@ -1026,6 +1082,8 @@
       } else if (forge.type === 'tool') {
         TOOLS.filter(t => (!t.eras || t.eras.includes(forge.era)) && t.names[forge.era])
           .forEach(t => opts.push({ value: t.talent, label: `${t.talent} (${t.names[forge.era]})` }));
+      } else if (forge.type === 'attachment') {
+        for (const mount of ['Removable', 'Permanent']) opts.push({ value: mount, label: mount });
       } else {
         Object.keys(WEARABLES).forEach(s => opts.push({ value: s, label: s }));
       }
@@ -1037,28 +1095,11 @@
     function setForgeSub(v) { forge.sub = v; renderForge(); }
     function setForgeTier(v) { forge.tier = v; renderForge(); }
 
-    // Generate honoring a pinned subtype by rejection-sampling the era pools
+    // Select the requested subtype directly, including rare subtypes.
     function forgeItemFrom(fp) {
       const tierKey = rollTier(fp.tier);
-      let item;
-      if (fp.sub === 'random') {
-        item = fp.type === 'weapon' ? generateWeapon(fp.era, tierKey)
-          : fp.type === 'tool' ? generateTool(fp.era, tierKey)
-            : generateWearable(fp.era, tierKey);
-      } else if (fp.type === 'weapon') {
-        let guard = 0;
-        do { item = generateWeapon(fp.era, tierKey); } while (item.subtype !== fp.sub && guard++ < 400);
-        if (item.subtype !== fp.sub) item = null;
-      } else if (fp.type === 'tool') {
-        let guard = 0;
-        do { item = generateTool(fp.era, tierKey); } while (!item.core.includes('Aid|' + fp.sub) && guard++ < 400);
-      } else {
-        let guard = 0;
-        do { item = generateWearable(fp.era, tierKey); } while (item.subtype !== fp.sub && guard++ < 400);
-      }
-      if (!item) item = generateItem({ era: fp.era, type: fp.type, tier: fp.tier });
-      item.params = { era: fp.era, type: fp.type, tier: fp.tier };
-      item.forgeParams = fp;
+      const item = generators[fp.type](fp.era, tierKey, fp.sub === 'random' ? undefined : fp.sub);
+      item.forgeParams = { ...fp, tier: tierKey };
       return item;
     }
 
@@ -1078,6 +1119,9 @@
       forgeGenerate();
     }
 
+    document.getElementById('supply-choice').innerHTML = SUPPLY_OBJECTS.map((item, i) =>
+      `<option value="${i}">${esc(item.name)} (${item.cost} Supplies)</option>`
+    ).join('');
     renderForge();
   </script>
 </body>
