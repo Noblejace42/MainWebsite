@@ -1,163 +1,53 @@
-/* markovscript.js — v4 “deep tricks + POS swapping” */
-
-(async () => {
-  /* —————————————————— CONFIG —————————————————— */
-  const TEXT_URL        = 'emersonmarkovchain.txt';  // corpus
-  const ORDERS          = [3, 2, 1];                  // fallback n‑gram depths
-  const MAX_SENTENCES   = 4;                          // lines per quote
-  const MAX_WORDS_SENT  = 40;                         // words per line
-  const REPETITION_GAP  = 5;                          // no echo within N
-
-  /* —————————————————— DOM HOOKUP —————————————————— */
-  const quoteEl   = document.getElementById('markovQuote');
-  const btn       = document.getElementById('regenerateBtn');
-  const seedInput = document.getElementById('seedText');    // optional
-  const themeSel  = document.getElementById('themeSelect'); // optional
-
-  /* —————————————————— HELPERS —————————————————— */
-  const rand = arr => arr[Math.floor(Math.random() * arr.length)];
-  const cap1 = s   => s.charAt(0).toUpperCase() + s.slice(1);
-  const tidy = s   => s
-    .replace(/\s+([,;:.!?])/g,'$1')
-    .replace(/\s+/g,' ')
-    .trim();
-
-  /* —————————————————— LOAD & TOKENIZE —————————————————— */
-  const corpus    = await fetch(TEXT_URL).then(r => r.text());
-  const sentences = RiTa.sentences(corpus);   // UMD RiTa API
-
-  /* —————————————————— BUILD N‑GRAM CHAINS —————————————————— */
-  const chains = {};
-  ORDERS.forEach(o => chains[o] = new Map());
-  sentences.forEach(sent => {
-    const words = sent.split(/\s+/);
-    ORDERS.forEach(order => {
-      for (let i = 0; i <= words.length - order; i++) {
-        const key  = words.slice(i, i + order).join(' ').toLowerCase();
-        const next = words[i + order] || null;
-        const bucket = chains[order].get(key) || [];
-        bucket.push(next);
-        chains[order].set(key, bucket);
-      }
-    });
-  });
-
-  /* —————————————————— BUILD POS BUCKETS —————————————————— */
-  const posBuckets = {
-    Noun: new Set(),
-    Verb: new Set(),
-    Adjective: new Set(),
-    Adverb: new Set()
-  };
-  sentences.forEach(sent => {
-    sent.split(/\s+/).forEach(token => {
-      const clean = token.replace(/[^\w']/g, '');
-      if (!clean) return;
-      const info = nlp(clean).terms().json()[0];
-      if (!info || !info.tags) return;
-      info.tags.forEach(tag => {
-        if (posBuckets[tag]) posBuckets[tag].add(clean.toLowerCase());
-      });
-    });
-  });
-  // finalize arrays
-  Object.keys(posBuckets).forEach(tag => {
-    posBuckets[tag] = Array.from(posBuckets[tag]);
-  });
-
-  /* —————————————————— POS‑SWAP FUNCTION —————————————————— */
-  function posSwap(text) {
-    return text.replace(/\b\w+\b/g, word => {
-      const lower = word.toLowerCase();
-      const info  = nlp(lower).terms().json()[0];
-      if (!info || !info.tags) return word;
-
-      if (info.tags.includes('Noun') && Math.random() < 0.5 && posBuckets.Noun.length) {
-        return rand(posBuckets.Noun);
-      }
-      if (info.tags.includes('Verb') && Math.random() < 0.5 && posBuckets.Verb.length) {
-        return rand(posBuckets.Verb);
-      }
-      if (info.tags.includes('Adjective') && Math.random() < 0.5 && posBuckets.Adjective.length) {
-        return rand(posBuckets.Adjective);
-      }
-      if (info.tags.includes('Adverb') && Math.random() < 0.5 && posBuckets.Adverb.length) {
-        return rand(posBuckets.Adverb);
-      }
-      return word;
-    });
+// Sample two linked passage fragments from the trained transition graph.
+// Consume each edge once per cycle. Keep recent passages out of the foreground.
+class PassageChain {
+  constructor(model, random = Math.random) {
+    this.model = model;
+    this.random = random;
+    this.recent = [];
+    this.reset();
   }
 
-  /* —————————————————— MARKOV GENERATION —————————————————— */
-  function nextToken(context) {
-    for (const order of ORDERS) {
-      const key = context.slice(-order).join(' ').toLowerCase();
-      const opts = chains[order].get(key);
-      if (opts && opts.length) return rand(opts);
+  reset() {
+    this.ends = this.model.groups.map(group => group.slice());
+    this.prose = [];
+    this.poetry = [];
+    for (const [index, [, passage]] of this.model.prefixes.entries()) {
+      const pool = passage >= this.model.firstPoem ? this.poetry : this.prose;
+      pool.push(index);
     }
-    return null;
+    this.untilPoem = this.index(7);
   }
 
-  function pruneRepetition(arr) {
-    const seen = new Set();
-    return arr.filter(w => {
-      const lw = w.toLowerCase();
-      if (seen.has(lw)) return false;
-      seen.add(lw);
-      if (seen.size > REPETITION_GAP) {
-        const it = seen.values();
-        seen.delete(it.next().value);
-      }
-      return true;
-    });
+  index(length) {
+    return Math.floor(this.random() * length);
   }
 
-  function applyTheme(text, theme) {
-    if (theme === 'question') return text.replace(/\.$/, '?');
-    if (theme === 'exclaim')  return text.replace(/\.$/, '!');
-    return text;
-  }
-
-  function generateSentence(seedWords = []) {
-    if (!seedWords.length) {
-      do {
-        seedWords = rand(sentences).split(/\s+/).slice(0, ORDERS[0]);
-      } while (seedWords.length < ORDERS[0] || !/^[A-Za-z]/.test(seedWords[0]));
+  draw() {
+    if (!this.prose.length && !this.poetry.length) this.reset();
+    const usePoem = this.poetry.length && (!this.prose.length || this.untilPoem <= 0);
+    const pool = usePoem ? this.poetry : this.prose;
+    let best;
+    for (let i = 0; i < 12; i++) {
+      const slot = this.index(pool.length);
+      const state = pool[slot];
+      const edge = this.index(this.ends[state].length);
+      const end = this.model.suffixes[this.ends[state][edge]];
+      const start = this.model.prefixes[state];
+      const age = id => this.recent.lastIndexOf(id) + 1;
+      const score = this.random() - age(start[1]) - age(end[1]);
+      if (!best || score > best.score) best = {slot, state, edge, start, end, score};
     }
-
-    const words = [...seedWords];
-    while (words.length < MAX_WORDS_SENT) {
-      const nxt = nextToken(words);
-      if (!nxt) break;
-      words.push(nxt);
-      if (/[.!?]$/.test(nxt) && words.length > ORDERS[0] + 3) break;
+    const {slot, state, edge, start, end} = best;
+    const edges = this.ends[state];
+    edges[edge] = edges[edges.length - 1];
+    edges.pop();
+    if (!edges.length) {
+      pool[slot] = pool[pool.length - 1];
+      pool.pop();
     }
-
-    const line = tidy(pruneRepetition(words).join(' '));
-    return cap1(/[.!?]$/.test(line) ? line : line + '.');
+    this.untilPoem = usePoem ? 5 + this.index(4) : this.untilPoem - 1;
+    this.recent = [...this.recent.slice(-30), start[1], end[1]];
+    return (start[0] + ' ' + end[0]).replace(/\s+([,;:.!?])/g, '$1').replace(/\s*—\s*/g, '—');
   }
-
-  function generateParagraph() {
-    const rawSeed = seedInput?.value.trim() || '';
-    const seedArr = rawSeed.split(/\s+/).slice(0, ORDERS[0]);
-    const theme   = themeSel?.value || 'default';
-    const lines   = 1 + Math.floor(Math.random() * MAX_SENTENCES);
-
-    const out = [];
-    for (let i = 0; i < lines; i++) {
-      out.push(generateSentence(i === 0 ? seedArr : []));
-    }
-    return applyTheme(out.join(' '), theme);
-  }
-
-  /* —————————————————— RENDER & SWAP —————————————————— */
-  function refresh() {
-    let quote = generateParagraph();
-    quote     = posSwap(quote);
-    quoteEl.textContent = quote;
-  }
-
-  btn.removeAttribute('disabled');
-  btn.addEventListener('click', refresh);
-  refresh(); // initial fill
-})();
+}

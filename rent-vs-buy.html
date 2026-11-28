@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Generated from projects/rent-vs-buy.html by tools/sync-bookmarks.py. -->
+  <script>location.replace(new URL("projects/rent-vs-buy.html" + location.search + location.hash, location.href));</script>
+  <base href="projects/rent-vs-buy.html">
+  <link rel="canonical" href="rent-vs-buy.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rent vs. Buy Calculator</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <style>
         :root {
             --buy: #3b82f6;
@@ -252,12 +257,13 @@
         }
         .note strong { color: var(--text); }
     </style>
+<style>html { scroll-behavior: auto }</style>
 </head>
 <body>
 <header>
     <h1>Rent vs. Buy Calculator</h1>
     <p>True financial cost comparison — net of equity, investment returns, and transaction costs</p>
-    <a class="back-link" href="index.html">← Back to portfolio</a>
+    <a class="back-link" href="index.html">← Projects</a>
 </header>
 
 <div class="layout">
@@ -439,248 +445,6 @@
     </div><!-- /results -->
 </div><!-- /layout -->
 
-<script>
-let chartInst = null;
 
-function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
-
-function fmtDollar(n) {
-    const abs = Math.abs(n);
-    const sign = n < 0 ? '−$' : '$';
-    if (abs >= 1e6) return sign + (abs / 1e6).toFixed(2) + 'M';
-    if (abs >= 1e3) return sign + (abs / 1e3).toFixed(1) + 'K';
-    return sign + Math.round(abs).toLocaleString('en-US');
-}
-
-function fmtFull(n) {
-    return (n < 0 ? '−$' : '$') + Math.round(Math.abs(n)).toLocaleString('en-US');
-}
-
-function monthlyPayment(principal, annualRate, nMonths) {
-    const r = annualRate / 100 / 12;
-    if (r < 1e-9) return principal / nMonths;
-    return principal * r * Math.pow(1 + r, nMonths) / (Math.pow(1 + r, nMonths) - 1);
-}
-
-function remainingBalance(principal, annualRate, nMonths, paymentsMade) {
-    const r = annualRate / 100 / 12;
-    if (r < 1e-9) return Math.max(0, principal - (principal / nMonths) * paymentsMade);
-    const M = monthlyPayment(principal, annualRate, nMonths);
-    return principal * Math.pow(1 + r, paymentsMade) - M * (Math.pow(1 + r, paymentsMade) - 1) / r;
-}
-
-function calculate() {
-    const sqft         = v('sqft');
-    const buyPpsf      = v('buyPpsf');
-    const rentPpsf     = v('rentPpsf');
-    const downPct      = v('downPct');
-    const mortRate     = v('mortgageRate');
-    const propTaxRate  = v('propTaxRate');
-    const maintRate    = v('maintRate');
-    const closingRate  = v('closingRate');
-    const sellingRate  = v('sellingRate');
-    const appRate      = v('appreciationRate');
-    const rentIncRate  = v('rentIncRate');
-    const invReturn    = v('investReturn');
-    const years        = Math.max(1, Math.min(30, Math.round(v('years'))));
-
-    const homePrice   = sqft * buyPpsf;
-    const downPayment = homePrice * downPct / 100;
-    const loanAmount  = homePrice - downPayment;
-    const closing     = homePrice * closingRate / 100;
-    const upfront     = downPayment + closing;
-    const baseRent    = sqft * rentPpsf;
-    const mortMo      = monthlyPayment(loanAmount, mortRate, 360);
-
-    const mApp  = Math.pow(1 + appRate      / 100, 1 / 12) - 1;
-    const mRent = Math.pow(1 + rentIncRate   / 100, 1 / 12) - 1;
-    const mInv  = Math.pow(1 + invReturn    / 100, 1 / 12) - 1;
-
-    let homeValue  = homePrice;
-    let rent       = baseRent;
-    let portfolio  = upfront;
-    let cumMort    = 0;
-    let cumTaxMnt  = 0;
-    let cumRent    = 0;
-
-    const yearData = [];
-
-    for (let mo = 1; mo <= years * 12; mo++) {
-        const tax      = homeValue * propTaxRate / 100 / 12;
-        const maint    = homeValue * maintRate   / 100 / 12;
-        const buyTotal = mortMo + tax + maint;
-
-        cumMort   += mortMo;
-        cumTaxMnt += tax + maint;
-        cumRent   += rent;
-
-        portfolio *= (1 + mInv);
-        portfolio += (buyTotal - rent);
-
-        homeValue *= (1 + mApp);
-        rent      *= (1 + mRent);
-
-        if (mo % 12 === 0) {
-            const yr      = mo / 12;
-            const mortBal = Math.max(0, remainingBalance(loanAmount, mortRate, 360, mo));
-            const salePrc = homeValue * (1 - sellingRate / 100) - mortBal;
-            const equity  = homeValue - mortBal;
-
-            // Net cost: all cash out minus asset received
-            const buyNetCost  = upfront + cumMort + cumTaxMnt - salePrc;
-            // Net cost: rent paid minus portfolio gains above initial capital
-            const rentNetCost = cumRent - (portfolio - upfront);
-
-            // Start-of-year monthly values for display
-            const hvSOY    = homeValue / Math.pow(1 + mApp, 12);
-            const buyMoSOY = mortMo + hvSOY * propTaxRate / 100 / 12 + hvSOY * maintRate / 100 / 12;
-            const rentSOY  = rent / Math.pow(1 + mRent, 12);
-
-            yearData.push({ yr, homeValue, mortBal, equity, salePrc,
-                            buyNetCost, rentNetCost, buyMoSOY, rentSOY, portfolio });
-        }
-    }
-
-    renderSummary(yearData, upfront, baseRent, homePrice, mortMo, propTaxRate, maintRate, years);
-    renderChart(yearData);
-    renderTable(yearData);
-}
-
-function breakevenYear(data) {
-    for (const d of data) {
-        if (d.buyNetCost <= d.rentNetCost) return d.yr;
-    }
-    return null;
-}
-
-function renderSummary(data, upfront, baseRent, homePrice, mortMo, propTaxRate, maintRate, years) {
-    const last        = data[data.length - 1];
-    const be          = breakevenYear(data);
-    const initBuyMo   = mortMo + homePrice * propTaxRate / 100 / 12 + homePrice * maintRate / 100 / 12;
-
-    document.getElementById('summaryGrid').innerHTML = `
-        <div class="metric buy-metric">
-            <div class="metric-label">Initial Monthly — Buy</div>
-            <div class="metric-value">${fmtFull(initBuyMo)}</div>
-            <div class="metric-sub">Mortgage + property tax + maintenance</div>
-        </div>
-        <div class="metric rent-metric">
-            <div class="metric-label">Initial Monthly — Rent</div>
-            <div class="metric-value">${fmtFull(baseRent)}</div>
-            <div class="metric-sub">Base monthly rent</div>
-        </div>
-        <div class="metric neutral-metric">
-            <div class="metric-label">Upfront to Buy</div>
-            <div class="metric-value">${fmtDollar(upfront)}</div>
-            <div class="metric-sub">Down payment + closing costs</div>
-        </div>
-        <div class="metric neutral-metric">
-            <div class="metric-label">Breakeven Point</div>
-            <div class="metric-value">${be ? 'Year ' + be : 'Beyond horizon'}</div>
-            <div class="metric-sub">When buying becomes the cheaper net option</div>
-        </div>
-        <div class="metric buy-metric">
-            <div class="metric-label">Net Cost at Year ${years} — Buy</div>
-            <div class="metric-value">${fmtDollar(last.buyNetCost)}</div>
-            <div class="metric-sub">${last.buyNetCost < 0 ? 'Net gain after equity' : 'Net cost after equity'}</div>
-        </div>
-        <div class="metric rent-metric">
-            <div class="metric-label">Net Cost at Year ${years} — Rent</div>
-            <div class="metric-value">${fmtDollar(last.rentNetCost)}</div>
-            <div class="metric-sub">${last.rentNetCost < 0 ? 'Net gain (portfolio > rent paid)' : 'Net cost after portfolio gains'}</div>
-        </div>
-    `;
-}
-
-function renderChart(data) {
-    if (chartInst) { chartInst.destroy(); chartInst = null; }
-    const ctx = document.getElementById('chart').getContext('2d');
-    chartInst = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.map(d => `Yr ${d.yr}`),
-            datasets: [
-                {
-                    label: 'Buy — net cost',
-                    data: data.map(d => Math.round(d.buyNetCost)),
-                    borderColor: '#3b82f6',
-                    borderWidth: 2.5,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    tension: 0.35,
-                    fill: false,
-                },
-                {
-                    label: 'Rent — net cost',
-                    data: data.map(d => Math.round(d.rentNetCost)),
-                    borderColor: '#ef4444',
-                    borderWidth: 2.5,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    tension: 0.35,
-                    fill: false,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 16 } },
-                tooltip: {
-                    callbacks: { label: ctx => `  ${ctx.dataset.label}: ${fmtDollar(ctx.raw)}` }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { color: '#64748b', maxTicksLimit: 12 },
-                    grid: { color: 'rgba(51,65,85,0.6)' }
-                },
-                y: {
-                    ticks: { color: '#64748b', callback: v => fmtDollar(v) },
-                    grid: { color: 'rgba(51,65,85,0.6)' }
-                }
-            }
-        }
-    });
-}
-
-function renderTable(data) {
-    const be = breakevenYear(data);
-    document.getElementById('tbody').innerHTML = data.map(d => {
-        const buyWins = d.buyNetCost < d.rentNetCost;
-        const isBreak = d.yr === be;
-        const diff    = Math.abs(d.buyNetCost - d.rentNetCost);
-        let rowCls, badge;
-        if (isBreak) {
-            rowCls = 'row-break';
-            badge  = `<span class="badge badge-tie">Breakeven</span>`;
-        } else if (buyWins) {
-            rowCls = 'row-buy';
-            badge  = `<span class="badge badge-buy">Buy +${fmtDollar(diff)}</span>`;
-        } else {
-            rowCls = 'row-rent';
-            badge  = `<span class="badge badge-rent">Rent +${fmtDollar(diff)}</span>`;
-        }
-        return `<tr class="${rowCls}">
-            <td>Year ${d.yr}</td>
-            <td>${fmtFull(d.rentSOY)}</td>
-            <td>${fmtFull(d.buyMoSOY)}</td>
-            <td>${fmtDollar(d.homeValue)}</td>
-            <td>${fmtDollar(d.equity)}</td>
-            <td>${fmtDollar(d.buyNetCost)}</td>
-            <td>${fmtDollar(d.rentNetCost)}</td>
-            <td>${badge}</td>
-        </tr>`;
-    }).join('');
-}
-
-document.querySelectorAll('input[type="number"]').forEach(el => {
-    el.addEventListener('input', calculate);
-});
-
-calculate();
-</script>
 </body>
 </html>

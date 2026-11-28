@@ -2,13 +2,15 @@
 <html lang="en">
 
 <head>
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Narrative Oracle | DM Screen</title>
     <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../css/field.css" media="screen">
 </head>
 
-<body>
+<body class="field-tool">
     <div class="container">
         <nav>
             <div class="nav-brand">Narrative Oracle</div>
@@ -21,15 +23,15 @@
             <p>Select a focus and consult the threads of fate.</p>
 
             <div style="margin: 20px 0;">
-                <button class="btn" onclick="setFocus('general')">General</button>
-                <button class="btn" onclick="setFocus('combat')">Combat</button>
-                <button class="btn" onclick="setFocus('social')">Social</button>
-                <button class="btn" onclick="setFocus('weird')">Weird</button>
+                <button class="btn" aria-pressed="true" onclick="setFocus('general')">General</button>
+                <button class="btn" aria-pressed="false" onclick="setFocus('combat')">Combat</button>
+                <button class="btn" aria-pressed="false" onclick="setFocus('social')">Social</button>
+                <button class="btn" aria-pressed="false" onclick="setFocus('weird')">Weird</button>
             </div>
 
             <div class="oracle-display" id="oracleDisplay">
                 <div class="oracle-type" id="oracleType">Fate Awaits</div>
-                <div class="oracle-text" id="oracleText">...</div>
+                <div class="oracle-text" id="oracleText" aria-live="polite">...</div>
             </div>
 
             <button class="btn" style="font-size: 1.2rem; padding: 15px 40px;" onclick="consultOracle()">Consult
@@ -86,8 +88,9 @@
         function setFocus(focus) {
             currentFocus = focus;
             document.getElementById('oracleType').innerText = focus.toUpperCase() + ' FOCUS';
-            document.querySelectorAll('.btn').forEach(b => b.style.borderColor = '#d4af37');
-            event.target.style.borderColor = '#fff';
+            document.querySelectorAll('[aria-pressed]').forEach(button => {
+                button.setAttribute('aria-pressed', String(button.textContent.trim().toLowerCase() === focus));
+            });
         }
 
         function consultOracle() {

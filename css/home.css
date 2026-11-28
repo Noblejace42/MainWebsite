@@ -1,155 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  font-family: 'Press Start 2P', monospace;
-  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-  overflow: hidden;
-  color: #00ffcc;
+:root {color-scheme:light;--paper:#e8ebdc;--ink:#173d39;--rust:#983b26;--rule:#8e9f8e;font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:var(--paper)}
+* {box-sizing:border-box}
+body {margin:0 auto;width:min(100%,112rem);min-height:100svh;padding:0 clamp(1.2rem,5vw,6rem);display:grid;grid-template-rows:auto 1fr auto}
+header,footer,nav {display:flex;align-items:center;justify-content:space-between;gap:1.3rem}
+header,footer {min-height:clamp(3rem,8vh,5.5rem)}
+header {border-bottom:1px solid var(--rule)}
+.imprint {font:italic 1.32rem Georgia,serif}
+a,button {color:inherit;text-underline-offset:.26em}
+nav a,footer a,button,.signature p {font:1rem/1.4 'Helvetica Neue',Arial,sans-serif}
+nav a,footer a {text-decoration:none;padding:.5rem 0}
+a:hover,button:hover {color:var(--rust);text-decoration:underline}
+:focus-visible {outline:2px solid var(--rust);outline-offset:4px}
+main {position:relative;isolation:isolate;display:grid;align-content:center;gap:clamp(1.4rem,4vh,3.5rem);padding-block:1.5rem}
+.feather {position:absolute;z-index:-1;width:61%;height:100%;right:-2%;object-fit:contain;object-position:center;pointer-events:none}
+.signature {width:max-content}
+h1 {margin:0 0 .65rem -.055em;font-size:clamp(5rem,min(11.8vw,19vh),13rem);font-weight:400;letter-spacing:-.087em;line-height:.79}
+h1 span {color:var(--rust)}
+.signature p {margin:1rem 0 0}
+section {position:relative;width:min(47%,38rem);border-top:1px solid var(--rule);padding-top:clamp(.65rem,2vh,1.45rem)}
+#line {font-size:clamp(1.18rem,2.2vw,2.1rem);line-height:1.19;letter-spacing:-.025em;margin:0 0 .7rem;min-height:3.6em;text-wrap:pretty}
+button {border:0;padding:.55rem 0;background:none;color:var(--rust);cursor:pointer;text-decoration:underline}
+button:disabled {opacity:.68;cursor:wait}
+footer {border-top:1px solid var(--rule);justify-content:flex-start}
+@media(max-width:650px) {
+  nav {gap:.85rem} nav a,footer a {font-size:.9rem}
+  .imprint {font-size:1.07rem}
+  main {align-content:end;gap:1.5rem;padding-bottom:clamp(1rem,4vh,2.5rem)}
+  .feather {width:68%;height:63%;top:0;right:-3%;object-position:right top}
+  .signature {margin-top:clamp(4rem,21vh,12rem)}
+  h1 {font-size:clamp(4.4rem,17vw,7rem)}
+  section {width:100%} #line {font-size:clamp(1.15rem,5vw,1.65rem)}
 }
-
-.center-card
-  position: absolute;
-  max-width: 90%;
-  width: 700px;
-  background: rgba(0, 0, 0, 0.85);
-  border: 4px solid #00ffcc;
-  box-shadow: 0 10px 25px rgba(0,255,204,0.3);
-  border-radius: 0; /* sharp, pixelated corners */
-  overflow: hidden;
-  text-align: center;
-  z-index: 9999;
-  padding: 20px 30px 30px;
+@media(max-height:530px) and (min-width:651px) {
+  main {grid-template-columns:1fr 1fr;align-items:end;gap:3rem}
+  h1 {font-size:clamp(4rem,15vh,7rem)} .feather{width:40%;right:27%}
+  section {width:auto;background:var(--paper)}
 }
-
-.card-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
+@media(max-height:620px) and (max-width:650px) {
+  main {gap:.65rem;padding-block:.65rem} .signature{margin-top:0} h1{font-size:3.8rem}
+  .feather{height:56%} .signature p{margin-top:.5rem} #line{min-height:2.4em}
 }
-
-.card-btn {
-  background: #00ffcc;
-  color: #000;
-  text-decoration: none;
-  padding: 10px 25px;
-  border: 2px solid #00ffcc;
-  font-weight: bold;
-  transition: background 0.3s ease;
+@media(max-width:650px) and (min-height:700px) {
+  .feather {width:87%;height:49%;top:2%}
 }
-
-.card-btn:hover {
-  background: #00cc99;
+footer .projects-link {color:var(--rust);text-decoration:underline;margin-right:auto}
+@media(max-width:380px) {footer {gap:.75rem}}
+@media (orientation:landscape) and (max-height:420px) and (max-width:650px) {
+  body:has(.signature) main {grid-template-columns: .85fr 1.15fr;align-items:center;gap:1.1rem}
+  .signature {margin:0}
+  .feather {top:auto;right:55%;width:25%;height:95%;opacity:.18}
+  #line {font-size:1.1rem;line-height:1.18}
 }
-
-.card-image {
-  margin: 0 auto 15px;
-  width: 200px;
-  height: 200px;
-  overflow: hidden;
-  border: 2px solid #00ffcc;
-
-}
-
-.card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-
-}
-
-.contact-card h1 {
-  margin: 8px 0;
-  font-size: 2em;
-  color: #00ffcc;
-}
-
-.contact-card h3 {
-  margin: 4px 0 15px;
-  font-size: 1em;
-  color: #00cc99;
-}
-
-.contact-card p,
-.contact-card a {
-  margin: 4px 0;
-  color: #00ffcc;
-  text-decoration: none;
-  font-size: 0.75em;
-}
-
-.contact-card a:hover {
-  text-decoration: underline;
-}
-
-.contact-card .links a {
-  color: #ff00ff;
-  margin: 0 6px;
-}
-
-.spotify-container {
-  margin-top: 20px;
-  border: 2px solid #00ffcc;
-  box-shadow: 0 2px 8px rgba(0,255,204,0.3);
-  padding: 10px;
-  background: rgba(0,0,0,0.8);
-}
-
-.spotify-title {
-  margin: 0 0 8px;
-  font-size: 1.1em;
-  color: #00ffcc;
-  font-weight: bold;
-}
-
-.tiles-container {
-  position: absolute;
-  top: 0; 
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1; /* behind center card */
-  pointer-events: none;
-}
-
-.moving-tile {
-  position: absolute;
-  background-position: center;
-  background-size: cover;
-  box-shadow: 0 4px 10px rgba(0,255,204,0.3);
-  border: 2px solid #00ffcc;
-  opacity: 1;
-  pointer-events: none;
-  transition: opacity 1s ease;
-}
-
-/* Mobile-friendly */
-@media (max-width: 600px) {
-  html, body {
-    overflow-y: auto;
-  }
-  .center-card {
-    width: 90%;
-    padding: 15px;
-  }
-  .card-buttons {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .card-image {
-    width: 150px; 
-    height: 150px;
-  }
-  .spotify-container iframe {
-    height: 150px !important;
-  }
-}
-
-.contact-card .bio {
-  font-size: 10px; /* Adjust the size as needed */
-}
-

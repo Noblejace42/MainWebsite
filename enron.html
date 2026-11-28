@@ -2,6 +2,11 @@
 <html lang="en">
 
 <head>
+  <!-- Generated from projects/enron.html by tools/sync-bookmarks.py. -->
+  <script>location.replace(new URL("projects/enron.html" + location.search + location.hash, location.href));</script>
+  <base href="projects/enron.html">
+  <link rel="canonical" href="enron.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <meta charset="utf-8">
   <title>Enron En‑telligence</title>
   <style>
@@ -106,11 +111,12 @@
       animation: blink 1s steps(1) infinite
     }
   </style>
+<style>html { scroll-behavior: auto }</style>
 </head>
 
 <body>
   <div id="wrapper">
-    <img src="assets/images/enron.png" id="logo" alt="Enron logo">
+    <img src="../assets/images/enron.png" id="logo" alt="Enron logo">
     <h1>EN‑TELLIGENCE</h1>
     <form id="chatForm">
       <input id="query" placeholder="Ask Enron a question…" autocomplete="off">
@@ -118,39 +124,7 @@
     </form>
     <pre id="answer"></pre>
   </div>
-  <script>
-    const endpoint = 'https://enron-proxy.emersonneher.workers.dev/';
 
-    const SYSTEM =
-      "You are “Enron En‑telligence”, an irreverent late‑1990s corporate chatbot. " +
-      "Speak like an over‑caffeinated Enron exec: bullish, buzzword‑stuffed, " +
-      "borderline absurd, always spinning any answer as a market‑crushing win. " +
-      "Keep replies short, satirical, and never break character.\n\nUser:";
-
-    const form = document.getElementById('chatForm');
-    const input = document.getElementById('query');
-    const out = document.getElementById('answer');
-
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const q = input.value.trim();
-      if (!q) return;
-      out.textContent = 'Thinking…';
-      out.classList.add('loading');
-      const payload = { prompt: `${SYSTEM} ${q}\nAI:` };
-
-      try {
-        const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        const j = await r.json();
-        out.textContent = j.answer || j.error || 'Error';
-      } catch {
-        out.textContent = 'Network error';
-      }
-      out.classList.remove('loading');
-      input.value = '';
-      input.focus();
-    });
-  </script>
 </body>
 
 </html>

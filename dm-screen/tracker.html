@@ -2,13 +2,15 @@
 <html lang="en">
 
 <head>
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Combat Tracker | DM Screen</title>
     <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../css/field.css" media="screen">
 </head>
 
-<body>
+<body class="field-tool">
     <div class="container">
         <nav>
             <div class="nav-brand">Combat Tracker</div>
@@ -21,10 +23,10 @@
             <!-- Controls Panel -->
             <div class="tracker-panel">
                 <h3>Add Combatant</h3>
-                <input type="text" id="nameInput" class="stat-input" placeholder="Name">
-                <input type="number" id="initInput" class="stat-input" placeholder="Initiative">
-                <input type="number" id="hpInput" class="stat-input" placeholder="Max HP">
-                <select id="typeInput" class="stat-input">
+                <input type="text" id="nameInput" aria-label="Name" class="stat-input" placeholder="Name">
+                <input type="number" id="initInput" aria-label="Initiative" class="stat-input" placeholder="Initiative">
+                <input type="number" id="hpInput" aria-label="Max HP" class="stat-input" placeholder="Max HP">
+                <select id="typeInput" aria-label="Combatant type" class="stat-input">
                     <option value="enemy">Enemy</option>
                     <option value="player">Player</option>
                     <option value="npc">NPC</option>

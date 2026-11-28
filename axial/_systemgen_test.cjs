@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const context = vm.createContext({});
-const source = ['systemdata.js','systemgen.js'].map(f => fs.readFileSync(path.join(__dirname,f),'utf8')).join('\n');
+const source = ['systemdata.js','system-legacy.js','system-galaxy.js','systemgen.js'].map(f => fs.readFileSync(path.join(__dirname,f),'utf8')).join('\n');
 vm.runInContext(source,context);
 const G=context.AxialSystems, T=context.SystemTables;
 let checked=0, people=0, peak=0;
@@ -33,12 +33,16 @@ function check(input) {
     assert.ok(x.structures.length>=3 && x.structures.length<=5);
     assert.equal(new Set(x.structures).size,x.structures.length);
     assert.equal(new Set(x.exports).size,x.exports.length);
-    for(const item of x.exports) assert.ok(T.purposes[x.purpose].exports.includes(item),'exports come from physical goods tables');
+    const L = context.LegacyTables;
+    for(const item of x.exports) assert.ok(T.purposes[x.purpose].exports.includes(item) || L.lowDevExports.includes(item) || L.highDevExports.includes(item) || L.rareExports.includes(item),'exports come from authored goods tables');
+    for(const point of x.pointsOfInterest) assert.ok(L.poiSettlement.includes(point) && text.includes(point));
+    if(x.population) assert.ok(text.includes(x.importantFigure) && x.exports.length >= 5);
     for(const item of [...x.exports,...x.structures]) assert.ok(text.includes(item),'text export includes complete lists');
     for(const item of [x.power,x.support,x.issue,...x.services]) assert.ok(text.includes(item),'text export preserves infrastructure and service descriptions');
     assert.equal(x.defenses.personnel,x.guards);
     assert.equal(x.defenses.soldiers+x.defenses.fleetCrew,x.guards);
-    assert.equal(x.defenses.fleetCrew,x.defenses.patrolCutters*8);
+    assert.ok(x.defenses.fleetCrew >= x.defenses.patrolCutters*8);
+    assert.equal(x.defenses.patrolCutters,x.localShips['Patrol Cutter'] || 0);
     if(x.location==='orbital') assert.equal(x.defenses.armoredVehicles,0);
     if(!x.population) assert.equal(x.exports.length,0);
   }
@@ -101,7 +105,7 @@ assert.equal(JSON.stringify(next),JSON.stringify(G.rerollUnlocked(original)),'sa
 console.log('Lock preservation, notes, and reroll reproducibility passed.');
 let typical=0, empty=0;
 for(let i=0;i<2000;i++) {
-  const s=G.generate({seed:'population-audit-'+i});
+  const s=G.generate({seed:'population-audit-'+i, density:'sparse'});
   const total=s.settlements.reduce((n,x)=>n+x.population,0);
   assert.ok(total<=150000);
   if(total===0) empty++;
@@ -114,3 +118,32 @@ for(let i=0;i<2000;i++) {
 assert.ok(typical>1400,'a clear majority of systems must have 100–5,000 residents');
 assert.ok(empty>0,'uninhabited systems remain possible');
 console.log({populationAudit:2000,typical,empty});
+
+const galaxy = context.AxialGalaxy;
+for (let seed = 0; seed < 32; seed++) {
+  const systems = galaxy.build(String(seed));
+  const names = new Map(systems.map(s => [s.name,s]));
+  assert.equal(names.size,100);
+  const seenTypes = new Set(), visited = new Set(), pending = [systems[0]];
+  while (pending.length) {
+    const s = pending.pop();
+    if (visited.has(s.name)) continue;
+    visited.add(s.name);
+    G.validate(s);
+    assert.ok(s.routes.length >= 1);
+    assert.equal(new Set(s.routes.map(r => r.destination)).size,s.routes.length);
+    for (const [type, cap] of Object.entries({A:3,B:2,C:2})) assert.ok(s.routes.filter(r=>r.type===type).length <= cap);
+    for (const r of s.routes) {
+      seenTypes.add(r.type);
+      assert.notEqual(r.destination,s.name);
+      const other = names.get(r.destination);
+      assert.ok(other);
+      const reverse = other.routes.find(back => back.destination === s.name);
+      assert.ok(reverse && r.type === reverse.type && r.days === reverse.days && r.unstable === reverse.unstable);
+      pending.push(other);
+    }
+  }
+  assert.equal(visited.size,100);
+  assert.equal(seenTypes.size,3);
+}
+console.log('32 complete 100-system galaxies passed connectivity, degree and reciprocity checks.');

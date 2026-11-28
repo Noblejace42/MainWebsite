@@ -2,6 +2,11 @@
 <html lang="en">
 
 <head>
+  <!-- Generated from projects/weakestlink.html by tools/sync-bookmarks.py. -->
+  <script>location.replace(new URL("projects/weakestlink.html" + location.search + location.hash, location.href));</script>
+  <base href="projects/weakestlink.html">
+  <link rel="canonical" href="weakestlink.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Weakest Link</title>
@@ -92,7 +97,7 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      background: url("images/hero.jpg") center/cover no-repeat;
+      background: #16352d;
       padding-top: 120px;
       /* keeps text clear of fixed navbar */
     }
@@ -320,6 +325,7 @@
       }
     }
   </style>
+<style>html { scroll-behavior: auto }</style>
 </head>
 
 <body>
@@ -327,7 +333,7 @@
   <!-- ========== NAVBAR ========== -->
   <nav class="navbar">
     <!-- logo lives in image/ directory on GitHub -->
-    <img src="assets/images/weakestlinklogo.png" alt="Weakest Link logo">
+    <img src="../assets/images/weakestlinklogo.png" alt="Weakest Link logo">
     <span class="brand">Weakest<span> Link</span></span>
   </nav>
 
@@ -375,7 +381,7 @@
     <div class="card-grid" id="loanGrid">
       <!-- Kenya -->
       <div class="card" data-region="kenya" data-category="energy" data-funded="63">
-        <img src="assets/images/solar_kenya.jpg" alt="Kenya solar project">
+        <img src="../assets/images/solar_kenya.jpg" alt="Kenya solar project">
         <div class="card-content">
           <h3>Solar Kiosk Expansion</h3>
           <p class="meta">Nairobi • Goal $900 • 3 % interest</p>
@@ -386,7 +392,7 @@
 
       <!-- Peru -->
       <div class="card" data-region="peru" data-category="agriculture" data-funded="45">
-        <img src="assets/images/tractor_peru.jpg" alt="Peruvian farm equipment">
+        <img src="../assets/images/tractor_peru.jpg" alt="Peruvian farm equipment">
         <div class="card-content">
           <h3>High-Andes Tractor</h3>
           <p class="meta">Cusco • Goal $1 400 • 4 % interest</p>
@@ -397,7 +403,7 @@
 
       <!-- South Africa -->
       <div class="card" data-region="southafrica" data-category="services" data-funded="80">
-        <img src="assets/images/electrician_sa.jpg" alt="South African electrician">
+        <img src="../assets/images/electrician_sa.jpg" alt="South African electrician">
         <div class="card-content">
           <h3>Electrician’s Tool Kit</h3>
           <p class="meta">Cape Town • Goal $600 • 2.5 % interest</p>
@@ -408,7 +414,7 @@
 
       <!-- Cuba -->
       <div class="card" data-region="cuba" data-category="retail" data-funded="28">
-        <img src="assets/images/grocery_cuba.jpg" alt="Cuban grocery stand">
+        <img src="../assets/images/grocery_cuba.jpg" alt="Cuban grocery stand">
         <div class="card-content">
           <h3>Grocery Stand Restock</h3>
           <p class="meta">Trinidad • Goal $500 • 3.5 % interest</p>
@@ -436,38 +442,16 @@
     </p>
     <p style="margin-top:1.8rem">
       Download our assets:
-      <a href="images/hero.jpg" download style="color:#38bdf8">Hero</a> •
-      <a href="images/solar_kenya.jpg" download style="color:#38bdf8">Solar Kiosk</a> •
-      <a href="images/tractor_peru.jpg" download style="color:#38bdf8">Andes Tractor</a> •
-      <a href="images/electrician_sa.jpg" download style="color:#38bdf8">Electrician</a> •
-      <a href="images/grocery_cuba.jpg" download style="color:#38bdf8">Groceries</a>
+
+      <a href="../assets/images/solar_kenya.jpg" download style="color:#38bdf8">Solar Kiosk</a> •
+      <a href="../assets/images/tractor_peru.jpg" download style="color:#38bdf8">Andes Tractor</a> •
+      <a href="../assets/images/electrician_sa.jpg" download style="color:#38bdf8">Electrician</a> •
+      <a href="../assets/images/grocery_cuba.jpg" download style="color:#38bdf8">Groceries</a>
     </p>
   </section>
 
   <!-- ========== SCRIPTS ========== -->
-  <script>
-    // ---- Scroll Fade-in ----
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          observer.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-    // ---- Loan Filtering ----
-    function filterLoans() {
-      const region = document.getElementById('regionFilter').value;
-      const cat = document.getElementById('categoryFilter').value;
-      document.querySelectorAll('.card').forEach(card => {
-        const okRegion = region === 'all' || card.dataset.region === region;
-        const okCat = cat === 'all' || card.dataset.category === cat;
-        card.style.display = okRegion && okCat ? 'flex' : 'none';
-      });
-    }
-  </script>
 </body>
 
 </html>

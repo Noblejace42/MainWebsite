@@ -2,20 +2,19 @@
 <html lang="en">
 
 <head>
+  <!-- Generated from projects/astral-axial/shiphardpointgenerator.html by tools/sync-bookmarks.py. -->
+  <script>location.replace(new URL("projects/astral-axial/shiphardpointgenerator.html" + location.search + location.hash, location.href));</script>
+  <base href="projects/astral-axial/shiphardpointgenerator.html">
+  <link rel="canonical" href="shiphardpointgenerator.html">
+  <link rel="icon" type="image/svg+xml" href="../../assets/images/favicon.svg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ship Hardpoint Generator</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="../../css/styles.css" />
+<style>html { scroll-behavior: auto }</style>
 </head>
 <div id="navContainer"></div>
-<script>
-  fetch('nav.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navContainer').innerHTML = data;
-    })
-    .catch(err => console.error('Error loading nav:', err));
-</script>
+
 
 <body>
   <div class="container">
@@ -43,169 +42,7 @@
       <div id="partsOutput"></div>
     </div>
   </div>
-  <script>
-    let config = {};
 
-    // Helper: weighted random selection from an array of objects
-    function weightedRandom(choices) {
-      let totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
-      let randomNum = Math.random() * totalWeight;
-      for (let i = 0; i < choices.length; i++) {
-        if (randomNum < choices[i].weight) {
-          return choices[i];
-        }
-        randomNum -= choices[i].weight;
-      }
-    }
-    // Basic random integer between min and max, inclusive
-    function randomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    // Generates a random integer 1–10 with likelihood weighted as (11 – value)
-    function weightedRandomX() {
-      let choices = [];
-      for (let i = 1; i <= 10; i++) {
-        choices.push({ value: i, weight: 11 - i });
-      }
-      return weightedRandom(choices).value;
-    }
-    // Generate dice values (4,6,8,10,12) with weighted probabilities
-    function generateDice() {
-      let diceOptions = [
-        { value: 4, weight: 40 },
-        { value: 6, weight: 30 },
-        { value: 8, weight: 20 },
-        { value: 10, weight: 8 },
-        { value: 12, weight: 2 }
-      ];
-      return weightedRandom(diceOptions).value;
-    }
-    // Generate a part type with weighted probabilities: Weapons are far more likely.
-    function generatePartType() {
-      let partTypeChoices = [
-        { value: "Weapon", weight: 50 },
-        { value: "Thruster", weight: 20 },
-        { value: "Reactor", weight: 15 },
-        { value: "UtilityModule", weight: 7.5 },
-        { value: "AdvancedModule", weight: 7.5 }
-      ];
-      return weightedRandom(partTypeChoices).value;
-    }
-    // Shipyard name generator arrays
-    const shipyardPrefixes = ["Cor", "Ald", "Nab", "Tar", "Ven", "Lor", "Ryl", "Mar", "Dorn", "Kess", "Zen", "Lux", "Nov", "Xen", "Sol", "Neb"];
-    const shipyardCores = ["anta", "osis", "ar", "osa", "ion", "oran", "eros", "exis", "ur", "xel"];
-    const shipyardSuffixes = ["Prime", "Major", "Station", "Hold", "Citadel", "Outpost", "Bastion", "Spire"];
-    function generateShipyardName() {
-      let prefix = shipyardPrefixes[randomInt(0, shipyardPrefixes.length - 1)];
-      let core = shipyardCores[randomInt(0, shipyardCores.length - 1)];
-      let suffix = shipyardSuffixes[randomInt(0, shipyardSuffixes.length - 1)];
-      return prefix + core + " " + suffix;
-    }
-    // Store owner name generator arrays
-    const ownerFirstNamePrefixes = ["Xan", "Tal", "Ver", "Mar", "Sel", "Neo", "Sky", "Cy", "Zor", "Lex"];
-    const ownerFirstNameSuffixes = ["dor", "en", "ix", "ar", "on", "us"];
-    const ownerLastNamePrefixes = ["Xan", "Tal", "Ver", "Mar", "Sel", "Neo", "Sky", "Cy", "Zor", "Lex"];
-    const ownerLastNameSuffixes = ["dor", "en", "ix", "ar", "on", "us"];
-    function generateStoreOwnerName() {
-      let first = ownerFirstNamePrefixes[randomInt(0, ownerFirstNamePrefixes.length - 1)] +
-        ownerFirstNameSuffixes[randomInt(0, ownerFirstNameSuffixes.length - 1)];
-      let last = ownerLastNamePrefixes[randomInt(0, ownerLastNamePrefixes.length - 1)] +
-        ownerLastNameSuffixes[randomInt(0, ownerLastNameSuffixes.length - 1)];
-      return "Captain " + first + " " + last;
-    }
-    // Store name generator
-    function generateStoreName() {
-      let adjectives = ["Galactic", "Stellar", "Cosmic", "Interstellar", "Orbital"];
-      let nouns = ["Emporium", "Depot", "Outpost", "Exchange", "Bazaar"];
-      return adjectives[randomInt(0, adjectives.length - 1)] + " " + nouns[randomInt(0, nouns.length - 1)];
-    }
-    // Generate a weapon part using tag definitions from external config
-    function generateWeaponPart() {
-      let weightVal = weightedRandomX();
-      let dice = generateDice();
-      let reqTag = weightedRandom(config.weaponTagDefinitions.required).name;
-      let numOptional = randomInt(2, 5);
-      let selectedOptional = [];
-      let availableOptional = config.weaponTagDefinitions.optional.slice();
-      for (let i = 0; i < numOptional; i++) {
-        if (availableOptional.length === 0) break;
-        let tagObj = weightedRandom(availableOptional);
-        availableOptional = availableOptional.filter(t => t !== tagObj);
-        let tagStr = tagObj.name;
-        if (tagObj.appendX) {
-          tagStr += " " + weightedRandomX();
-        }
-        selectedOptional.push(tagStr);
-      }
-      return "Weapon|" + weightVal + " (1d" + dice + ", " + reqTag + ", " + selectedOptional.join(", ") + ")";
-    }
-    // Non-weapon parts (no tags)
-    function generateThrusterPart() {
-      let weightVal = weightedRandomX();
-      let dice = generateDice();
-      return "Thruster|" + weightVal + " (1d" + dice + ")";
-    }
-    function generateReactorPart() {
-      let weightVal = weightedRandomX();
-      let powerIncrease = generateDice();
-      return "Reactor|" + weightVal + " (" + powerIncrease + ")";
-    }
-    function generateUtilityModule() {
-      return weightedRandom(config.utilityModules).name;
-    }
-    function generateAdvancedModule() {
-      return weightedRandom(config.advancedModules).name;
-    }
-    // Generate a ship part based on its type
-    function generatePart() {
-      let type = generatePartType();
-      if (type === "Weapon") {
-        return { type: type, description: generateWeaponPart() };
-      } else if (type === "Thruster") {
-        return { type: type, description: generateThrusterPart() };
-      } else if (type === "Reactor") {
-        return { type: type, description: generateReactorPart() };
-      } else if (type === "UtilityModule") {
-        return { type: type, description: generateUtilityModule() };
-      } else if (type === "AdvancedModule") {
-        return { type: type, description: generateAdvancedModule() };
-      }
-    }
-    function generateParts() {
-      let count = parseInt(document.getElementById("partCount").value);
-      let parts = [];
-      for (let i = 0; i < count; i++) {
-        parts.push(generatePart());
-      }
-      parts.sort((a, b) => a.type.localeCompare(b.type));
-      let output = "";
-      let currentType = "";
-      parts.forEach(p => {
-        if (p.type !== currentType) {
-          currentType = p.type;
-          output += "<h3>" + currentType + "</h3>";
-        }
-        output += "<div class='part-item'>" + p.description + "</div>";
-      });
-      document.getElementById("partsOutput").innerHTML = output;
-    }
-    function generateStore() {
-      document.getElementById("shipyardName").textContent = generateShipyardName();
-      document.getElementById("storeOwner").textContent = generateStoreOwnerName();
-      document.getElementById("storeName").textContent = generateStoreName();
-    }
-    // DOM event listener: load external config and attach event listeners once DOM is ready.
-    window.addEventListener("DOMContentLoaded", function () {
-      fetch("assets/data/shippartdata.json")
-        .then(response => response.json())
-        .then(json => {
-          config = json;
-          document.getElementById("generateStoreBtn").addEventListener("click", generateStore);
-          document.getElementById("generatePartsBtn").addEventListener("click", generateParts);
-        })
-        .catch(error => console.error("Error loading configuration:", error));
-    });
-  </script>
 </body>
 
 </html>

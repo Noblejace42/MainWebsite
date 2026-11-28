@@ -1,0 +1,14 @@
+.project-index main {display:block;padding:clamp(2rem,6vw,5rem) 0}
+.project-index h1 {font-size:clamp(3rem,7.4vw,7rem);line-height:.98;letter-spacing:-.065em;margin:0 0 .6em}
+.project-index section {width:100%;display:grid;grid-template-columns:minmax(11rem,1fr) 2fr;gap:1.5rem;padding:1.3rem 0}
+.project-index h2 {font-weight:normal;font-size:1.5rem;margin:0}
+.project-index ul {margin:0;padding:0;list-style:none}
+.project-index li {display:grid;grid-template-columns:minmax(10rem,1fr) 1fr;gap:.5rem;align-items:baseline;padding:.38rem 0}
+.project-index li a {font-size:1.18rem}
+.project-index li span {font:1rem/1.4 'Helvetica Neue',Arial,sans-serif}
+.project-index .imprint {text-decoration:none}
+@media(max-width:680px) {
+  .project-index section {display:block}
+  .project-index h2 {margin-bottom:.65rem}
+  .project-index li {grid-template-columns:1fr;gap:.15rem;padding:.55rem 0}
+}

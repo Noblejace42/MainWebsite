@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Hopeless Poetic quill</title>
+  <rect width="32" height="32" rx="6" fill="#173d39"/>
+  <path fill="#e8ebdc" d="M7 24c1-10 7-18 20-20l-2 7-5 3 4-1c-3 7-8 10-15 11l9-12z"/>
+  <path fill="none" stroke="#f5b589" stroke-width="2" stroke-linecap="round" d="M5 27 19 11"/>
+</svg>

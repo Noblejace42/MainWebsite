@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <meta charset="utf-8">
   <title>Axial Nav</title>
   <style>
@@ -61,23 +62,25 @@
       background: var(--nav-border);
     }
   </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../css/field.css" media="screen">
 </head>
-<body>
+<body class="field-tool">
   <nav id="axial-nav">
-    <button id="nav-toggle">☰ Menu</button>
+    <button id="nav-toggle" aria-controls="nav-menu" aria-expanded="false">Menu</button>
     <ul id="nav-menu">
       <li><a href="index.html">Axial Hub</a></li>
       <li><a href="axialcharactersheet.html">Character Sheet</a></li>
       <li><a href="charactergen.html">Character Generator</a></li>
       <li><a href="geargen.html">Gear Forge</a></li>
-      <li><a href="systemgen.html">System Survey</a></li>
+      <li><a href="systemgen.html">System Generator</a></li>
     </ul>
   </nav>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const nav = document.getElementById('axial-nav');
-      document.getElementById('nav-toggle')
-        .addEventListener('click', () => nav.classList.toggle('show'));
+      const button = document.getElementById('nav-toggle');
+      button.addEventListener('click', () => button.setAttribute('aria-expanded', String(nav.classList.toggle('show'))));
     });
   </script>
 </body>

@@ -90,17 +90,18 @@ function render() {
 
         li.innerHTML = `
             <div style="flex: 1;">
-                <span style="font-weight: bold; font-size: 1.1em;">${c.name}</span>
-                <span style="color: #888; margin-left: 10px;">(Init: ${c.init})</span>
+                <span style="font-weight: bold; font-size: 1.1em;" class="combatant-name"></span>
+                <span style="color: var(--text-dim); margin-left: 10px;">(Init: ${c.init})</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <input type="number" value="${c.currentHp}" 
-                    onchange="updateHP(${c.id}, this.value)"
+                    aria-label="Current hit points" onchange="updateHP(${c.id}, this.value)"
                     style="width: 60px; background: #111; border: 1px solid #555; color: #fff; padding: 5px;">
-                <span style="color: #666;">/ ${c.maxHp}</span>
-                <button onclick="removeCombatant(${c.id})" style="background: none; border: none; color: #666; cursor: pointer;">&times;</button>
+                <span style="color: var(--text-dim);">/ ${c.maxHp}</span>
+                <button aria-label="Remove combatant" onclick="removeCombatant(${c.id})" style="background: none; border: none; color: var(--text-dim); cursor: pointer;">&times;</button>
             </div>
         `;
+        li.querySelector('.combatant-name').textContent = c.name;
         combatList.appendChild(li);
     });
 }
